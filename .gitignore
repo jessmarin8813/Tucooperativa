@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Tech stack
+.python-version
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Project specific
+api/includes/config.php (si existiera)
