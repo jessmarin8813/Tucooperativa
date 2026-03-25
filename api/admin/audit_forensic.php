@@ -64,7 +64,7 @@ try {
                     'evento' => 'Desvío No Reportado',
                     'usuario' => $r['chofer_nombre'],
                     'ip' => '-',
-                    'descripcion' => "Gap de " . round($dead_km, 1) . " km detectado entre rutas de la unidad {$placa}.",
+                    'descripcion' => "Desvío de " . round($dead_km, 1) . " km detectado entre rutas de la unidad {$placa}.",
                     'fecha' => $r['ended_at']
                 ];
             }
@@ -109,7 +109,7 @@ try {
     $stmtCaja = $db->query($query_caja);
     foreach ($stmtCaja->fetchAll() as $caja) {
         $incidencias[] = [
-            'tipo' => 'Audit Gap',
+            'tipo' => 'Brecha de Auditoría',
             'nivel' => 'alto',
             'modulo' => 'Administración',
             'evento' => 'Cierre Sin Conciliar',

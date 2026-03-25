@@ -17,7 +17,7 @@
 
 ## 💎 Lógica de Negocio Crítica (NO REPETIR)
 1. **Modelo de Cuota Fija:** Cada día operado genera una deuda automática de **$10** (o la pactada en `vehiculos.cuota_diaria`). La deuda se salda con abonos aprobados por el dueño.
-2. **Sistema Forense:** Al iniciar jornada, el bot detecta "Gaps" (saltos de km no reportados) comparando el cierre anterior. Genera alertas automáticas al dueño.
+2. **Sistema Forense:** Al iniciar jornada, el bot detecta "Brechas" (saltos de km no reportados) comparando el cierre anterior. Genera alertas automáticas al dueño.
 3. **Cobranza Mixta (Bs):** Los pagos se reportan en Bolívares (Efectivo/Pago Móvil). El bot es **Zero-Command** (100% basado en botones).
 4. **Hub de Rentabilidad:** Calcula Utilidad Neta (Ingresos - Gastos de Mantenimiento) y emite alertas de salud financiera (Unidades que gastan más de lo que generan).
 

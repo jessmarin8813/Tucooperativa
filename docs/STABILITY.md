@@ -14,7 +14,7 @@ Este documento contiene las "Reglas de Oro" que deben seguirse para cualquier de
 
 ## 📊 Lógica de Negocio (Core)
 1. **Cuota Diaria ($10)**: La deuda se calcula siempre como `(Días operados * 10) - Pagos aprobados`.
-2. **Sistema Forense**: Cualquier reporte de odómetro debe compararse con el cierre anterior en `api/rutas.php`. Los saltos de kilometraje ("Gaps") disparan una alerta de nivel "Crítico".
+2. **Sistema Forense**: Cualquier reporte de odómetro debe compararse con el cierre anterior en `api/rutas.php`. Los saltos de kilometraje ("Brechas") disparan una alerta de nivel "Crítico".
 3. **Cobranza en Bs**: Los pagos reportados por choferes deben admitir modelo mixto (Efectivo + Pago Móvil) en Bolívares.
 4. **Multi-tenant**: Todo debe estar filtrado por `cooperativa_id` para permitir múltiples líneas de transporte.
 

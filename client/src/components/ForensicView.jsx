@@ -37,32 +37,6 @@ const ForensicView = () => {
                 </div>
             </header>
 
-            <div className="p-grid p-grid-cols-4" style={{ marginBottom: '32px' }}>
-                <div className="glass" style={{ padding: '24px' }}>
-                    <p className="text-label" style={{ color: 'var(--accent)' }}>Kilometraje Muerto</p>
-                    <h3 className="text-value" style={{ color: 'var(--accent)' }}>
-                        {auditLog.incidencias?.filter(l => l.tipo === 'Kilometraje Muerto').length || 0}
-                    </h3>
-                </div>
-                <div className="glass" style={{ padding: '24px' }}>
-                    <p className="text-label" style={{ color: 'var(--danger)' }}>Consumo Crítico</p>
-                    <h3 className="text-value" style={{ color: 'var(--danger)' }}>
-                        {auditLog.incidencias?.filter(l => l.tipo === 'Anomalía de Consumo').length || 0}
-                    </h3>
-                </div>
-                <div className="glass" style={{ padding: '24px' }}>
-                    <p className="text-label" style={{ color: 'var(--warning)' }}>Pendientes de Caja</p>
-                    <h3 className="text-value" style={{ color: 'var(--warning)' }}>
-                        {auditLog.incidencias?.filter(l => l.tipo === 'Audit Gap').length || 0}
-                    </h3>
-                </div>
-                <div className="glass" style={{ padding: '24px' }}>
-                    <p className="text-label" style={{ color: 'var(--success)' }}>Integridad de Datos</p>
-                    <h3 className="text-value" style={{ color: 'var(--success)' }}>
-                        {(auditLog.incidencias?.length || 0) === 0 ? '100%' : '98%'}
-                    </h3>
-                </div>
-            </div>
 
             <div className="glass" style={{ overflow: 'hidden' }}>
                 <div style={{ padding: '24px', borderBottom: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
