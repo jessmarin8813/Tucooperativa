@@ -57,7 +57,10 @@ const Dashboard = () => {
       <header className="p-flex-responsive p-justify-between" style={{ marginBottom: '48px', gap: '24px' }}>
         <div>
           <h1 className="h1-premium neon-text">Centro de Mando</h1>
-          <p className="p-subtitle">Gestión de Operaciones en Tiempo Real</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <p className="p-subtitle">Gestión de Operaciones en Tiempo Real</p>
+            <span style={{ fontSize: '9px', fontWeight: 900, background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '4px', color: 'var(--text-dim)' }}>v5.0.7-FIX</span>
+          </div>
         </div>
         
         <div className="p-flex p-gap-4 p-items-center">

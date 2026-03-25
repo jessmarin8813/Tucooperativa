@@ -10,6 +10,10 @@ function App() {
   const [activeView, setActiveView] = useState('dashboard')
   const [initializing, setInitializing] = useState(true)
   const { callApi } = useApi()
+
+  useEffect(() => {
+    console.log("%c TuCooperativa v5.0.7-ULTRA FIXED %c", "background: #6366f1; color: white; font-weight: bold; padding: 4px; border-radius: 4px;", "");
+  }, [])
   
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
