@@ -1,6 +1,6 @@
 <?php
-require_once 'includes/db.php';
-require_once 'includes/middleware.php';
+require_once '../includes/db.php';
+require_once '../includes/middleware.php';
 
 $user = checkAuth();
 $db = DB::getInstance();
@@ -10,7 +10,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['list_owners'])) {
     if ($user['rol'] !== 'admin') {
         sendResponse(['error' => 'Unauthorized'], 403);
     }
-    $coop_id = $user['cooperativa_id'] ?? 1;
+    $coop_id = $user['cooperativa_id'];
+    if (!$coop_id) {
+        sendResponse(['error' => 'No organization assigned'], 403);
+    }
     $stmt = $db->prepare("SELECT id, nombre, email FROM usuarios WHERE cooperativa_id = ? AND (rol = 'dueno' OR rol = 'admin')");
     $stmt->execute([$coop_id]);
     sendResponse($stmt->fetchAll());

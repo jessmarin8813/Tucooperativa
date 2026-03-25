@@ -2,7 +2,7 @@
 /**
  * Collection & Reconciliation API (Recaudación)
  */
-require_once 'includes/middleware.php';
+require_once '../includes/middleware.php';
 
 $user = checkAuth();
 $db = DB::getInstance();

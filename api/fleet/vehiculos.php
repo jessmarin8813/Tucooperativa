@@ -2,11 +2,15 @@
 /**
  * Vehicles Management (Multi-tenant + Real-time Status)
  */
-require_once __DIR__ . '/includes/middleware.php';
+require_once __DIR__ . '/../includes/middleware.php';
 
 $user = checkAuth();
 $db = DB::getInstance();
-$coop_id = $user['cooperativa_id'] ?? 1;
+$coop_id = $user['cooperativa_id'];
+
+if (!$coop_id) {
+    sendResponse(['error' => 'No organization assigned'], 403);
+}
 
 header('Content-Type: application/json');
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { LayoutGrid, Truck, DollarSign, Activity, AlertOctagon, ShieldAlert, History, User, MapPin } from 'lucide-react'
-import StatCard from './StatCard'
+import StatCard from '../components/ui/StatCard'
 import { useApi } from '../hooks/useApi'
 import { formatMoney, formatDate } from '../utils/DashboardConstants'
 import { motion as Motion, AnimatePresence } from 'framer-motion'

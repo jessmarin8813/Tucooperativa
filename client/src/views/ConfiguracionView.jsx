@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Settings, ShieldCheck, CreditCard, DollarSign, Bot, Save, AlertCircle, CheckCircle } from 'lucide-react'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 import { useApi } from '../hooks/useApi'
-import LoadingSpinner from './LoadingSpinner'
+import LoadingSpinner from '../components/ui/LoadingSpinner'
 
 const ConfiguracionView = () => {
     const { callApi, loading: apiLoading } = useApi()

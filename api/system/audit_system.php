@@ -4,7 +4,7 @@
  * Verifying: Fraud Detection, Maintenance Decrement, Multi-tenant Isolation
  */
 
-require_once 'includes/db.php';
+require_once '../includes/db.php';
 
 function runTest($name, $fn) {
     echo "Testing [$name]... ";

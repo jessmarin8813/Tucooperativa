@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import StatCard from './StatCard'
-import FleetList from './FleetList'
+import StatCard from '../components/ui/StatCard'
+import FleetList from '../components/ui/FleetList'
 import { Truck, Activity, DollarSign, AlertCircle, BarChart3, ShieldCheck, Wrench } from 'lucide-react'
 import { useApi } from '../hooks/useApi'
 import { motion as Motion } from 'framer-motion'
@@ -55,8 +55,25 @@ const Dashboard = () => {
       <header className="p-flex-responsive p-justify-between" style={{ marginBottom: '48px', gap: '24px' }}>
         <div>
           <h1 className="h1-premium neon-text">Centro de Mando</h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <p className="p-subtitle">Gestión de Operaciones en Tiempo Real</p>
+            <div 
+              className="p-glass-premium" 
+              style={{ 
+                padding: '4px 12px', 
+                borderRadius: '100px', 
+                fontSize: '9px', 
+                fontWeight: 900, 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '6px',
+                border: `1px solid ${data.stats.alertas_criticas > 0 ? 'rgba(239, 68, 68, 0.3)' : 'rgba(34, 197, 94, 0.3)'}`,
+                color: data.stats.alertas_criticas > 0 ? 'var(--danger)' : '#22c55e'
+              }}
+            >
+              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }} className={data.stats.alertas_criticas > 0 ? 'animate-pulse' : ''} />
+              {data.stats.alertas_criticas > 0 ? 'INTEGRIDAD COMPROMETIDA' : 'SISTEMA PROTEGIDO'}
+            </div>
           </div>
         </div>
         

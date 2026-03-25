@@ -5,7 +5,7 @@ import {
   BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts'
 import { useApi } from '../hooks/useApi'
-import LoadingSpinner from './LoadingSpinner'
+import LoadingSpinner from '../components/ui/LoadingSpinner'
 import { formatMoney, UI_CHART_HEIGHT } from '../utils/DashboardConstants'
 
 const BIView = () => {

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { ShieldAlert, Activity, Search, Filter, AlertTriangle, CheckCircle, Clock } from 'lucide-react'
 import { motion as Motion } from 'framer-motion'
 import { useApi } from '../hooks/useApi'
-import LoadingSpinner from './LoadingSpinner'
+import LoadingSpinner from '../components/ui/LoadingSpinner'
 
 const ForensicView = () => {
     const { callApi, loading } = useApi()

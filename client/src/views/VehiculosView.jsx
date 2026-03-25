@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Plus, RefreshCw, Truck, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react'
 import { useApi } from '../hooks/useApi'
-import FleetList from './FleetList'
-import StatCard from './StatCard'
-import Modal from './Modal'
-import VehicleForm from './VehicleForm'
+import FleetList from '../components/ui/FleetList'
+import StatCard from '../components/ui/StatCard'
+import Modal from '../components/ui/Modal'
+import VehicleForm from '../components/ui/VehicleForm'
 
 const VehiculosView = () => {
   const [vehicles, setVehicles] = useState([])

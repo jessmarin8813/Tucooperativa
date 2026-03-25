@@ -2,7 +2,7 @@
 /**
  * Dashboard Statistics API (Refactored for Phase 35)
  */
-require_once 'includes/middleware.php';
+require_once '../includes/middleware.php';
 
 $user = checkAuth();
 $db = DB::getInstance();

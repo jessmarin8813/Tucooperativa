@@ -3,7 +3,7 @@ import { motion as Motion } from 'framer-motion'
 import { Trophy, Medal, TrendingUp, AlertTriangle, Fuel, Timer, Users } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { useApi } from '../hooks/useApi'
-import StatCard from './StatCard'
+import StatCard from '../components/ui/StatCard'
 
 const DriverRanking = () => {
   const [data, setData] = useState(null)

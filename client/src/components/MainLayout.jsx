@@ -1,20 +1,20 @@
 import React, { Suspense, lazy, useState } from 'react'
 import Sidebar from './Sidebar'
-import LoadingSpinner from './LoadingSpinner'
+import LoadingSpinner from './ui/LoadingSpinner'
 import { Menu, X } from 'lucide-react'
 import { AnimatePresence, motion as Motion } from 'framer-motion'
 
-const Dashboard = lazy(() => import('./Dashboard'))
-const SuperAdminDashboard = lazy(() => import('./SuperAdminDashboard'))
-const ChoferesView = lazy(() => import('./ChoferesView'))
-const ConfiguracionView = lazy(() => import('./ConfiguracionView'))
-const DriverRanking = lazy(() => import('./DriverRanking'))
-const BIView = lazy(() => import('./BIView'))
-const ExpensesView = lazy(() => import('./ExpensesView'))
-const CobranzaView = lazy(() => import('./CobranzaView'))
-const VehiculosView = lazy(() => import('./VehiculosView'))
-const MaintenanceCenter = lazy(() => import('./MaintenanceCenter'))
-const ForensicView = lazy(() => import('./ForensicView'))
+const Dashboard = lazy(() => import('../views/Dashboard'))
+const SuperAdminDashboard = lazy(() => import('../views/SuperAdminDashboard'))
+const ChoferesView = lazy(() => import('../views/ChoferesView'))
+const ConfiguracionView = lazy(() => import('../views/ConfiguracionView'))
+const DriverRanking = lazy(() => import('../views/DriverRanking'))
+const BIView = lazy(() => import('../views/BIView'))
+const ExpensesView = lazy(() => import('../views/ExpensesView'))
+const CobranzaView = lazy(() => import('../views/CobranzaView'))
+const VehiculosView = lazy(() => import('../views/VehiculosView'))
+const MaintenanceCenter = lazy(() => import('../views/MaintenanceCenter'))
+const ForensicView = lazy(() => import('../views/ForensicView'))
 
 const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -84,25 +84,35 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
             </button>
           </header>
 
-          <div className="view-container animate-fade">
-            <Suspense fallback={<LoadingSpinner />}>
-              {user?.rol === 'superadmin' ? (
-                <SuperAdminDashboard />
-              ) : (
-                <React.Fragment>
-                  {activeView === 'dashboard' && <Dashboard />}
-                  {activeView === 'choferes' && <ChoferesView />}
-                  {activeView === 'ranking' && <DriverRanking />}
-                  {activeView === 'config' && <ConfiguracionView />}
-                  {activeView === 'bi' && <BIView />}
-                  {activeView === 'gastos' && <ExpensesView />}
-                  {activeView === 'cobranza' && <CobranzaView />}
-                  {activeView === 'flota' && <VehiculosView />}
-                  {activeView === 'mantenimiento' && <MaintenanceCenter />}
-                  {activeView === 'forensic' && <ForensicView />}
-                </React.Fragment>
-              )}
-            </Suspense>
+          <div className="view-container">
+            <AnimatePresence mode="wait">
+              <Motion.div
+                key={user?.rol === 'superadmin' ? 'superadmin' : activeView}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+              >
+                <Suspense fallback={<LoadingSpinner />}>
+                  {user?.rol === 'superadmin' ? (
+                    <SuperAdminDashboard />
+                  ) : (
+                    <React.Fragment>
+                      {activeView === 'dashboard' && <Dashboard />}
+                      {activeView === 'choferes' && <ChoferesView />}
+                      {activeView === 'ranking' && <DriverRanking />}
+                      {activeView === 'config' && <ConfiguracionView />}
+                      {activeView === 'bi' && <BIView />}
+                      {activeView === 'gastos' && <ExpensesView />}
+                      {activeView === 'cobranza' && <CobranzaView />}
+                      {activeView === 'flota' && <VehiculosView />}
+                      {activeView === 'mantenimiento' && <MaintenanceCenter />}
+                      {activeView === 'forensic' && <ForensicView />}
+                    </React.Fragment>
+                  )}
+                </Suspense>
+              </Motion.div>
+            </AnimatePresence>
           </div>
         </main>
       </div>

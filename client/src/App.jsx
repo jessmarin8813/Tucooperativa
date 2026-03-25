@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import './index.css'
-import LoginView from './components/LoginView'
+import LoginView from './views/LoginView'
 import MainLayout from './components/MainLayout'
 import { useApi } from './hooks/useApi'
 

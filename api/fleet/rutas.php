@@ -2,7 +2,7 @@
 /**
  * Routes & Odometer Tracking
  */
-require_once __DIR__ . '/includes/middleware.php';
+require_once __DIR__ . '/../includes/middleware.php';
 
 $user = checkAuth();
 $db = DB::getInstance();
@@ -60,7 +60,7 @@ switch ($method) {
                     $owner_info = $stmt->fetch();
 
                     if ($owner_info && $owner_info['telegram_chat_id']) {
-                        require_once 'includes/telegram_helper.php';
+                        require_once '../includes/telegram_helper.php';
                         $msg = "🕵️‍♂️ **GAP DETECTADO - Uso No Reportado**\n\n";
                         $msg .= "Unidad: *{$owner_info['placa']}*\n";
                         $msg .= "Chofer: *{$owner_info['chofer_name']}*\n";

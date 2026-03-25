@@ -2,8 +2,8 @@
 /**
  * Driver Invitations API (TuCooperativa)
  */
-require_once 'includes/db.php';
-require_once 'includes/middleware.php';
+require_once '../includes/db.php';
+require_once '../includes/middleware.php';
 
 $auth = checkAuth();
 $db = DB::getInstance();

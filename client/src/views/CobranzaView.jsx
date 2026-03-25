@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useApi } from '../hooks/useApi'
 import { DollarSign, Clock, CheckCircle, XCircle, AlertCircle, User, Car, ShieldCheck, CreditCard } from 'lucide-react'
 import { motion as Motion } from 'framer-motion'
-import LoadingSpinner from './LoadingSpinner'
+import LoadingSpinner from '../components/ui/LoadingSpinner'
 import { formatMoney, formatBs, formatDate } from '../utils/DashboardConstants'
 
 const CobranzaView = () => {
