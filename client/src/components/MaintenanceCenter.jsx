@@ -62,8 +62,8 @@ const MaintenanceCenter = () => {
       {/* Header */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '20px' }}>
         <div>
-          <h1 className="h1-premium neon-text">Gestión de Activos</h1>
-          <p className="p-subtitle">Monitoreo de salud y servicios preventivos</p>
+          <h1 className="h1-premium neon-text">Centro de Mantenimiento</h1>
+          <p className="p-subtitle">Control detallado de componentes por telemetría</p>
         </div>
         {totalCritical > 0 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '10px 20px', borderRadius: '16px', border: '1px solid rgba(239, 68, 68, 0.1)' }} className="animate-pulse">
