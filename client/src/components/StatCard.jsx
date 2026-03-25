@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
 import { motion as Motion } from 'framer-motion'
 
-const StatCard = ({ label, value, icon: Icon, color = 'var(--primary)', trend }) => {
+const StatCard = ({ title, label, value, icon: Icon, color = 'var(--primary)', trend }) => {
   return (
     <Motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -12,27 +12,30 @@ const StatCard = ({ label, value, icon: Icon, color = 'var(--primary)', trend })
     >
       <div style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-        <div className="text-label" style={{ marginBottom: '8px' }}>
-          {title || label}
-        </div>
-        <div className="text-value neon-text">
-          {value}
-        </div>
-    {trend && (
+          <div className="text-label" style={{ marginBottom: '8px' }}>
+            {title || label}
+          </div>
+          <div className="text-value neon-text">
+            {value}
+          </div>
+          {trend && (
             <p style={{ fontSize: '0.875rem', fontWeight: 700, marginTop: '12px', color: (trend.startsWith('+') || trend === 'Real-time') ? 'var(--success)' : 'var(--danger)' }}>
               {trend} {trend !== 'Real-time' && 'vs ayer'}
             </p>
           )}
         </div>
-        <div 
-            style={{ 
-                width: '56px', height: '56px', borderRadius: '18px', background: color, color: 'white',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: `0 8px 16px ${color}33`
-            }}
-        >
-          <Icon size={24} />
-        </div>
+        
+        {Icon && (
+          <div 
+              style={{ 
+                  width: '56px', height: '56px', borderRadius: '18px', background: color, color: 'white',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: `0 8px 16px ${color}33`
+              }}
+          >
+            <Icon size={24} />
+          </div>
+        )}
       </div>
       
       {/* Decorative Glow */}
