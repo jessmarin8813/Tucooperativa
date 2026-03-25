@@ -35,8 +35,8 @@ const ChoferesView = () => {
     <div className="view-container animate-fade" style={{ padding: '40px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div>
-          <h1 className="neon-text" style={{ fontSize: '2.5rem', fontWeight: 800 }}>Gestión de Choferes</h1>
-          <p style={{ color: 'var(--text-dim)' }}>Control de acceso y estado de la fuerza de transporte</p>
+          <h1 className="h1-premium neon-text">Gestión de Choferes</h1>
+          <p className="p-subtitle">Control de acceso y estado de la fuerza de transporte</p>
         </div>
         <button onClick={fetchChoferes} className="glass-hover" style={{ padding: '12px' }}>
           <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />

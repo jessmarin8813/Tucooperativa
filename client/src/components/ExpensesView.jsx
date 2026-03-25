@@ -60,8 +60,8 @@ const ExpensesView = () => {
     <div className="view-container animate-fade">
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
         <Motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-          <h1 className="neon-text brand" style={{ fontSize: '2.5rem', fontWeight: 900 }}>Gastos Operativos</h1>
-          <p style={{ color: 'var(--text-dim)', fontWeight: 600, marginTop: '8px' }}>Control financiero de mantenimiento y activos</p>
+          <h1 className="h1-premium neon-text">Gastos Operativos</h1>
+          <p className="p-subtitle">Control financiero de mantenimiento y activos</p>
         </Motion.div>
 
         <button 
@@ -137,7 +137,7 @@ const ExpensesView = () => {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', gridColumn: 'span 2' }}>
-                <label style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>Descripción / Concepto</label>
+                <label className="text-label">Descripción / Concepto</label>
                 <input 
                   type="text" 
                   value={formData.descripcion} 
