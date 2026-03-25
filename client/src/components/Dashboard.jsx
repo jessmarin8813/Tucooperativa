@@ -107,18 +107,20 @@ const Dashboard = () => {
         <StatCard title="RECAUDACIÓN HOY" value={`$${data.stats.recaudacion_hoy}`} icon={DollarSign} color="34, 197, 94" trend="Real-time" />
       </div>
 
-      <div style={{ marginTop: '40px' }}>
+      <div style={{ marginTop: '32px' }}>
         <div className="tab-container">
           <button 
             onClick={() => setActiveTab('operaciones')}
             className={`tab-item ${activeTab === 'operaciones' ? 'active' : ''}`}
           >
+            <Activity size={18} />
             VISTA OPERATIVA
           </button>
           <button 
             onClick={() => setActiveTab('mantenimiento')}
             className={`tab-item ${activeTab === 'mantenimiento' ? 'active' : ''}`}
           >
+            <Tool size={18} />
             MANTENIMIENTO
           </button>
         </div>

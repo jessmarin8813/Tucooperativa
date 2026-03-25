@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useApi } from '../hooks/useApi'
-import { AlertTriangle, Plus, Activity, Car, Clock } from 'lucide-react'
+import { AlertTriangle, Plus, Activity, Car, Clock, Settings } from 'lucide-react'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 import { formatNumber } from '../utils/DashboardConstants'
 
@@ -58,17 +58,17 @@ const MaintenanceCenter = () => {
   const totalCritical = fleetHealth.reduce((acc, v) => acc + v.items.filter(i => i.estado === 'critico').length, 0)
 
   return (
-    <div className="view-container animate-fade" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+    <div className="view-container animate-fade" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '48px', flexWrap: 'wrap', gap: '24px' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '20px' }}>
         <div>
-          <h1 className="h1-premium neon-text">Centro de Mantenimiento</h1>
-          <p className="p-subtitle">Control detallado de componentes por telemetría</p>
+          <h1 className="h1-premium neon-text">Gestión de Activos</h1>
+          <p className="p-subtitle">Monitoreo de salud y servicios preventivos</p>
         </div>
         {totalCritical > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '12px 24px', borderRadius: '100px', border: '1px solid rgba(239, 68, 68, 0.2)' }} className="animate-pulse">
-            <AlertTriangle size={18} />
-            <span style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{totalCritical} ALERTAS CRÍTICAS</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '10px 20px', borderRadius: '16px', border: '1px solid rgba(239, 68, 68, 0.1)' }} className="animate-pulse">
+            <AlertTriangle size={16} />
+            <span style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{totalCritical} ALERTAS</span>
           </div>
         )}
       </header>
