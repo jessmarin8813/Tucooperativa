@@ -74,28 +74,30 @@ const ConfiguracionView = () => {
                 </button>
             </header>
 
-            <div className="tab-container" style={{ marginBottom: '32px' }}>
-                <button 
-                    onClick={() => setActiveTab('sistema')}
-                    className={`tab-item ${activeTab === 'sistema' ? 'active' : ''}`}
-                >
-                    <Settings size={18} />
-                    SISTEMA Y TARIFAS
-                </button>
-                <button 
-                    onClick={() => setActiveTab('seguridad')}
-                    className={`tab-item ${activeTab === 'seguridad' ? 'active' : ''}`}
-                >
-                    <ShieldCheck size={18} />
-                    BOT Y SEGURIDAD
-                </button>
-                <button 
-                    onClick={() => setActiveTab('pagos')}
-                    className={`tab-item ${activeTab === 'pagos' ? 'active' : ''}`}
-                >
-                    <CreditCard size={18} />
-                    DATOS DE PAGO
-                </button>
+            <div style={{ maxWidth: '1200px' }}>
+                <div className="tab-container" style={{ marginBottom: '32px', marginLeft: '16px' }}>
+                    <button 
+                        onClick={() => setActiveTab('sistema')}
+                        className={`tab-item ${activeTab === 'sistema' ? 'active' : ''}`}
+                    >
+                        <Settings size={18} />
+                        SISTEMA Y TARIFAS
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('seguridad')}
+                        className={`tab-item ${activeTab === 'seguridad' ? 'active' : ''}`}
+                    >
+                        <ShieldCheck size={18} />
+                        BOT Y SEGURIDAD
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('pagos')}
+                        className={`tab-item ${activeTab === 'pagos' ? 'active' : ''}`}
+                    >
+                        <CreditCard size={18} />
+                        DATOS DE PAGO
+                    </button>
+                </div>
             </div>
 
             <AnimatePresence mode="wait">
@@ -105,7 +107,7 @@ const ConfiguracionView = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     className="glass-premium"
-                    style={{ padding: '48px', borderRadius: '32px' }}
+                    style={{ padding: 'clamp(24px, 5vw, 48px)', borderRadius: '32px', maxWidth: '1200px' }}
                 >
                     {activeTab === 'sistema' && (
                         <div className="p-grid p-grid-cols-2" style={{ gap: '48px' }}>

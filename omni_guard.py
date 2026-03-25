@@ -82,8 +82,34 @@ def main():
     if has_bot_error: sys.exit(1)
     print("[PASS] Bot verificado.")
 
-    # 4. Vite Build
-    if not run_step("VITE BUILD", "npm run build", cwd="client"):
+    # 4. Vite Build (ATOMIC DEPLOYMENT)
+    print("[VITE BUILD] Iniciando construccion atomica en dist_temp...")
+    
+    # Limpiar residuo previo de falla si existe
+    if os.path.exists("client/dist_temp"):
+        subprocess.run("rmdir /s /q client\\dist_temp", shell=True)
+
+    # Construir en carpeta temporal
+    build_cmd = "npm run build -- --outDir dist_temp"
+    if not run_step("VITE BUILD", build_cmd, cwd="client"):
+        print("[CRITICAL] Fallo en la compilacion de Vite. El dist anterior se mantiene intacto.")
+        sys.exit(1)
+
+    # 4.1 Integrity Check
+    index_path = os.path.join("client", "dist_temp", "index.html")
+    if not os.path.exists(index_path) or os.path.getsize(index_path) < 500:
+        print("[CRITICAL] Fallo de INTEGRIDAD: index.html no generado correctamente.")
+        sys.exit(1)
+    
+    # 4.2 Atomic Swap
+    print("[DEPLOY] Integridada confirmada. Intercambiando carpetas...")
+    try:
+        if os.path.exists("client/dist"):
+            subprocess.run("rmdir /s /q client\\dist", shell=True)
+        os.rename("client/dist_temp", "client/dist")
+        print("[PASS] Build publicado exitosamente en /dist.")
+    except Exception as e:
+        print(f"[CRITICAL] Error durante el intercambio de carpetas: {str(e)}")
         sys.exit(1)
 
     # 5. AUTO-DEPLOY (GIT)

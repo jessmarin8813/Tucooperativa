@@ -3,8 +3,8 @@ echo ========================================
 echo   TUCOOPERATIVA - SMART BUILD PIPELINE
 echo ========================================
 
-echo [1/3] Limpiando builds anteriores...
-if exist client\dist rmdir /s /q client\dist
+echo [1/3] Preparando entorno de construccion...
+REM El borrado de dist ahora lo gestiona omni_guard.py de forma atomica
 
 echo [2/3] Instalando dependencias (si es necesario)...
 cd client && call npm install && cd ..
