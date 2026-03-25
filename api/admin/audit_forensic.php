@@ -22,7 +22,7 @@ try {
     $query = "
         SELECT 
             v.placa, v.km_por_litro as target_kpl,
-            r.id, r.started_at, r.ended_at, r.combustible_reportado,
+            r.id, r.started_at, r.ended_at, r.combustible,
             u.nombre as chofer_nombre,
             c.nombre as coop_nombre,
             odo_ini.valor as odo_inicio,
@@ -73,7 +73,7 @@ try {
 
         // B. Fuel Efficiency Anomaly
         $targetKpl = (float)$r['target_kpl'] ?: 8.0;
-        $reportedFuel = (float)$r['combustible_reportado'];
+        $reportedFuel = (float)$r['combustible'];
         
         if ($reportedFuel > 0 && $distancia > 5) {
             $realKpl = $distancia / $reportedFuel;
