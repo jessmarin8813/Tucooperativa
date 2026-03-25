@@ -1,5 +1,10 @@
 RewriteEngine On
-RewriteRule ^$ client/dist/ [L]
+
+# 1. Solo redireccionar la raíz vacía al punto de entrada
+RewriteRule ^$ /TuCooperativa/client/dist/ [R,L,QSA]
+
+# 2. Redireccionar cualquier otra ruta que NO sea api, bot, client o driver_sim
+RewriteCond %{REQUEST_URI} !^/TuCooperativa/(api|bot|client|driver_sim|docs) [NC]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^((?!api|bot|driver_sim).*) client/dist/$1 [L,QSA]
+RewriteRule ^(.*)$ /TuCooperativa/client/dist/$1 [R,L,QSA]

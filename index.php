@@ -3,9 +3,9 @@
  * Main Entry Point (TuCooperativa)
  * Redirects to the production build of the React Frontend
  */
-$target = 'client/dist/index.html';
+$target = '/TuCooperativa/client/dist/';
 
-if (file_exists($target)) {
+if (file_exists('client/dist/index.html')) {
     header('Location: ' . $target);
 } else {
     echo '<h1>Error: Build No Encontrado</h1>';
