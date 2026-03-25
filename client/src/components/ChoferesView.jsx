@@ -42,7 +42,7 @@ const ChoferesView = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
+      <div className="p-grid p-grid-cols-2">
         <AnimatePresence>
           {choferes.map((c) => (
             <motion.div 

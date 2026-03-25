@@ -129,18 +129,15 @@ button {
   overflow: hidden;
 }
 
-.sidebar-desktop-wrapper {
-  width: var(--sidebar-width);
-  height: 100vh;
-  flex-shrink: 0;
-}
-
-.content-stack-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  min-width: 0;
+@media (max-width: 1024px) {
+  html, body, .app-root-container, .content-stack-wrapper, .main-scroll-area {
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+  .app-root-container {
+     width: 100%;
+  }
 }
 
 .mobile-top-header {
