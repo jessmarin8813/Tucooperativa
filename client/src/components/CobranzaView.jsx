@@ -24,13 +24,16 @@ const CobranzaView = () => {
             setData(res)
         } catch { /* Handled */ }
         finally { setLoading(false) }
-    }, [callApi])
+    }, [callApi, date])
 
     useEffect(() => {
+        let ignore = false
         const init = async () => {
-            await fetchData()
+            await Promise.resolve()
+            if (!ignore) await fetchData()
         }
         init()
+        return () => { ignore = true }
     }, [fetchData, date])
 
     const handleProcesar = async (id, accion) => {

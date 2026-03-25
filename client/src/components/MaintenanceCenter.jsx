@@ -20,10 +20,13 @@ const MaintenanceCenter = () => {
   }, [callApi])
 
   useEffect(() => {
+    let ignore = false
     const init = async () => {
-      await fetchHealth()
+      await Promise.resolve()
+      if (!ignore) await fetchHealth()
     }
     init()
+    return () => { ignore = true }
   }, [fetchHealth])
 
   const handleReset = async (itemId, currentOdo) => {

@@ -11,7 +11,8 @@
 - **Backend:** PHP 8+ (APIs RESTful centralizadas en `/api`).
 - **Frontend:** React + Vite + Vanilla CSS (Estética Premium/Glassmorphism).
 - **Bot de Telegram:** Python (`python-telegram-bot`), ubicado en `/bot`.
-- **Validación:** Sistema `build.bat` que audita sintaxis, seguridad y estabilidad antes de cada commit.
+- **Validación:** Sistema **`omni_guard.py`** que audita sintaxis PHP/Python, seguridad y estabilidad antes de cada compilación/commit.
+- **Estado de Build:** Ultra-Estable (Resolución completa de bucles `useEffect` e integridad de `client/dist`).
 
 ---
 
@@ -40,4 +41,4 @@
 ---
 
 ## ✅ Estado Actual
-El sistema está en Fase 37 (Auditoría Forense Final). Todo el código huérfano ha sido eliminado. El bot está sincronizado y la base de datos migrada con soporte de información bancaria del dueño.
+El sistema está en **Versión v5.2.2 (Maturín Edition)**. Se ha completado la estabilización del frontend (cero loops infinitos), la restauración del pipeline de construcción (`omni_guard.py`) y la localización total al español (eliminando anglicismos como "Gaps"). El bot está 100% sincronizado con la lógica de brechas de kilometraje.

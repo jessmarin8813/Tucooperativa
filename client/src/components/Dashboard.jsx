@@ -6,8 +6,7 @@ import { useApi } from '../hooks/useApi'
 import { motion as Motion } from 'framer-motion'
 
 const Dashboard = () => {
-  const { callApi, loading, error } = useApi()
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const { callApi, loading } = useApi()
   const [currentUser, setCurrentUser] = useState(null)
   const [data, setData] = useState({
     stats: {
@@ -18,7 +17,6 @@ const Dashboard = () => {
     },
     vehicles: []
   })
-  const [activeTab, setActiveTab] = useState('operaciones')
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -29,7 +27,11 @@ const Dashboard = () => {
   }, [callApi])
 
   useEffect(() => {
+    let ignore = false
     const init = async () => {
+      await Promise.resolve()
+      if (ignore) return
+
       if (!currentUser) {
         const sessionRes = await callApi('session.php')
         setCurrentUser(sessionRes.user)
@@ -37,12 +39,8 @@ const Dashboard = () => {
       fetchDashboardData()
     }
     init()
+    return () => { ignore = true }
   }, [callApi, fetchDashboardData, currentUser])
-
-  const handleRegistrationSuccess = () => {
-    setIsModalOpen(false)
-    fetchDashboardData()
-  }
 
   if (loading && data.stats.total_vehiculos === 0) {
     return (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import './index.css'
 import LoginView from './components/LoginView'
 import MainLayout from './components/MainLayout'
@@ -32,23 +32,30 @@ function App() {
     }
   }, [activeView, isLoggedIn])
 
+  const checkSession = useCallback(async () => {
+    try {
+      const data = await callApi('session.php')
+      if (data.isLoggedIn) {
+        setIsLoggedIn(true)
+        setUser(data.user)
+      }
+    } catch {
+      // Not logged in, stay on LoginView
+    } finally {
+      setInitializing(false)
+    }
+  }, [callApi])
+
   // Verify session on mount
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const data = await callApi('session.php')
-        if (data.isLoggedIn) {
-          setIsLoggedIn(true)
-          setUser(data.user)
-        }
-      } catch {
-        // Not logged in, stay on LoginView
-      } finally {
-        setInitializing(false)
-      }
+    let ignore = false
+    const init = async () => {
+      await Promise.resolve()
+      if (!ignore) checkSession()
     }
-    checkSession()
-  }, [callApi])
+    init()
+    return () => { ignore = true }
+  }, [checkSession])
 
   const handleLogin = async (username, password) => {
     const data = await callApi('login.php', {

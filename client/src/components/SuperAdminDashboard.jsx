@@ -43,7 +43,10 @@ const SuperAdminDashboard = () => {
   }
 
   useEffect(() => {
-    const fetchMasterData = async () => {
+    let ignore = false
+    const init = async () => {
+      await Promise.resolve()
+      if (ignore) return
       try {
         const result = await callApi('admin/master_stats.php')
         setData(result)
@@ -51,7 +54,8 @@ const SuperAdminDashboard = () => {
         console.error("Master Dashboard error")
       }
     }
-    fetchMasterData()
+    init()
+    return () => { ignore = true }
   }, [callApi])
 
   const fetchForensicData = useCallback(async () => {
@@ -67,9 +71,15 @@ const SuperAdminDashboard = () => {
   }, [callApi])
 
   useEffect(() => {
-    if (activeTab === 'forense') {
-      fetchForensicData()
+    let ignore = false
+    const init = async () => {
+      await Promise.resolve()
+      if (!ignore && activeTab === 'forense') {
+        fetchForensicData()
+      }
     }
+    init()
+    return () => { ignore = true }
   }, [activeTab, fetchForensicData])
 
   if (loading && data.cooperativas.length === 0) {

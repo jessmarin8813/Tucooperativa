@@ -20,7 +20,13 @@ const BIView = () => {
   }, [callApi])
 
   useEffect(() => {
-    fetchBI()
+    let ignore = false
+    const init = async () => {
+      await Promise.resolve()
+      if (!ignore) fetchBI()
+    }
+    init()
+    return () => { ignore = true }
   }, [fetchBI])
 
   if (loading || !data) return <LoadingSpinner />

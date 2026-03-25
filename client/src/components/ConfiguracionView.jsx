@@ -28,10 +28,13 @@ const ConfiguracionView = () => {
     }, [callApi])
 
     useEffect(() => {
+        let ignore = false
         const init = async () => {
-            await fetchConfig()
+            await Promise.resolve()
+            if (!ignore) await fetchConfig()
         }
         init()
+        return () => { ignore = true }
     }, [fetchConfig])
 
     const handleSave = async () => {

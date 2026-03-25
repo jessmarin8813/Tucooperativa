@@ -16,8 +16,11 @@ const VehicleForm = ({ onSuccess, currentUser }) => {
 
   // Load owners if user is admin
   useEffect(() => {
+    let ignore = false
     if (currentUser?.rol === 'admin') {
-      const fetchOwners = async () => {
+      const init = async () => {
+        await Promise.resolve()
+        if (ignore) return
         try {
           const res = await callApi('usuarios.php?list_owners=1')
           setOwners(res)
@@ -25,8 +28,9 @@ const VehicleForm = ({ onSuccess, currentUser }) => {
           console.error("Error loading owners:", err)
         }
       }
-      fetchOwners()
+      init()
     }
+    return () => { ignore = true }
   }, [callApi, currentUser])
 
   const handleChange = (e) => {

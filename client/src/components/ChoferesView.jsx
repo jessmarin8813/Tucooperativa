@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { User, Trash2, ShieldCheck, ShieldAlert, RefreshCw, Send, Link2, Copy, Check, Clock, Users } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion as Motion, AnimatePresence } from 'framer-motion'
 
 const ChoferesView = () => {
   const [activeTab, setActiveTab] = useState('activos')
@@ -30,8 +30,16 @@ const ChoferesView = () => {
   }, [])
 
   useEffect(() => {
-    fetchChoferes()
-    fetchInvitaciones()
+    let ignore = false
+    const init = async () => {
+      await Promise.resolve()
+      if (!ignore) {
+        fetchChoferes()
+        fetchInvitaciones()
+      }
+    }
+    init()
+    return () => { ignore = true }
   }, [fetchChoferes, fetchInvitaciones])
 
   const handleDelete = async (id) => {
@@ -84,7 +92,7 @@ const ChoferesView = () => {
 
       <AnimatePresence mode="wait">
         {activeTab === 'activos' ? (
-          <motion.div 
+          <Motion.div 
             key="activos"
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
@@ -92,7 +100,7 @@ const ChoferesView = () => {
             className="p-grid p-grid-cols-2"
           >
             {choferes.map((c) => (
-              <motion.div 
+              <Motion.div 
                 key={c.id}
                 className="glass" 
                 style={{ padding: '24px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}
@@ -149,7 +157,7 @@ const ChoferesView = () => {
                     <Trash2 size={18} />
                   </button>
                 </div>
-              </motion.div>
+              </Motion.div>
             ))}
 
             {choferes.length === 0 && !loading && (
@@ -157,9 +165,9 @@ const ChoferesView = () => {
                 <p style={{ color: 'var(--text-dim)' }}>No hay choferes registrados en esta cooperativa.</p>
               </div>
             )}
-          </motion.div>
+          </Motion.div>
         ) : (
-          <motion.div 
+          <Motion.div 
             key="onboarding"
             initial={{ opacity: 0, x: 10 }}
             animate={{ opacity: 1, x: 0 }}
@@ -233,7 +241,7 @@ const ChoferesView = () => {
                 )}
               </div>
             </div>
-          </motion.div>
+          </Motion.div>
         )}
       </AnimatePresence>
     </div>

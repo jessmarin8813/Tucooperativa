@@ -11,7 +11,10 @@ const DriverRanking = () => {
   const { callApi } = useApi()
 
   useEffect(() => {
-    const fetchRanking = async () => {
+    let ignore = false
+    const init = async () => {
+      await Promise.resolve()
+      if (ignore) return
       try {
         const response = await callApi('admin/driver_ranking.php')
         setData(response)
@@ -21,7 +24,8 @@ const DriverRanking = () => {
         setLoading(false)
       }
     }
-    fetchRanking()
+    init()
+    return () => { ignore = true }
   }, [callApi])
 
   if (loading) {

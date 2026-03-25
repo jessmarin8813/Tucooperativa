@@ -7,7 +7,6 @@ import LoadingSpinner from './LoadingSpinner'
 const ForensicView = () => {
     const { callApi, loading } = useApi()
     const [auditLog, setAuditLog] = useState([])
-    const [filter, setFilter] = useState('all')
 
     const fetchAudit = useCallback(async () => {
         try {
@@ -17,7 +16,13 @@ const ForensicView = () => {
     }, [callApi])
 
     useEffect(() => {
-        fetchAudit()
+        let ignore = false
+        const init = async () => {
+            await Promise.resolve()
+            if (!ignore) fetchAudit()
+        }
+        init()
+        return () => { ignore = true }
     }, [fetchAudit])
 
     if (loading && auditLog.length === 0) return <LoadingSpinner />

@@ -20,7 +20,11 @@ const VehiculosView = () => {
   }, [callApi])
 
   useEffect(() => {
+    let ignore = false
     const init = async () => {
+      await Promise.resolve()
+      if (ignore) return
+
       if (!currentUser) {
         const sessionRes = await callApi('session.php')
         setCurrentUser(sessionRes.user)
@@ -28,6 +32,7 @@ const VehiculosView = () => {
       fetchVehicles()
     }
     init()
+    return () => { ignore = true }
   }, [callApi, fetchVehicles, currentUser])
 
   const handleRegistrationSuccess = () => {

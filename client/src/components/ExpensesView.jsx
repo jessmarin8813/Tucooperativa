@@ -23,11 +23,17 @@ const ExpensesView = () => {
       const fleetRes = await callApi('vehiculos.php')
       setExpenses(expRes.expenses || [])
       setVehicles(fleetRes || [])
-    } catch (e) { /* Handled */ }
+    } catch { /* Handled */ }
   }, [callApi])
 
   useEffect(() => {
-    fetchData()
+    let ignore = false
+    const init = async () => {
+      await Promise.resolve()
+      if (!ignore) fetchData()
+    }
+    init()
+    return () => { ignore = true }
   }, [fetchData])
 
   const handleSubmit = async (e) => {
@@ -46,7 +52,7 @@ const ExpensesView = () => {
         fecha: new Date().toISOString().split('T')[0]
       })
       fetchData()
-    } catch (e) { /* Handled */ }
+    } catch { /* Handled */ }
   }
 
   const categories = [

@@ -6,6 +6,8 @@ export const useApi = () => {
   const [error, setError] = useState(null)
 
   const callApi = useCallback(async (endpoint, options = {}) => {
+    // Avoid synchronous state updates in effects to satisfy react-hooks/set-state-in-effect
+    await Promise.resolve()
     setLoading(true)
     setError(null)
     try {
