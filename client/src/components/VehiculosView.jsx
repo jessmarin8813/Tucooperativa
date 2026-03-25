@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Plus, RefreshCw } from 'lucide-react'
+import { Plus, RefreshCw, Truck, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react'
 import { useApi } from '../hooks/useApi'
 import FleetList from './FleetList'
+import StatCard from './StatCard'
 
 const VehiculosView = () => {
   const [vehicles, setVehicles] = useState([])
@@ -18,30 +19,63 @@ const VehiculosView = () => {
     fetchVehicles()
   }, [fetchVehicles])
 
+  const stats = {
+    total: vehicles.length,
+    active: vehicles.filter(v => v.estado === 'activo' || v.status === 'activo').length,
+    maintenance: vehicles.filter(v => v.estado === 'mantenimiento' || v.status === 'mantenimiento').length,
+    inactive: vehicles.filter(v => v.estado === 'inactivo' || v.status === 'inactivo').length
+  }
+
   return (
     <div className="view-container animate-fade">
-      <div className="flex justify-between items-center mb-12">
-        <div>
-          <h1 className="text-5xl font-black text-white tracking-tighter neon-text">Flota de Vehículos</h1>
-          <p className="text-white/40 font-bold mt-2">Monitorización de unidades y salud de activos en tiempo real</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '48px', gap: '24px', flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: '300px' }}>
+          <h1 className="h1-premium neon-text">Flota de Vehículos</h1>
+          <p className="p-subtitle">Monitorización de unidades y salud de activos en tiempo real</p>
         </div>
-        <div className="flex gap-4">
-          <button onClick={fetchVehicles} className="glass-premium p-4 flex items-center justify-center">
+        <div style={{ display: 'flex', gap: '16px' }}>
+          <button 
+            onClick={fetchVehicles} 
+            className="glass"
+            style={{ padding: '16px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
             <RefreshCw size={24} className={loading ? 'animate-spin' : ''} />
           </button>
-          <button className="btn-primary flex items-center gap-4 px-8 py-4">
+          <button className="btn-primary" style={{ padding: '0 32px', height: '56px', display: 'flex', alignItems: 'center', gap: '12px', borderRadius: '16px' }}>
             <Plus size={24} />
-            Nueva Unidad
+            <span style={{ fontWeight: 800, letterSpacing: '0.05em' }}>NUEVA UNIDAD</span>
           </button>
         </div>
+      </div>
+
+      {/* Stats Overview */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px', marginBottom: '48px' }}>
+        <StatCard title="Total Unidades" value={stats.total} trend="+0" icon={Truck} color="99, 102, 241" />
+        <StatCard title="Operativas" value={stats.active} trend="+0" icon={CheckCircle2} color="16, 185, 129" />
+        <StatCard title="Mantenimiento" value={stats.maintenance} trend="+0" icon={AlertTriangle} color="245, 158, 11" />
+        <StatCard title="Fuera de Servicio" value={stats.inactive} trend="+0" icon={XCircle} color="239, 68, 68" />
       </div>
 
       {loading && vehicles.length === 0 ? (
         <div className="flex items-center justify-center p-24">
             <RefreshCw size={48} className="animate-spin text-accent" />
         </div>
+      ) : vehicles.length === 0 ? (
+        <div className="glass" style={{ padding: '80px', textAlign: 'center', borderRadius: '32px', border: '2px dashed var(--glass-border)' }}>
+          <div style={{ width: '80px', height: '80px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+            <Truck size={40} style={{ color: 'var(--primary)' }} />
+          </div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'white', marginBottom: '12px' }}>No hay vehículos registrados</h2>
+          <p style={{ color: 'var(--text-dim)', maxWidth: '400px', margin: '0 auto 32px' }}>Comienza a gestionar tu flota agregando la primera unidad administrativa para monitorear su rendimiento y gastos.</p>
+          <button className="btn-primary" style={{ padding: '16px 40px', display: 'inline-flex', alignItems: 'center', gap: '12px' }}>
+            <Plus size={24} />
+            <span>AGREGAR MI PRIMERA UNIDAD</span>
+          </button>
+        </div>
       ) : (
-        <FleetList vehicles={vehicles} />
+        <div className="glass" style={{ borderRadius: '24px', overflow: 'hidden' }}>
+          <FleetList vehicles={vehicles} />
+        </div>
       )}
     </div>
   )

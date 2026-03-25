@@ -157,6 +157,37 @@ button {
   50% { opacity: 0.6; filter: brightness(1.5); }
 }
 
+/* Premium Typography System */
+.h1-premium {
+  font-size: 2.75rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: white;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+
+.p-subtitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.5;
+}
+
+.text-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+
+.text-value {
+  font-size: 2.25rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
 /* Mobile Specific Styles */
 .mobile-sidebar {
   background: rgba(10, 11, 18, 0.98) !important;
