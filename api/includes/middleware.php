@@ -18,7 +18,8 @@ set_exception_handler(function($e) {
 
 set_error_handler(function($errno, $errstr, $errfile, $errline) {
     if (!(error_reporting() & $errno)) return;
-    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+    // throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+    error_log("PHP Warning: $errstr in $errfile on line $errline");
 });
 
 if (!function_exists('checkAuth')) {
