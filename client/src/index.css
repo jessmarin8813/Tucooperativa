@@ -99,7 +99,14 @@ button {
 }
 @media (max-width: 768px) {
   .p-flex-responsive {
-    flex-direction: column;
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+  .p-flex-responsive .btn-primary, 
+  .p-flex-responsive .btn-secondary,
+  .mobile-full-btn {
+    width: 100% !important;
+    height: 56px !important;
   }
   .mobile-hide {
     display: none !important;
