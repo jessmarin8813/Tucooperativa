@@ -3,21 +3,34 @@ import { Plus, RefreshCw, Truck, CheckCircle2, AlertTriangle, XCircle } from 'lu
 import { useApi } from '../hooks/useApi'
 import FleetList from './FleetList'
 import StatCard from './StatCard'
+import Modal from './Modal'
+import VehicleForm from './VehicleForm'
 
 const VehiculosView = () => {
   const [vehicles, setVehicles] = useState([])
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [currentUser, setCurrentUser] = useState(null)
   const { callApi, loading } = useApi()
 
   const fetchVehicles = useCallback(async () => {
     try {
+      if (!currentUser) {
+        const sessionRes = await callApi('session.php')
+        setCurrentUser(sessionRes.user)
+      }
       const data = await callApi('vehiculos.php')
       setVehicles(Array.isArray(data) ? data : [])
     } catch { /* Handled */ }
-  }, [callApi])
+  }, [callApi, currentUser])
 
   useEffect(() => {
     fetchVehicles()
   }, [fetchVehicles])
+
+  const handleRegistrationSuccess = () => {
+    setIsModalOpen(false)
+    fetchVehicles()
+  }
 
   const stats = {
     total: vehicles.length,
@@ -34,9 +47,9 @@ const VehiculosView = () => {
           <p className="p-subtitle">Monitorización de unidades y salud de activos en tiempo real</p>
         </div>
         <div className="p-flex p-gap-4">
-          <button className="btn-primary">
+          <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
             <Plus size={24} />
-            <span>NUEVA UNIDAD</span>
+            <span>+ NUEVA UNIDAD</span>
           </button>
         </div>
       </div>
@@ -60,7 +73,7 @@ const VehiculosView = () => {
           </div>
           <h2 className="empty-state-title" style={{ fontSize: '2.5rem', fontWeight: 900, color: 'white', marginBottom: '16px', letterSpacing: '-0.03em' }}>No hay vehículos registrados</h2>
           <p className="empty-state-desc" style={{ color: 'var(--text-dim)', maxWidth: '450px', margin: '0 auto 40px', fontSize: '1.1rem', fontWeight: 600, lineHeight: 1.6 }}>Crea tu flota digital ahora para tomar el control total de los activos, gastos y rendimientos en tiempo real.</p>
-          <button className="btn-primary mobile-full-btn btn-wrap" style={{ gap: '16px', borderRadius: '20px' }}>
+          <button className="btn-primary mobile-full-btn btn-wrap" style={{ gap: '16px', borderRadius: '20px' }} onClick={() => setIsModalOpen(true)}>
             <Plus size={24} />
             <span style={{ fontSize: '1rem', fontWeight: 900, letterSpacing: '0.05em' }}>AGREGAR MI PRIMERA UNIDAD</span>
           </button>
@@ -70,6 +83,10 @@ const VehiculosView = () => {
           <FleetList vehicles={vehicles} />
         </div>
       )}
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nueva Unidad">
+        <VehicleForm currentUser={currentUser} onSuccess={handleRegistrationSuccess} />
+      </Modal>
     </div>
   )
 }
