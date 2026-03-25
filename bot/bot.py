@@ -81,10 +81,13 @@ async def get_dynamic_menu(update: Update):
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Entry point with dynamic menu and deep link handling"""
+    user_id = update.effective_user.id
+    
+    # Check deep links first
     if context.args:
         token = context.args[0]
         if token.startswith('link_'):
-            res = api.link_owner_via_token(token.replace('link_',''), update.effective_user.id)
+            res = api.link_owner_via_token(token.replace('link_',''), user_id)
             msg = "👑 ¡Vínculo de Dueño Exitoso!" if 'error' not in res else f"❌ Error: {res['error']}"
             await update.message.reply_text(msg, reply_markup=await get_dynamic_menu(update))
             return ConversationHandler.END
@@ -98,12 +101,23 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return REGISTRAR_NOMBRE
 
+    # Plain /start logic
+    auth = api.check_authorization(user_id)
+    if auth.get('status') != 'activo':
+        await update.message.reply_text(
+            "🔒 **Acceso Restringido**\n\nNo tienes una cuenta activa en TuCooperativa. Para registrarte, por favor solicita un **Enlace de Invitación** a tu cooperativa o propietario.",
+            parse_mode='Markdown',
+            reply_markup=ReplyKeyboardRemove()
+        )
+        return ConversationHandler.END
+
     await update.message.reply_text(
-        "🚀 **Centro de Mando TuCooperativa**\nBienvenido. Selecciona una opción del menú inferior.",
+        f"🚀 **Centro de Mando TuCooperativa**\nBienvenido, **{auth.get('nombre', 'Usuario')}**.\nSelecciona una opción del menú inferior.",
         parse_mode='Markdown',
         reply_markup=await get_dynamic_menu(update)
     )
     return ConversationHandler.END
+
 
 async def registrar_nombre_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['driver_nombre'] = update.message.text

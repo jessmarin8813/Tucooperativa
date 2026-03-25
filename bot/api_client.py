@@ -11,7 +11,7 @@ class TuCooperativaAPI:
 
     def login(self, email, password):
         try:
-            response = self.session.post(f"{self.base_url}/login.php", json={
+            response = self.session.post(f"{self.base_url}/auth/login.php", json={
                 'email': email,
                 'password': password
             })
@@ -21,7 +21,7 @@ class TuCooperativaAPI:
 
     def start_route(self, vehiculo_id, odometro, foto='', monto_efectivo=0, monto_pagomovil=0):
         try:
-            response = self.session.post(f"{self.base_url}/rutas.php", json={
+            response = self.session.post(f"{self.base_url}/fleet/rutas.php", json={
                 'action': 'start_route',
                 'vehiculo_id': vehiculo_id,
                 'odometro_valor': odometro,
@@ -35,7 +35,7 @@ class TuCooperativaAPI:
 
     def end_route(self, ruta_id, odometro, combustible=0, foto=''):
         try:
-            response = self.session.post(f"{self.base_url}/rutas.php", json={
+            response = self.session.post(f"{self.base_url}/fleet/rutas.php", json={
                 'action': 'end_route',
                 'ruta_id': ruta_id,
                 'odometro_valor': odometro,
@@ -66,14 +66,14 @@ class TuCooperativaAPI:
 
     def get_vehicles(self):
         try:
-            response = self.session.get(f"{self.base_url}/vehiculos.php")
+            response = self.session.get(f"{self.base_url}/fleet/vehiculos.php")
             return response.json()
         except Exception as e:
             return {'error': str(e)}
 
     def link_telegram(self, telegram_id):
         try:
-            response = self.session.post(f"{self.base_url}/usuarios.php", json={
+            response = self.session.post(f"{self.base_url}/auth/usuarios.php", json={
                 'telegram_id': telegram_id
             })
             return response.json()
@@ -82,7 +82,7 @@ class TuCooperativaAPI:
 
     def register_via_token(self, token, telegram_id, nombre, cedula=''):
         try:
-            response = self.session.post(f"{self.base_url}/registrar.php", json={
+            response = self.session.post(f"{self.base_url}/auth/registrar.php", json={
                 'token': token,
                 'telegram_id': telegram_id,
                 'nombre': nombre,
@@ -94,7 +94,7 @@ class TuCooperativaAPI:
 
     def link_owner_via_token(self, token, telegram_id):
         try:
-            response = self.session.post(f"{self.base_url}/registrar.php", json={
+            response = self.session.post(f"{self.base_url}/auth/registrar.php", json={
                 'action': 'link_owner',
                 'token': token,
                 'telegram_id': telegram_id
@@ -126,7 +126,7 @@ class TuCooperativaAPI:
 
     def get_my_vehicle(self):
         try:
-            response = self.session.get(f"{self.base_url}/vehiculos.php?my_unit=1")
+            response = self.session.get(f"{self.base_url}/fleet/vehiculos.php?my_unit=1")
             return response.json()
         except Exception as e:
             return {'error': str(e)}
