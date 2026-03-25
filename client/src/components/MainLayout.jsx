@@ -1,6 +1,8 @@
-import React, { Suspense, lazy } from 'react'
+import React, { Suspense, lazy, useState } from 'react'
 import Sidebar from './Sidebar'
 import LoadingSpinner from './LoadingSpinner'
+import { Menu, X } from 'lucide-react'
+import { AnimatePresence, motion as Motion } from 'framer-motion'
 
 const Dashboard = lazy(() => import('./Dashboard'))
 const SuperAdminDashboard = lazy(() => import('./SuperAdminDashboard'))
@@ -14,34 +16,81 @@ const CobranzaView = lazy(() => import('./CobranzaView'))
 const VehiculosView = lazy(() => import('./VehiculosView'))
 
 const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const isMobile = window.innerWidth < 1024
 
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen)
+
+  const handleNavigate = (view) => {
+    setActiveView(view)
+    if (isMobile) setIsMobileMenuOpen(false)
+  }
+
   return (
-    <div className="p-flex" style={{ height: '100vh', overflow: 'hidden', backgroundColor: 'var(--bg-dark)' }}>
+    <div className="p-flex" style={{ height: '100vh', width: '100vw', background: 'var(--bg-dark)', position: 'relative', overflow: 'hidden' }}>
+      
+      {/* Desktop Sidebar (Stuck to left) */}
       {!isMobile && (
         <Sidebar 
           onLogout={onLogout} 
           userRole={user?.rol || 'owner'} 
           activeView={activeView} 
-          setActiveView={setActiveView} 
+          setActiveView={handleNavigate} 
         />
       )}
 
+      {/* Mobile Top Header */}
       {isMobile && (
-        <Sidebar 
-            onLogout={onLogout} 
-            userRole={user?.rol || 'owner'} 
-            activeView={activeView} 
-            setActiveView={setActiveView} 
-        />
+          <header style={{ 
+              position: 'fixed', top: 0, left: 0, right: 0, height: '70px', 
+              background: 'rgba(7, 8, 13, 0.9)', backdropFilter: 'blur(10px)',
+              borderBottom: '1px solid var(--glass-border)', display: 'flex', 
+              alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', zIndex: 60 
+          }}>
+              <h1 className="neon-text brand" style={{ fontSize: '1.25rem', fontWeight: 900 }}>TuCoop</h1>
+              <button 
+                onClick={toggleMobileMenu}
+                style={{ background: 'var(--bg-card)', color: 'white', padding: '10px' }}
+              >
+                  {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+          </header>
       )}
+
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {isMobile && isMobileMenuOpen && (
+            <>
+                <Motion.div 
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    onClick={toggleMobileMenu}
+                    style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100 }}
+                />
+                <Motion.div 
+                    initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
+                    transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                    style={{ position: 'fixed', left: 0, top: 0, bottom: 0, width: '80%', zIndex: 110 }}
+                >
+                    <Sidebar 
+                        onLogout={onLogout} 
+                        userRole={user?.rol || 'owner'} 
+                        activeView={activeView} 
+                        setActiveView={handleNavigate} 
+                    />
+                </Motion.div>
+            </>
+        )}
+      </AnimatePresence>
       
-      <main className="p-flex p-flex-col" style={{ 
+      {/* Main Content Area */}
+      <main style={{ 
         flex: 1, 
-        height: '100%', 
-        overflowY: 'auto'
+        height: '100vh', 
+        overflowY: 'auto',
+        position: 'relative',
+        paddingTop: isMobile ? '70px' : '0'
       }}>
-        <div className="view-container">
+        <div className="view-container animate-fade">
             <Suspense fallback={<LoadingSpinner />}>
             {user?.rol === 'superadmin' ? (
                 <SuperAdminDashboard />

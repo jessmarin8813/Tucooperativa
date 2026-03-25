@@ -55,7 +55,9 @@ function App() {
   if (initializing) {
     return (
       <div style={{ background: '#0a0b12', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="neon-text animate-pulse">SISTEMA TUCOOPERATIVA - INICIALIZANDO...</div>
+        <div className="neon-text animate-pulse" style={{ fontSize: '1.2rem', fontWeight: 700, letterSpacing: '0.1em' }}>
+          SISTEMA TUCOOPERATIVA - INICIALIZANDO...
+        </div>
       </div>
     )
   }

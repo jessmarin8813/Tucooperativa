@@ -58,46 +58,49 @@ const MaintenanceCenter = () => {
   const totalCritical = fleetHealth.reduce((acc, v) => acc + v.items.filter(i => i.estado === 'critico').length, 0)
 
   return (
-    <div className="p-space-y-8 animate-fade">
+    <div className="view-container animate-fade" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       {/* Header */}
-      <div className="p-flex p-flex-col md:p-flex-row p-justify-between p-items-start md:p-items-end p-gap-4 p-mb-8">
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
         <div>
-          <h2 className="p-text-white p-tracking-tight p-mb-2">Centro de Mantenimiento</h2>
-          <p className="p-text-white-40 p-font-bold p-uppercase p-tracking-widest p-text-xs">Control detallado de componentes por telemetría</p>
+          <h1 className="neon-text brand" style={{ fontSize: '2.5rem', fontWeight: 900 }}>Centro de Mantenimiento</h1>
+          <p style={{ color: 'var(--text-dim)', fontWeight: 600, marginTop: '8px' }}>Control detallado de componentes por telemetría</p>
         </div>
         {totalCritical > 0 && (
-          <div className="p-flex p-items-center p-gap-3 p-bg-red-500/10 p-text-red-400 p-border p-border-red-500/20 p-px-6 p-py-3 p-rounded-pill animate-pulse">
-            <AlertTriangle size={16} />
-            <span className="p-text-[10px] md:p-text-xs p-font-black p-uppercase p-tracking-widest">{totalCritical} ALERTAS CRÍTICAS</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '12px 24px', borderRadius: '100px', border: '1px solid rgba(239, 68, 68, 0.2)' }} className="animate-pulse">
+            <AlertTriangle size={18} />
+            <span style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{totalCritical} ALERTAS CRÍTICAS</span>
           </div>
         )}
-      </div>
+      </header>
 
       {/* Fleet Grid */}
-      <div className="p-grid p-grid-cols-1 p-gap-8">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
         {fleetHealth.map((v, i) => (
           <Motion.div
             key={v.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="p-glass-premium p-p-5 md:p-p-8 p-rounded-[2.5rem] p-overflow-hidden p-relative p-shadow-premium"
+            className="glass"
+            style={{ padding: '40px', borderRadius: '32px', position: 'relative', overflow: 'hidden' }}
           >
             {/* Background Decoration */}
-            <div className={`p-absolute p--right-20 p--top-20 p-w-64 p-h-64 p-blur-3xl p-opacity-10 p-rounded-pill ${
-                v.items.some(it => it.estado === 'critico') ? 'p-bg-red-500' : 'p-bg-emerald-500'
-            }`} />
+            <div style={{ 
+                position: 'absolute', right: '-40px', top: '-40px', width: '200px', height: '200px',
+                background: v.items.some(it => it.estado === 'critico') ? 'var(--danger)' : 'var(--success)',
+                filter: 'blur(80px)', opacity: 0.05, borderRadius: '100%'
+            }} />
 
-            <div className="p-relative p-z-10">
-              <div className="p-flex p-flex-col lg:p-flex-row p-justify-between p-items-start lg:p-items-center p-gap-4 p-mb-6">
-                <div className="p-flex p-items-center p-gap-5">
-                  <div className="p-w-14 p-h-14 md:p-w-16 md:p-h-16 p-bg-white-5 p-rounded-3xl p-border p-border-white-10 p-flex p-items-center p-justify-center p-text-white-40">
-                    <Car size={28} />
+            <div style={{ position: 'relative', zIndex: 10 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                  <div style={{ width: '64px', height: '64px', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', border: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)' }}>
+                    <Car size={32} />
                   </div>
                   <div>
-                    <h3 className="p-text-2xl p-font-black p-text-white p-tracking-tighter">{v.placa}</h3>
-                    <p className="p-text-[10px] md:p-text-xs p-uppercase p-font-black p-text-white-30 p-tracking-widest p-mt-1">
-                        Odómetro: <span className="p-text-white-60">{formatNumber(v.odometro_actual)} KM</span>
+                    <h3 className="neon-text" style={{ fontSize: '2rem', fontWeight: 900 }}>{v.placa}</h3>
+                    <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '4px' }}>
+                        Odómetro: <span style={{ color: 'white' }}>{formatNumber(v.odometro_actual)} KM</span>
                     </p>
                   </div>
                 </div>
@@ -106,52 +109,52 @@ const MaintenanceCenter = () => {
                     setNewItem(prev => ({ ...prev, ultimo_odometro: v.odometro_actual }));
                     setShowAddModal(v.id);
                   }}
-                  className="btn-primary p-w-full lg:p-w-auto p-flex p-items-center p-justify-center p-gap-3 p-px-8 p-py-4 p-text-xs"
+                  className="btn-primary"
+                  style={{ padding: '16px 32px', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
-                  <Plus size={16} /> AÑADIR RECORDATORIO
+                  <Plus size={18} /> AÑADIR RECORDATORIO
                 </button>
               </div>
 
               {/* Items Grid */}
-              <div className="p-grid p-grid-cols-1 md:p-grid-cols-2 lg:p-grid-cols-3 p-gap-6">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
                 {v.items.map((item) => (
-                  <div key={item.id} className="p-p-4 p-rounded-3xl p-bg-white-[0.03] p-border p-border-white-5 hover:p-bg-white-5 p-transition-all p-group">
-                    <div className="p-flex p-justify-between p-items-start p-mb-4">
+                  <div key={item.id} className="glass-hover" style={{ padding: '24px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px', border: '1px solid var(--glass-border)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                       <div>
-                        <h4 className="p-text-base p-font-black p-text-white p-mb-1 group-hover:p-text-accent p-transition-colors">{item.nombre}</h4>
-                        <div className="p-flex p-items-center p-gap-2 p-text-[10px] p-text-white-30 p-uppercase p-font-black p-tracking-widest">
+                        <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: 'white', marginBottom: '4px' }}>{item.nombre}</h4>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.65rem', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase' }}>
                            <Clock size={12} /> Cada {formatNumber(item.frecuencia)} KM
                         </div>
                       </div>
-                      <div className={`p-px-3 p-py-1 p-rounded-pill p-text-[10px] p-font-black p-uppercase ${
-                        item.estado === 'critico' ? 'p-bg-red-500 p-text-white p-shadow-premium' : 
-                        item.estado === 'advertencia' ? 'p-bg-amber-10 p-text-amber-500 p-border p-border-amber-500/20' : 'p-bg-emerald-10 p-text-emerald-400 p-border p-border-emerald-500/20'
-                      }`}>
+                      <div style={{ 
+                        padding: '4px 12px', borderRadius: '100px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase',
+                        background: item.estado === 'critico' ? 'var(--danger)' : item.estado === 'advertencia' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                        color: item.estado === 'critico' ? 'white' : item.estado === 'advertencia' ? 'var(--warning)' : 'var(--success)'
+                      }}>
                         {item.estado === 'critico' ? 'Vencido' : item.estado === 'advertencia' ? 'Próximo' : 'En Orden'}
                       </div>
                     </div>
 
-                    <div className="p-space-y-4">
-                       <div className="p-h-2 p-w-full p-bg-white-5 p-rounded-pill p-overflow-hidden">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                       <div style={{ height: '6px', width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '100px', overflow: 'hidden' }}>
                           <Motion.div 
                             initial={{ width: 0 }}
                             animate={{ width: `${item.progreso}%` }}
-                            className={`p-h-full p-rounded-pill ${
-                              item.estado === 'critico' ? 'p-bg-red-500 p-neon-glow' : 
-                              item.estado === 'advertencia' ? 'p-bg-amber-500' : 'p-bg-emerald-500 p-neon-glow'
-                            }`}
+                            style={{ 
+                                height: '100%', background: item.estado === 'critico' ? 'var(--danger)' : item.estado === 'advertencia' ? 'var(--warning)' : 'var(--success)',
+                                boxShadow: item.estado === 'critico' ? '0 0 10px var(--danger)' : 'none'
+                            }}
                           />
                        </div>
-                       <div className="p-flex p-justify-between p-items-center">
-                          <div className="p-text-[10px] p-text-white-30 p-font-black p-uppercase p-tracking-widest">
-                             Remanente: <span className={item.estado === 'critico' ? 'p-text-red-500' : 'p-text-white-70'}>{formatNumber(item.km_restantes)} KM</span>
+                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.05em' }}>
+                             Remanente: <span style={{ color: item.estado === 'critico' ? 'var(--danger)' : 'white' }}>{formatNumber(item.km_restantes)} KM</span>
                           </div>
                           <button 
                             onClick={() => handleReset(item.id, v.odometro_actual)}
-                            className={`p-3 p-rounded-2xl p-transition-all ${
-                                item.estado === 'critico' ? 'p-bg-white p-text-red-600 hover:p-scale-110' : 'p-bg-white-5 p-text-white-40 hover:p-text-white hover:p-bg-white-10'
-                            }`}
-                            title="Registrar Mantenimiento"
+                            style={{ padding: '8px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            className="glass-hover"
                           >
                              <Activity size={16} />
                           </button>
@@ -168,51 +171,55 @@ const MaintenanceCenter = () => {
       {/* Add Item Modal */}
       <AnimatePresence>
         {showAddModal && (
-          <div className="p-fixed p-inset-0 p-z-50 p-flex p-items-center p-justify-center p-p-6">
+          <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
             <Motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowAddModal(null)}
-              className="p-absolute p-inset-0 p-bg-black/90 p-backdrop-blur-sm"
+              style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)' }}
             />
             <Motion.div 
               initial={{ scale: 0.9, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, y: 20, opacity: 0 }}
-              className="p-relative p-w-full p-max-w-lg p-glass-premium p-rounded-[2.5rem] p-p-8 md:p-p-10 p-overflow-hidden p-shadow-premium"
+              className="glass"
+              style={{ position: 'relative', width: '100%', maxWidth: '560px', padding: '48px', overflow: 'hidden' }}
             >
-              <h3 className="p-text-2xl p-font-black p-text-white p-mb-8 p-tracking-tight">Nuevo Recordatorio</h3>
-              <div className="p-space-y-6">
+              <h3 style={{ fontSize: '2rem', fontWeight: 900, color: 'white', marginBottom: '32px' }}>Nuevo Recordatorio</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 <div>
-                  <label className="p-text-[10px] p-font-black p-mb-2 p-block p-text-white-30 p-uppercase p-tracking-widest">Nombre del Servicio</label>
+                  <label style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '8px' }}>Nombre del Servicio</label>
                   <input 
                     type="text" 
                     placeholder="Ej: Cambio de Aceite, Frenos..."
                     value={newItem.nombre}
                     onChange={(e) => setNewItem({...newItem, nombre: e.target.value})}
-                    className="p-p-4 md:p-p-5 p-bg-white-5 p-rounded-2xl p-border p-border-white-10 p-text-white p-w-full focus:p-border-accent p-transition-colors p-outline-none"
+                    className="glass"
+                    style={{ padding: '16px', background: 'rgba(0,0,0,0.2)', color: 'white', width: '100%', fontWeight: 800, outline: 'none' }}
                   />
                 </div>
-                <div className="p-grid p-grid-cols-1 md:p-grid-cols-2 p-gap-6">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                   <div>
-                    <label className="p-text-[10px] p-font-black p-mb-2 p-block p-text-white-30 p-uppercase p-tracking-widest">Frecuencia (KM)</label>
+                    <label style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '8px' }}>Frecuencia (KM)</label>
                     <input 
                       type="number" 
                       value={newItem.frecuencia}
                       onChange={(e) => setNewItem({...newItem, frecuencia: e.target.value})}
-                      className="p-p-4 md:p-p-5 p-bg-white-5 p-rounded-2xl p-border p-border-white-10 p-text-white p-w-full focus:p-border-accent p-transition-colors p-outline-none"
+                      className="glass"
+                      style={{ padding: '16px', background: 'rgba(0,0,0,0.2)', color: 'white', width: '100%', fontWeight: 800, outline: 'none' }}
                     />
                   </div>
                   <div>
-                    <label className="p-text-[10px] p-font-black p-mb-2 p-block p-text-white-30 p-uppercase p-tracking-widest">Último Servicio (KM)</label>
+                    <label style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '8px' }}>Último Servicio (KM)</label>
                     <input 
                       type="number" 
                       value={newItem.ultimo_odometro}
                       onChange={(e) => setNewItem({...newItem, ultimo_odometro: e.target.value})}
-                      className="p-p-4 md:p-p-5 p-bg-white-5 p-rounded-2xl p-border p-border-white-10 p-text-white p-w-full focus:p-border-accent p-transition-colors p-outline-none"
+                      className="glass"
+                      style={{ padding: '16px', background: 'rgba(0,0,0,0.2)', color: 'white', width: '100%', fontWeight: 800, outline: 'none' }}
                     />
                   </div>
                 </div>
-                <div className="p-flex p-flex-col md:p-flex-row p-gap-4 p-pt-6">
-                  <button onClick={() => setShowAddModal(null)} className="p-flex-1 p-p-4 md:p-p-5 p-bg-white-5 p-rounded-2xl p-font-black p-text-white-40 p-uppercase p-tracking-widest hover:p-bg-white-10 p-transition-all">CANCELAR</button>
-                  <button onClick={handleAddItem} className="btn-primary p-flex-1 p-p-4 md:p-p-5 p-uppercase p-tracking-widest">GUARDAR</button>
+                <div style={{ display: 'flex', gap: '16px', paddingTop: '24px' }}>
+                  <button onClick={() => setShowAddModal(null)} className="glass" style={{ flex: 1, padding: '16px', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase' }}>CANCELAR</button>
+                  <button onClick={handleAddItem} className="btn-primary" style={{ flex: 1, padding: '16px', fontWeight: 800, textTransform: 'uppercase' }}>GUARDAR RECORDATORIO</button>
                 </div>
               </div>
             </Motion.div>

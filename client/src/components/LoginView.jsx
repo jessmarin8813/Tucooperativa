@@ -22,38 +22,45 @@ const LoginView = ({ onLogin }) => {
   }
 
   return (
-    <div className="login-container p-flex p-items-center p-justify-center" style={{ 
+    <div className="login-container" style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center', 
       height: '100vh',
-      background: 'radial-gradient(circle at top right, #1e1b4b, #03040b)'
+      background: 'radial-gradient(circle at top right, #1e1b4b, #0a0b12)'
     }}>
-      <div className="p-glass-premium animate-fade" style={{ padding: '32px', width: '90%', maxWidth: '360px' }}>
-        <h1 className="p-neon-text p-text-center p-mb-2" style={{ fontWeight: 900 }}>TuCooperativa</h1>
-        <p className="p-text-white-40 p-text-center p-mb-8 p-text-xs p-font-black p-uppercase p-tracking-widest">Terminal de Acceso</p>
+      <div className="glass animate-fade" style={{ padding: '48px', width: '100%', maxWidth: '400px' }}>
+        <h1 className="neon-text brand" style={{ fontSize: '2.5rem', marginBottom: '8px', textAlign: 'center', fontWeight: 900 }}>TuCooperativa</h1>
+        <p style={{ color: 'var(--text-dim)', textAlign: 'center', marginBottom: '32px', fontSize: '0.875rem' }}>Terminal de Acceso Administrativo</p>
         
         {error && (
-          <div className="p-glass p-p-3 p-mb-6 p-bg-red-10 p-text-red-500 p-text-xs p-text-center p-rounded-xl">
+          <div className="glass" style={{ padding: '12px', marginBottom: '24px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', fontSize: '0.875rem', textAlign: 'center', borderRadius: '8px' }}>
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} autoComplete="off" className="p-space-y-4">
-          <div>
-            <label className="p-text-[10px] p-font-black p-text-white-30 p-uppercase p-tracking-widest p-mb-2 p-block">USUARIO</label>
-            <input type="text" placeholder="admin" name="username" autoComplete="off" className="p-p-4 p-bg-white-5 p-rounded-xl p-border p-border-white-10 p-text-white p-w-full p-text-sm focus:p-border-accent p-outline-none p-transition-colors" required />
+        <form onSubmit={handleSubmit} autoComplete="off">
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.875rem', fontWeight: 600 }}>Usuario Administrativo</label>
+            <input type="text" placeholder="admin" name="username" autoComplete="off" className="glass" style={{ 
+              width: '100%', padding: '14px', background: 'rgba(0,0,0,0.2)', color: 'white', outline: 'none' 
+            }} required />
           </div>
           
-          <div className="p-mb-8">
-            <label className="p-text-[10px] p-font-black p-text-white-30 p-uppercase p-tracking-widest p-mb-2 p-block">CLAVE</label>
-            <input type="password" placeholder="••••••••" name="password" autoComplete="off" className="p-p-4 p-bg-white-5 p-rounded-xl p-border p-border-white-10 p-text-white p-w-full p-text-sm focus:p-border-accent p-outline-none p-transition-colors" required />
+          <div style={{ marginBottom: '32px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.875rem', fontWeight: 600 }}>Clave de Seguridad</label>
+            <input type="password" placeholder="••••••••" name="password" autoComplete="off" className="glass" style={{ 
+              width: '100%', padding: '14px', background: 'rgba(0,0,0,0.2)', color: 'white', outline: 'none' 
+            }} required />
           </div>
           
-          <button className="btn-primary p-w-full p-py-4 p-text-xs p-tracking-widest p-font-black" disabled={loading}>
-            {loading ? 'AUTENTICANDO...' : 'INGRESAR'}
+          <button className="btn-primary" disabled={loading} style={{ width: '100%', letterSpacing: '0.05em' }}>
+            {loading ? 'AUTENTICANDO...' : 'INGRESAR AL SISTEMA'}
           </button>
         </form>
         
-        <p className="p-mt-8 p-text-center p-text-[9px] p-font-black p-text-white-20 p-uppercase p-tracking-widest">
-          SISTEMA DE SEGURIDAD ACTIVO
+        <p style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+          Protección de Datos Administrativa Activa
         </p>
       </div>
     </div>

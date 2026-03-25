@@ -75,7 +75,7 @@ const SuperAdminDashboard = () => {
   if (loading && data.cooperativas.length === 0) {
     return (
       <div style={{ background: '#0a0b12', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="neon-text animate-pulse">SISTEMA GLOBAL - ACCEDIENDO AL NÚCLEO...</div>
+        <div className="neon-text animate-pulse" style={{ fontSize: '1.2rem', fontWeight: 800 }}>SISTEMA GLOBAL - ACCEDIENDO AL NÚCLEO...</div>
       </div>
     )
   }
@@ -95,27 +95,29 @@ const SuperAdminDashboard = () => {
 
   return (
     <main className="view-container animate-fade">
-      <header className="p-mb-6">
-        <div className="p-flex p-flex-col md:p-flex-row p-justify-between p-items-start md:p-items-end p-gap-6">
+      <header style={{ marginBottom: '40px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '24px' }}>
           <div>
-            <div className="p-flex p-items-center p-gap-3 p-mb-2">
-              <Activity size={18} className="p-text-accent p-neon-glow" />
-              <span className="p-text-[10px] p-font-black p-uppercase p-tracking-widest p-text-accent">SISTEMA GLOBAL - MODO DIOS</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+              <Activity size={18} style={{ color: 'var(--accent)' }} className="animate-pulse" />
+              <span style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--accent)', letterSpacing: '0.1em' }}>SISTEMA GLOBAL - MODO DIOS</span>
             </div>
-            <h1 className="p-font-black p-text-white p-tracking-tighter p-neon-text">Panel Maestro</h1>
-            <p className="p-text-white-40 p-font-bold p-mt-2">Supervisando la infraestructura de transporte global</p>
+            <h1 className="neon-text brand" style={{ fontSize: '3rem', fontWeight: 900 }}>Panel Maestro</h1>
+            <p style={{ color: 'var(--text-dim)', fontWeight: 600, marginTop: '8px' }}>Supervisando la infraestructura de transporte global</p>
           </div>
-          <div className="p-flex p-flex-col sm:p-flex-row p-gap-3 p-w-full md:p-w-auto">
+          <div style={{ display: 'flex', gap: '16px' }}>
             <button 
               onClick={handleDBBackup}
-              className="p-glass-premium p-px-6 p-py-3 p-rounded-2xl p-font-black p-text-xs p-flex p-items-center p-justify-center p-gap-2 hover:p-bg-white-5 p-transition-all"
+              className="glass"
+              style={{ padding: '16px 24px', fontWeight: 800, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}
             >
-              <Activity size={16} />
+              <Activity size={18} />
               BACKUP SQL
             </button>
             <button 
               onClick={() => setShowModal(true)}
-              className="btn-primary p-px-8 p-py-3 p-text-xs p-w-full sm:p-w-auto"
+              className="btn-primary"
+              style={{ padding: '16px 32px', fontSize: '0.75rem', fontWeight: 800 }}
             >
               + REGISTRAR COOPERATIVA
             </button>
@@ -124,7 +126,7 @@ const SuperAdminDashboard = () => {
       </header>
 
       {/* Global Stats */}
-      <div className="p-grid p-grid-cols-1 md:p-grid-cols-2 lg:p-grid-cols-4 p-gap-4 p-mb-8">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '40px' }}>
         <StatCard label="COOPERATIVAS" value={data.stats.total_cooperativas} icon={LayoutGrid} color="var(--accent)" />
         <StatCard label="FLOTA TOTAL" value={data.stats.total_vehiculos} icon={Truck} color="var(--primary)" />
         <StatCard label="RECAUDACIÓN" value={formatMoney(data.stats.recaudacion_total)} icon={DollarSign} color="var(--success)" />
@@ -132,21 +134,40 @@ const SuperAdminDashboard = () => {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="p-flex p-gap-4 p-mb-8 p-border-b p-border-white-5">
+      <div style={{ display: 'flex', gap: '32px', marginBottom: '40px', borderBottom: '1px solid var(--glass-border)' }}>
         <button 
           onClick={() => setActiveTab('cooperativas')}
-          className={`p-pb-4 p-px-2 p-font-black p-transition-all p-text-xs p-tracking-widest ${activeTab === 'cooperativas' ? 'p-border-b-2 p-border-accent p-text-white' : 'p-text-white-40 hover:p-text-white'}`}
+          style={{ 
+            paddingBottom: '20px', 
+            fontWeight: 800, 
+            fontSize: '0.875rem', 
+            letterSpacing: '0.1em',
+            borderBottom: activeTab === 'cooperativas' ? '3px solid var(--accent)' : 'none',
+            color: activeTab === 'cooperativas' ? 'white' : 'var(--text-dim)',
+            background: 'none'
+          }}
         >
           COOPERATIVAS
         </button>
         <button 
           onClick={() => setActiveTab('forense')}
-          className={`p-pb-4 p-px-2 p-font-black p-transition-all p-flex p-items-center p-gap-2 p-text-xs p-tracking-widest ${activeTab === 'forense' ? 'p-border-b-2 p-border-danger p-text-red-500' : 'p-text-white-40 hover:p-text-white'}`}
+          style={{ 
+            paddingBottom: '20px', 
+            fontWeight: 800, 
+            fontSize: '0.875rem', 
+            letterSpacing: '0.1em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            borderBottom: activeTab === 'forense' ? '3px solid var(--danger)' : 'none',
+            color: activeTab === 'forense' ? 'var(--danger)' : 'var(--text-dim)',
+            background: 'none'
+          }}
         >
           <ShieldAlert size={18} />
           SEGURIDAD FORENSE
           {forensicData.summary.critical_count > 0 && (
-            <span className="p-bg-red-500 p-text-white p-text-[10px] p-px-2 p-py-0.5 p-rounded-pill animate-pulse">
+            <span style={{ background: 'var(--danger)', color: 'white', fontSize: '10px', padding: '2px 8px', borderRadius: '100px' }} className="animate-pulse">
               {forensicData.summary.critical_count} CRÍTICO
             </span>
           )}
@@ -154,89 +175,100 @@ const SuperAdminDashboard = () => {
       </div>
 
       {activeTab === 'cooperativas' ? (
-        <section className="p-space-y-4">
-          <div className="p-flex p-justify-between p-items-center p-mb-4">
-            <h2 className="p-text-xl p-font-black p-text-white p-tracking-tight">Cooperativas Federadas</h2>
-            <span className="p-text-white-30 p-text-[10px] p-font-black p-uppercase p-tracking-widest">Estado de Red: ONLINE</span>
+        <section>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'white' }}>Cooperativas Federadas</h2>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-dim)', letterSpacing: '0.1em' }}>ESTADO DE RED: ONLINE</span>
           </div>
           
-          <div className="p-grid p-grid-cols-1 md:p-grid-cols-2 lg:p-grid-cols-3 p-gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
             {data.cooperativas.map(coop => (
-              <div key={coop.id} className="p-glass-premium p-p-5 md:p-p-6 p-relative p-overflow-hidden p-group hover:p-border-accent-20 p-transition-shadow">
-                <div className="p-absolute p-top-0 p-right-0 p-p-4 p-font-black p-text-[10px] p-text-white-20 p-tracking-widest">
+              <div key={coop.id} className="glass glass-hover" style={{ padding: '32px', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: '16px', right: '16px', fontWeight: 900, fontSize: '0.65rem', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>
                   COOP_{coop.id}
                 </div>
-                <h3 className="p-text-lg md:p-text-xl p-font-black p-text-white p-mb-6 p-tracking-tight">{coop.nombre}</h3>
-                <div className="p-flex p-flex-col p-gap-3 p-text-white-40 p-text-sm p-font-bold">
-                  <div className="p-flex p-justify-between">
-                    <span className="p-uppercase p-tracking-widest p-text-[10px]">RIF:</span>
-                    <span className="p-text-white">{coop.rif}</span>
+                <h3 className="neon-text" style={{ fontSize: '1.5rem', fontWeight: 900, marginBottom: '24px' }}>{coop.nombre}</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+                    <span style={{ fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', fontSize: '0.65rem' }}>RIF:</span>
+                    <span style={{ color: 'white', fontWeight: 700 }}>{coop.rif}</span>
                   </div>
-                  <div className="p-flex p-justify-between">
-                    <span className="p-uppercase p-tracking-widest p-text-[10px]">Vehículos:</span>
-                    <span className="p-text-white p-font-black">{coop.vehiculos_count}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+                    <span style={{ fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', fontSize: '0.65rem' }}>Vehículos:</span>
+                    <span style={{ color: 'white', fontWeight: 900 }}>{coop.vehiculos_count}</span>
                   </div>
-                  <div className="p-flex p-justify-between">
-                    <span className="p-uppercase p-tracking-widest p-text-[10px]">Suscripción:</span>
-                    <span className="p-text-amber-500">{formatMoney(coop.vehiculos_count * 30)}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+                    <span style={{ fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', fontSize: '0.65rem' }}>Suscripción:</span>
+                    <span style={{ color: 'var(--warning)', fontWeight: 700 }}>{formatMoney(coop.vehiculos_count * 30)}</span>
                   </div>
                 </div>
-                <div className="p-mt-8 p-flex p-flex-col sm:p-flex-row p-gap-3">
-                  <button className="btn-primary p-flex-1 p-py-3 p-text-[10px] p-tracking-widest">CONTROL REMOTO</button>
-                  <button className="p-glass-premium p-px-4 p-py-3 p-text-[10px] p-font-black hover:p-bg-white-5 p-tracking-widest">AUDITORÍA</button>
+                <div style={{ marginTop: '32px', display: 'flex', gap: '12px' }}>
+                  <button className="btn-primary" style={{ flex: 1, padding: '12px', fontSize: '0.65rem', fontWeight: 800 }}>CONTROL REMOTO</button>
+                  <button className="glass" style={{ px: '16px', padding: '12px', fontSize: '0.65rem', fontWeight: 800 }}>AUDITORÍA</button>
                 </div>
               </div>
             ))}
           </div>
         </section>
       ) : (
-        <section className="p-space-y-6 animate-fade">
-          <div className="p-flex p-flex-col md:p-flex-row p-justify-between p-items-start md:p-items-center p-gap-4 p-mb-8">
-            <h2 className="p-text-2xl p-font-black p-text-red-500 p-flex p-items-center p-gap-3 p-tracking-tight">
+        <section className="animate-fade">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+            <h2 className="neon-text" style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: '16px' }}>
               <ShieldAlert size={28} /> Registro Forense de Fraudes
             </h2>
-            <button onClick={fetchForensicData} className="p-text-[10px] p-text-white-40 p-font-black p-uppercase p-tracking-widest hover:p-text-accent p-flex p-items-center p-gap-2">
+            <button onClick={fetchForensicData} style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px', background: 'none' }}>
               <History size={14} /> ACTUALIZAR FEED
             </button>
           </div>
 
-          <div className="p-space-y-4">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {loadingForense ? (
-              <div className="p-py-20 p-text-center p-text-accent p-font-black p-uppercase p-tracking-widest animate-pulse">ESCANEANDO INFRAESTRUCTURA...</div>
+              <div style={{ padding: '80px', textAlign: 'center', color: 'var(--accent)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em' }} className="animate-pulse">ESCANEANDO INFRAESTRUCTURA...</div>
             ) : forensicData.incidencias.length === 0 ? (
-              <div className="p-glass-premium p-p-16 p-text-center p-text-white-20 p-rounded-3xl p-border p-border-dashed p-border-white-5 p-flex p-flex-col p-items-center p-gap-4">
-                <ShieldAlert size={48} className="p-opacity-20" />
-                <p className="p-text-[10px] p-font-black p-uppercase p-tracking-widest">No se han detectado anomalías críticas en las últimas 24 horas.</p>
+              <div style={{ padding: '64px', textAlign: 'center' }} className="glass">
+                <ShieldAlert size={48} style={{ opacity: 0.1, marginBottom: '24px' }} />
+                <p style={{ color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.75rem' }}>No se han detectado anomalías críticas en las últimas 24 horas.</p>
               </div>
             ) : (
               forensicData.incidencias.map((item, idx) => (
-                <div key={idx} className={`p-glass-premium p-p-6 md:p-p-8 p-rounded-[2rem] p-flex p-flex-col lg:p-flex-row p-gap-6 md:p-gap-8 hover:p-bg-white-5 p-transition-all p-border-l-4 ${
-                     item.severidad === 'Crítica' ? 'p-border-red-500' : item.severidad === 'Alta' ? 'p-border-amber-500' : 'p-border-accent'
-                }`}>
-                  <div className={`p-w-16 p-h-16 p-rounded-2xl p-flex p-items-center p-justify-center p-shrink-0 ${item.severidad === 'Crítica' ? 'p-bg-red-500/10 p-text-red-500' : 'p-bg-white-5 p-text-white-20'}`}>
+                <div key={idx} className="glass glass-hover" style={{ 
+                    padding: '32px', 
+                    display: 'flex', 
+                    gap: '32px', 
+                    borderLeft: `6px solid ${item.severidad === 'Crítica' ? 'var(--danger)' : item.severidad === 'Alta' ? 'var(--warning)' : 'var(--accent)'}` 
+                }}>
+                  <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: item.severidad === 'Crítica' ? 'var(--danger)' : 'var(--text-dim)' }}>
                     <AlertOctagon size={24} />
                   </div>
-                  <div className="p-flex-1">
-                    <div className="p-flex p-justify-between p-items-start p-mb-3">
-                      <span className="p-text-[10px] p-font-black p-uppercase p-tracking-widest p-text-white-30">{item.tipo}</span>
-                      <span className="p-text-[10px] p-font-bold p-text-white-20">{formatDate(item.fecha)}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{item.tipo}</span>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'rgba(255,255,255,0.2)' }}>{formatDate(item.fecha)}</span>
                     </div>
-                    <h4 className="p-text-lg md:p-text-xl p-font-black p-text-white p-mb-2 p-tracking-tight">{item.detalle}</h4>
-                    <p className="p-text-xs md:p-text-sm p-font-bold p-text-white-40 p-mb-6 p-leading-relaxed">{item.evidencia}</p>
-                    <div className="p-flex p-flex-wrap p-gap-6 p-items-center p-pt-4 p-border-t p-border-white-5">
-                      <div className="p-flex p-items-center p-gap-2 p-text-[10px] p-font-black p-text-white-30 p-uppercase p-tracking-widest">
-                        <User size={12} className="p-text-accent" /> {item.chofer}
+                    <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white', marginBottom: '8px' }}>{item.detalle}</h4>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--text-dim)', fontWeight: 600, marginBottom: '24px', lineHeight: 1.6 }}>{item.evidencia}</p>
+                    <div style={{ display: 'flex', gap: '32px', paddingTop: '16px', borderTop: '1px solid var(--glass-border)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', fontWeight: 900, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>
+                        <User size={12} style={{ color: 'var(--accent)' }} /> {item.chofer}
                       </div>
-                      <div className="p-flex p-items-center p-gap-2 p-text-[10px] p-font-black p-text-white-30 p-uppercase p-tracking-widest">
-                        <MapPin size={12} className="p-text-accent" /> {item.cooperativa}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', fontWeight: 900, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>
+                        <MapPin size={12} style={{ color: 'var(--accent)' }} /> {item.cooperativa}
                       </div>
                     </div>
                   </div>
-                  <div className="p-flex p-flex-row lg:p-flex-col p-items-center lg:p-items-end p-justify-between lg:p-justify-center p-gap-4 p-shrink-0">
-                    <span className={`p-px-4 p-py-1.5 p-rounded-pill p-text-[10px] p-font-black p-uppercase p-tracking-widest ${item.severidad === 'Crítica' ? 'p-bg-red-500 p-text-white p-shadow-premium' : 'p-bg-white-10 p-text-white-40'}`}>
+                  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-end', gap: '16px' }}>
+                    <span style={{ 
+                        padding: '6px 16px', 
+                        borderRadius: '100px', 
+                        fontSize: '0.75rem', 
+                        fontWeight: 900, 
+                        background: item.severidad === 'Crítica' ? 'var(--danger)' : 'rgba(255,255,255,0.05)',
+                        color: 'white',
+                        boxShadow: item.severidad === 'Crítica' ? '0 0 15px rgba(239, 68, 68, 0.4)' : 'none'
+                    }}>
                       {item.severidad}
                     </span>
-                    <button className="p-text-[10px] p-font-black p-text-accent p-uppercase p-tracking-widest hover:p-underline">EVIDENCIA</button>
+                    <button style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--accent)', background: 'none', borderBottom: '1px solid currentColor' }}>EVIDENCIA</button>
                   </div>
                 </div>
               ))
@@ -248,46 +280,49 @@ const SuperAdminDashboard = () => {
       {/* Registration Modal */}
       <AnimatePresence>
         {showModal && (
-          <div className="p-fixed p-inset-0 p-z-50 p-flex p-items-center p-justify-center p-p-6">
+          <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
             <Motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowModal(false)}
-              className="p-absolute p-inset-0 p-bg-black/90 p-backdrop-blur-sm"
+              style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)' }}
             />
             <Motion.div 
               initial={{ scale: 0.9, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, y: 20, opacity: 0 }}
-              className="p-relative p-w-full p-max-w-md p-glass-premium p-rounded-[2.5rem] p-p-8 md:p-p-10 p-overflow-hidden p-shadow-premium"
+              className="glass"
+              style={{ position: 'relative', width: '100%', maxWidth: '480px', padding: '48px', overflow: 'hidden' }}
             >
-              <h2 className="p-text-2xl p-font-black p-text-white p-mb-2 p-tracking-tight">Nueva Cooperativa</h2>
-              <p className="p-text-white-40 p-font-bold p-text-xs p-mb-8">Registra una nueva organización en la infraestructura SaaS.</p>
+              <h2 style={{ fontSize: '2rem', fontWeight: 900, color: 'white', marginBottom: '8px' }}>Nueva Cooperativa</h2>
+              <p style={{ color: 'var(--text-dim)', fontWeight: 600, fontSize: '0.875rem', marginBottom: '32px' }}>Registra una nueva organización en la infraestructura SaaS.</p>
               
-              <form onSubmit={handleRegister} className="p-space-y-6">
+              <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 <div>
-                  <label className="p-text-[10px] p-font-black p-text-accent p-uppercase p-tracking-widest p-mb-2 p-block">NOMBRE COMERCIAL</label>
+                  <label style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '8px' }}>NOMBRE COMERCIAL</label>
                   <input 
                     type="text" 
                     value={newCoop.nombre}
                     onChange={e => setNewCoop({...newCoop, nombre: e.target.value})}
-                    className="p-p-4 p-bg-white-5 p-rounded-2xl p-border p-border-white-10 p-text-white p-w-full p-font-bold focus:p-border-accent p-outline-none"
+                    className="glass"
+                    style={{ padding: '16px', background: 'rgba(0,0,0,0.2)', color: 'white', width: '100%', fontWeight: 800, outline: 'none' }}
                     placeholder="Ej. Linea Maturín Express"
                     required
                   />
                 </div>
                 <div>
-                  <label className="p-text-[10px] p-font-black p-text-accent p-uppercase p-tracking-widest p-mb-2 p-block">RIF / IDENTIFICADOR</label>
+                  <label style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '8px' }}>RIF / IDENTIFICADOR</label>
                   <input 
                     type="text" 
                     value={newCoop.rif}
                     onChange={e => setNewCoop({...newCoop, rif: e.target.value})}
-                    className="p-p-4 p-bg-white-5 p-rounded-2xl p-border p-border-white-10 p-text-white p-w-full p-font-bold focus:p-border-accent p-outline-none"
+                    className="glass"
+                    style={{ padding: '16px', background: 'rgba(0,0,0,0.2)', color: 'white', width: '100%', fontWeight: 800, outline: 'none' }}
                     placeholder="J-12345678-9"
                     required
                   />
                 </div>
                 
-                <div className="p-flex p-flex-col sm:p-flex-row p-gap-4 p-pt-4">
-                  <button type="button" onClick={() => setShowModal(false)} className="p-flex-1 p-p-4 p-bg-white-5 p-rounded-2xl p-font-black p-text-white-40 p-uppercase p-tracking-widest hover:p-bg-white-10 p-transition-all">CANCELAR</button>
-                  <button type="submit" className="btn-primary p-flex-1 p-p-4 p-uppercase p-tracking-widest">DAR DE ALTA</button>
+                <div style={{ display: 'flex', gap: '16px', paddingTop: '16px' }}>
+                  <button type="button" onClick={() => setShowModal(false)} className="glass" style={{ flex: 1, padding: '16px', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase' }}>CANCELAR</button>
+                  <button type="submit" className="btn-primary" style={{ flex: 1, padding: '16px', fontWeight: 800, textTransform: 'uppercase' }}>DAR DE ALTA</button>
                 </div>
               </form>
             </Motion.div>
