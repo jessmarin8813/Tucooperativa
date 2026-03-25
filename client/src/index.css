@@ -314,9 +314,17 @@ button {
   }
   .mobile-top-header {
     display: flex !important;
+    margin-bottom: 8px !important;
+    padding-bottom: 0px !important;
   }
   .view-container {
-    padding: 24px 16px 80px 16px !important;
+    padding: 8px 20px 100px 20px !important;
+  }
+  .p-grid-responsive {
+    gap: 20px !important;
+  }
+  .glass {
+    padding: 24px !important;
   }
 }
 

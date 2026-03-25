@@ -59,7 +59,7 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
               onClick={toggleMobileMenu}
               className="mobile-menu-trigger"
             >
-              <Menu size={32} />
+              <Menu size={38} strokeWidth={2.5} />
             </button>
           </header>
 
