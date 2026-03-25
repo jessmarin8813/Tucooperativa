@@ -18,19 +18,10 @@ const VehiculosView = lazy(() => import('./VehiculosView'))
 const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
-  const [headerHeight, setHeaderHeight] = useState(0)
-  const headerRef = React.useRef(null)
 
   React.useEffect(() => {
-    const handleResize = () => {
-        setIsMobile(window.innerWidth < 1024)
-        if (headerRef.current) {
-            setHeaderHeight(headerRef.current.offsetHeight)
-        }
-    }
+    const handleResize = () => setIsMobile(window.innerWidth < 1024)
     window.addEventListener('resize', handleResize)
-    // Initial measure
-    handleResize()
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
@@ -42,7 +33,14 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
   }
 
   return (
-    <div className="p-flex" style={{ height: '100vh', width: '100vw', background: 'var(--bg-dark)', position: 'relative', overflow: 'hidden' }}>
+    <div className="p-flex" style={{ 
+      height: '100vh', 
+      width: '100vw', 
+      background: 'var(--bg-dark)', 
+      position: 'relative', 
+      overflow: 'hidden',
+      flexDirection: isMobile ? 'column' : 'row'
+    }}>
       
       {/* Desktop Sidebar */}
       <div className="desktop-only" style={{ width: 'var(--sidebar-width)', flexShrink: 0 }}>
@@ -55,14 +53,12 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
       </div>
 
       {/* Mobile Top Header */}
-      <header 
-        ref={headerRef}
-        className="mobile-header" 
-        style={{ 
-          position: 'fixed', top: 0, left: 0, right: 0, height: 'var(--header-h-mobile)', 
-          background: 'rgba(7, 8, 13, 0.9)', backdropFilter: 'blur(10px)',
-          borderBottom: '1px solid var(--glass-border)', alignItems: 'center', 
-          justifyContent: 'space-between', padding: '0 24px', zIndex: 60 
+      <header className="mobile-header" style={{ 
+          position: 'sticky', top: 0, left: 0, right: 0, height: '70px', 
+          background: 'rgba(7, 8, 13, 0.95)', backdropFilter: 'blur(20px)',
+          borderBottom: '1px solid var(--glass-border)', display: isMobile ? 'flex' : 'none',
+          alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', zIndex: 60,
+          flexShrink: 0
       }}>
           <h1 className="neon-text brand" style={{ fontSize: '1.35rem', fontWeight: 900, lineHeight: '1.2' }}>TuCooperativa</h1>
           <button 
@@ -102,10 +98,9 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
       {/* Main Content Area */}
       <main style={{ 
         flex: 1, 
-        height: '100vh', 
+        height: isMobile ? 'calc(100vh - 70px)' : '100vh', 
         overflowY: 'auto',
-        position: 'relative',
-        paddingTop: isMobile ? `${headerHeight}px` : '0'
+        position: 'relative'
       }}>
         <div className="view-container animate-fade">
             <Suspense fallback={<LoadingSpinner />}>

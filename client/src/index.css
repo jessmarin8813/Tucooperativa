@@ -244,10 +244,7 @@ button {
     display: flex;
   }
   .view-container {
-    padding-top: 32px !important;
-    padding-left: clamp(16px, 5vw, 32px) !important;
-    padding-right: clamp(16px, 5vw, 32px) !important;
-    padding-bottom: 60px !important;
+    padding: 24px 16px 80px 16px !important;
   }
   .p-grid-responsive {
     grid-template-columns: 1fr !important;
