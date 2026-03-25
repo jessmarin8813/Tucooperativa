@@ -27,7 +27,10 @@ const CobranzaView = () => {
     }, [callApi])
 
     useEffect(() => {
-        fetchData()
+        const init = async () => {
+            await fetchData()
+        }
+        init()
     }, [fetchData, date])
 
     const handleProcesar = async (id, accion) => {

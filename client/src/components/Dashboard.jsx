@@ -22,19 +22,22 @@ const Dashboard = () => {
 
   const fetchDashboardData = useCallback(async () => {
     try {
-      if (!currentUser) {
-        const sessionRes = await callApi('session.php')
-        setCurrentUser(sessionRes.user)
-      }
       const statsRes = await callApi('dashboard.php')
       const fleetRes = await callApi('vehiculos.php')
       setData({ stats: statsRes.stats, vehicles: fleetRes })
     } catch { /* Handled */ }
-  }, [callApi, currentUser])
+  }, [callApi])
 
   useEffect(() => {
-    fetchDashboardData()
-  }, [fetchDashboardData])
+    const init = async () => {
+      if (!currentUser) {
+        const sessionRes = await callApi('session.php')
+        setCurrentUser(sessionRes.user)
+      }
+      fetchDashboardData()
+    }
+    init()
+  }, [callApi, fetchDashboardData, currentUser])
 
   const handleRegistrationSuccess = () => {
     setIsModalOpen(false)

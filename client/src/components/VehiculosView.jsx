@@ -14,18 +14,21 @@ const VehiculosView = () => {
 
   const fetchVehicles = useCallback(async () => {
     try {
+      const data = await callApi('vehiculos.php')
+      setVehicles(Array.isArray(data) ? data : [])
+    } catch { /* Handled */ }
+  }, [callApi])
+
+  useEffect(() => {
+    const init = async () => {
       if (!currentUser) {
         const sessionRes = await callApi('session.php')
         setCurrentUser(sessionRes.user)
       }
-      const data = await callApi('vehiculos.php')
-      setVehicles(Array.isArray(data) ? data : [])
-    } catch { /* Handled */ }
-  }, [callApi, currentUser])
-
-  useEffect(() => {
-    fetchVehicles()
-  }, [fetchVehicles])
+      fetchVehicles()
+    }
+    init()
+  }, [callApi, fetchVehicles, currentUser])
 
   const handleRegistrationSuccess = () => {
     setIsModalOpen(false)

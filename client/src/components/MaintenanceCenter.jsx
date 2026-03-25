@@ -20,7 +20,10 @@ const MaintenanceCenter = () => {
   }, [callApi])
 
   useEffect(() => {
-    fetchHealth()
+    const init = async () => {
+      await fetchHealth()
+    }
+    init()
   }, [fetchHealth])
 
   const handleReset = async (itemId, currentOdo) => {

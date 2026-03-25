@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import { motion as Motion } from 'framer-motion'
 
-const Sidebar = ({ onLogout, userRole, activeView, setActiveView }) => {
+const Sidebar = ({ onLogout, activeView, setActiveView }) => {
   const menuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Centro de Mando' },
     { id: 'flota', icon: Truck, label: 'Flota de Vehículos' },

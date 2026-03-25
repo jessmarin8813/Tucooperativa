@@ -28,7 +28,10 @@ const ConfiguracionView = () => {
     }, [callApi])
 
     useEffect(() => {
-        fetchConfig()
+        const init = async () => {
+            await fetchConfig()
+        }
+        init()
     }, [fetchConfig])
 
     const handleSave = async () => {

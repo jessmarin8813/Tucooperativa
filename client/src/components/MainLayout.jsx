@@ -58,7 +58,6 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
       <aside className="sidebar-desktop-wrapper desktop-only">
         <Sidebar 
           onLogout={onLogout} 
-          userRole={user?.rol || 'owner'} 
           activeView={activeView} 
           setActiveView={handleNavigate} 
         />
@@ -128,7 +127,6 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
             >
               <Sidebar 
                 onLogout={onLogout} 
-                userRole={user?.rol || 'owner'} 
                 activeView={activeView} 
                 setActiveView={handleNavigate} 
                 isMobile={true}
