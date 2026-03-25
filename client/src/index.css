@@ -16,6 +16,8 @@
   --danger: #ef4444;
   --sidebar-width: 280px;
   --header-h-mobile: 70px;
+  --font-senior-label: 0.9rem;
+  --font-senior-input: 1rem;
 }
 
 * {
@@ -108,6 +110,23 @@ button {
   .mobile-hide {
     display: none !important;
   }
+  /* Senior Touch Targets */
+  .tab-item {
+    padding: 20px 24px !important;
+    font-size: 1rem !important;
+  }
+}
+
+.p-senior-label {
+  font-size: var(--font-senior-label);
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.p-mobile-input-premium {
+  font-size: var(--font-senior-input) !important;
+  color: white !important;
 }
 
 .view-container {
@@ -372,9 +391,9 @@ button {
     font-size: 0.85rem !important;
   }
 
-  .p-grid {
+  .p-grid, .p-grid-cols-2 {
     grid-template-columns: 1fr !important;
-    gap: 16px !important;
+    gap: 24px !important;
   }
 
   .empty-state-card {
@@ -412,13 +431,20 @@ button {
     box-shadow: none !important;
   }
   .view-container {
-    padding: 0 28px 120px 28px !important;
+    padding: 0 16px 120px 16px !important;
   }
   .p-grid-responsive {
-    gap: 32px !important;
+    gap: 24px !important;
   }
   .glass {
-    padding: 32px 28px !important;
+    padding: 24px 20px !important;
+  }
+  .mobile-edge-to-edge {
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
   }
   /* Pure CSS Hamburger */
   .hamburger-box {
@@ -478,10 +504,10 @@ button {
 }
 
 .tab-item.active {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--primary);
   color: white;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .tab-item:hover:not(.active) {
@@ -492,16 +518,26 @@ button {
 @media (max-width: 768px) {
   .tab-container {
     display: flex;
+    flex-direction: column !important;
     width: 100%;
-    gap: 4px;
-    padding: 6px;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
   }
   .tab-item {
-    flex: 1;
-    font-size: 0.75rem;
-    padding: 10px 8px;
-    justify-content: center;
-    gap: 6px;
+    width: 100%;
+    flex: 0 0 auto;
+    font-size: 0.9rem;
+    padding: 18px 24px;
+    justify-content: flex-start;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .tab-item.active {
+    background: var(--primary) !important;
+    transform: scale(1.02);
   }
 }
 
@@ -521,7 +557,56 @@ button {
   cursor: pointer;
 }
 
-.select-premium option {
-  background-color: #0f172a;
-  color: white;
+/* Native Settings Separators */
+.p-field-divider {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .p-field-divider:last-child {
+    border-bottom: none;
+  }
+  .p-mobile-input-premium {
+    background: rgba(255, 255, 255, 0.07) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 12px !important;
+    color: white !important;
+  }
+  input, select, textarea {
+    color: white !important;
+  }
+}
+
+/* Responsive Helpers */
+.p-mobile-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .p-mobile-column {
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+  .p-mobile-no-padding {
+    padding-left: 0 !important;
+  }
+  .p-mobile-small-padding {
+    padding: 16px !important;
+  }
+  .p-mobile-full-width {
+    width: 100% !important;
+  }
+}
+
+.p-config-content {
+  padding-left: 32px;
+}
+
+@media (max-width: 768px) {
+  .p-config-content {
+    padding-left: 0 !important;
+  }
 }

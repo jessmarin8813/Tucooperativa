@@ -51,13 +51,13 @@ $pago_id = $db->lastInsertId();
 
 // 3. Notify Owner via Master Bot (Telegram)
 if ($v['admin_chat_id']) {
-    require_once __DIR__ . '/../notificaciones.php';
+    require_once __DIR__ . '/../includes/telegram_helper.php';
     $msg = "💰 **PAGO REPORTADO (Bs)**\n\n";
     $msg .= "Unidad: *{$v['placa']}*\n";
     $msg .= "Monto Total: *{$monto_total} Bs*\n";
     if ($m_efectivo > 0) $msg .= "💵 Efectivo: *{$m_efectivo} Bs*\n";
     if ($m_pagomovil > 0) $msg .= "📱 Pago Móvil: *{$m_pagomovil} Bs*\n";
-    $msg .= "\n🔗 [REVISAR Y APROBAR](http://localhost:5173/?view=cobranza&pago={$pago_id})";
+    $msg .= "\n🔗 [REVISAR Y APROBAR](http://192.168.0.221/TuCooperativa/dist/?view=cobranza&pago={$pago_id})";
     
     sendTelegramNotification($v['admin_chat_id'], $msg, $coop_id);
 }

@@ -80,12 +80,13 @@ class TuCooperativaAPI:
         except Exception as e:
             return {'error': str(e)}
 
-    def register_via_token(self, token, telegram_id, nombre):
+    def register_via_token(self, token, telegram_id, nombre, cedula=''):
         try:
             response = self.session.post(f"{self.base_url}/registrar.php", json={
                 'token': token,
                 'telegram_id': telegram_id,
-                'nombre': nombre
+                'nombre': nombre,
+                'cedula': cedula
             })
             return response.json()
         except Exception as e:

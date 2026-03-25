@@ -16,10 +16,8 @@ if %errorlevel% neq 0 (
     echo.
     echo [ERROR] El Build o la Auditoria han fallado.
     echo Por favor, revisa los logs arriba antes de intentar de nuevo.
-    pause
     exit /b %errorlevel%
 )
 
 echo.
 echo [SUCCESS] Proceso completado. Sistema estable y actualizado en Git.
-pause

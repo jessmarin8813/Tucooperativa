@@ -114,8 +114,9 @@ const ChoferesView = () => {
                     <User size={28} color="white" />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '4px' }}>{c.nombre}</h3>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--text-dim)', marginBottom: '12px' }}>{c.email}</p>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '2px' }}>{c.nombre}</h3>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 800, marginBottom: '8px' }}>ID: {c.cedula || '---'}</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: '12px' }}>{c.email}</p>
                     
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                       <span className={`status-badge ${c.is_online ? 'online' : 'offline'}`} style={{ 

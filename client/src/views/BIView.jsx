@@ -81,7 +81,7 @@ const BIView = () => {
              <p className="text-label" style={{ marginBottom: '16px' }}>Gastos Totales</p>
              <h2 className="text-value" style={{ color: 'var(--danger)' }}>{formatMoney(global.gastos)}</h2>
              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '16px', fontSize: '0.75rem', fontWeight: 800, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase' }}>
-                <AlertTriangle size={14} style={{ color: 'var(--danger)', opacity: 0.5 }} /> Mante. + Trámites
+                <AlertTriangle size={14} style={{ color: 'var(--danger)', opacity: 0.5 }} /> Mantenimiento + Trámites
              </div>
         </Motion.div>
 

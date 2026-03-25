@@ -23,17 +23,40 @@ set_error_handler(function($errno, $errstr, $errfile, $errline) {
 
 if (!function_exists('checkAuth')) {
     function checkAuth() {
-        if (!isset($_SESSION['user_id'])) {
-            header('Content-Type: application/json', true, 401);
-            echo json_encode(['error' => 'Unauthorized']);
-            exit;
+        // 1. Prioritize Web Session
+        if (isset($_SESSION['user_id'])) {
+            return [
+                'user_id' => $_SESSION['user_id'],
+                'cooperativa_id' => $_SESSION['cooperativa_id'] ?? null,
+                'rol' => $_SESSION['rol'],
+                'nombre' => $_SESSION['nombre']
+            ];
         }
-        return [
-            'user_id' => $_SESSION['user_id'],
-            'cooperativa_id' => $_SESSION['cooperativa_id'] ?? null,
-            'rol' => $_SESSION['rol'],
-            'nombre' => $_SESSION['nombre']
-        ];
+
+        // 2. Fallback to Telegram ID (Bot or Simulator)
+        // We look in JSON body or GET
+        $input = json_decode(file_get_contents('php://input'), true);
+        $tid = $input['telegram_id'] ?? $_GET['telegram_id'] ?? null;
+
+        if ($tid) {
+            $db = DB::getInstance();
+            $stmt = $db->prepare("SELECT id, cooperativa_id, rol, nombre FROM usuarios WHERE telegram_chat_id = ? OR telegram_id = ?");
+            $stmt->execute([$tid, $tid]);
+            $user = $stmt->fetch();
+            
+            if ($user && $user['id']) {
+                return [
+                    'user_id' => $user['id'],
+                    'cooperativa_id' => $user['cooperativa_id'],
+                    'rol' => $user['rol'],
+                    'nombre' => $user['nombre']
+                ];
+            }
+        }
+
+        header('Content-Type: application/json', true, 401);
+        echo json_encode(['error' => 'Unauthorized']);
+        exit;
     }
 }
 

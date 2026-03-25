@@ -8,6 +8,7 @@ from telegram.ext import (
 )
 from dotenv import load_dotenv
 from api_client import TuCooperativaAPI
+from ip_sync import sync_env_ip # NEW: Auto-discovery
 
 load_dotenv()
 
@@ -23,8 +24,9 @@ api = TuCooperativaAPI()
 (
     START_VEHICLE, START_ODOMETER, START_PHOTO, START_PAY_METHOD, START_PAY_AMOUNTS,
     END_ODOMETER, END_PHOTO, FUEL_REPORT,
-    REPORTAR_METHOD, REPORTAR_AMOUNTS, REPORTAR_PHOTO
-) = range(11)
+    REPORTAR_METHOD, REPORTAR_AMOUNTS, REPORTAR_PHOTO,
+    REGISTRAR_NOMBRE, REGISTRAR_CEDULA
+) = range(13)
 
 async def get_dynamic_menu():
     """Build menu based on driver's current status (State-Aware)"""
@@ -42,25 +44,58 @@ async def get_dynamic_menu():
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Entry point with dynamic menu"""
-    # Handle Deep Links
+    """Entry point with dynamic menu and deep link handling"""
     if context.args:
         token = context.args[0]
         if token.startswith('link_'):
             res = api.link_owner_via_token(token.replace('link_',''), update.effective_user.id)
             msg = "👑 ¡Vínculo de Dueño Exitoso!" if 'error' not in res else f"❌ Error: {res['error']}"
+            await update.message.reply_text(msg, reply_markup=await get_dynamic_menu())
+            return ConversationHandler.END
         else:
-            res = api.register_via_token(token, update.effective_user.id, update.effective_user.first_name)
-            msg = "✅ ¡Registro Exitoso!" if 'error' not in res else f"❌ Error: {res['error']}"
-        
-        await update.message.reply_text(msg, reply_markup=await get_dynamic_menu())
-        return
+            # Initiate Driver Onboarding Flow
+            context.user_data['invite_token'] = token
+            await update.message.reply_text(
+                "🚀 **¡Bienvenido a TuCooperativa!**\n\nHe validado tu invitación. Para completar tu registro, por favor responde a este mensaje con tu **Nombre y Apellido completo**:",
+                parse_mode='Markdown',
+                reply_markup=ReplyKeyboardRemove()
+            )
+            return REGISTRAR_NOMBRE
 
     await update.message.reply_text(
         "🚀 **Centro de Mando TuCooperativa**\nBienvenido. Selecciona una opción del menú inferior.",
         parse_mode='Markdown',
         reply_markup=await get_dynamic_menu()
     )
+    return ConversationHandler.END
+
+async def registrar_nombre_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['driver_nombre'] = update.message.text
+    await update.message.reply_text(
+        "🆔 Ahora, ingresa tu número de **Cédula** (solo números):",
+        parse_mode='Markdown'
+    )
+    return REGISTRAR_CEDULA
+
+async def registrar_cedula_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    cedula = update.message.text
+    if not cedula.isdigit():
+        await update.message.reply_text("⚠️ Por favor, ingresa solo los números de tu Cédula:")
+        return REGISTRAR_CEDULA
+    
+    res = api.register_via_token(
+        context.user_data['invite_token'], 
+        update.effective_user.id, 
+        context.user_data['driver_nombre'],
+        cedula
+    )
+    
+    if 'error' in res:
+        await update.message.reply_text(f"❌ Error: {res['error']}", reply_markup=await get_dynamic_menu())
+    else:
+        await update.message.reply_text(f"✅ ¡Registro Exitoso, {context.user_data['driver_nombre']}!\nYa puedes empezar a laborar.", reply_markup=await get_dynamic_menu())
+    
+    return ConversationHandler.END
 
 async def handle_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
@@ -244,6 +279,12 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 if __name__ == '__main__':
+    # NEW: Intelligent IP Discovery for Network Segments (Home/Office)
+    sync_env_ip()
+    
+    # Reload env after potential sync update
+    load_dotenv()
+    
     TOKEN = os.getenv('TELEGRAM_TOKEN')
     app = ApplicationBuilder().token(TOKEN).build()
 
@@ -280,7 +321,17 @@ if __name__ == '__main__':
         fallbacks=[CommandHandler('cancel', cancel)]
     )
 
-    app.add_handler(CommandHandler("start", start))
+    # Registration Conversation
+    registration_conv = ConversationHandler(
+        entry_points=[CommandHandler("start", start)],
+        states={
+            REGISTRAR_NOMBRE: [MessageHandler(filters.TEXT & (~filters.COMMAND), registrar_nombre_received)],
+            REGISTRAR_CEDULA: [MessageHandler(filters.TEXT & (~filters.COMMAND), registrar_cedula_received)],
+        },
+        fallbacks=[CommandHandler('cancel', cancel)]
+    )
+
+    app.add_handler(registration_conv)
     app.add_handler(start_conv)
     app.add_handler(end_conv)
     app.add_handler(report_conv)

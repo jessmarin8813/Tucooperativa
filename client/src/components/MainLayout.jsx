@@ -73,7 +73,13 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
           <header 
             className={`mobile-top-header mobile-only ${(!showHeader || isMobileMenuOpen) ? 'header-hidden' : ''}`}
           >
-            <h1 className="neon-text brand" style={{ fontSize: '1.35rem', fontWeight: 900 }}>TuCooperativa</h1>
+            <h1 
+              onClick={() => handleNavigate('dashboard')}
+              className="neon-text brand" 
+              style={{ fontSize: '1.35rem', fontWeight: 900, cursor: 'pointer' }}
+            >
+              TuCooperativa
+            </h1>
             <button 
               onClick={toggleMobileMenu}
               className="mobile-menu-trigger"

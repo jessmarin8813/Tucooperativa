@@ -98,9 +98,8 @@ const Dashboard = () => {
             </div>
             <button 
               onClick={async () => {
-                const res = await fetch('/api/admin/generate_link_token.php');
-                const data = await res.json();
-                if(data.success && data.link) window.open(data.link, '_blank');
+                const res = await callApi('admin/generate_link_token.php');
+                if(res && res.link) window.open(res.link, '_blank');
               }}
               className="btn-primary mobile-full-btn" 
             >

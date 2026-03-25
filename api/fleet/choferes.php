@@ -10,7 +10,7 @@ $db = DB::getInstance();
 
 // Scoped query for security
 function getScopedChoferes($db, $coop_id) {
-    $stmt = $db->prepare("SELECT id, nombre, email, telegram_id, created_at 
+    $stmt = $db->prepare("SELECT id, nombre, cedula, email, telegram_id, created_at 
                           FROM usuarios 
                           WHERE cooperativa_id = ? AND rol = 'chofer'
                           ORDER BY created_at DESC");

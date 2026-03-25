@@ -18,7 +18,7 @@ if ($method === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     
     $fields = [
-        'telegram_bot_token', 'telegram_chat_id', 'cuota_diaria', 'moneda',
+        'telegram_bot_token', 'telegram_bot_name', 'telegram_chat_id', 'cuota_diaria', 'moneda',
         'banco_nombre', 'banco_tipo', 'banco_identidad', 'banco_telefono'
     ];
     

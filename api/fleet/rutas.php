@@ -60,7 +60,7 @@ switch ($method) {
                     $owner_info = $stmt->fetch();
 
                     if ($owner_info && $owner_info['telegram_chat_id']) {
-                        require_once '../includes/telegram_helper.php';
+                        require_once __DIR__ . '/../includes/telegram_helper.php';
                         $msg = "🕵️‍♂️ **GAP DETECTADO - Uso No Reportado**\n\n";
                         $msg .= "Unidad: *{$owner_info['placa']}*\n";
                         $msg .= "Chofer: *{$owner_info['chofer_name']}*\n";
@@ -191,7 +191,7 @@ switch ($method) {
                     $stmt->execute(['fuel' => $consumo_reportado, 'alerta' => $alerta, 'ruta_id' => $ruta_id]);
 
                     if ($ruta_info['telegram_id']) {
-                        require_once 'notificaciones.php';
+                        require_once __DIR__ . '/../includes/telegram_helper.php';
                         if ($alerta) {
                             $msg = "🚨 *ALERTA DE COMBUSTIBLE - TuCooperativa*\n\n";
                             $msg .= "Unidad: *{$ruta_info['placa']}*\n";
