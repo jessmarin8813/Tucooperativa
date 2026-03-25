@@ -75,7 +75,7 @@ const ConfiguracionView = () => {
             </header>
 
             <div style={{ maxWidth: '1200px' }}>
-                <div className="tab-container" style={{ marginBottom: '32px', marginLeft: '16px' }}>
+                <div className="tab-container" style={{ marginBottom: '32px', marginLeft: '0px' }}>
                     <button 
                         onClick={() => setActiveTab('sistema')}
                         className={`tab-item ${activeTab === 'sistema' ? 'active' : ''}`}
@@ -117,7 +117,7 @@ const ConfiguracionView = () => {
                                 </h3>
                                 <div className="p-flex p-flex-col p-gap-6">
                                     <div>
-                                        <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>CUOTA DIARIA ($ USD)</label>
+                                        <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>CUOTA DIARIA ($ USD)</label>
                                         <input 
                                             type="number"
                                             value={config.cuota_diaria}
@@ -125,15 +125,15 @@ const ConfiguracionView = () => {
                                             className="glass"
                                             style={{ width: '100%', padding: '16px 24px', fontSize: '1.5rem', fontWeight: 900, color: 'var(--success)' }}
                                         />
-                                        <p style={{ marginTop: '12px', fontSize: '11px', color: 'var(--text-dim)', fontWeight: 600 }}>Monto fijo que el sistema exigirá a cada unidad diariamente.</p>
+                                        <p style={{ marginTop: '12px', fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Monto fijo que el sistema exigirá a cada unidad diariamente.</p>
                                     </div>
                                     <div>
-                                        <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>DIVISA PRINCIPAL</label>
+                                        <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>DIVISA PRINCIPAL</label>
                                         <select 
                                             value={config.moneda}
                                             onChange={(e) => setConfig({...config, moneda: e.target.value})}
-                                            className="glass"
-                                            style={{ width: '100%', padding: '16px 24px', fontWeight: 700 }}
+                                            className="glass select-premium"
+                                            style={{ width: '100%', padding: '16px 24px', fontWeight: 700, appearance: 'none' }}
                                         >
                                             <option value="USD">Dólar Estadounidense ($)</option>
                                             <option value="BS">Bolívares Digitales (Bs)</option>
@@ -146,7 +146,7 @@ const ConfiguracionView = () => {
                                     <ShieldCheck size={40} />
                                 </div>
                                 <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: 'white' }}>Cumplimiento Automático</h4>
-                                <p style={{ fontSize: '0.875rem', color: 'var(--text-dim)', marginTop: '16px', lineHeight: 1.6 }}>Cualquier cambio en la cuota se aplicará de forma forense a partir del próximo cierre de caja programado.</p>
+                                <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.6)', marginTop: '16px', lineHeight: 1.6 }}>Cualquier cambio en la cuota se aplicará de forma forense a partir del próximo cierre de caja programado.</p>
                             </div>
                         </div>
                     )}
@@ -158,7 +158,7 @@ const ConfiguracionView = () => {
                             </h3>
                             <div className="p-flex p-flex-col p-gap-8">
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>BOT API TOKEN</label>
+                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>BOT API TOKEN</label>
                                     <input 
                                         type="password"
                                         value={config.telegram_bot_token}
@@ -169,7 +169,7 @@ const ConfiguracionView = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>ADMIN CHAT ID (PARA ALERTAS)</label>
+                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>ADMIN CHAT ID (PARA ALERTAS)</label>
                                     <input 
                                         type="text"
                                         value={config.telegram_chat_id}
@@ -185,7 +185,7 @@ const ConfiguracionView = () => {
                                         <Bot className="text-accent animate-bounce" />
                                         <div>
                                             <p style={{ fontWeight: 900, fontSize: '0.9rem' }}>Vincular mi cuenta personal</p>
-                                            <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Recibe tu acceso de administrador directo en Telegram</p>
+                                            <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)' }}>Recibe tu acceso de administrador directo en Telegram</p>
                                         </div>
                                     </div>
                                     <button 
@@ -208,11 +208,11 @@ const ConfiguracionView = () => {
                             <h3 style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <CreditCard className="text-primary" /> Datos de Recaudación (Pago Móvil)
                             </h3>
-                            <p style={{ color: 'var(--text-dim)', marginBottom: '32px', fontSize: '0.9rem' }}>Estos datos son visibles para todos los choferes al momento de reportar su pago diario.</p>
+                            <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '32px', fontSize: '0.9rem' }}>Estos datos son visibles para todos los choferes al momento de reportar su pago diario.</p>
                             
                             <div className="p-grid p-grid-cols-2" style={{ gap: '32px' }}>
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>BANCO DESTINO</label>
+                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>BANCO DESTINO</label>
                                     <input 
                                         type="text"
                                         value={config.banco_nombre}
@@ -223,7 +223,7 @@ const ConfiguracionView = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>CÉDULA / RIF</label>
+                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>CÉDULA / RIF</label>
                                     <input 
                                         type="text"
                                         value={config.banco_identidad}
@@ -234,7 +234,7 @@ const ConfiguracionView = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>TELÉFONO ASOCIADO</label>
+                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>TELÉFONO ASOCIADO</label>
                                     <input 
                                         type="text"
                                         value={config.banco_telefono}
