@@ -33,7 +33,7 @@ const BIView = () => {
 
   return (
     <div>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }} className="print:hidden">
+      <header className="p-flex-responsive p-justify-between print:hidden" style={{ marginBottom: '40px' }}>
         <div>
           <h1 className="h1-premium neon-text">Inteligencia Financiera</h1>
           <p className="p-subtitle">Control de rentabilidad y rentas diarias de la flota</p>
@@ -41,14 +41,13 @@ const BIView = () => {
         <button 
             onClick={handlePrint}
             className="btn-primary"
-            style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px 32px' }}
         >
             <Printer size={20} /> GENERAR CIERRE (PDF)
         </button>
       </header>
 
       {/* Main Stats Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '32px' }}>
+      <div className="p-grid p-grid-cols-4" style={{ marginBottom: '32px' }}>
         <Motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass" style={{ padding: '32px', position: 'relative', overflow: 'hidden' }}>
              <p className="text-label" style={{ marginBottom: '16px' }}>Ingreso Proyectado</p>
              <h2 className="text-value neon-text">{formatMoney(global.proyectado)}</h2>
@@ -89,15 +88,15 @@ const BIView = () => {
         </Motion.div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '8fr 4fr', gap: '32px', marginTop: '32px' }}>
+      <div className="p-flex-responsive" style={{ marginTop: '32px', gap: '24px' }}>
         {/* Fleet Profitability Table */}
         <Motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="glass"
-          style={{ overflow: 'hidden' }}
+          style={{ overflow: 'hidden', flex: 1.5 }}
         >
-          <div style={{ padding: '32px', borderBottom: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ padding: '32px', borderBottom: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
              <div>
                 <h3 className="neon-text brand" style={{ fontSize: '1.5rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '12px' }}>
                    <Activity size={24} style={{ color: 'var(--accent)' }} /> Salud de Rentabilidad
@@ -149,7 +148,7 @@ const BIView = () => {
         </Motion.div>
 
         {/* Charts Side */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', flex: 1 }}>
              <Motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="glass" style={{ padding: '32px' }}>
                 <h3 className="neon-text brand" style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <BarChart3 style={{ color: 'var(--accent)' }} /> Flujo Regional
