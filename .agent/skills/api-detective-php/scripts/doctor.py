@@ -1,4 +1,4 @@
-﻿import urllib.request
+import urllib.request
 import json
 import socket
 import ssl
@@ -41,11 +41,11 @@ def run_diagnostics():
 
     print("\n[VERIFICANDO ENDPOINTS CRÃTICOS]")
     
-    # We test locally in Contratos by default, but this logic applies to any.
+    # We test locally in TuCooperativa by default.
     endpoints = [
-        "http://localhost/Contratos/system_health_check.php",
-        "http://localhost/Contratos/api/test_db.php",
-        "http://localhost/Contratos/api/login.php"
+        "http://localhost/TuCooperativa/api/includes/middleware.php",
+        "http://localhost/TuCooperativa/api/admin/stats.php",
+        "http://localhost/TuCooperativa/api/login.php"
     ]
 
     for ep in endpoints:

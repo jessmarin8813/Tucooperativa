@@ -73,7 +73,7 @@ const Dashboard = () => {
             className="btn-primary mobile-full-btn"
             onClick={() => setIsModalOpen(true)}
           >
-            + NUEVA UNIDAD
+            NUEVA UNIDAD
           </button>
         </div>
       </header>

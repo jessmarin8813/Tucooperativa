@@ -19,6 +19,24 @@ const MaintenanceCenter = lazy(() => import('./MaintenanceCenter'))
 const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
+  const [showHeader, setShowHeader] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      if (!isMobile) return;
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setShowHeader(false);
+      } else {
+        setShowHeader(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY, isMobile]);
 
   React.useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024)
@@ -53,7 +71,7 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
         <main className="main-scroll-area">
           
           {/* Mobile-Only Header - Moves with scroll */}
-          <header className="mobile-top-header mobile-only">
+          <header className={`mobile-top-header mobile-only ${!showHeader || isMobileMenuOpen ? 'header-hidden' : ''}`}>
             <h1 className="neon-text brand" style={{ fontSize: '1.35rem', fontWeight: 900 }}>TuCooperativa</h1>
             <button 
               onClick={toggleMobileMenu}
