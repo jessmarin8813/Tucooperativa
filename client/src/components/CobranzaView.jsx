@@ -7,6 +7,8 @@ import { formatMoney, formatBs, formatDate } from '../utils/DashboardConstants'
 
 const CobranzaView = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+    const [data, setData] = useState({ resumen: [], pendientes: [] })
+    const [loading, setLoading] = useState(true)
     const { callApi, loading: apiLoading } = useApi()
 
     useEffect(() => {
