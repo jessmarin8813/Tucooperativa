@@ -36,16 +36,15 @@ switch ($method) {
                 $last_odo = $last_odo_row ? floatval($last_odo_row['valor']) : 0;
                 $gap = floatval($odometro_valor) - $last_odo;
 
-                // 1. Create Route with payment info
-                $stmt = $db->prepare("INSERT INTO rutas (cooperativa_id, vehiculo_id, chofer_id, estado, monto_efectivo, monto_pagomovil) 
-                                     VALUES (:coop_id, :vehiculo_id, :chofer_id, 'activa', :efectivo, :pagomovil)");
+                // 1. Create Route (WITHOUT payment info at start)
+                $stmt = $db->prepare("INSERT INTO rutas (cooperativa_id, vehiculo_id, chofer_id, estado) 
+                                     VALUES (:coop_id, :vehiculo_id, :chofer_id, 'activa')");
                 $stmt->execute([
                     'coop_id' => $coop_id,
                     'vehiculo_id' => $vehiculo_id,
-                    'chofer_id' => $user['user_id'],
-                    'efectivo' => $data['monto_efectivo'] ?? 0,
-                    'pagomovil' => $data['monto_pagomovil'] ?? 0
+                    'chofer_id' => $user['user_id']
                 ]);
+
                 $ruta_id = $db->lastInsertId();
 
                 // Logic for Gap Alert Notification
@@ -110,55 +109,45 @@ switch ($method) {
                     throw new Exception("El odómetro final ($odometro_valor) debe ser mayor al inicial ($start_odo).");
                 }
 
-                // 1. Update Route
-                $stmt = $db->prepare("UPDATE rutas SET estado = 'finalizada', ended_at = CURRENT_TIMESTAMP 
-                                     WHERE id = :ruta_id AND cooperativa_id = :coop_id AND chofer_id = :chofer_id");
+                // 0. CALCULATE SUGGESTED QUOTA BASED ON TIME
+                $stmt = $db->prepare("SELECT started_at, vehiculo_id FROM rutas WHERE id = ?");
+                $stmt->execute([$ruta_id]);
+                $r_data = $stmt->fetch();
+                
+                $start = strtotime($r_data['started_at']);
+                $diff_hours = (time() - $start) / 3600;
+                
+                $stmt = $db->prepare("SELECT cuota_diaria FROM vehiculos WHERE id = ?");
+                $stmt->execute([$r_data['vehiculo_id']]);
+                $full_cuota = $stmt->fetchColumn();
+                
+                $suggested_quota = ($diff_hours < 4) ? $full_cuota * 0.5 : $full_cuota;
+
+                // 1. Update Route (WITH payment info now)
+                $stmt = $db->prepare("UPDATE rutas SET estado = 'finalizada', ended_at = CURRENT_TIMESTAMP,
+                                     monto_efectivo = :efectivo, monto_pagomovil = :pagomovil
+                                     WHERE id = :ruta_id AND cooperativa_id = :coop_id");
                 $stmt->execute([
+                    'efectivo' => $data['monto_efectivo'] ?? 0,
+                    'pagomovil' => $data['monto_pagomovil'] ?? 0,
                     'ruta_id' => $ruta_id,
-                    'coop_id' => $coop_id,
-                    'chofer_id' => $user['user_id']
+                    'coop_id' => $coop_id
                 ]);
 
-                if ($stmt->rowCount() === 0) {
-                    throw new Exception("Route not found or unauthorized");
-                }
-
-                // 2. Log Odometer (End)
-                $stmt = $db->prepare("INSERT INTO odometros (cooperativa_id, ruta_id, tipo, valor, foto_path) 
-                                     VALUES (:coop_id, :ruta_id, 'fin', :valor, :foto)");
+                // 2. Log Odometer (End) - Already existing below
+                
+                // 3. Trigger Daily Fee (Note: We use recommended amount but reported payment)
+                // This is audit only, the 'dias' count in mi_estado handles the actual debt.
+                // We just log what was paid here for the record.
+                $stmt = $db->prepare("INSERT INTO pagos_reportados (cooperativa_id, vehiculo_id, chofer_id, monto_total, monto_efectivo, monto_pagomovil, status) 
+                                     VALUES (?, ?, ?, ?, ?, ?, 'aprobado')");
                 $stmt->execute([
-                    'coop_id' => $coop_id,
-                    'ruta_id' => $ruta_id,
-                    'valor' => $odometro_valor,
-                    'foto' => $foto_path
+                    $coop_id, $r_data['vehiculo_id'], $user['user_id'],
+                    ($data['monto_efectivo'] ?? 0) + ($data['monto_pagomovil'] ?? 0),
+                    $data['monto_efectivo'] ?? 0,
+                    $data['monto_pagomovil'] ?? 0
                 ]);
 
-                // 3. Trigger Daily Fee (If not already paid for today)
-                // Get vehicle and payment info from route
-                $stmt = $db->prepare("SELECT vehiculo_id, monto_efectivo, monto_pagomovil FROM rutas WHERE id = :ruta_id");
-                $stmt->execute(['ruta_id' => $ruta_id]);
-                $route_info = $stmt->fetch();
-                $vid = $route_info['vehiculo_id'];
-                $efectivo = $route_info['monto_efectivo'];
-                $pagomovil = $route_info['monto_pagomovil'];
-
-                $stmt = $db->prepare("SELECT cuota_diaria FROM vehiculos WHERE id = :vid");
-                $stmt->execute(['vid' => $vid]);
-                $v_cuota = $stmt->fetch(); // Renamed to avoid conflict with $v later
-                $cuota = $v_cuota['cuota_diaria'];
-
-                $fecha_hoy = date('Y-m-d');
-                $stmt = $db->prepare("INSERT IGNORE INTO pagos_diarios (cooperativa_id, vehiculo_id, chofer_id, monto, monto_efectivo, monto_pagomovil, fecha) 
-                                     VALUES (:coop_id, :vid, :chofer_id, :monto, :efectivo, :pagomovil, :fecha)");
-                $stmt->execute([
-                    'coop_id' => $coop_id,
-                    'vid' => $vid,
-                    'chofer_id' => $user['user_id'],
-                    'monto' => $cuota,
-                    'efectivo' => $efectivo,
-                    'pagomovil' => $pagomovil,
-                    'fecha' => $fecha_hoy
-                ]);
 
                 // 4. Fuel Audit Logic (Operational Intelligence) - Get route info again for full details
                 $stmt = $db->prepare("SELECT r.*, v.placa, v.km_por_litro, v.odometro_mantenimiento, v.frecuencia_mantenimiento, u.telegram_id, u.nombre as dueno_nombre,

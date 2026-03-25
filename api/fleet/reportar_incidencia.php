@@ -57,13 +57,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute([$user['id']]);
     $active_route = $stmt->fetch();
 
+    $suggested_quota = 0;
     if ($active_route) {
         // Marcamos la ruta como interrumpida por falla
+        $stmt = $db->prepare("SELECT started_at, (SELECT cuota_diaria FROM vehiculos WHERE id = rutas.vehiculo_id) as cuota FROM rutas WHERE id = ?");
+        $stmt->execute([$active_route['id']]);
+        $r_data = $stmt->fetch();
+        
+        $start = strtotime($r_data['started_at']);
+        $diff_hours = (time() - $start) / 3600;
+        $suggested_quota = ($diff_hours < 4) ? $r_data['cuota'] * 0.5 : $r_data['cuota'];
+
         $stmt = $db->prepare("UPDATE rutas SET status = 'interrumpida', observacion = ? WHERE id = ?");
         $stmt->execute(["Interrumpida por falla: " . $desc, $active_route['id']]);
     }
 
-    sendResponse(['success' => true, 'message' => 'Falla reportada. Unidad BLOQUEADA hasta reparación.']);
+    sendResponse([
+        'success' => true, 
+        'message' => 'Falla reportada. Unidad BLOQUEADA.',
+        'suggested_quota' => $suggested_quota,
+        'ruta_id' => $active_route ? $active_route['id'] : null
+    ]);
 }
 ?>
+
 
