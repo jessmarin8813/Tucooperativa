@@ -94,7 +94,7 @@ button {
 .p-gap-4 { gap: 16px; }
 
 .view-container {
-  padding: 60px;
+  padding: 32px 48px;
   max-width: 1600px;
   margin: 0 auto;
   min-height: 100%;
@@ -102,7 +102,7 @@ button {
 
 @media (max-width: 1024px) {
   .view-container {
-    padding: 30px 20px;
+    padding: 24px 16px;
   }
 }
 
@@ -188,23 +188,39 @@ button {
   line-height: 1;
 }
 
-/* Empty State Responsiveness */
+/* Global Responsiveness & Anti-Crush System */
 @media (max-width: 768px) {
+  .h1-premium {
+    font-size: 2rem !important;
+    margin-bottom: 12px !important;
+  }
+
+  .p-subtitle {
+    font-size: 0.9rem !important;
+    line-height: 1.4 !important;
+  }
+
+  .text-value {
+    font-size: 1.75rem !important;
+  }
+
+  .btn-primary {
+    width: 100% !important;
+    padding: 16px !important;
+    font-size: 0.85rem !important;
+  }
+
+  .p-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
   .empty-state-card {
-    padding: 40px 20px !important;
+    padding: 32px 16px !important;
   }
   
   .empty-state-title {
-    font-size: 1.75rem !important;
-  }
-  
-  .empty-state-desc {
-    font-size: 0.95rem !important;
-  }
-  
-  .mobile-full-btn {
-    width: 100% !important;
-    padding: 16px !important;
+    font-size: 1.5rem !important;
   }
 }
 
@@ -227,7 +243,7 @@ button {
     display: flex;
   }
   .view-container {
-    padding: 100px 20px 40px 20px;
+    padding: 80px 16px 32px 16px !important;
   }
 }
 
