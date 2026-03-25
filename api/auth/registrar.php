@@ -29,9 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // 2. Vincular Telegram en Usuario
-        $stmt = $db->prepare("UPDATE usuarios SET telegram_chat_id = ?, telegram_link_token = NULL WHERE id = ?");
-        $stmt->execute([$telegram_id, $user['id']]);
+        // 2. Vincular Telegram en Usuario (Unificamos telegram_chat_id y telegram_id)
+        $stmt = $db->prepare("UPDATE usuarios SET telegram_chat_id = ?, telegram_id = ?, telegram_link_token = NULL WHERE id = ?");
+        $stmt->execute([$telegram_id, $telegram_id, $user['id']]);
 
         // 3. Si es Dueño/Admin, actualizar también la configuración de la Cooperativa
         if ($user['rol'] === 'dueno' || $user['rol'] === 'admin') {
@@ -57,9 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombre = $data['nombre'] ?? 'Chofer';
     $cedula = $data['cedula'] ?? '';
 
-    // 2. Registrar Chofer
-    $stmt = $db->prepare("INSERT INTO usuarios (cooperativa_id, nombre, cedula, telegram_chat_id, rol) VALUES (?, ?, ?, ?, 'chofer')");
-    $stmt->execute([$invitacion['cooperativa_id'], $nombre, $cedula, $telegram_id]);
+    // 2. Registrar Chofer (Unificamos telegram_chat_id y telegram_id)
+    $stmt = $db->prepare("INSERT INTO usuarios (cooperativa_id, nombre, cedula, telegram_chat_id, telegram_id, rol) VALUES (?, ?, ?, ?, ?, 'chofer')");
+    $stmt->execute([$invitacion['cooperativa_id'], $nombre, $cedula, $telegram_id, $telegram_id]);
     $chofer_id = $db->lastInsertId();
 
     // 2b. Auto-vincular a Unidad si aplica

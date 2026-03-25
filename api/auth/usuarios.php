@@ -2,11 +2,11 @@
 require_once '../includes/db.php';
 require_once '../includes/middleware.php';
 
-$user = checkAuth();
 $db = DB::getInstance();
 
 // List owners for Admin dropdown
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['list_owners'])) {
+    $user = checkAuth();
     if ($user['rol'] !== 'admin') {
         sendResponse(['error' => 'Unauthorized'], 403);
     }
@@ -28,8 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['check_auth'])) {
                                  c.id as cooperativa_id, c.nombre as cooperativa_nombre, c.status as c_status 
                           FROM usuarios u 
                           JOIN cooperativas c ON u.cooperativa_id = c.id 
-                          WHERE u.telegram_id = ?");
-    $stmt->execute([$tid]);
+                          WHERE u.telegram_id = ? OR u.telegram_chat_id = ?");
+    $stmt->execute([$tid, $tid]);
     $res = $stmt->fetch();
     
     if ($res && $res['u_status'] === 'activo' && $res['c_status'] === 'activo') {
@@ -49,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['check_auth'])) {
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $user = checkAuth();
     $data = json_decode(file_get_contents('php://input'), true);
 
     if (!isset($data['telegram_id'])) {
