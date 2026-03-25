@@ -155,12 +155,22 @@ button {
   width: 100%;
   background: transparent;
   display: none; /* Desktop default */
-  align-items: center;
+  align-items: flex-start !important;
   justify-content: space-between;
-  padding: 1px 24px 0px 24px;
-  margin-bottom: 8px;
+  padding: 0px 24px !important;
+  margin: 0 !important;
   z-index: 60;
   flex-shrink: 0;
+}
+
+.mobile-top-header h1 {
+  margin: 0 !important;
+  padding-top: 4px !important;
+  line-height: 1 !important;
+}
+
+.mobile-menu-trigger {
+  margin-top: 4px !important;
 }
 
 .main-scroll-area {
