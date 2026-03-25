@@ -4,7 +4,7 @@ import re
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import (
     ApplicationBuilder, CommandHandler, MessageHandler, 
-    filters, ConversationHandler, ContextTypes
+    filters, ConversationHandler, ContextTypes, CallbackQueryHandler
 )
 from dotenv import load_dotenv
 from api_client import TuCooperativaAPI
@@ -126,12 +126,15 @@ async def registrar_cedula_received(update: Update, context: ContextTypes.DEFAUL
         cedula
     )
     
-    if 'error' in res:
-        await update.message.reply_text(f"❌ Error: {res['error']}", reply_markup=await get_dynamic_menu())
+    if not res or 'error' in res:
+        err = res.get('error', 'Error Desconocido') if res else 'Sin respuesta del servidor'
+        await update.message.reply_text(f"❌ Error: {err}", reply_markup=await get_dynamic_menu(update))
     else:
-        await update.message.reply_text(f"✅ ¡Registro Exitoso, {context.user_data['driver_nombre']}!\nYa puedes empezar a laborar.", reply_markup=await get_dynamic_menu())
+        name = context.user_data.get('driver_nombre', 'Chofer')
+        await update.message.reply_text(f"✅ ¡Registro Exitoso, {name}!\nYa puedes empezar a laborar.", reply_markup=await get_dynamic_menu(update))
     
     return ConversationHandler.END
+
 
 async def handle_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
@@ -143,15 +146,23 @@ async def handle_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return await start_reportar_pago(update, context)
     elif text == '📊 MI ESTADO / DEUDA':
         status = api.get_my_status()
+        if not status:
+            await update.message.reply_text("❌ No se pudo obtener tu estado. Intenta más tarde.")
+            return
+
+        deuda = status.get('deuda') if status.get('deuda') is not None else 0.0
+        pendientes = status.get('pendientes') if status.get('pendientes') is not None else 0.0
+        
         msg = (
             f"📊 **Estado de Cuenta**\n\n"
-            f"🚛 Unidad: `{status.get('placa')}`\n"
-            f"💰 Deuda Acumulada: **${status.get('deuda'):.2f}**\n"
-            f"⏳ Pagos en Revisión: **${status.get('pendientes'):.2f}**\n\n"
-            f"📍 Último KM reportado: `{status.get('ultimo_km')}`\n"
-            f"🏦 Datos de Pago: {status.get('datos_bancarios')}"
+            f"🚛 Unidad: `{status.get('placa', 'N/A')}`\n"
+            f"💰 Deuda Acumulada: **${float(deuda):.2f}**\n"
+            f"⏳ Pagos en Revisión: **${float(pendientes):.2f}**\n\n"
+            f"📍 Último KM reportado: `{status.get('ultimo_km', '0')}`\n"
+            f"🏦 Datos de Pago: {status.get('datos_bancarios', 'Consulte Admin')}"
         )
-        await update.message.reply_text(msg, parse_mode='Markdown', reply_markup=await get_dynamic_menu())
+        await update.message.reply_text(msg, parse_mode='Markdown', reply_markup=await get_dynamic_menu(update))
+
     elif text == '🔧 AYUDA':
         await update.message.reply_text("📱 Contacte al administrador central para soporte técnico.")
 
@@ -162,6 +173,8 @@ async def start_ruta_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ No tienes unidades asignadas.")
         return ConversationHandler.END
     
+    # Store vehicles for lookup
+    context.user_data['vehicles_list'] = vehicles
     keyboard = [[v['placa']] for v in vehicles]
     await update.message.reply_text(
         "🚛 **Iniciar Jornada**\nSelecciona tu vehículo:",
@@ -171,10 +184,21 @@ async def start_ruta_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return START_VEHICLE
 
 async def vehicle_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.user_data['placa'] = update.message.text
-    context.user_data['vehiculo_id'] = 1 # Demo logic
+    placa = update.message.text
+    context.user_data['placa'] = placa
+    
+    # Find vehicle_id dynamically
+    vehicles = context.user_data.get('vehicles_list', [])
+    v_id = next((v['id'] for v in vehicles if v['placa'] == placa), None)
+    
+    if not v_id:
+        await update.message.reply_text("❌ Vehículo no encontrado. Intenta de nuevo.", reply_markup=await get_dynamic_menu(update))
+        return ConversationHandler.END
+        
+    context.user_data['vehiculo_id'] = v_id
     await update.message.reply_text("📍 Ingresa el **Odómetro Inicial** (solo números):", parse_mode='Markdown', reply_markup=ReplyKeyboardRemove())
     return START_ODOMETER
+
 
 async def start_odometer_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message.text.isdigit():
@@ -204,15 +228,16 @@ async def start_photo_received(update: Update, context: ContextTypes.DEFAULT_TYP
 
 # --- INDEPENDENT PAYMENT REPORT ---
 async def start_reportar_pago(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    status = api.get_my_status()
+    status = api.get_my_status() or {}
     keyboard = [['Efectivo (Bs)', 'Pago Móvil', 'Mixto']]
     await update.message.reply_text(
-        f"🏦 **Datos del Dueño:**\n`{status.get('datos_bancarios')}`\n\n"
+        f"🏦 **Datos del Dueño:**\n`{status.get('datos_bancarios', 'Consulte Admin')}`\n\n"
         "Indica el método de pago:",
         parse_mode='Markdown',
         reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
     )
     return REPORTAR_METHOD
+
 
 async def reportar_method_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
     method = update.message.text
@@ -262,15 +287,16 @@ async def fuel_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['next_state'] = END_PAY_AMOUNTS
     
     # Instead of ending, ask for payment
-    status = api.get_my_status()
+    status = api.get_my_status() or {}
     keyboard = [['Efectivo (Bs)', 'Pago Móvil', 'Mixto']]
     await update.message.reply_text(
-        f"🏁 **Jornada Finalizada.**\n🏦 **Pagos al Dueño:**\n`{status.get('datos_bancarios')}`\n\n"
+        f"🏁 **Jornada Finalizada.**\n🏦 **Pagos al Dueño:**\n`{status.get('datos_bancarios', 'Consulte Admin')}`\n\n"
         "💰 Reporta el abono de hoy:",
         parse_mode='Markdown',
         reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
     )
     return END_PAY_METHOD
+
 
 # --- REPORT INCIDENT FLOW ---
 async def start_reportar_falla(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -364,10 +390,17 @@ async def process_final_payment(update: Update, context: ContextTypes.DEFAULT_TY
     else:
         monto_match = re.search(r'(\d+)', text)
         monto_val = monto_match.group(1) if monto_match else 0
+        
+        # Double check if we got a valid number
+        if not monto_val:
+            await update.message.reply_text("⚠️ No entendí el monto. Por favor ingresa solo el número (ej: 50).")
+            return context.user_data.get('next_state')
+
         if context.user_data.get('metodo') == 'Efectivo (Bs)':
             efectivo = monto_val
         else:
             pagomovil = monto_val
+
 
     # Determine if it's a normal end or breakdown
     if 'incidencia_tipo' in context.user_data:
@@ -403,6 +436,18 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Operación cancelada.", reply_markup=await get_dynamic_menu(update))
     return ConversationHandler.END
 
+async def start_reactivacion_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🛠️ **PROCESO DE REACTIVACIÓN**\n\nPor favor, sube una foto de la reparación o repuesto instalado:", reply_markup=ReplyKeyboardRemove())
+
+async def reactivacion_photo_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not update.message.photo:
+        return
+    res = api.reactivate_vehicle(update.effective_user.id)
+    if 'success' in res:
+        await update.message.reply_text("✅ **UNIDAD REACTIVADA.**\n\nYa puedes iniciar una nueva jornada.", reply_markup=await get_dynamic_menu(update))
+    else:
+        await update.message.reply_text(f"❌ Error: {res.get('error')}", reply_markup=await get_dynamic_menu(update))
+
 async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -414,6 +459,15 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.edit_message_text(text=f"{query.message.text}\n\n✅ **PAGO EXONERADO POR EL DUEÑO.**")
         else:
             await query.edit_message_text(text=f"{query.message.text}\n\n❌ Error: {res.get('error')}")
+
+async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Log the error and send a telegram message to notify the developer."""
+    logger.error(msg="Exception while handling an update:", exc_info=context.error)
+    
+    # Notify user
+    if isinstance(update, Update) and update.effective_message:
+        text = "❌ **Error Crítico en el Sistema.**\n\nSe ha notificado al soporte técnico. Intenta de nuevo en unos minutos."
+        await update.effective_message.reply_text(text, parse_mode='Markdown')
 
 if __name__ == '__main__':
     sync_env_ip()
@@ -487,6 +541,8 @@ if __name__ == '__main__':
     app.add_handler(MessageHandler(filters.PHOTO, reactivacion_photo_received))
     app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_main_menu))
 
+    app.add_error_handler(error_handler)
+    
     print("🚀 Bot Zero-Command Iniciado...")
     app.run_polling()
 

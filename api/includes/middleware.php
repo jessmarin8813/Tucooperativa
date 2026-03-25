@@ -26,13 +26,26 @@ if (!function_exists('checkAuth')) {
     function checkAuth() {
         // 1. Prioritize Web Session
         if (isset($_SESSION['user_id'])) {
+            $tid = $_SESSION['telegram_chat_id'] ?? null;
+            
+            // Real-time update check if not in session
+            if (!$tid) {
+                $db = DB::getInstance();
+                $stmt = $db->prepare("SELECT telegram_chat_id FROM usuarios WHERE id = ?");
+                $stmt->execute([$_SESSION['user_id']]);
+                $tid = $stmt->fetchColumn();
+                $_SESSION['telegram_chat_id'] = $tid;
+            }
+
             return [
                 'user_id' => $_SESSION['user_id'],
                 'cooperativa_id' => $_SESSION['cooperativa_id'] ?? null,
                 'rol' => $_SESSION['rol'],
-                'nombre' => $_SESSION['nombre']
+                'nombre' => $_SESSION['nombre'],
+                'telegram_chat_id' => $tid
             ];
         }
+
 
         // 2. Fallback to Telegram ID (Bot or Simulator)
         // We look in JSON body or GET

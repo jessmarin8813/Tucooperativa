@@ -167,23 +167,24 @@ const ConfiguracionView = () => {
                                     </div>
                                     <button 
                                         onClick={async () => {
-                                            if (config.telegram_chat_id) return;
+                                            if (config.telegram_chat_id || config.user_telegram_chat_id) return;
                                             const res = await callApi('admin/generate_link_token.php?role=owner');
                                             if(res.success && res.link) window.open(res.link, '_blank');
                                         }}
-                                        disabled={!!config.telegram_chat_id}
-                                        className={`p-mobile-full-width ${config.telegram_chat_id ? 'btn-secondary' : 'btn-primary'}`} 
+                                        disabled={!!(config.telegram_chat_id || config.user_telegram_chat_id)}
+                                        className={`p-mobile-full-width ${(config.telegram_chat_id || config.user_telegram_chat_id) ? 'btn-secondary' : 'btn-primary'}`} 
                                         style={{ 
                                             height: '44px', 
-                                            background: config.telegram_chat_id ? 'rgba(34, 197, 94, 0.1)' : 'var(--accent)', 
-                                            color: config.telegram_chat_id ? '#22c55e' : 'white',
+                                            background: (config.telegram_chat_id || config.user_telegram_chat_id) ? 'rgba(34, 197, 94, 0.1)' : 'var(--accent)', 
+                                            color: (config.telegram_chat_id || config.user_telegram_chat_id) ? '#22c55e' : 'white',
                                             fontSize: '10px',
-                                            opacity: config.telegram_chat_id ? 1 : (saving ? 0.7 : 1),
-                                            border: config.telegram_chat_id ? '1px solid #22c55e' : 'none'
+                                            opacity: (config.telegram_chat_id || config.user_telegram_chat_id) ? 1 : (saving ? 0.7 : 1),
+                                            border: (config.telegram_chat_id || config.user_telegram_chat_id) ? '1px solid #22c55e' : 'none'
                                         }}
                                     >
-                                        {config.telegram_chat_id ? 'CUENTA VINCULADA ✓' : 'VINCULAR AHORA'}
+                                        {(config.telegram_chat_id || config.user_telegram_chat_id) ? 'CUENTA VINCULADA ✓' : 'VINCULAR AHORA'}
                                     </button>
+
                                 </div>
                                 {config.telegram_chat_id && (
                                     <p className="p-senior-label" style={{ marginTop: '12px', textAlign: 'center', fontStyle: 'italic' }}>

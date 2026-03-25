@@ -25,15 +25,17 @@ if (empty($username) || empty($password)) {
 }
 
 $db = DB::getInstance();
-$stmt = $db->prepare("SELECT id, cooperativa_id, nombre, password_hash, rol FROM usuarios WHERE username = :un");
+$stmt = $db->prepare("SELECT id, cooperativa_id, nombre, password_hash, rol, telegram_chat_id FROM usuarios WHERE username = :un");
 $stmt->execute(['un' => $username]);
 $user = $stmt->fetch();
+
 
 if ($user && password_verify($password, $user['password_hash'])) {
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['cooperativa_id'] = $user['cooperativa_id'];
     $_SESSION['nombre'] = $user['nombre'];
     $_SESSION['rol'] = $user['rol'];
+    $_SESSION['telegram_chat_id'] = $user['telegram_chat_id'];
 
     echo json_encode([
         'message' => 'Login successful',
@@ -41,10 +43,12 @@ if ($user && password_verify($password, $user['password_hash'])) {
             'id' => $user['id'],
             'nombre' => $user['nombre'],
             'rol' => $user['rol'],
-            'cooperativa_id' => $user['cooperativa_id']
+            'cooperativa_id' => $user['cooperativa_id'],
+            'telegram_chat_id' => $user['telegram_chat_id']
         ]
     ]);
-} else {
+}
+ else {
     error_log("Login failed for user: " . $username);
     http_response_code(401);
     echo json_encode(['error' => 'Invalid credentials', 'debug_hint' => 'Check if username exists and password matches admin123']);

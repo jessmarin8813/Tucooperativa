@@ -25,7 +25,9 @@ try {
         sendResponse(['error' => 'Configuración no encontrada'], 404);
     }
 
+    $config['user_telegram_chat_id'] = $user['telegram_chat_id'];
     sendResponse($config);
+
 } catch (Exception $e) {
     sendResponse(['error' => 'System error'], 500);
 }
