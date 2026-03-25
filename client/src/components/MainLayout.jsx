@@ -7,14 +7,14 @@ import { AnimatePresence, motion as Motion } from 'framer-motion'
 const Dashboard = lazy(() => import('./Dashboard'))
 const SuperAdminDashboard = lazy(() => import('./SuperAdminDashboard'))
 const ChoferesView = lazy(() => import('./ChoferesView'))
-const InvitacionesView = lazy(() => import('./InvitacionesView'))
-const FinanzasView = lazy(() => import('./FinanzasView'))
+const ConfiguracionView = lazy(() => import('./ConfiguracionView'))
 const DriverRanking = lazy(() => import('./DriverRanking'))
 const BIView = lazy(() => import('./BIView'))
 const ExpensesView = lazy(() => import('./ExpensesView'))
 const CobranzaView = lazy(() => import('./CobranzaView'))
 const VehiculosView = lazy(() => import('./VehiculosView'))
 const MaintenanceCenter = lazy(() => import('./MaintenanceCenter'))
+const ForensicView = lazy(() => import('./ForensicView'))
 
 const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -93,14 +93,14 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
                 <React.Fragment>
                   {activeView === 'dashboard' && <Dashboard />}
                   {activeView === 'choferes' && <ChoferesView />}
-                  {activeView === 'invitar' && <InvitacionesView />}
                   {activeView === 'ranking' && <DriverRanking />}
-                  {activeView === 'config' && <FinanzasView />}
+                  {activeView === 'config' && <ConfiguracionView />}
                   {activeView === 'bi' && <BIView />}
                   {activeView === 'gastos' && <ExpensesView />}
                   {activeView === 'cobranza' && <CobranzaView />}
                   {activeView === 'flota' && <VehiculosView />}
                   {activeView === 'mantenimiento' && <MaintenanceCenter />}
+                  {activeView === 'forensic' && <ForensicView />}
                 </React.Fragment>
               )}
             </Suspense>

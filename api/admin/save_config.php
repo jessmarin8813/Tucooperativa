@@ -17,17 +17,30 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     
-    if (isset($data['telegram_bot_token'])) {
-        $stmt = $db->prepare("UPDATE cooperativas SET telegram_bot_token = :token WHERE id = :id");
-        $stmt->execute([
-            'token' => $data['telegram_bot_token'],
-            'id' => $coop_id
-        ]);
-        
-        sendResponse(['success' => true, 'message' => 'Configuración actualizada']);
-    } else {
+    $fields = [
+        'telegram_bot_token', 'telegram_chat_id', 'cuota_diaria', 'moneda',
+        'banco_nombre', 'banco_tipo', 'banco_identidad', 'banco_telefono'
+    ];
+    
+    $updates = [];
+    $params = ['id' => $coop_id];
+    
+    foreach ($fields as $field) {
+        if (isset($data[$field])) {
+            $updates[] = "$field = :$field";
+            $params[$field] = $data[$field];
+        }
+    }
+    
+    if (empty($updates)) {
         sendResponse(['error' => 'No hay datos para actualizar'], 400);
     }
+    
+    $sql = "UPDATE cooperativas SET " . implode(', ', $updates) . " WHERE id = :id";
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
+    
+    sendResponse(['success' => true, 'message' => 'Configuración actualizada']);
 }
 
 sendResponse(['error' => 'Method not allowed'], 405);

@@ -9,7 +9,8 @@ import {
   BarChart3,
   Toolbox,
   DollarSign,
-  ChevronRight
+  ChevronRight,
+  ShieldAlert
 } from 'lucide-react'
 import { motion as Motion } from 'framer-motion'
 
@@ -17,11 +18,11 @@ const Sidebar = ({ onLogout, userRole, activeView, setActiveView }) => {
   const menuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Centro de Mando' },
     { id: 'flota', icon: Truck, label: 'Flota de Vehículos' },
-    { id: 'choferes', icon: Truck, label: 'Gestión de Choferes' },
+    { id: 'choferes', icon: UserPlus, label: 'Gestión de Choferes' },
     { id: 'cobranza', icon: CreditCard, label: 'Cobranza & Pagos' },
     { id: 'bi', icon: BarChart3, label: 'Inteligencia BI' },
-    { id: 'gastos', icon: DollarSign, label: 'Gastos Operativos' },
-    { id: 'config', icon: Settings, label: 'Configuración Borrador' },
+    { id: 'forensic', icon: ShieldAlert, label: 'Hub Forense' },
+    { id: 'config', icon: Settings, label: 'Configuración' },
   ]
 
   return (

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { motion as Motion } from 'framer-motion'
 import { TrendingUp, BarChart3, Target, Activity, Printer, AlertTriangle, ShieldCheck } from 'lucide-react'
 import { 
-  BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer
+  BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts'
 import { useApi } from '../hooks/useApi'
 import LoadingSpinner from './LoadingSpinner'
@@ -169,16 +169,37 @@ const BIView = () => {
                 </div>
              </Motion.div>
 
-             <Motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="glass neon-border" style={{ padding: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '24px' }}>
-                 <div style={{ width: '64px', height: '64px', background: 'rgba(6, 182, 212, 0.1)', borderRadius: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)' }}>
-                    <BarChart3 size={32} />
+             <Motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="glass neon-border" style={{ padding: '32px' }}>
+                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                    <h3 className="neon-text brand" style={{ fontSize: '1.1rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <TrendingUp size={18} style={{ color: 'var(--accent)' }} /> Histórico de Recaudación
+                    </h3>
+                    <span style={{ fontSize: '8px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Últimos 7 días</span>
                  </div>
-                 <div>
-                    <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white' }}>Análisis Predictivo</h4>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--text-dim)', fontWeight: 600, marginTop: '16px', lineHeight: 1.6 }}>Tendencia de cobro validada. El flujo de caja está 100% sincronizado.</p>
+                 <div style={{ height: '260px', width: '100%' }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={data.grafico_historico || []}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                                <XAxis dataKey="fecha" stroke="rgba(255,255,255,0.2)" fontSize={10} tickLine={false} axisLine={false} />
+                                <YAxis stroke="rgba(255,255,255,0.2)" fontSize={10} tickLine={false} axisLine={false} />
+                                <Tooltip 
+                                    cursor={{fill: 'rgba(255,255,255,0.02)'}}
+                                    contentStyle={{ background: '#0a0b12', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px' }}
+                                />
+                                <Bar dataKey="efectivo" stackId="a" fill="var(--success)" radius={[0, 0, 0, 0]} barSize={30} />
+                                <Bar dataKey="pagomovil" stackId="a" fill="var(--accent)" radius={[6, 6, 0, 0]} barSize={30} />
+                            </BarChart>
+                        </ResponsiveContainer>
                  </div>
-                 <div style={{ width: '100%', paddingTop: '24px', borderTop: '1px solid var(--glass-border)' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Omni-Guard Active</span>
+                 <div style={{ display: 'flex', gap: '16px', marginTop: '16px', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ width: '8px', height: '8px', background: 'var(--success)', borderRadius: '2px' }} />
+                        <span style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)' }}>CASH</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '2px' }} />
+                        <span style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)' }}>P. MÓVIL</span>
+                    </div>
                  </div>
              </Motion.div>
         </div>

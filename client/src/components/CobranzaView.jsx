@@ -7,7 +7,8 @@ import { formatMoney, formatBs, formatDate } from '../utils/DashboardConstants'
 
 const CobranzaView = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
-    const [data, setData] = useState({ resumen: [], pendientes: [] })
+    const [data, setData] = useState({ resumen: [], pendientes: [], cola_validacion: [] })
+    const [date, setDate] = useState(new Date().toISOString().split('T')[0])
     const [loading, setLoading] = useState(true)
     const { callApi, loading: apiLoading } = useApi()
 
@@ -19,7 +20,7 @@ const CobranzaView = () => {
 
     const fetchData = useCallback(async () => {
         try {
-            const res = await callApi('admin/cobranza.php')
+            const res = await callApi(`admin/cobranza.php?fecha=${date}`)
             setData(res)
         } catch { /* Handled */ }
         finally { setLoading(false) }
@@ -27,7 +28,7 @@ const CobranzaView = () => {
 
     useEffect(() => {
         fetchData()
-    }, [fetchData])
+    }, [fetchData, date])
 
     const handleProcesar = async (id, accion) => {
         if (!window.confirm(`¿Seguro que deseas ${accion} este pago?`)) return
@@ -47,9 +48,20 @@ const CobranzaView = () => {
 
     return (
         <div>
-            <header style={{ marginBottom: '32px' }}>
-                <h1 className="h1-premium neon-text">Gestión de Cobranza</h1>
-                <p className="p-subtitle">Control de solvencia y aprobación de abonos diarios</p>
+            <header className="p-flex-responsive p-justify-between" style={{ marginBottom: '32px' }}>
+                <div>
+                    <h1 className="h1-premium neon-text">Gestión de Cobranza</h1>
+                    <p className="p-subtitle">Control de solvencia y aprobación de abonos diarios</p>
+                </div>
+                <div className="p-flex p-items-center p-gap-4">
+                    <input 
+                        type="date" 
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        className="glass"
+                        style={{ padding: '12px 20px', borderRadius: '12px', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }}
+                    />
+                </div>
             </header>
 
             {/* Header / Stats Grid */}
@@ -91,11 +103,53 @@ const CobranzaView = () => {
                 </Motion.div>
             </div>
 
-            {/* Aprobaciones Pendientes Section */}
+            {/* Validation Queue Section (from RevenueManagement) */}
+            {data.cola_validacion?.length > 0 && (
+                <div style={{ marginBottom: '48px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+                        <div style={{ width: '4px', height: '24px', background: 'var(--accent)', borderRadius: '100px' }} />
+                        <h3 style={{ fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', color: 'white', letterSpacing: '0.1em' }}>Cola de Validación de Caja</h3>
+                    </div>
+                    <div className="glass" style={{ overflow: 'hidden', padding: '0' }}>
+                        <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                            <thead style={{ background: 'rgba(255,255,255,0.02)' }}>
+                                <tr style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>
+                                    <th style={{ padding: '16px 24px' }}>Chofer / Unidad</th>
+                                    <th style={{ padding: '16px 24px' }}>Efectivo ($)</th>
+                                    <th style={{ padding: '16px 24px' }}>Pago Móvil ($)</th>
+                                    <th style={{ padding: '16px 24px' }}>Total</th>
+                                    <th style={{ padding: '16px 24px', textAlign: 'right' }}>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                                {data.cola_validacion.map((p) => (
+                                    <tr key={p.id} className="glass-hover">
+                                        <td style={{ padding: '16px 24px' }}>
+                                            <p style={{ fontWeight: 800, fontSize: '0.9rem' }}>{p.chofer}</p>
+                                            <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>{p.placa}</p>
+                                        </td>
+                                        <td style={{ padding: '16px 24px', fontWeight: 700, color: 'var(--success)' }}>{formatMoney(p.monto_efectivo)}</td>
+                                        <td style={{ padding: '16px 24px', fontWeight: 700, color: 'var(--accent)' }}>{formatMoney(p.monto_pagomovil)}</td>
+                                        <td style={{ padding: '16px 24px', fontWeight: 900 }}>{formatMoney(parseFloat(p.monto_efectivo) + parseFloat(p.monto_pagomovil))}</td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                <button onClick={() => handleProcesar(p.id, 'aprobado')} className="btn-primary" style={{ padding: '8px 16px', fontSize: '10px' }}>VALIDAR</button>
+                                                <button onClick={() => handleProcesar(p.id, 'rechazado')} className="glass" style={{ padding: '8px 16px', fontSize: '10px', color: 'var(--danger)' }}>RECHAZAR</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {/* Aprobaciones Pendientes Section (Driver Submissions) */}
             <div style={{ marginBottom: '48px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
                     <div style={{ width: '4px', height: '24px', background: 'var(--warning)', borderRadius: '100px' }} />
-                    <h3 style={{ fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', color: 'white', letterSpacing: '0.1em' }}>Bandeja de Aprobaciones</h3>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', color: 'white', letterSpacing: '0.1em' }}>Abonos Reportados (Bot)</h3>
                 </div>
                 
                 <div className="p-grid p-grid-cols-2">
@@ -199,13 +253,14 @@ const CobranzaView = () => {
                     <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
                             <thead>
-                                <tr style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em', borderBottom: '1px solid var(--glass-border)' }}>
-                                    <th style={{ padding: '24px 40px' }}>Unidad / Chofer</th>
-                                    <th style={{ padding: '24px 40px', textAlign: 'center' }}>Cuota</th>
-                                    <th style={{ padding: '24px 40px', textAlign: 'center' }}>Recaudado</th>
-                                    <th style={{ padding: '24px 40px', textAlign: 'center' }}>Saldo Actual</th>
-                                    <th style={{ padding: '24px 40px', textAlign: 'right' }}>Estatus</th>
-                                </tr>
+                                    <tr style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em', borderBottom: '1px solid var(--glass-border)' }}>
+                                        <th style={{ padding: '24px 40px' }}>Unidad / Chofer</th>
+                                        <th style={{ padding: '24px 40px', textAlign: 'center' }}>Cuota</th>
+                                        <th style={{ padding: '24px 40px', textAlign: 'center' }}>Efectivo / Móvil</th>
+                                        <th style={{ padding: '24px 40px', textAlign: 'center' }}>Total Recaudado</th>
+                                        <th style={{ padding: '24px 40px', textAlign: 'center' }}>Saldo Actual</th>
+                                        <th style={{ padding: '24px 40px', textAlign: 'right' }}>Estatus</th>
+                                    </tr>
                             </thead>
                             <tbody>
                                 {data.resumen.map((v) => (
@@ -222,7 +277,14 @@ const CobranzaView = () => {
                                             </div>
                                         </td>
                                         <td style={{ padding: '32px 40px', textAlign: 'center', color: 'var(--text-dim)', fontWeight: 700, fontSize: '1.1rem' }}>{formatMoney(v.cuota_diaria)}</td>
-                                        <td style={{ padding: '32px 40px', textAlign: 'center', color: 'var(--success)', fontWeight: 700, fontSize: '1.1rem' }}>{formatMoney(v.abonos_totales)}</td>
+                                        <td style={{ padding: '32px 40px', textAlign: 'center' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                                <span style={{ color: 'var(--success)' }}>{formatMoney(v.monto_efectivo || 0)}</span>
+                                                <span style={{ opacity: 0.2 }}>/</span>
+                                                <span style={{ color: 'var(--accent)' }}>{formatMoney(v.monto_pagomovil || 0)}</span>
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '32px 40px', textAlign: 'center', color: 'var(--success)', fontWeight: 900, fontSize: '1.1rem' }}>{formatMoney(v.abonos_totales)}</td>
                                         <td style={{ padding: '32px 40px', textAlign: 'center' }}>
                                             <span className="neon-text" style={{ fontWeight: 900, fontSize: '1.5rem', color: v.saldo_pendiente > 0 ? 'var(--danger)' : 'var(--success)' }}>
                                                 {formatMoney(v.saldo_pendiente)}

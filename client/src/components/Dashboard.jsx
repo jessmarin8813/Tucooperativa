@@ -1,9 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import StatCard from './StatCard'
 import FleetList from './FleetList'
-import Modal from './Modal'
-import VehicleForm from './VehicleForm'
-import MaintenanceCenter from './MaintenanceCenter'
 import { Truck, Activity, DollarSign, AlertCircle, BarChart3, ShieldCheck, Wrench } from 'lucide-react'
 import { useApi } from '../hooks/useApi'
 import { motion as Motion } from 'framer-motion'
@@ -69,12 +66,6 @@ const Dashboard = () => {
               <span style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{data.stats.alertas_criticas} ALERTS</span>
             </div>
           )}
-          <button 
-            className="btn-primary mobile-full-btn"
-            onClick={() => setIsModalOpen(true)}
-          >
-            NUEVA UNIDAD
-          </button>
         </div>
       </header>
 
@@ -108,47 +99,20 @@ const Dashboard = () => {
       </div>
 
       <div style={{ marginTop: '32px' }}>
-        <div className="tab-container">
-          <button 
-            onClick={() => setActiveTab('operaciones')}
-            className={`tab-item ${activeTab === 'operaciones' ? 'active' : ''}`}
-          >
-            <Activity size={18} />
-            ACTIVOS RECIENTES
-          </button>
-          <button 
-            onClick={() => setActiveTab('mantenimiento')}
-            className={`tab-item ${activeTab === 'mantenimiento' ? 'active' : ''}`}
-          >
-            <Wrench size={18} />
-            MANTENIMIENTO
-          </button>
-        </div>
-
-        {activeTab === 'operaciones' ? (
-          <>
-            <div className="p-flex p-items-center p-justify-between" style={{ marginBottom: '24px' }}>
-                <div className="p-flex p-items-center p-gap-4">
-                  <BarChart3 style={{ opacity: 0.2 }} size={20} />
-                  <h2 style={{ fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.4 }}>Últimas Unidades (Forense)</h2>
-                </div>
-                <button 
-                  onClick={() => window.location.search = '?view=vehiculos'}
-                  style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '11px', fontWeight: 900, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.1em' }}
-                >
-                  Ver Flota Completa →
-                </button>
-            </div>
-            <FleetList vehicles={data.vehicles.slice(0, 5)} />
-          </>
-        ) : (
-          <MaintenanceCenter />
-        )}
+          <div className="p-flex p-items-center p-justify-between" style={{ marginBottom: '24px' }}>
+              <div className="p-flex p-items-center p-gap-4">
+                <BarChart3 style={{ opacity: 0.2 }} size={20} />
+                <h2 style={{ fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.4 }}>Últimas Unidades (Forense)</h2>
+              </div>
+              <button 
+                onClick={() => window.location.search = '?view=flota'}
+                style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '11px', fontWeight: 900, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.1em' }}
+              >
+                Ver Flota Completa →
+              </button>
+          </div>
+          <FleetList vehicles={data.vehicles.slice(0, 5)} />
       </div>
-
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nueva Unidad">
-        <VehicleForm currentUser={currentUser} onSuccess={handleRegistrationSuccess} />
-      </Modal>
     </div>
   )
 }
