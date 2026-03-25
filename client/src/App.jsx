@@ -14,10 +14,19 @@ function App() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const view = params.get('view')
-    if (view && ['dashboard', 'choferes', 'bi', 'gastos', 'cobranza', 'config', 'flota'].includes(view)) {
+    if (view && ['dashboard', 'choferes', 'bi', 'gastos', 'cobranza', 'config', 'flota', 'mantenimiento', 'ranking'].includes(view)) {
       setActiveView(view)
     }
   }, [])
+
+  // Update URL when view changes
+  useEffect(() => {
+    if (isLoggedIn) {
+      const url = new URL(window.location)
+      url.searchParams.set('view', activeView)
+      window.history.replaceState({}, '', url)
+    }
+  }, [activeView, isLoggedIn])
 
   // Verify session on mount
   useEffect(() => {

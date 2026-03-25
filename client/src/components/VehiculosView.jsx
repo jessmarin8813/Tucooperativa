@@ -34,13 +34,6 @@ const VehiculosView = () => {
           <p className="p-subtitle">Monitorización de unidades y salud de activos en tiempo real</p>
         </div>
         <div className="p-flex p-gap-4">
-          <button 
-            onClick={fetchVehicles} 
-            className="glass"
-            style={{ width: '56px', height: '56px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}
-          >
-            <RefreshCw size={24} className={loading ? 'animate-spin' : ''} />
-          </button>
           <button className="btn-primary">
             <Plus size={24} />
             <span>NUEVA UNIDAD</span>

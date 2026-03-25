@@ -98,7 +98,7 @@ const CobranzaView = () => {
                     <h3 style={{ fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', color: 'white', letterSpacing: '0.1em' }}>Bandeja de Aprobaciones</h3>
                 </div>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+                <div className="p-grid p-grid-cols-2">
                     {data.pendientes.length === 0 ? (
                         <div style={{ gridColumn: 'span 2', padding: '64px', textAlign: 'center' }} className="glass">
                             <CheckCircle size={48} style={{ color: 'rgba(255,255,255,0.05)', marginBottom: '16px' }} />
