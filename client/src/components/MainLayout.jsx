@@ -39,7 +39,7 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
       background: 'var(--bg-dark)', 
       position: 'relative', 
       overflow: 'hidden',
-      flexDirection: isMobile ? 'column' : 'row'
+      flexDirection: 'row'
     }}>
       
       {/* Desktop Sidebar */}
@@ -52,77 +52,53 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
         />
       </div>
 
-      {/* Mobile Top Header */}
-      <header className="mobile-header" style={{ 
-          position: 'relative', height: '70px', 
-          background: 'rgba(7, 8, 13, 0.95)', backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid var(--glass-border)', display: isMobile ? 'flex' : 'none',
-          alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', zIndex: 60,
-          flexShrink: 0
-      }}>
-          <h1 className="neon-text brand" style={{ fontSize: '1.35rem', fontWeight: 900, lineHeight: '1.2' }}>TuCooperativa</h1>
-          <button 
-            onClick={toggleMobileMenu}
-            style={{ background: 'var(--bg-card)', color: 'white', padding: '10px' }}
-          >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-      </header>
+      {/* Content Vertical Stack */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', minWidth: 0 }}>
+        
+        {/* Mobile Top Header */}
+        <header className="mobile-header" style={{ 
+            height: '70px', width: '100%',
+            background: 'rgba(7, 8, 13, 0.95)', backdropFilter: 'blur(20px)',
+            borderBottom: '1px solid var(--glass-border)',
+            alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', zIndex: 60,
+            flexShrink: 0
+        }}>
+            <h1 className="neon-text brand" style={{ fontSize: '1.35rem', fontWeight: 900, lineHeight: '1.2' }}>TuCooperativa</h1>
+            <button 
+              onClick={toggleMobileMenu}
+              style={{ background: 'var(--bg-card)', color: 'white', padding: '10px' }}
+            >
+                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+        </header>
 
-      {/* Mobile Sidebar Overlay */}
-      <AnimatePresence>
-        {isMobile && isMobileMenuOpen && (
-            <>
-                <Motion.div 
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    onClick={toggleMobileMenu}
-                    style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100 }}
-                />
-                <Motion.div 
-                    initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
-                    transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                    style={{ position: 'fixed', left: 0, top: 0, bottom: 0, width: '280px', zIndex: 110 }}
-                    className="mobile-sidebar"
-                >
-                    <Sidebar 
-                        onLogout={onLogout} 
-                        userRole={user?.rol || 'owner'} 
-                        activeView={activeView} 
-                        setActiveView={handleNavigate} 
-                    />
-                </Motion.div>
-            </>
-        )}
-      </AnimatePresence>
-      
-      {/* Main Content Area */}
-      <main style={{ 
-        flex: 1, 
-        height: isMobile ? 'calc(100vh - 70px)' : '100vh', 
-        overflowY: 'auto',
-        position: 'relative',
-        paddingTop: '0'
-      }}>
-        <div className="view-container animate-fade">
-            <Suspense fallback={<LoadingSpinner />}>
-            {user?.rol === 'superadmin' ? (
-                <SuperAdminDashboard />
-            ) : (
-                <>
-                {activeView === 'dashboard' && <Dashboard />}
-                {activeView === 'choferes' && <ChoferesView />}
-                {activeView === 'invitar' && <InvitacionesView />}
-                {activeView === 'ranking' && <DriverRanking />}
-                {activeView === 'config' && <FinanzasView />}
-                {activeView === 'bi' && <BIView />}
-                {activeView === 'gastos' && <ExpensesView />}
-                {activeView === 'cobranza' && <CobranzaView />}
-                {activeView === 'flota' && <VehiculosView />}
-                </>
-            )}
-            </Suspense>
-        </div>
-      </main>
+        {/* Main Content Area */}
+        <main style={{ 
+          flex: 1, 
+          overflowY: 'auto',
+          position: 'relative'
+        }}>
+          <div className="view-container animate-fade">
+              <Suspense fallback={<LoadingSpinner />}>
+              {user?.rol === 'superadmin' ? (
+                  <SuperAdminDashboard />
+              ) : (
+                  <>
+                  {activeView === 'dashboard' && <Dashboard />}
+                  {activeView === 'choferes' && <ChoferesView />}
+                  {activeView === 'invitar' && <InvitacionesView />}
+                  {activeView === 'ranking' && <DriverRanking />}
+                  {activeView === 'config' && <FinanzasView />}
+                  {activeView === 'bi' && <BIView />}
+                  {activeView === 'gastos' && <ExpensesView />}
+                  {activeView === 'cobranza' && <CobranzaView />}
+                  {activeView === 'flota' && <VehiculosView />}
+                  </>
+              )}
+              </Suspense>
+          </div>
+        </main>
+      </div>
     </div>
   )
 }

@@ -241,7 +241,7 @@ button {
     display: none !important;
   }
   .mobile-header {
-    display: flex;
+    display: flex !important;
   }
   .view-container {
     padding: 32px 16px 80px 16px !important;
