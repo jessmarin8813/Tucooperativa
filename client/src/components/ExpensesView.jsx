@@ -171,33 +171,35 @@ const ExpensesView = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
               className="glass glass-hover"
-              style={{ padding: '24px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', overflow: 'hidden' }}
+              style={{ padding: '24px 32px', position: 'relative', overflow: 'hidden' }}
             >
-              <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '6px', background: exp.categoria === 'repuestos' ? '#3b82f6' : exp.categoria === 'mantenimiento' ? '#10b981' : exp.categoria === 'seguro' ? '#f59e0b' : 'rgba(255,255,255,0.1)' }} />
-              
-              <div style={{ display: 'flex', alignItems: 'center', gap: '32px', flex: 1 }}>
-                <div style={{ width: '64px', height: '64px', borderRadius: '18px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)' }}>
-                  <Wrench size={28} />
-                </div>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white' }}>{exp.descripcion || 'Sin descripción'}</span>
-                    <span style={{ padding: '4px 12px', background: 'rgba(255,255,255,0.05)', borderRadius: '100px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase' }}>{exp.categoria}</span>
+              <div className="p-flex-responsive p-justify-between p-items-center">
+                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '6px', background: exp.categoria === 'repuestos' ? '#3b82f6' : exp.categoria === 'mantenimiento' ? '#10b981' : exp.categoria === 'seguro' ? '#f59e0b' : 'rgba(255,255,255,0.1)' }} />
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '32px', flex: 1 }}>
+                  <div style={{ width: '64px', height: '64px', borderRadius: '18px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)' }}>
+                    <Wrench size={28} />
                   </div>
-                  <div style={{ display: 'flex', gap: '32px', fontSize: '0.75rem', fontWeight: 800, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Calendar size={14} style={{ color: 'var(--accent)' }} /> {exp.fecha}
-                    </span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Truck size={14} style={{ color: 'var(--accent)' }} /> {exp.placa || 'General'}
-                    </span>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white' }}>{exp.descripcion || 'Sin descripción'}</span>
+                      <span style={{ padding: '4px 12px', background: 'rgba(255,255,255,0.05)', borderRadius: '100px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase' }}>{exp.categoria}</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '32px', fontSize: '0.75rem', fontWeight: 800, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', flexWrap: 'wrap' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Calendar size={14} style={{ color: 'var(--accent)' }} /> {exp.fecha}
+                      </span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Truck size={14} style={{ color: 'var(--accent)' }} /> {exp.placa || 'General'}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--danger)', letterSpacing: '-0.05em' }}>-{formatMoney(exp.monto)}</div>
-                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '4px' }}>USD outflow</div>
+                
+                <div style={{ textAlign: 'right', minWidth: '120px' }}>
+                  <div style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--danger)', letterSpacing: '-0.05em' }}>-{formatMoney(exp.monto)}</div>
+                  <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '4px' }}>USD outflow</div>
+                </div>
               </div>
             </Motion.div>
           ))
