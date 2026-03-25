@@ -12,9 +12,13 @@ const StatCard = ({ label, value, icon: Icon, color = 'var(--primary)', trend })
     >
       <div style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-dim)', marginBottom: '16px' }}>{label}</p>
-          <h3 className="neon-text" style={{ fontSize: '2rem', fontWeight: 900, color: 'white' }}>{value}</h3>
-          {trend && (
+        <div className="text-label" style={{ marginBottom: '8px' }}>
+          {title || label}
+        </div>
+        <div className="text-value neon-text">
+          {value}
+        </div>
+    {trend && (
             <p style={{ fontSize: '0.875rem', fontWeight: 700, marginTop: '12px', color: (trend.startsWith('+') || trend === 'Real-time') ? 'var(--success)' : 'var(--danger)' }}>
               {trend} {trend !== 'Real-time' && 'vs ayer'}
             </p>

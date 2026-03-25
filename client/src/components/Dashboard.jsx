@@ -56,8 +56,8 @@ const Dashboard = () => {
     <div className="animate-fade">
       <header className="p-flex p-justify-between p-items-center" style={{ marginBottom: '48px' }}>
         <div>
-          <h1 className="p-neon-text" style={{ fontSize: '3rem', fontWeight: 900, margin: 0 }}>Centro de Mando</h1>
-          <p style={{ color: 'var(--text-dim)', fontWeight: 700, marginTop: '8px' }}>Gestión de Operaciones en Tiempo Real</p>
+          <h1 className="h1-premium neon-text">Centro de Mando</h1>
+          <p className="p-subtitle">Gestión de Operaciones en Tiempo Real</p>
         </div>
         
         <div className="p-flex p-gap-4 p-items-center">
@@ -102,9 +102,9 @@ const Dashboard = () => {
       )}
 
       <div className="p-grid p-grid-cols-3">
-        <StatCard label="FLOTA TOTAL" value={data.stats.total_vehiculos} icon={Truck} trend="+0" />
-        <StatCard label="EN OPERACIÓN" value={data.stats.rutas_activas} icon={Activity} color="var(--accent)" />
-        <StatCard label="RECAUDACIÓN HOY" value={`$${data.stats.recaudacion_hoy}`} icon={DollarSign} color="var(--success)" trend="Real-time" />
+        <StatCard title="FLOTA TOTAL" value={data.stats.total_vehiculos} icon={Truck} trend="+0" color="99, 102, 241" />
+        <StatCard title="EN OPERACIÓN" value={data.stats.rutas_activas} icon={Activity} color="16, 185, 129" trend="+0" />
+        <StatCard title="RECAUDACIÓN HOY" value={`$${data.stats.recaudacion_hoy}`} icon={DollarSign} color="34, 197, 94" trend="Real-time" />
       </div>
 
       <div style={{ marginTop: '64px' }}>
