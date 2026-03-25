@@ -29,6 +29,9 @@ def main():
     # 2. Dependencies
     if not run_step("Instalando Dependencias (Frontend)", "npm install", cwd="client"):
         sys.exit(1)
+    
+    if not run_step("Compilando Frontend (Producción)", "npm run build", cwd="client"):
+        sys.exit(1)
 
     # 3. Omni-Guard
     if not run_step("Ejecutando OMNI-GUARD (Audit + Git)", "python omni_guard.py"):
