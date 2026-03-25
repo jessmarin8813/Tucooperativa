@@ -60,7 +60,7 @@ const VehiculosView = () => {
           </div>
           <h2 className="empty-state-title" style={{ fontSize: '2.5rem', fontWeight: 900, color: 'white', marginBottom: '16px', letterSpacing: '-0.03em' }}>No hay vehículos registrados</h2>
           <p className="empty-state-desc" style={{ color: 'var(--text-dim)', maxWidth: '450px', margin: '0 auto 40px', fontSize: '1.1rem', fontWeight: 600, lineHeight: 1.6 }}>Crea tu flota digital ahora para tomar el control total de los activos, gastos y rendimientos en tiempo real.</p>
-          <button className="btn-primary mobile-full-btn" style={{ gap: '16px', borderRadius: '20px' }}>
+          <button className="btn-primary mobile-full-btn btn-wrap" style={{ gap: '16px', borderRadius: '20px' }}>
             <Plus size={24} />
             <span style={{ fontSize: '1rem', fontWeight: 900, letterSpacing: '0.05em' }}>AGREGAR MI PRIMERA UNIDAD</span>
           </button>

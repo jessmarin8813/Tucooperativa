@@ -157,8 +157,8 @@ button {
   display: none; /* Desktop default */
   align-items: center;
   justify-content: space-between;
-  padding: 40px 24px 10px 24px;
-  margin-bottom: 20px;
+  padding: 20px 24px 10px 24px;
+  margin-bottom: 16px;
   z-index: 60;
   flex-shrink: 0;
 }
@@ -223,9 +223,8 @@ button {
 
 /* Buttons Gold Standard */
 .btn-primary, .btn-secondary {
-  min-height: 56px;
-  height: auto;
-  padding: 12px 32px;
+  height: 56px;
+  padding: 0 32px;
   border-radius: 16px;
   font-weight: 800;
   text-transform: uppercase;
@@ -239,8 +238,17 @@ button {
   border: none;
   outline: none;
   cursor: pointer;
-  white-space: normal;
-  text-align: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .btn-wrap {
+    height: auto !important;
+    min-height: 56px !important;
+    white-space: normal !important;
+    padding: 12px 24px !important;
+    text-align: center;
+  }
 }
 
 .btn-primary {

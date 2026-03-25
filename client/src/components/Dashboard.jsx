@@ -59,7 +59,7 @@ const Dashboard = () => {
           <h1 className="h1-premium neon-text">Centro de Mando</h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <p className="p-subtitle">Gestión de Operaciones en Tiempo Real</p>
-            <span style={{ fontSize: '9px', fontWeight: 900, background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '4px', color: 'var(--text-dim)' }}>v5.0.8-STALWART</span>
+            <span style={{ fontSize: '9px', fontWeight: 900, background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '4px', color: 'var(--text-dim)' }}>v5.0.9-GOLDEN</span>
           </div>
         </div>
         
@@ -71,8 +71,7 @@ const Dashboard = () => {
             </div>
           )}
           <button 
-            className="btn-primary"
-            style={{ padding: '16px 32px', width: '100%' }}
+            className="btn-primary mobile-full-btn"
             onClick={() => setIsModalOpen(true)}
           >
             + REGISTRAR UNIDAD
@@ -95,8 +94,7 @@ const Dashboard = () => {
                 const data = await res.json();
                 if(data.success && data.link) window.open(data.link, '_blank');
               }}
-              className="btn-primary" 
-              style={{ width: '100%' }}
+              className="btn-primary mobile-full-btn" 
             >
               VINCULAR TELEGRAM
             </button>
