@@ -6,9 +6,14 @@ import LoadingSpinner from './LoadingSpinner'
 import { formatMoney, formatBs, formatDate } from '../utils/DashboardConstants'
 
 const CobranzaView = () => {
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
     const { callApi, loading: apiLoading } = useApi()
-    const [data, setData] = useState({ resumen: [], pendientes: [] })
-    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768)
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+    }, [])
 
     const fetchData = useCallback(async () => {
         try {
@@ -134,68 +139,115 @@ const CobranzaView = () => {
             </div>
 
             {/* Solvencia Map */}
-            <div className="glass" style={{ overflow: 'hidden' }}>
-                <div style={{ padding: '32px 40px', borderBottom: '1px solid var(--glass-border)', background: 'rgba(255,255,255,0.02)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="glass" style={{ overflow: 'hidden', border: 'none', background: 'transparent' }}>
+                <div style={{ padding: isMobile ? '24px 0' : '32px 40px', borderBottom: isMobile ? 'none' : '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                        <h3 className="neon-text brand" style={{ fontSize: '1.25rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <ShieldCheck size={24} style={{ color: 'var(--accent)' }} /> Mapa de Solvencia
+                        <h3 className="neon-text brand" style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <ShieldCheck size={isMobile ? 24 : 28} style={{ color: 'var(--accent)' }} /> Mapa de Solvencia
                         </h3>
-                        <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '4px' }}>Deuda en Tiempo Real</p>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '4px' }}>Auditoría de Deuda en Tiempo Real</p>
                     </div>
                 </div>
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
-                        <thead>
-                            <tr style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em', borderBottom: '1px solid var(--glass-border)' }}>
-                                <th style={{ padding: '16px 20px' }}>Unidad / Chofer</th>
-                                <th style={{ padding: '16px 20px', textAlign: 'center' }} className="print:hidden tablet:hidden">Cuota</th>
-                                <th style={{ padding: '16px 20px', textAlign: 'center' }}>Pagado</th>
-                                <th style={{ padding: '16px 20px', textAlign: 'center' }}>Saldo</th>
-                                <th style={{ padding: '16px 20px', textAlign: 'right' }}>Estatus</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {data.resumen.map((v) => (
-                                <tr key={v.id} className="glass-hover" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                                    <td style={{ padding: '20px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)', flexShrink: 0 }}>
-                                                <Car size={20} />
-                                            </div>
-                                            <div style={{ minWidth: 0 }}>
-                                                <p style={{ color: 'white', fontWeight: 900, fontSize: '1rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.placa}</p>
-                                                <p style={{ fontSize: '0.6rem', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase' }}>{v.chofer}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '20px', textAlign: 'center', color: 'var(--text-dim)', fontWeight: 700, fontSize: '0.9rem' }} className="print:hidden tablet:hidden">{formatMoney(v.cuota_diaria)}</td>
-                                    <td style={{ padding: '20px', textAlign: 'center', color: 'var(--success)', fontWeight: 700, fontSize: '0.9rem' }}>{formatMoney(v.abonos_totales)}</td>
-                                    <td style={{ padding: '20px', textAlign: 'center' }}>
-                                        <span className="neon-text" style={{ fontWeight: 900, fontSize: '1.25rem', color: v.saldo_pendiente > 0 ? 'var(--danger)' : 'var(--success)' }}>
-                                            {formatMoney(v.saldo_pendiente)}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '20px', textAlign: 'right' }}>
-                                        <span style={{ 
-                                            display: 'inline-flex', 
-                                            padding: '6px 16px', 
-                                            borderRadius: '100px', 
-                                            fontSize: '0.65rem', 
-                                            fontWeight: 900, 
-                                            textTransform: 'uppercase', 
-                                            letterSpacing: '0.05em',
-                                            background: v.estado_solvencia === 'solvente' ? 'rgba(16, 185, 129, 0.1)' : v.estado_solvencia === 'critico' ? 'var(--danger)' : 'rgba(245, 158, 11, 0.1)',
-                                            color: v.estado_solvencia === 'critico' ? 'white' : v.estado_solvencia === 'solvente' ? 'var(--success)' : 'var(--warning)',
-                                            border: v.estado_solvencia === 'critico' ? 'none' : '1px solid currentColor'
-                                        }}>
-                                            {v.estado_solvencia}
-                                        </span>
-                                    </td>
+
+                {isMobile ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {data.resumen.map((v) => (
+                            <Motion.div 
+                                key={v.id} 
+                                initial={{ opacity: 0, scale: 0.95 }} 
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="glass"
+                                style={{ 
+                                    padding: '20px', 
+                                    borderLeft: `4px solid ${v.estado_solvencia === 'solvente' ? 'var(--success)' : v.estado_solvencia === 'critico' ? 'var(--danger)' : 'var(--warning)'}`,
+                                    position: 'relative'
+                                }}
+                            >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                                    <div>
+                                        <p style={{ color: 'white', fontWeight: 900, fontSize: '1.25rem' }}>{v.placa}</p>
+                                        <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase' }}>{v.chofer}</p>
+                                    </div>
+                                    <span style={{ 
+                                        padding: '4px 12px', 
+                                        borderRadius: '100px', 
+                                        fontSize: '0.6rem', 
+                                        fontWeight: 900, 
+                                        textTransform: 'uppercase',
+                                        background: v.estado_solvencia === 'solvente' ? 'rgba(16, 185, 129, 0.1)' : v.estado_solvencia === 'critico' ? 'var(--danger)' : 'rgba(245, 158, 11, 0.1)',
+                                        color: v.estado_solvencia === 'critico' ? 'white' : v.estado_solvencia === 'solvente' ? 'var(--success)' : 'var(--warning)',
+                                    }}>
+                                        {v.estado_solvencia}
+                                    </span>
+                                </div>
+                                <div style={{ display: 'flex', gap: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <div style={{ flex: 1 }}>
+                                        <p className="text-label" style={{ fontSize: '0.6rem', marginBottom: '4px' }}>Pagado</p>
+                                        <p style={{ color: 'var(--success)', fontWeight: 800, fontSize: '1rem' }}>{formatMoney(v.abonos_totales)}</p>
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <p className="text-label" style={{ fontSize: '0.6rem', marginBottom: '4px' }}>Saldo</p>
+                                        <p style={{ color: v.saldo_pendiente > 0 ? 'var(--danger)' : 'var(--success)', fontWeight: 900, fontSize: '1.1rem' }}>{formatMoney(v.saldo_pendiente)}</p>
+                                    </div>
+                                </div>
+                            </Motion.div>
+                        ))}
+                    </div>
+                ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                            <thead>
+                                <tr style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em', borderBottom: '1px solid var(--glass-border)' }}>
+                                    <th style={{ padding: '24px 40px' }}>Unidad / Chofer</th>
+                                    <th style={{ padding: '24px 40px', textAlign: 'center' }}>Cuota</th>
+                                    <th style={{ padding: '24px 40px', textAlign: 'center' }}>Recaudado</th>
+                                    <th style={{ padding: '24px 40px', textAlign: 'center' }}>Saldo Actual</th>
+                                    <th style={{ padding: '24px 40px', textAlign: 'right' }}>Estatus</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {data.resumen.map((v) => (
+                                    <tr key={v.id} className="glass-hover" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                                        <td style={{ padding: '32px 40px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                                <div style={{ width: '48px', height: '48px', background: 'rgba(255,255,255,0.05)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)' }}>
+                                                    <Car size={24} />
+                                                </div>
+                                                <div>
+                                                    <p style={{ color: 'white', fontWeight: 900, fontSize: '1.25rem' }}>{v.placa}</p>
+                                                    <p style={{ fontSize: '0.65rem', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', marginTop: '4px' }}>{v.chofer}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '32px 40px', textAlign: 'center', color: 'var(--text-dim)', fontWeight: 700, fontSize: '1.1rem' }}>{formatMoney(v.cuota_diaria)}</td>
+                                        <td style={{ padding: '32px 40px', textAlign: 'center', color: 'var(--success)', fontWeight: 700, fontSize: '1.1rem' }}>{formatMoney(v.abonos_totales)}</td>
+                                        <td style={{ padding: '32px 40px', textAlign: 'center' }}>
+                                            <span className="neon-text" style={{ fontWeight: 900, fontSize: '1.5rem', color: v.saldo_pendiente > 0 ? 'var(--danger)' : 'var(--success)' }}>
+                                                {formatMoney(v.saldo_pendiente)}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '32px 40px', textAlign: 'right' }}>
+                                            <span style={{ 
+                                                display: 'inline-flex', 
+                                                padding: '8px 24px', 
+                                                borderRadius: '100px', 
+                                                fontSize: '0.75rem', 
+                                                fontWeight: 900, 
+                                                textTransform: 'uppercase', 
+                                                letterSpacing: '0.1em',
+                                                background: v.estado_solvencia === 'solvente' ? 'rgba(16, 185, 129, 0.1)' : v.estado_solvencia === 'critico' ? 'var(--danger)' : 'rgba(245, 158, 11, 0.1)',
+                                                color: v.estado_solvencia === 'critico' ? 'white' : v.estado_solvencia === 'solvente' ? 'var(--success)' : 'var(--warning)',
+                                                border: v.estado_solvencia === 'critico' ? 'none' : '1px solid currentColor'
+                                            }}>
+                                                {v.estado_solvencia}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
         </div>
     )
