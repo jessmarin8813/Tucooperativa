@@ -41,8 +41,8 @@ const CobranzaView = () => {
     return (
         <div className="view-container animate-fade">
             <header style={{ marginBottom: '32px' }}>
-                <h1 className="neon-text brand" style={{ fontSize: '2.5rem', fontWeight: 900 }}>Gestión de Cobranza</h1>
-                <p style={{ color: 'var(--text-dim)', fontWeight: 600, marginTop: '8px' }}>Control de solvencia y aprobación de abonos diarios</p>
+                <h1 className="h1-premium neon-text">Gestión de Cobranza</h1>
+                <p className="p-subtitle">Control de solvencia y aprobación de abonos diarios</p>
             </header>
 
             {/* Header / Stats Grid */}
@@ -50,8 +50,8 @@ const CobranzaView = () => {
                 <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass" style={{ padding: '32px', position: 'relative', overflow: 'hidden' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
-                            <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em', marginBottom: '16px' }}>Abonos por Aprobar</p>
-                            <h2 className="neon-text" style={{ fontSize: '2rem', fontWeight: 900 }}>{formatMoney(totalPendienteMonto)}</h2>
+                            <p className="text-label" style={{ marginBottom: '16px' }}>Abonos por Aprobar</p>
+                            <h2 className="text-value neon-text">{formatMoney(totalPendienteMonto)}</h2>
                         </div>
                         <div style={{ padding: '16px', background: 'rgba(245, 158, 11, 0.1)', color: 'var(--warning)', borderRadius: '16px', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
                             <Clock size={24} className="animate-pulse" />
@@ -62,8 +62,8 @@ const CobranzaView = () => {
                 <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass" style={{ padding: '32px', position: 'relative', overflow: 'hidden', border: '1px solid var(--danger)', background: 'rgba(239, 68, 68, 0.05)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
-                            <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--danger)', opacity: 0.8, letterSpacing: '0.1em', marginBottom: '16px' }}>Deuda Global Flota</p>
-                            <h2 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--danger)' }}>{formatMoney(totalDeudaFlota)}</h2>
+                            <p className="text-label" style={{ color: 'var(--danger)', opacity: 0.8, marginBottom: '16px' }}>Deuda Global Flota</p>
+                            <h2 className="text-value" style={{ color: 'var(--danger)' }}>{formatMoney(totalDeudaFlota)}</h2>
                         </div>
                         <div style={{ padding: '16px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', borderRadius: '16px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
                             <AlertCircle size={24} />
@@ -74,8 +74,8 @@ const CobranzaView = () => {
                 <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass neon-border" style={{ padding: '32px', background: 'rgba(6, 182, 212, 0.05)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
-                            <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--accent)', letterSpacing: '0.1em', marginBottom: '16px' }}>Cuota Diaria Promedio</p>
-                            <h2 className="neon-text" style={{ fontSize: '2rem', fontWeight: 900 }}>$10.00</h2>
+                            <p className="text-label" style={{ color: 'var(--accent)', marginBottom: '16px' }}>Cuota Diaria Promedio</p>
+                            <h2 className="text-value neon-text">$10.00</h2>
                         </div>
                         <div style={{ padding: '16px', background: 'rgba(6, 182, 212, 0.1)', color: 'var(--accent)', borderRadius: '16px', border: '1px solid rgba(6, 182, 212, 0.2)' }}>
                             <CreditCard size={24} />

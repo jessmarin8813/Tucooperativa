@@ -35,8 +35,8 @@ const BIView = () => {
     <div className="view-container animate-fade">
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }} className="print:hidden">
         <div>
-          <h1 className="neon-text brand" style={{ fontSize: '2.5rem', fontWeight: 900 }}>Inteligencia Financiera</h1>
-          <p style={{ color: 'var(--text-dim)', fontWeight: 600, marginTop: '8px' }}>Control de rentabilidad y rentas diarias de la flota</p>
+          <h1 className="h1-premium neon-text">Inteligencia Financiera</h1>
+          <p className="p-subtitle">Control de rentabilidad y rentas diarias de la flota</p>
         </div>
         <button 
             onClick={handlePrint}
@@ -50,8 +50,8 @@ const BIView = () => {
       {/* Main Stats Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '32px' }}>
         <Motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass" style={{ padding: '32px', position: 'relative', overflow: 'hidden' }}>
-             <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em', marginBottom: '16px' }}>Ingreso Proyectado</p>
-             <h2 className="neon-text" style={{ fontSize: '2rem', fontWeight: 900 }}>{formatMoney(global.proyectado)}</h2>
+             <p className="text-label" style={{ marginBottom: '16px' }}>Ingreso Proyectado</p>
+             <h2 className="text-value neon-text">{formatMoney(global.proyectado)}</h2>
              <div style={{ marginTop: '24px', height: '4px', width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '100px', overflow: 'hidden' }}>
                 <div style={{ height: '100%', background: 'var(--primary)', width: '100%', opacity: 0.4 }} />
              </div>
@@ -60,8 +60,8 @@ const BIView = () => {
         <Motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }} className="glass" style={{ padding: '32px', position: 'relative', overflow: 'hidden' }}>
              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em', marginBottom: '16px' }}>Recaudación Real</p>
-                    <h2 className="neon-text" style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--success)' }}>{formatMoney(global.recaudado)}</h2>
+                    <p className="text-label" style={{ marginBottom: '16px' }}>Recaudación Real</p>
+                    <h2 className="text-value neon-text" style={{ color: 'var(--success)' }}>{formatMoney(global.recaudado)}</h2>
                   </div>
                   <div style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--success)', background: 'rgba(16, 185, 129, 0.1)', padding: '4px 12px', borderRadius: '100px' }}>
                      {global.eficiencia_cobro}%
@@ -73,16 +73,16 @@ const BIView = () => {
         </Motion.div>
 
         <Motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }} className="glass" style={{ padding: '32px' }}>
-             <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em', marginBottom: '16px' }}>Gastos Totales</p>
-             <h2 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--danger)' }}>{formatMoney(global.gastos)}</h2>
+             <p className="text-label" style={{ marginBottom: '16px' }}>Gastos Totales</p>
+             <h2 className="text-value" style={{ color: 'var(--danger)' }}>{formatMoney(global.gastos)}</h2>
              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '16px', fontSize: '0.75rem', fontWeight: 800, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase' }}>
                 <AlertTriangle size={14} style={{ color: 'var(--danger)', opacity: 0.5 }} /> Mante. + Trámites
              </div>
         </Motion.div>
 
         <Motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }} className="glass" style={{ padding: '32px', background: 'rgba(6, 182, 212, 0.05)', border: '1px solid var(--accent)' }}>
-             <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--accent)', letterSpacing: '0.1em', marginBottom: '16px' }}>Utilidad Neta</p>
-             <h2 className="neon-text" style={{ fontSize: '2rem', fontWeight: 900 }}>{formatMoney(global.utilidad_neta)}</h2>
+             <p className="text-label" style={{ color: 'var(--accent)', marginBottom: '16px' }}>Utilidad Neta</p>
+             <h2 className="text-value neon-text">{formatMoney(global.utilidad_neta)}</h2>
              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '16px', fontSize: '0.75rem', color: 'var(--success)', fontWeight: 700 }}>
                 <TrendingUp size={14} className="animate-bounce" /> RENDIMIENTO POSITIVO
              </div>
