@@ -26,7 +26,7 @@ try {
         // Direct link for owner/admin - ALLOW RE-LINKING (if they are the ones logged in)
         // We update the token even if already linked, so they can 'update' their ID if they lost it.
         $stmt = $db->prepare("UPDATE usuarios SET telegram_link_token = ? WHERE id = ?");
-        $stmt->execute([$token, $user['id']]);
+        $stmt->execute([$token, $user['user_id']]);
         $link = "https://t.me/$bot_name?start=link_$token";
     }
     
