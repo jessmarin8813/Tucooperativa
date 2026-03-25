@@ -146,8 +146,8 @@ button {
   display: none; /* Desktop default */
   align-items: center;
   justify-content: space-between;
-  padding: clamp(60px, env(safe-area-inset-top, 60px), 80px) 24px 20px 24px;
-  margin-bottom: 32px;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 24px 16px 24px;
+  margin-bottom: 24px;
   z-index: 60;
   flex-shrink: 0;
 }
