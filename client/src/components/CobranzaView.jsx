@@ -46,7 +46,7 @@ const CobranzaView = () => {
             </header>
 
             {/* Header / Stats Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '40px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '32px' }}>
                 <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass" style={{ padding: '32px', position: 'relative', overflow: 'hidden' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
@@ -91,7 +91,7 @@ const CobranzaView = () => {
                     <h3 style={{ fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', color: 'white', letterSpacing: '0.1em' }}>Bandeja de Aprobaciones</h3>
                 </div>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
                     {data.pendientes.length === 0 ? (
                         <div style={{ gridColumn: 'span 2', padding: '64px', textAlign: 'center' }} className="glass">
                             <CheckCircle size={48} style={{ color: 'rgba(255,255,255,0.05)', marginBottom: '16px' }} />
@@ -99,17 +99,17 @@ const CobranzaView = () => {
                         </div>
                     ) : data.pendientes.map((p, i) => (
                         <Motion.div key={p.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="glass glass-hover" style={{ padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                             <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                                <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: 'var(--primary)', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px var(--primary-glow)' }}>
-                                    <span style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', opacity: 0.7 }}>Bs</span>
-                                    <span style={{ fontSize: '1.5rem', fontWeight: 900 }}>{formatBs(p.monto * 60)}</span>
+                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
+                                <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: 'var(--primary)', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 0 20px var(--primary-glow)' }}>
+                                    <span style={{ fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', opacity: 0.7 }}>Bs</span>
+                                    <span style={{ fontSize: '1.25rem', fontWeight: 900 }}>{formatBs(p.monto * 60)}</span>
                                 </div>
-                                <div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <p style={{ color: 'white', fontWeight: 900, fontSize: '1.25rem' }}>{p.chofer}</p>
-                                        <span style={{ padding: '4px 12px', background: 'rgba(255,255,255,0.05)', borderRadius: '100px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-dim)' }}>{p.placa}</span>
+                                <div style={{ minWidth: 0 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                        <p style={{ color: 'white', fontWeight: 900, fontSize: '1.1rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.chofer}</p>
+                                        <span style={{ padding: '2px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: '100px', fontSize: '0.6rem', fontWeight: 800, color: 'var(--text-dim)', flexShrink: 0 }}>{p.placa}</span>
                                     </div>
-                                    <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', fontWeight: 900, letterSpacing: '0.1em', marginTop: '4px' }}>Reportado: {formatDate(p.fecha_reportado)}</p>
+                                    <p style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', fontWeight: 900, letterSpacing: '0.1em', marginTop: '4px' }}>{formatDate(p.fecha_reportado)}</p>
                                 </div>
                              </div>
                              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -137,53 +137,53 @@ const CobranzaView = () => {
             <div className="glass" style={{ overflow: 'hidden' }}>
                 <div style={{ padding: '32px 40px', borderBottom: '1px solid var(--glass-border)', background: 'rgba(255,255,255,0.02)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                        <h3 className="neon-text brand" style={{ fontSize: '1.5rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '16px' }}>
-                            <ShieldCheck size={28} style={{ color: 'var(--accent)' }} /> Mapa Maestro de Solvencia
+                        <h3 className="neon-text brand" style={{ fontSize: '1.25rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <ShieldCheck size={24} style={{ color: 'var(--accent)' }} /> Mapa de Solvencia
                         </h3>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '8px' }}>Monitoreo de Deuda en Tiempo Real</p>
+                        <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '4px' }}>Deuda en Tiempo Real</p>
                     </div>
                 </div>
                 <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
                         <thead>
-                            <tr style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em', borderBottom: '1px solid var(--glass-border)' }}>
-                                <th style={{ padding: '24px 40px' }}>Unidad / Chofer</th>
-                                <th style={{ padding: '24px 40px', textAlign: 'center' }} className="print:hidden">Cuota</th>
-                                <th style={{ padding: '24px 40px', textAlign: 'center' }}>Recaudado</th>
-                                <th style={{ padding: '24px 40px', textAlign: 'center' }}>Saldo Actual</th>
-                                <th style={{ padding: '24px 40px', textAlign: 'right' }}>Estatus</th>
+                            <tr style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em', borderBottom: '1px solid var(--glass-border)' }}>
+                                <th style={{ padding: '16px 20px' }}>Unidad / Chofer</th>
+                                <th style={{ padding: '16px 20px', textAlign: 'center' }} className="print:hidden tablet:hidden">Cuota</th>
+                                <th style={{ padding: '16px 20px', textAlign: 'center' }}>Pagado</th>
+                                <th style={{ padding: '16px 20px', textAlign: 'center' }}>Saldo</th>
+                                <th style={{ padding: '16px 20px', textAlign: 'right' }}>Estatus</th>
                             </tr>
                         </thead>
                         <tbody>
                             {data.resumen.map((v) => (
                                 <tr key={v.id} className="glass-hover" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                                    <td style={{ padding: '32px 40px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                                            <div style={{ width: '48px', height: '48px', background: 'rgba(255,255,255,0.05)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)' }}>
-                                                <Car size={24} />
+                                    <td style={{ padding: '20px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)', flexShrink: 0 }}>
+                                                <Car size={20} />
                                             </div>
-                                            <div>
-                                                <p style={{ color: 'white', fontWeight: 900, fontSize: '1.25rem' }}>{v.placa}</p>
-                                                <p style={{ fontSize: '0.65rem', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', marginTop: '4px' }}>{v.chofer}</p>
+                                            <div style={{ minWidth: 0 }}>
+                                                <p style={{ color: 'white', fontWeight: 900, fontSize: '1rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.placa}</p>
+                                                <p style={{ fontSize: '0.6rem', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase' }}>{v.chofer}</p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td style={{ padding: '32px 40px', textAlign: 'center', color: 'var(--text-dim)', fontWeight: 700, fontSize: '1.1rem' }} className="print:hidden">{formatMoney(v.cuota_diaria)}</td>
-                                    <td style={{ padding: '32px 40px', textAlign: 'center', color: 'var(--success)', fontWeight: 700, fontSize: '1.1rem' }}>{formatMoney(v.abonos_totales)}</td>
-                                    <td style={{ padding: '32px 40px', textAlign: 'center' }}>
-                                        <span className="neon-text" style={{ fontWeight: 900, fontSize: '1.5rem', color: v.saldo_pendiente > 0 ? 'var(--danger)' : 'var(--success)' }}>
+                                    <td style={{ padding: '20px', textAlign: 'center', color: 'var(--text-dim)', fontWeight: 700, fontSize: '0.9rem' }} className="print:hidden tablet:hidden">{formatMoney(v.cuota_diaria)}</td>
+                                    <td style={{ padding: '20px', textAlign: 'center', color: 'var(--success)', fontWeight: 700, fontSize: '0.9rem' }}>{formatMoney(v.abonos_totales)}</td>
+                                    <td style={{ padding: '20px', textAlign: 'center' }}>
+                                        <span className="neon-text" style={{ fontWeight: 900, fontSize: '1.25rem', color: v.saldo_pendiente > 0 ? 'var(--danger)' : 'var(--success)' }}>
                                             {formatMoney(v.saldo_pendiente)}
                                         </span>
                                     </td>
-                                    <td style={{ padding: '32px 40px', textAlign: 'right' }}>
+                                    <td style={{ padding: '20px', textAlign: 'right' }}>
                                         <span style={{ 
                                             display: 'inline-flex', 
-                                            padding: '8px 24px', 
+                                            padding: '6px 16px', 
                                             borderRadius: '100px', 
-                                            fontSize: '0.75rem', 
+                                            fontSize: '0.65rem', 
                                             fontWeight: 900, 
                                             textTransform: 'uppercase', 
-                                            letterSpacing: '0.1em',
+                                            letterSpacing: '0.05em',
                                             background: v.estado_solvencia === 'solvente' ? 'rgba(16, 185, 129, 0.1)' : v.estado_solvencia === 'critico' ? 'var(--danger)' : 'rgba(245, 158, 11, 0.1)',
                                             color: v.estado_solvencia === 'critico' ? 'white' : v.estado_solvencia === 'solvente' ? 'var(--success)' : 'var(--warning)',
                                             border: v.estado_solvencia === 'critico' ? 'none' : '1px solid currentColor'
