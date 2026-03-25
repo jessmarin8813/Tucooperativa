@@ -60,10 +60,10 @@ const MaintenanceCenter = () => {
   return (
     <div className="view-container animate-fade" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       {/* Header */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '48px', flexWrap: 'wrap', gap: '24px' }}>
         <div>
-          <h1 className="neon-text brand" style={{ fontSize: '2.5rem', fontWeight: 900 }}>Centro de Mantenimiento</h1>
-          <p style={{ color: 'var(--text-dim)', fontWeight: 600, marginTop: '8px' }}>Control detallado de componentes por telemetría</p>
+          <h1 className="h1-premium neon-text">Centro de Mantenimiento</h1>
+          <p className="p-subtitle">Control detallado de componentes por telemetría</p>
         </div>
         {totalCritical > 0 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '12px 24px', borderRadius: '100px', border: '1px solid rgba(239, 68, 68, 0.2)' }} className="animate-pulse">
@@ -82,7 +82,7 @@ const MaintenanceCenter = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
             className="glass"
-            style={{ padding: '40px', borderRadius: '32px', position: 'relative', overflow: 'hidden' }}
+            style={{ padding: '32px', borderRadius: '32px', position: 'relative', overflow: 'hidden' }}
           >
             {/* Background Decoration */}
             <div style={{ 
@@ -92,13 +92,13 @@ const MaintenanceCenter = () => {
             }} />
 
             <div style={{ position: 'relative', zIndex: 10 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                  <div style={{ width: '64px', height: '64px', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', border: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)' }}>
-                    <Car size={32} />
+                  <div style={{ width: '56px', height: '56px', background: 'rgba(255,255,255,0.05)', borderRadius: '16px', border: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)' }}>
+                    <Car size={28} />
                   </div>
                   <div>
-                    <h3 className="neon-text" style={{ fontSize: '2rem', fontWeight: 900 }}>{v.placa}</h3>
+                    <h3 className="neon-text" style={{ fontSize: '1.75rem', fontWeight: 900 }}>{v.placa}</h3>
                     <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '4px' }}>
                         Odómetro: <span style={{ color: 'white' }}>{formatNumber(v.odometro_actual)} KM</span>
                     </p>
@@ -110,16 +110,16 @@ const MaintenanceCenter = () => {
                     setShowAddModal(v.id);
                   }}
                   className="btn-primary"
-                  style={{ padding: '16px 32px', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}
+                  style={{ height: '52px', padding: '0 24px', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
-                  <Plus size={18} /> AÑADIR RECORDATORIO
+                  <Plus size={18} /> <span className="desktop-only text-nowrap">AÑADIR RECORDATORIO</span>
                 </button>
               </div>
 
               {/* Items Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
                 {v.items.map((item) => (
-                  <div key={item.id} className="glass-hover" style={{ padding: '24px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px', border: '1px solid var(--glass-border)' }}>
+                  <div key={item.id} className="glass-hover" style={{ padding: '24px', background: 'rgba(255,255,255,0.01)', borderRadius: '24px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                       <div>
                         <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: 'white', marginBottom: '4px' }}>{item.nombre}</h4>

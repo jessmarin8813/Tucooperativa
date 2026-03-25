@@ -245,6 +245,47 @@ button {
   .view-container {
     padding: 80px 16px 32px 16px !important;
   }
+  .p-grid-responsive {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+}
+
+/* Tab System */
+.tab-container {
+  display: flex;
+  gap: 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 32px;
+}
+
+.tab-item {
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 16px 0;
+  cursor: pointer;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.2);
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.tab-item.active {
+  color: white;
+  border-bottom-color: var(--primary);
+}
+
+@media (max-width: 768px) {
+  .tab-container {
+    gap: 16px;
+    justify-content: center;
+  }
+  .tab-item {
+    font-size: 0.65rem;
+    padding: 12px 0;
+  }
 }
 
 @media (min-width: 1024px) {

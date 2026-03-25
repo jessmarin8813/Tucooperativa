@@ -107,29 +107,17 @@ const Dashboard = () => {
         <StatCard title="RECAUDACIÓN HOY" value={`$${data.stats.recaudacion_hoy}`} icon={DollarSign} color="34, 197, 94" trend="Real-time" />
       </div>
 
-      <div style={{ marginTop: '64px' }}>
-        <div className="p-flex p-gap-8" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: '32px' }}>
+      <div style={{ marginTop: '40px' }}>
+        <div className="tab-container">
           <button 
             onClick={() => setActiveTab('operaciones')}
-            className="pb-4"
-            style={{ 
-                fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', cursor: 'pointer',
-                color: activeTab === 'operaciones' ? 'white' : 'rgba(255,255,255,0.2)',
-                borderBottom: activeTab === 'operaciones' ? '2px solid var(--primary)' : '2px solid transparent',
-                background: 'transparent', transition: 'all 0.3s ease'
-            }}
+            className={`tab-item ${activeTab === 'operaciones' ? 'active' : ''}`}
           >
             VISTA OPERATIVA
           </button>
           <button 
             onClick={() => setActiveTab('mantenimiento')}
-            className="pb-4"
-            style={{ 
-                fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', cursor: 'pointer',
-                color: activeTab === 'mantenimiento' ? 'white' : 'rgba(255,255,255,0.2)',
-                borderBottom: activeTab === 'mantenimiento' ? '2px solid var(--primary)' : '2px solid transparent',
-                background: 'transparent', transition: 'all 0.3s ease'
-            }}
+            className={`tab-item ${activeTab === 'mantenimiento' ? 'active' : ''}`}
           >
             MANTENIMIENTO
           </button>
