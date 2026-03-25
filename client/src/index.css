@@ -93,6 +93,18 @@ button {
 .p-justify-between { justify-content: space-between; }
 .p-gap-2 { gap: 8px; }
 .p-gap-4 { gap: 16px; }
+.p-flex-responsive {
+  display: flex;
+  flex-direction: row;
+}
+@media (max-width: 768px) {
+  .p-flex-responsive {
+    flex-direction: column;
+  }
+  .mobile-hide {
+    display: none !important;
+  }
+}
 
 .view-container {
   padding: 32px 48px;

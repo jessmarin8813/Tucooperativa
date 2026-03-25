@@ -54,7 +54,7 @@ const Dashboard = () => {
 
   return (
     <div>
-      <header className="p-flex p-justify-between p-items-center" style={{ marginBottom: '48px' }}>
+      <header className="p-flex-responsive p-justify-between" style={{ marginBottom: '48px', gap: '24px' }}>
         <div>
           <h1 className="h1-premium neon-text">Centro de Mando</h1>
           <p className="p-subtitle">Gestión de Operaciones en Tiempo Real</p>
@@ -62,14 +62,14 @@ const Dashboard = () => {
         
         <div className="p-flex p-gap-4 p-items-center">
           {data.stats.alertas_criticas > 0 && (
-            <div className="p-glass-premium" style={{ border: '1px solid rgba(239, 68, 68, 0.4)', padding: '12px 24px', borderRadius: '100px', display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--danger)' }}>
+            <div className="p-glass-premium mobile-hide" style={{ border: '1px solid rgba(239, 68, 68, 0.4)', padding: '12px 24px', borderRadius: '100px', display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--danger)' }}>
               <AlertCircle size={18} />
               <span style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{data.stats.alertas_criticas} ALERTS</span>
             </div>
           )}
           <button 
             className="btn-primary"
-            style={{ padding: '16px 32px' }}
+            style={{ padding: '16px 32px', width: '100%' }}
             onClick={() => setIsModalOpen(true)}
           >
             + REGISTRAR UNIDAD
@@ -79,9 +79,9 @@ const Dashboard = () => {
 
       {/* CONNECTION HUB */}
       {!currentUser?.telegram_chat_id && (
-        <Motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="p-glass-premium" style={{ padding: '40px', marginBottom: '48px', position: 'relative', overflow: 'hidden' }}>
+        <Motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="p-glass-premium" style={{ padding: 'clamp(24px, 5vw, 40px)', marginBottom: '48px', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', top: 0, right: 0, width: '200px', height: '200px', background: 'var(--primary)', filter: 'blur(100px)', opacity: 0.1 }} />
-          <div className="p-flex p-justify-between p-items-center" style={{ position: 'relative', zIndex: 10 }}>
+          <div className="p-flex-responsive p-justify-between" style={{ position: 'relative', zIndex: 10, gap: '24px' }}>
             <div>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--primary)', margin: '0 0 12px' }} className="p-neon-text">¡Conecta tu Centro de Mando!</h3>
               <p style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600, maxWidth: '500px', margin: 0 }}>Recibe alertas del Guardián Forense y notificaciones de caja directamente en tu Telegram.</p>
@@ -93,7 +93,7 @@ const Dashboard = () => {
                 if(data.success && data.link) window.open(data.link, '_blank');
               }}
               className="btn-primary" 
-              style={{ padding: '16px 32px' }}
+              style={{ padding: '16px 32px', width: '100%' }}
             >
               VINCULAR TELEGRAM
             </button>
