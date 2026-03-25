@@ -71,11 +71,32 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
         <main className="main-scroll-area">
           
           {/* Mobile-Only Header - Moves with scroll */}
-          <header className={`mobile-top-header mobile-only ${!showHeader || isMobileMenuOpen ? 'header-hidden' : ''}`}>
-            <h1 className="neon-text brand" style={{ fontSize: '1.35rem', fontWeight: 900 }}>TuCooperativa</h1>
+          <header 
+            className={`mobile-top-header mobile-only ${!showHeader && !isMobileMenuOpen ? 'header-hidden' : ''}`}
+            style={{ 
+              background: isMobileMenuOpen ? 'transparent' : 'var(--bg-dark)',
+              borderBottom: isMobileMenuOpen ? 'none' : '1px solid rgba(255,255,255,0.05)'
+            }}
+          >
+            <h1 
+              className="neon-text brand" 
+              style={{ 
+                fontSize: '1.35rem', 
+                fontWeight: 900,
+                opacity: isMobileMenuOpen ? 0 : 1,
+                visibility: isMobileMenuOpen ? 'hidden' : 'visible',
+                transition: 'opacity 0.3s ease'
+              }}
+            >
+              TuCooperativa
+            </h1>
             <button 
               onClick={toggleMobileMenu}
               className="mobile-menu-trigger"
+              style={{ 
+                zIndex: 300,
+                background: isMobileMenuOpen ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.05)'
+              }}
             >
               <div className="hamburger-box">
                 <div className={`hamburger-inner ${isMobileMenuOpen ? 'active' : ''}`} />

@@ -167,7 +167,7 @@ button {
 }
 
 .mobile-top-header.header-hidden {
-  transform: translateY(-100%);
+  transform: translateY(-110%);
 }
 
 @media (max-width: 1024px) {

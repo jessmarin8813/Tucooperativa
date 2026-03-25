@@ -49,7 +49,7 @@ const VehiculosView = () => {
         <div className="p-flex p-gap-4">
           <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
             <Plus size={24} />
-            <span>+ NUEVA UNIDAD</span>
+            <span>NUEVA UNIDAD</span>
           </button>
         </div>
       </div>
