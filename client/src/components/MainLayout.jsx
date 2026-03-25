@@ -39,7 +39,11 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
   }, [lastScrollY, isMobile]);
 
   React.useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024)
+    const handleResize = () => {
+      const mobile = window.innerWidth < 1024
+      setIsMobile(mobile)
+      if (!mobile) setIsMobileMenuOpen(false) // Safety reset prevents "stuck" overlays
+    }
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])

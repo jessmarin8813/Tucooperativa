@@ -4,6 +4,8 @@ import { motion as Motion } from 'framer-motion'
 import { useApi } from '../hooks/useApi'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 
+import { formatDate } from '../utils/DashboardConstants'
+
 const ForensicView = () => {
     const { callApi, loading } = useApi()
     const [auditLog, setAuditLog] = useState([])
@@ -64,7 +66,7 @@ const ForensicView = () => {
                                     <td style={{ padding: '16px 24px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-dim)', fontSize: '0.75rem' }}>
                                             <Clock size={12} />
-                                            {log.fecha ? new Date(log.fecha).toLocaleString() : 'Recién'}
+                                            {log.fecha ? formatDate(log.fecha) : 'Recién'}
                                         </div>
                                     </td>
                                     <td style={{ padding: '16px 24px' }}>
