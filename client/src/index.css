@@ -403,8 +403,13 @@ button {
   }
   .mobile-top-header {
     display: flex !important;
-    margin-bottom: 24px !important;
-    padding-top: clamp(60px, env(safe-area-inset-top, 60px), 80px) !important;
+    margin: 0 !important;
+    padding-top: env(safe-area-inset-top, 8px) !important;
+    height: auto !important;
+    min-height: 70px !important;
+    align-items: center !important;
+    border-bottom: 1px solid rgba(255,255,255,0.03) !important;
+    box-shadow: none !important;
   }
   .view-container {
     padding: 0 28px 120px 28px !important;
