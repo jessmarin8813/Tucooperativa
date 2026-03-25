@@ -59,6 +59,9 @@ const VehicleForm = ({ onSuccess, currentUser }) => {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div style={{ background: 'rgba(99, 102, 241, 0.2)', color: 'var(--primary)', padding: '8px 16px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 900, textAlign: 'center', border: '1px solid var(--primary)' }}>
+        ✨ VERSIÓN 11.5 - FORMULARIO OPTIMIZADO
+      </div>
       {error && (
         <div style={{ color: 'var(--danger)', fontSize: '0.875rem', background: 'rgba(239,68,68,0.1)', padding: '12px', borderRadius: '8px' }}>
           {error}
