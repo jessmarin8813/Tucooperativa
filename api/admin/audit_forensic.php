@@ -10,7 +10,7 @@ if (!in_array($user['rol'], ['superadmin', 'owner', 'admin', 'dueno'])) {
     sendResponse(['error' => 'Forbidden'], 403);
 }
 
-$coop_id = ($user['rol'] === 'owner') ? $user['cooperativa_id'] : null;
+$coop_id = in_array($user['rol'], ['owner', 'admin', 'dueno']) ? $user['cooperativa_id'] : null;
 
 $db = DB::getInstance();
 
@@ -98,7 +98,7 @@ try {
         FROM rutas r
         JOIN usuarios u ON r.chofer_id = u.id
         JOIN cooperativas c ON r.cooperativa_id = c.id
-        LEFT JOIN pagos_reportados p ON r.id = p.ruta_id
+        LEFT JOIN pagos_reportados p ON r.id = p.id_ruta
         WHERE r.estado = 'finalizada'
         AND r.ended_at < (NOW() - INTERVAL 12 HOUR)
         AND p.id IS NULL
