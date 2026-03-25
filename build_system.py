@@ -42,9 +42,10 @@ def main():
     if not run_step("Guardia de Integridad del Sistema", "C:\\xampp\\php\\php.exe .agent/skills/system-integrity-guard/scripts/integrity_audit.php"):
         sys.exit(1)
 
-    # 6. Documentation Auto-Update
+    # 6. Realtime & Documentation Auto-Update
     run_step("Actualizando Memoria del Proyecto (docs/)", "python .agent/skills/stability-protocol/scripts/update_docs.py", allow_fail=True)
 
+    print("\n[INFO] El Servidor Realtime y el Bot deben estar corriendo en segundo plano.")
     print("\n✅ [SUCCESS] Sistema estable y verificado. Proceso completado con éxito.")
     sys.exit(0)
 

@@ -17,8 +17,22 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=lo
 logging.getLogger('httpx').setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
+import requests
+from api_client import TuCooperativaAPI
+
 # API
 api = TuCooperativaAPI()
+
+async def notify_realtime(type: str, message: str = "", coop_id: int = None):
+    """Broadcasts an event to the Realtime Server (WebSockets)"""
+    try:
+        requests.post("http://localhost:8000/broadcast", json={
+            "type": type,
+            "message": message,
+            "cooperativa_id": coop_id
+        }, timeout=1)
+    except Exception as e:
+        logger.warning(f"⚠️ Realtime broadcast failed: {e}")
 
 async def post_init(application):
     """Auto-discovery: Report bot username to backend on startup"""
@@ -87,9 +101,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if context.args:
         token = context.args[0]
         if token.startswith('link_'):
-            res = api.link_owner_via_token(token.replace('link_',''), user_id)
             msg = "👑 ¡Vínculo de Dueño Exitoso!" if 'error' not in res else f"❌ Error: {res['error']}"
             await update.message.reply_text(msg, reply_markup=await get_dynamic_menu(update))
+            
+            if 'error' not in res:
+                await notify_realtime("REFRESH_AUTH", "Dueño vinculado")
+                
             return ConversationHandler.END
         else:
             # Initiate Driver Onboarding Flow
@@ -271,6 +288,7 @@ async def reportar_amounts_received(update: Update, context: ContextTypes.DEFAUL
 async def reportar_photo_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
     photo_file = await update.message.photo[-1].get_file()
     # Call report_payment API
+    await notify_realtime("REFRESH_FLEET", "Pago reportado")
     await update.message.reply_text("✅ Pago reportado. El dueño lo revisará pronto.", reply_markup=await get_dynamic_menu())
     return ConversationHandler.END
 
@@ -347,6 +365,7 @@ async def incidencia_photo_received(update: Update, context: ContextTypes.DEFAUL
     )
     
     if 'success' in res:
+        await notify_realtime("REFRESH_INCIDENTS", "Falla reportada")
         rid = res.get('ruta_id')
         context.user_data['active_route_id'] = rid
         context.user_data['next_state'] = INCIDENCIA_PAY_AMOUNTS
@@ -437,6 +456,7 @@ async def process_final_payment(update: Update, context: ContextTypes.DEFAULT_TY
             monto_pagomovil=pagomovil
         )
         msg = "✅ Jornada finalizada y abono reportado. ¡Descansa!"
+        await notify_realtime("REFRESH_FLEET", "Jornada finalizada")
 
     await update.message.reply_text(msg, reply_markup=await get_dynamic_menu(update))
     return ConversationHandler.END
@@ -458,6 +478,7 @@ async def reactivacion_photo_received(update: Update, context: ContextTypes.DEFA
         return
     res = api.reactivate_vehicle(update.effective_user.id)
     if 'success' in res:
+        await notify_realtime("REFRESH_FLEET", "Unidad reactivada")
         await update.message.reply_text("✅ **UNIDAD REACTIVADA.**\n\nYa puedes iniciar una nueva jornada.", reply_markup=await get_dynamic_menu(update))
     else:
         await update.message.reply_text(f"❌ Error: {res.get('error')}", reply_markup=await get_dynamic_menu(update))
@@ -470,6 +491,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         rid = query.data.split('_')[1]
         res = api.exonerate_route(rid)
         if 'success' in res:
+            await notify_realtime("REFRESH_FLEET", "Pago exonerado")
             await query.edit_message_text(text=f"{query.message.text}\n\n✅ **PAGO EXONERADO POR EL DUEÑO.**")
         else:
             await query.edit_message_text(text=f"{query.message.text}\n\n❌ Error: {res.get('error')}")

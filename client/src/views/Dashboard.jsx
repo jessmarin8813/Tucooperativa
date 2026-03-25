@@ -3,6 +3,7 @@ import StatCard from '../components/ui/StatCard'
 import FleetList from '../components/ui/FleetList'
 import { Truck, Activity, DollarSign, AlertCircle, BarChart3, ShieldCheck, Wrench } from 'lucide-react'
 import { useApi } from '../hooks/useApi'
+import { useRealtime } from '../hooks/useRealtime'
 import { motion as Motion } from 'framer-motion'
 
 const Dashboard = () => {
@@ -25,6 +26,16 @@ const Dashboard = () => {
       setData({ stats: statsRes.stats, vehicles: fleetRes })
     } catch { /* Handled */ }
   }, [callApi])
+
+  // REALTIME SYNC
+  useRealtime((event) => {
+    console.log('🔄 Sincronización Realtime gatillada por:', event.type)
+    fetchDashboardData()
+    // Si fue un vinculación, refrescar también el usuario para quitar el mensaje
+    if (event.type === 'REFRESH_AUTH') {
+      window.location.reload() 
+    }
+  })
 
   useEffect(() => {
     let ignore = false
