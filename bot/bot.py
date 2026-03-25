@@ -259,6 +259,7 @@ async def end_photo_received(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 async def fuel_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['fuel_qty'] = update.message.text
+    context.user_data['next_state'] = END_PAY_AMOUNTS
     
     # Instead of ending, ask for payment
     status = api.get_my_status()
@@ -271,8 +272,7 @@ async def fuel_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return END_PAY_METHOD
 
-
-# --- REPORT INCIDENT FLOW (New Requirement) ---
+# --- REPORT INCIDENT FLOW ---
 async def start_reportar_falla(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [['Mecánica', 'Eléctrica'], ['Carrocería', 'Neumáticos'], ['Accidente', 'Otro']]
     await update.message.reply_text(
@@ -285,14 +285,14 @@ async def start_reportar_falla(update: Update, context: ContextTypes.DEFAULT_TYP
 async def incidencia_tipo_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['incidencia_tipo'] = update.message.text.lower()
     await update.message.reply_text(
-        "📝 Describe brevemente el problema (Ej: Falla en frenos, choque leve, repuesto comprado):",
+        "📝 Describe brevemente el problema:",
         reply_markup=ReplyKeyboardRemove()
     )
     return INCIDENCIA_DESC
 
 async def incidencia_desc_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['incidencia_desc'] = update.message.text
-    await update.message.reply_text("📸 Envía una **FOTO** como evidencia (tablero, pieza, daño o factura):")
+    await update.message.reply_text("📸 Envía una **FOTO** como evidencia:")
     return INCIDENCIA_PHOTO
 
 async def incidencia_photo_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -307,59 +307,50 @@ async def incidencia_photo_received(update: Update, context: ContextTypes.DEFAUL
     )
     
     if 'success' in res:
-        context.user_data['active_route_id'] = res.get('ruta_id')
+        rid = res.get('ruta_id')
+        context.user_data['active_route_id'] = rid
+        context.user_data['next_state'] = INCIDENCIA_PAY_AMOUNTS
         suggested = res.get('suggested_quota', 0)
+        owner_chat_id = res.get('owner_chat_id')
+        placa = res.get('vehiculo_placa')
+        
+        # NOTIFY OWNER with Exonerate Button
+        if owner_chat_id:
+            keyboard = [[InlineKeyboardButton("💸 EXONERAR PAGO DE HOY", callback_data=f"exon_{rid}")]]
+            await context.bot.send_message(
+                chat_id=owner_chat_id,
+                text=f"🚨 **REPORTE DE FALLA - {placa}**\n\n"
+                     f"El chofer {update.effective_user.first_name} reportó una falla: *{context.user_data['incidencia_desc']}*\n"
+                     f"La unidad ha sido bloqueada. ¿Deseas exonerar el pago de hoy?",
+                parse_mode='Markdown',
+                reply_markup=InlineKeyboardMarkup(keyboard)
+            )
         
         status = api.get_my_status()
         keyboard = [['Efectivo (Bs)', 'Pago Móvil', 'Mixto']]
         await update.message.reply_text(
-            f"⚠️ **Unidad Bloqueada por Falla.**\n"
+            f"⚠️ **Unidad Bloqueada.**\n"
             f"💵 **Cuota Sugerida (Parcial):** {suggested} Bs\n\n"
-            f"🏦 **Pagar a:** `{status.get('datos_bancarios', 'Admin')}`\n"
             "Indica cómo reportarás lo producido hoy:",
             parse_mode='Markdown',
             reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
         )
         return INCIDENCIA_PAY_METHOD
+
     else:
-        await update.message.reply_text(f"❌ Error al reportar: {res.get('error')}", reply_markup=await get_dynamic_menu(update))
+        await update.message.reply_text(f"❌ Error: {res.get('error')}", reply_markup=await get_dynamic_menu(update))
         return ConversationHandler.END
 
 
 # --- REACTIVATION FLOW ---
 async def start_reactivacion_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "🛠️ **Cierre de Mantenimiento**\nPara reactivar la unidad, por favor envía una **FOTO** del trabajo realizado o repuesto instalado:",
+        "🛠️ **Cierre de Mantenimiento**\nEnvía una **FOTO** del trabajo realizado:",
         parse_mode='Markdown',
         reply_markup=ReplyKeyboardRemove()
     )
     return REACTIVACION_PHOTO
 
-async def reactivacion_photo_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    photo_file = await update.message.photo[-1].get_file()
-    res = api.reactivate_vehicle(update.effective_user.id, f"uploads/repair_{photo_file.file_id}.jpg")
-    
-    if 'success' in res:
-        await update.message.reply_text("✨ ¡Unidad REACTIVADA! El bloqueo ha sido levantado.", reply_markup=await get_dynamic_menu(update))
-    else:
-        await update.message.reply_text(f"❌ Error: {res.get('error')}", reply_markup=await get_dynamic_menu(update))
-    return ConversationHandler.END
-
-async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Operación cancelada.", reply_markup=await get_dynamic_menu())
-    return ConversationHandler.END
-
-if __name__ == '__main__':
-    # NEW: Intelligent IP Discovery for Network Segments (Home/Office)
-    sync_env_ip()
-    
-    # Reload env after potential sync update
-    load_dotenv()
-    
-    TOKEN = os.getenv('TELEGRAM_TOKEN')
-    app = ApplicationBuilder().token(os.getenv('TELEGRAM_TOKEN')).post_init(post_init).build()
-
-# --- GENERIC FINAL PAYMENT HANDLERS ---
 async def process_final_payment(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.lower()
     efectivo = 0
@@ -380,12 +371,9 @@ async def process_final_payment(update: Update, context: ContextTypes.DEFAULT_TY
 
     # Determine if it's a normal end or breakdown
     if 'incidencia_tipo' in context.user_data:
-        # It was a breakdown, the API already marked the route as interrupted.
-        # We could call a separate endpoint or just update the route here.
-        # For simplicity, we'll call end_route with a flag or just update the reported amounts.
         res = api.end_route(
             ruta_id=context.user_data.get('active_route_id'),
-            odometro=None, # Already handled in incident
+            odometro=None,
             combustible=0,
             foto=None,
             monto_efectivo=efectivo,
@@ -409,10 +397,42 @@ async def process_final_payment(update: Update, context: ContextTypes.DEFAULT_TY
 async def final_payment_method_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['metodo'] = update.message.text
     await update.message.reply_text("📝 Ingresa el monto (Bs):", reply_markup=ReplyKeyboardRemove())
-    # Return based on which conversation we are in
     return context.user_data.get('next_state')
 
-# (Updating dispatcher part)
+async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Operación cancelada.", reply_markup=await get_dynamic_menu(update))
+    return ConversationHandler.END
+
+async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    
+    if query.data.startswith('exon_'):
+        rid = query.data.split('_')[1]
+        res = api.exonerate_route(rid)
+        if 'success' in res:
+            await query.edit_message_text(text=f"{query.message.text}\n\n✅ **PAGO EXONERADO POR EL DUEÑO.**")
+        else:
+            await query.edit_message_text(text=f"{query.message.text}\n\n❌ Error: {res.get('error')}")
+
+if __name__ == '__main__':
+    sync_env_ip()
+    load_dotenv()
+    
+    app = ApplicationBuilder().token(os.getenv('TELEGRAM_TOKEN')).post_init(post_init).build()
+
+    # 1. Start Journey
+    start_conv = ConversationHandler(
+        entry_points=[MessageHandler(filters.Regex('^🚛 INICIAR JORNADA$'), start_ruta_flow)],
+        states={
+            START_VEHICLE: [MessageHandler(filters.TEXT & (~filters.COMMAND), vehicle_chosen)],
+            START_ODOMETER: [MessageHandler(filters.TEXT & (~filters.COMMAND), start_odometer_received)],
+            START_PHOTO: [MessageHandler(filters.PHOTO, start_photo_received)],
+        },
+        fallbacks=[CommandHandler('cancel', cancel)]
+    )
+
+    # 2. End Journey
     end_conv = ConversationHandler(
         entry_points=[MessageHandler(filters.Regex('^🏁 FINALIZAR RUTA$'), end_ruta_flow)],
         states={
@@ -425,6 +445,7 @@ async def final_payment_method_chosen(update: Update, context: ContextTypes.DEFA
         fallbacks=[CommandHandler('cancel', cancel)]
     )
 
+    # 3. Incident
     incident_conv = ConversationHandler(
         entry_points=[MessageHandler(filters.Regex('^⚠️ REPORTAR FALLA$'), start_reportar_falla)],
         states={
@@ -437,33 +458,36 @@ async def final_payment_method_chosen(update: Update, context: ContextTypes.DEFA
         fallbacks=[CommandHandler('cancel', cancel)]
     )
 
-
-    reactivate_conv = ConversationHandler(
-        entry_points=[MessageHandler(filters.Regex('^✅ REPARACIÓN FINALIZADA$'), start_reactivacion_flow)],
+    # 4. Independent Payment
+    report_conv = ConversationHandler(
+        entry_points=[MessageHandler(filters.Regex('^💰 REPORTAR PAGO'), start_reportar_pago)],
         states={
-            REACTIVACION_PHOTO: [MessageHandler(filters.PHOTO, reactivacion_photo_received)],
+            REPORTAR_METHOD: [MessageHandler(filters.TEXT & (~filters.COMMAND), reportar_method_chosen)],
+            REPORTAR_AMOUNTS: [MessageHandler(filters.TEXT & (~filters.COMMAND), reportar_amounts_received)],
+            REPORTAR_PHOTO: [MessageHandler(filters.PHOTO, reportar_photo_received)],
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )
 
-    # Registration Conversation
-    registration_conv = ConversationHandler(
+    app.add_handler(start_conv)
+    app.add_handler(end_conv)
+    app.add_handler(incident_conv)
+    app.add_handler(report_conv)
+    app.add_handler(ConversationHandler(
         entry_points=[CommandHandler("start", start)],
         states={
             REGISTRAR_NOMBRE: [MessageHandler(filters.TEXT & (~filters.COMMAND), registrar_nombre_received)],
             REGISTRAR_CEDULA: [MessageHandler(filters.TEXT & (~filters.COMMAND), registrar_cedula_received)],
         },
         fallbacks=[CommandHandler('cancel', cancel)]
-    )
-
-    app.add_handler(registration_conv)
-    app.add_handler(start_conv)
-    app.add_handler(end_conv)
-    app.add_handler(report_conv)
-    app.add_handler(incident_conv)
-    app.add_handler(reactivate_conv)
+    ))
+    
+    app.add_handler(CallbackQueryHandler(handle_callback))
+    app.add_handler(MessageHandler(filters.Regex('^✅ REPARACIÓN FINALIZADA$'), start_reactivacion_flow))
+    app.add_handler(MessageHandler(filters.PHOTO, reactivacion_photo_received))
     app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_main_menu))
-
 
     print("🚀 Bot Zero-Command Iniciado...")
     app.run_polling()
+
+

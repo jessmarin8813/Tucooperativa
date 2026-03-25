@@ -72,13 +72,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute(["Interrumpida por falla: " . $desc, $active_route['id']]);
     }
 
+    // 3. Obtener Chat ID del dueño para notificación inmediata
+    $stmt = $db->prepare("SELECT u.telegram_chat_id FROM vehiculos v JOIN usuarios u ON v.dueno_id = u.id WHERE v.id = ?");
+    $stmt->execute([$vehicle['id']]);
+    $owner_chat_id = $stmt->fetchColumn();
+
     sendResponse([
         'success' => true, 
         'message' => 'Falla reportada. Unidad BLOQUEADA.',
         'suggested_quota' => $suggested_quota,
-        'ruta_id' => $active_route ? $active_route['id'] : null
+        'ruta_id' => $active_route ? $active_route['id'] : null,
+        'owner_chat_id' => $owner_chat_id,
+        'vehiculo_placa' => $vehicle['placa']
     ]);
 }
 ?>
+
 
 
