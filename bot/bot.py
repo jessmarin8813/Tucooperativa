@@ -20,6 +20,19 @@ logger = logging.getLogger(__name__)
 # API
 api = TuCooperativaAPI()
 
+async def post_init(application):
+    """Auto-discovery: Report bot username to backend on startup"""
+    try:
+        bot_info = await application.bot.get_me()
+        logger.info(f"🤖 Bot detectado: @{bot_info.username}. Sincronizando con Backend...")
+        res = api.update_bot_info(bot_info.username)
+        if res.get('success'):
+            logger.info("✅ Sincronización de Bot exitosa.")
+        else:
+            logger.warning(f"⚠️ Fallo en sincronización: {res.get('error')}")
+    except Exception as e:
+        logger.error(f"❌ Error en post_init: {e}")
+
 # Conversation states
 (
     START_VEHICLE, START_ODOMETER, START_PHOTO, START_PAY_METHOD, START_PAY_AMOUNTS,
@@ -286,7 +299,7 @@ if __name__ == '__main__':
     load_dotenv()
     
     TOKEN = os.getenv('TELEGRAM_TOKEN')
-    app = ApplicationBuilder().token(TOKEN).build()
+    app = ApplicationBuilder().token(os.getenv('TELEGRAM_TOKEN')).post_init(post_init).build()
 
     # Conversation Handlers
     start_conv = ConversationHandler(

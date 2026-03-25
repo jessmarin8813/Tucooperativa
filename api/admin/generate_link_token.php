@@ -9,8 +9,13 @@ $db = DB::getInstance();
 $role = $_GET['role'] ?? 'owner';
 
 try {
+    // Fetch Bot Name from DB (Zero-Config Sync)
+    $stmt_bot = $db->prepare("SELECT telegram_bot_name FROM cooperativas WHERE id = ?");
+    $stmt_bot->execute([$user['cooperativa_id']]);
+    $coop_bot = $stmt_bot->fetch();
+    
     $token = bin2hex(random_bytes(16));
-    $bot_name = getenv('TELEGRAM_BOT_NAME') ?: 'TuCooperativa_bot';
+    $bot_name = !empty($coop_bot['telegram_bot_name']) ? $coop_bot['telegram_bot_name'] : (getenv('TELEGRAM_BOT_NAME') ?: 'TuCooperativa_bot');
 
     if ($role === 'driver') {
         // Invite link for drivers (master link)

@@ -156,18 +156,6 @@ const ConfiguracionView = () => {
                             <h3 style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <Bot className="text-accent" /> Integración con Telegram
                             </h3>
-                            <div className="p-field-divider" style={{ marginBottom: '24px' }}>
-                                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>Nombre de Usuario del Bot (@)</label>
-                                <input 
-                                    type="text"
-                                    value={config.telegram_bot_name}
-                                    onChange={(e) => setConfig({...config, telegram_bot_name: e.target.value})}
-                                    placeholder="Ej: TuCooperativa_bot"
-                                    className="glass p-mobile-input-premium"
-                                    style={{ width: '100%', padding: '12px 20px', fontSize: '0.9rem' }}
-                                />
-                                <p style={{ marginTop: '8px', fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>Indispensable para generar los links de vinculación correctamente.</p>
-                            </div>
                             <div className="p-flex p-flex-col p-config-content">
                                 <div className="glass p-mobile-column" style={{ padding: '24px', border: '1px solid var(--accent)', background: 'rgba(6, 182, 212, 0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px', marginBottom: '24px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>

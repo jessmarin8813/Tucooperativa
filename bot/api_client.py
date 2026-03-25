@@ -123,3 +123,13 @@ class TuCooperativaAPI:
             return response.json()
         except Exception as e:
             return {'error': str(e)}
+
+    def update_bot_info(self, bot_username):
+        """Automatically reports bot username to backend for link generation"""
+        try:
+            response = self.session.post(f"{self.base_url}/system/update_bot_info.php", json={
+                'bot_username': bot_username
+            })
+            return response.json()
+        except Exception as e:
+            return {'error': str(e)}
