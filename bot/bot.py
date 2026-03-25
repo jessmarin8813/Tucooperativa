@@ -40,8 +40,11 @@ async def post_init(application):
     REPORTAR_METHOD, REPORTAR_AMOUNTS, REPORTAR_PHOTO,
     REGISTRAR_NOMBRE, REGISTRAR_CEDULA,
     INCIDENCIA_TIPO, INCIDENCIA_DESC, INCIDENCIA_PHOTO,
-    REACTIVACION_PHOTO
-) = range(17)
+    REACTIVACION_PHOTO,
+    END_PAY_METHOD, END_PAY_AMOUNTS,
+    INCIDENCIA_PAY_METHOD, INCIDENCIA_PAY_AMOUNTS
+) = range(21)
+
 
 async def get_dynamic_menu(update: Update):
     """Build menu based on user role and driver's current status"""
@@ -185,59 +188,19 @@ async def start_photo_received(update: Update, context: ContextTypes.DEFAULT_TYP
     photo_file = await update.message.photo[-1].get_file()
     context.user_data['foto_path'] = f"uploads/{photo_file.file_id}.jpg"
     
-    # Show owner banking info before asking for payment
-    status = api.get_my_status()
-    keyboard = [['Efectivo (Bs)', 'Pago Móvil', 'Mixto']]
-    await update.message.reply_text(
-        f"🏦 **Datos de Pago del Dueño:**\n`{status.get('datos_bancarios')}`\n\n"
-        "💰 ¿Cómo pagarás el abono de hoy?",
-        parse_mode='Markdown',
-        reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
-    )
-    return START_PAY_METHOD
-
-async def pay_method_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    method = update.message.text
-    context.user_data['metodo'] = method
-    if method == 'Mixto':
-        await update.message.reply_text("📝 Indica montos en Bs. Ej: 50 efectivo, 150 pagomovil", reply_markup=ReplyKeyboardRemove())
-        return START_PAY_AMOUNTS
-    
-    # If single method, we assume full payment logic or ask for amount
-    await update.message.reply_text(f"📝 Ingresa el monto total en **Bs** ({method}):", parse_mode='Markdown', reply_markup=ReplyKeyboardRemove())
-    return START_PAY_AMOUNTS
-
-async def start_pay_amounts_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = update.message.text.lower()
-    if context.user_data['metodo'] == 'Mixto':
-        efectivo = re.search(r'(\d+)\s*efectivo', text)
-        pagomovil = re.search(r'(\d+)\s*pagomovil', text)
-        context.user_data['monto_efectivo'] = efectivo.group(1) if efectivo else 0
-        context.user_data['monto_pagomovil'] = pagomovil.group(1) if pagomovil else 0
-    else:
-        monto = re.search(r'(\d+)', text)
-        monto_val = monto.group(1) if monto else 0
-        if context.user_data['metodo'] == 'Efectivo (Bs)':
-            context.user_data['monto_efectivo'] = monto_val
-            context.user_data['monto_pagomovil'] = 0
-        else:
-            context.user_data['monto_efectivo'] = 0
-            context.user_data['monto_pagomovil'] = monto_val
-
-    # Finalize Start Route
+    # Finalize Start Route (NO payment here anymore)
     res = api.start_route(
         vehiculo_id=context.user_data['vehiculo_id'],
         odometro=context.user_data['odometro'],
-        foto=context.user_data['foto_path'],
-        monto_efectivo=context.user_data['monto_efectivo'],
-        monto_pagomovil=context.user_data['monto_pagomovil']
+        foto=context.user_data['foto_path']
     )
     
     if 'error' in res:
-        await update.message.reply_text(f"❌ Error: {res['error']}", reply_markup=await get_dynamic_menu())
+        await update.message.reply_text(f"❌ Error: {res['error']}", reply_markup=await get_dynamic_menu(update))
     else:
-        await update.message.reply_text("✅ ¡Jornada Iniciada con éxito!\nBuen viaje.", reply_markup=await get_dynamic_menu())
+        await update.message.reply_text("✅ ¡Jornada Iniciada con éxito!\nBuen viaje.", reply_markup=await get_dynamic_menu(update))
     return ConversationHandler.END
+
 
 # --- INDEPENDENT PAYMENT REPORT ---
 async def start_reportar_pago(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -295,17 +258,19 @@ async def end_photo_received(update: Update, context: ContextTypes.DEFAULT_TYPE)
     return FUEL_REPORT
 
 async def fuel_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    res = api.end_route(
-        ruta_id=context.user_data['active_route_id'],
-        odometro=context.user_data['odo_fin'],
-        combustible=update.message.text,
-        foto=context.user_data['foto_fin']
+    context.user_data['fuel_qty'] = update.message.text
+    
+    # Instead of ending, ask for payment
+    status = api.get_my_status()
+    keyboard = [['Efectivo (Bs)', 'Pago Móvil', 'Mixto']]
+    await update.message.reply_text(
+        f"🏁 **Jornada Finalizada.**\n🏦 **Pagos al Dueño:**\n`{status.get('datos_bancarios')}`\n\n"
+        "💰 Reporta el abono de hoy:",
+        parse_mode='Markdown',
+        reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
     )
-    if 'error' in res:
-        await update.message.reply_text(f"❌ Error: {res['error']}", reply_markup=await get_dynamic_menu())
-    else:
-        await update.message.reply_text("✅ Jornada finalizada con éxito. ¡Descansa!", reply_markup=await get_dynamic_menu())
-    return ConversationHandler.END
+    return END_PAY_METHOD
+
 
 # --- REPORT INCIDENT FLOW (New Requirement) ---
 async def start_reportar_falla(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -342,11 +307,24 @@ async def incidencia_photo_received(update: Update, context: ContextTypes.DEFAUL
     )
     
     if 'success' in res:
-        await update.message.reply_text("✅ Incidencia reportada con éxito. El dueño ha sido notificado.", reply_markup=await get_dynamic_menu(update))
+        context.user_data['active_route_id'] = res.get('ruta_id')
+        suggested = res.get('suggested_quota', 0)
+        
+        status = api.get_my_status()
+        keyboard = [['Efectivo (Bs)', 'Pago Móvil', 'Mixto']]
+        await update.message.reply_text(
+            f"⚠️ **Unidad Bloqueada por Falla.**\n"
+            f"💵 **Cuota Sugerida (Parcial):** {suggested} Bs\n\n"
+            f"🏦 **Pagar a:** `{status.get('datos_bancarios', 'Admin')}`\n"
+            "Indica cómo reportarás lo producido hoy:",
+            parse_mode='Markdown',
+            reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
+        )
+        return INCIDENCIA_PAY_METHOD
     else:
         await update.message.reply_text(f"❌ Error al reportar: {res.get('error')}", reply_markup=await get_dynamic_menu(update))
-    
-    return ConversationHandler.END
+        return ConversationHandler.END
+
 
 # --- REACTIVATION FLOW ---
 async def start_reactivacion_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -381,35 +359,68 @@ if __name__ == '__main__':
     TOKEN = os.getenv('TELEGRAM_TOKEN')
     app = ApplicationBuilder().token(os.getenv('TELEGRAM_TOKEN')).post_init(post_init).build()
 
-    # Conversation Handlers
-    start_conv = ConversationHandler(
-        entry_points=[MessageHandler(filters.Regex('^🚛 INICIAR JORNADA$'), start_ruta_flow)],
-        states={
-            START_VEHICLE: [MessageHandler(filters.TEXT & (~filters.COMMAND), vehicle_chosen)],
-            START_ODOMETER: [MessageHandler(filters.TEXT & (~filters.COMMAND), start_odometer_received)],
-            START_PHOTO: [MessageHandler(filters.PHOTO, start_photo_received)],
-            START_PAY_METHOD: [MessageHandler(filters.TEXT & (~filters.COMMAND), pay_method_chosen)],
-            START_PAY_AMOUNTS: [MessageHandler(filters.TEXT & (~filters.COMMAND), start_pay_amounts_received)],
-        },
-        fallbacks=[CommandHandler('cancel', cancel)]
-    )
+# --- GENERIC FINAL PAYMENT HANDLERS ---
+async def process_final_payment(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text.lower()
+    efectivo = 0
+    pagomovil = 0
+    
+    if context.user_data.get('metodo') == 'Mixto':
+        ef_match = re.search(r'(\d+)\s*efectivo', text)
+        pm_match = re.search(r'(\d+)\s*pagomovil', text)
+        efectivo = ef_match.group(1) if ef_match else 0
+        pagomovil = pm_match.group(1) if pm_match else 0
+    else:
+        monto_match = re.search(r'(\d+)', text)
+        monto_val = monto_match.group(1) if monto_match else 0
+        if context.user_data.get('metodo') == 'Efectivo (Bs)':
+            efectivo = monto_val
+        else:
+            pagomovil = monto_val
 
+    # Determine if it's a normal end or breakdown
+    if 'incidencia_tipo' in context.user_data:
+        # It was a breakdown, the API already marked the route as interrupted.
+        # We could call a separate endpoint or just update the route here.
+        # For simplicity, we'll call end_route with a flag or just update the reported amounts.
+        res = api.end_route(
+            ruta_id=context.user_data.get('active_route_id'),
+            odometro=None, # Already handled in incident
+            combustible=0,
+            foto=None,
+            monto_efectivo=efectivo,
+            monto_pagomovil=pagomovil
+        )
+        msg = "✅ Incidencia y abono reportados. Unidad BLOQUEADA."
+    else:
+        res = api.end_route(
+            ruta_id=context.user_data.get('active_route_id'),
+            odometro=context.user_data.get('odo_fin'),
+            combustible=context.user_data.get('fuel_qty'),
+            foto=context.user_data.get('foto_fin'),
+            monto_efectivo=efectivo,
+            monto_pagomovil=pagomovil
+        )
+        msg = "✅ Jornada finalizada y abono reportado. ¡Descansa!"
+
+    await update.message.reply_text(msg, reply_markup=await get_dynamic_menu(update))
+    return ConversationHandler.END
+
+async def final_payment_method_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['metodo'] = update.message.text
+    await update.message.reply_text("📝 Ingresa el monto (Bs):", reply_markup=ReplyKeyboardRemove())
+    # Return based on which conversation we are in
+    return context.user_data.get('next_state')
+
+# (Updating dispatcher part)
     end_conv = ConversationHandler(
         entry_points=[MessageHandler(filters.Regex('^🏁 FINALIZAR RUTA$'), end_ruta_flow)],
         states={
             END_ODOMETER: [MessageHandler(filters.TEXT & (~filters.COMMAND), end_odometer_received)],
             END_PHOTO: [MessageHandler(filters.PHOTO, end_photo_received)],
             FUEL_REPORT: [MessageHandler(filters.TEXT & (~filters.COMMAND), fuel_received)],
-        },
-        fallbacks=[CommandHandler('cancel', cancel)]
-    )
-
-    report_conv = ConversationHandler(
-        entry_points=[MessageHandler(filters.Regex('^💰 REPORTAR PAGO'), start_reportar_pago)],
-        states={
-            REPORTAR_METHOD: [MessageHandler(filters.TEXT & (~filters.COMMAND), reportar_method_chosen)],
-            REPORTAR_AMOUNTS: [MessageHandler(filters.TEXT & (~filters.COMMAND), reportar_amounts_received)],
-            REPORTAR_PHOTO: [MessageHandler(filters.PHOTO, reportar_photo_received)],
+            END_PAY_METHOD: [MessageHandler(filters.TEXT & (~filters.COMMAND), final_payment_method_chosen)],
+            END_PAY_AMOUNTS: [MessageHandler(filters.TEXT & (~filters.COMMAND), process_final_payment)],
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )
@@ -420,9 +431,12 @@ if __name__ == '__main__':
             INCIDENCIA_TIPO: [MessageHandler(filters.TEXT & (~filters.COMMAND), incidencia_tipo_chosen)],
             INCIDENCIA_DESC: [MessageHandler(filters.TEXT & (~filters.COMMAND), incidencia_desc_received)],
             INCIDENCIA_PHOTO: [MessageHandler(filters.PHOTO, incidencia_photo_received)],
+            INCIDENCIA_PAY_METHOD: [MessageHandler(filters.TEXT & (~filters.COMMAND), final_payment_method_chosen)],
+            INCIDENCIA_PAY_AMOUNTS: [MessageHandler(filters.TEXT & (~filters.COMMAND), process_final_payment)],
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )
+
 
     reactivate_conv = ConversationHandler(
         entry_points=[MessageHandler(filters.Regex('^✅ REPARACIÓN FINALIZADA$'), start_reactivacion_flow)],
