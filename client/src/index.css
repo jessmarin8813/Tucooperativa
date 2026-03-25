@@ -68,17 +68,14 @@ button {
   transform: translateX(5px);
 }
 
-.neon-text {
-  text-shadow: 0 0 20px var(--primary-glow);
-}
-
 .neon-text.brand {
   background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  line-height: 1.4;
-  padding-bottom: 4px;
+  line-height: 1 !important;
+  padding: 0 !important;
+  margin: 0 !important;
   display: inline-block;
 }
 
@@ -148,6 +145,8 @@ button {
     height: auto !important;
     overflow: visible !important;
     display: block !important;
+    padding-top: 0 !important;
+    margin-top: 0 !important;
   }
 }
 
