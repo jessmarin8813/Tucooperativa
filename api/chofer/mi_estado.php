@@ -14,7 +14,8 @@ $coop_id = $user['cooperativa_id'];
 // Deuda = (Dias trabajados * Cuota) - Pagos Aprobados
 $sql = "SELECT 
     v.id as vehiculo_id, v.placa, v.cuota_diaria, v.estado as estado_unidad,
-    (SELECT COUNT(DISTINCT DATE(started_at)) FROM rutas WHERE vehiculo_id = v.id AND chofer_id = :user_id) as dias,
+    (SELECT COUNT(DISTINCT DATE(started_at)) FROM rutas WHERE vehiculo_id = v.id AND chofer_id = :user_id AND estado != 'exonerada') as dias,
+
     (SELECT COALESCE(SUM(monto), 0) FROM pagos_reportados WHERE chofer_id = :user_id AND estado = 'aprobado') as abonos,
     (SELECT COALESCE(SUM(monto), 0) FROM pagos_reportados WHERE chofer_id = :user_id AND estado = 'pendiente') as pendientes,
     (SELECT valor FROM odometros WHERE vehiculo_id = v.id ORDER BY fecha DESC LIMIT 1) as ultimo_km,
