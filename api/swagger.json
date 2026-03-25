@@ -1,0 +1,357 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Contratistas API",
+        "version": "1.0.0",
+        "description": "API generada automaticamente."
+    },
+    "servers": [
+        {
+            "url": "http://localhost/Contratos/api"
+        }
+    ],
+    "paths": {
+        "/audit_system.php": {
+            "post": {
+                "summary": "Endpoint para audit_system.php",
+                "description": "Este endpoint fue mapeado automaticamente.",
+                "responses": {
+                    "200": {
+                        "description": "Respuesta JSON exitosa"
+                    }
+                }
+            }
+        },
+        "/check_syntax.php": {
+            "post": {
+                "summary": "Endpoint para check_syntax.php",
+                "description": "Este endpoint fue mapeado automaticamente.",
+                "responses": {
+                    "200": {
+                        "description": "Respuesta JSON exitosa"
+                    }
+                }
+            }
+        },
+        "/choferes.php": {
+            "post": {
+                "summary": "Endpoint para choferes.php",
+                "description": "Este endpoint fue mapeado automaticamente.",
+                "responses": {
+                    "200": {
+                        "description": "Respuesta JSON exitosa"
+                    }
+                }
+            }
+        },
+        "/dashboard.php": {
+            "post": {
+                "summary": "Endpoint para dashboard.php",
+                "description": "Este endpoint fue mapeado automaticamente.",
+                "responses": {
+                    "200": {
+                        "description": "Respuesta JSON exitosa"
+                    }
+                }
+            }
+        },
+        "/invitaciones.php": {
+            "post": {
+                "summary": "Endpoint para invitaciones.php",
+                "description": "Este endpoint fue mapeado automaticamente.",
+                "responses": {
+                    "200": {
+                        "description": "Respuesta JSON exitosa"
+                    }
+                }
+            }
+        },
+        "/login.php": {
+            "post": {
+                "summary": "Endpoint para login.php",
+                "description": "Este endpoint fue mapeado automaticamente.",
+                "responses": {
+                    "200": {
+                        "description": "Respuesta JSON exitosa"
+                    }
+                },
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/mantenimiento.php": {
+            "post": {
+                "summary": "Endpoint para mantenimiento.php",
+                "description": "Este endpoint fue mapeado automaticamente.",
+                "responses": {
+                    "200": {
+                        "description": "Respuesta JSON exitosa"
+                    }
+                },
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "odometro_valor": {
+                                        "type": "string"
+                                    },
+                                    "action": {
+                                        "type": "string"
+                                    },
+                                    "vehiculo_id": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/notificaciones.php": {
+            "post": {
+                "summary": "Endpoint para notificaciones.php",
+                "description": "Este endpoint fue mapeado automaticamente.",
+                "responses": {
+                    "200": {
+                        "description": "Respuesta JSON exitosa"
+                    }
+                }
+            }
+        },
+        "/recaudacion.php": {
+            "post": {
+                "summary": "Endpoint para recaudacion.php",
+                "description": "Este endpoint fue mapeado automaticamente.",
+                "responses": {
+                    "200": {
+                        "description": "Respuesta JSON exitosa"
+                    }
+                },
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "pago_id": {
+                                        "type": "string"
+                                    },
+                                    "action": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/registrar.php": {
+            "post": {
+                "summary": "Endpoint para registrar.php",
+                "description": "Este endpoint fue mapeado automaticamente.",
+                "responses": {
+                    "200": {
+                        "description": "Respuesta JSON exitosa"
+                    }
+                },
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nombre": {
+                                        "type": "string"
+                                    },
+                                    "token": {
+                                        "type": "string"
+                                    },
+                                    "telegram_id": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/reportes_exportacion.php": {
+            "post": {
+                "summary": "Endpoint para reportes_exportacion.php",
+                "description": "Este endpoint fue mapeado automaticamente.",
+                "responses": {
+                    "200": {
+                        "description": "Respuesta JSON exitosa"
+                    }
+                },
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "action": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/reportes_financieros.php": {
+            "post": {
+                "summary": "Endpoint para reportes_financieros.php",
+                "description": "Este endpoint fue mapeado automaticamente.",
+                "responses": {
+                    "200": {
+                        "description": "Respuesta JSON exitosa"
+                    }
+                }
+            }
+        },
+        "/rutas.php": {
+            "post": {
+                "summary": "Endpoint para rutas.php",
+                "description": "Este endpoint fue mapeado automaticamente.",
+                "responses": {
+                    "200": {
+                        "description": "Respuesta JSON exitosa"
+                    }
+                },
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "odometro_valor": {
+                                        "type": "string"
+                                    },
+                                    "monto_efectivo": {
+                                        "type": "string"
+                                    },
+                                    "action": {
+                                        "type": "string"
+                                    },
+                                    "vehiculo_id": {
+                                        "type": "string"
+                                    },
+                                    "monto_pagomovil": {
+                                        "type": "string"
+                                    },
+                                    "foto_path": {
+                                        "type": "string"
+                                    },
+                                    "ruta_id": {
+                                        "type": "string"
+                                    },
+                                    "combustible_reportado": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/session.php": {
+            "post": {
+                "summary": "Endpoint para session.php",
+                "description": "Este endpoint fue mapeado automaticamente.",
+                "responses": {
+                    "200": {
+                        "description": "Respuesta JSON exitosa"
+                    }
+                }
+            }
+        },
+        "/usuarios.php": {
+            "post": {
+                "summary": "Endpoint para usuarios.php",
+                "description": "Este endpoint fue mapeado automaticamente.",
+                "responses": {
+                    "200": {
+                        "description": "Respuesta JSON exitosa"
+                    }
+                },
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "telegram_id": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/vehiculos.php": {
+            "post": {
+                "summary": "Endpoint para vehiculos.php",
+                "description": "Este endpoint fue mapeado automaticamente.",
+                "responses": {
+                    "200": {
+                        "description": "Respuesta JSON exitosa"
+                    }
+                },
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "dueno_id": {
+                                        "type": "string"
+                                    },
+                                    "cuota_diaria": {
+                                        "type": "string"
+                                    },
+                                    "modelo": {
+                                        "type": "string"
+                                    },
+                                    "placa": {
+                                        "type": "string"
+                                    },
+                                    "anio": {
+                                        "type": "string"
+                                    },
+                                    "km_por_litro": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

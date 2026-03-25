@@ -2,10 +2,24 @@
 require_once 'includes/db.php';
 require_once 'includes/middleware.php';
 
-// Gatekeeper Check
+$user = checkAuth();
+$db = DB::getInstance();
+
+// List owners for Admin dropdown
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['list_owners'])) {
+    if ($user['rol'] !== 'admin') {
+        sendResponse(['error' => 'Unauthorized'], 403);
+    }
+    $coop_id = $user['cooperativa_id'] ?? 1;
+    $stmt = $db->prepare("SELECT id, nombre, email FROM usuarios WHERE cooperativa_id = ? AND (rol = 'dueno' OR rol = 'admin')");
+    $stmt->execute([$coop_id]);
+    sendResponse($stmt->fetchAll());
+    exit;
+}
+
+// Gatekeeper Check (Original logic)
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['check_auth'])) {
     $tid = $_GET['telegram_id'] ?? '';
-    $db = DB::getInstance();
     $stmt = $db->prepare("SELECT u.status as u_status, c.status as c_status 
                          FROM usuarios u 
                          JOIN cooperativas c ON u.cooperativa_id = c.id 
@@ -14,27 +28,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['check_auth'])) {
     $res = $stmt->fetch();
     
     if ($res && $res['u_status'] === 'activo' && $res['c_status'] === 'activo') {
-        echo json_encode(['status' => 'activo']);
+        sendResponse(['status' => 'activo']);
     } else {
-        echo json_encode(['status' => 'suspendido']);
+        sendResponse(['status' => 'suspendido']);
     }
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $auth = checkAuth();
     $data = json_decode(file_get_contents('php://input'), true);
 
     if (!isset($data['telegram_id'])) {
-        http_response_code(400);
-        echo json_encode(['error' => 'No telegram_id provided']);
-        exit;
+        sendResponse(['error' => 'No telegram_id provided'], 400);
     }
 
-    $db = DB::getInstance();
     $stmt = $db->prepare("UPDATE usuarios SET telegram_id = ? WHERE id = ?");
-    $stmt->execute([$data['telegram_id'], $auth['user_id']]);
+    $stmt->execute([$data['telegram_id'], $user['user_id']]);
 
-    echo json_encode(['status' => 'success', 'message' => 'Telegram account linked.']);
+    sendResponse(['status' => 'success', 'message' => 'Telegram account linked.']);
 }
 ?>

@@ -29,6 +29,13 @@ switch ($method) {
             try {
                 $db->beginTransaction();
 
+                // 0. GAP DETECTION (FORENSIC)
+                $stmt = $db->prepare("SELECT valor FROM odometros WHERE cooperativa_id = :coop_id AND ruta_id IN (SELECT id FROM rutas WHERE vehiculo_id = :vid) ORDER BY id DESC LIMIT 1");
+                $stmt->execute(['coop_id' => $coop_id, 'vid' => $vehiculo_id]);
+                $last_odo_row = $stmt->fetch();
+                $last_odo = $last_odo_row ? floatval($last_odo_row['valor']) : 0;
+                $gap = floatval($odometro_valor) - $last_odo;
+
                 // 1. Create Route with payment info
                 $stmt = $db->prepare("INSERT INTO rutas (cooperativa_id, vehiculo_id, chofer_id, estado, monto_efectivo, monto_pagomovil) 
                                      VALUES (:coop_id, :vehiculo_id, :chofer_id, 'activa', :efectivo, :pagomovil)");
@@ -40,6 +47,29 @@ switch ($method) {
                     'pagomovil' => $data['monto_pagomovil'] ?? 0
                 ]);
                 $ruta_id = $db->lastInsertId();
+
+                // Logic for Gap Alert Notification
+                if ($last_odo > 0 && $gap > 1.0) { // More than 1km gap
+                    // Fetch owner chat_id
+                    $stmt = $db->prepare("SELECT u.telegram_chat_id, v.placa, c.nombre as chofer_name 
+                                         FROM vehiculos v 
+                                         JOIN usuarios u ON v.dueno_id = u.id 
+                                         JOIN usuarios c ON c.id = :chofer_id
+                                         WHERE v.id = :vid");
+                    $stmt->execute(['chofer_id' => $user['user_id'], 'vid' => $vehiculo_id]);
+                    $owner_info = $stmt->fetch();
+
+                    if ($owner_info && $owner_info['telegram_chat_id']) {
+                        require_once 'includes/telegram_helper.php';
+                        $msg = "🕵️‍♂️ **GAP DETECTADO - Uso No Reportado**\n\n";
+                        $msg .= "Unidad: *{$owner_info['placa']}*\n";
+                        $msg .= "Chofer: *{$owner_info['chofer_name']}*\n";
+                        $msg .= "Inicio Actual: `{$odometro_valor} KM`\n";
+                        $msg .= "Último Reporte: `{$last_odo} KM`\n";
+                        $msg .= "⚠️ **BRECHA:** " . round($gap, 2) . " KM sin reportar.";
+                        sendTelegramNotification($owner_info['telegram_chat_id'], $msg, $coop_id);
+                    }
+                }
 
                 // 2. Log Odometer (Start)
                 $stmt = $db->prepare("INSERT INTO odometros (cooperativa_id, ruta_id, tipo, valor, foto_path) 
@@ -69,6 +99,16 @@ switch ($method) {
 
             try {
                 $db->beginTransaction();
+
+                // 0. FETCH START ODOMETER FOR VALIDATION
+                $stmt = $db->prepare("SELECT valor FROM odometros WHERE ruta_id = :ruta_id AND tipo = 'inicio'");
+                $stmt->execute(['ruta_id' => $ruta_id]);
+                $start_odo_row = $stmt->fetch();
+                $start_odo = $start_odo_row ? floatval($start_odo_row['valor']) : 0;
+
+                if (floatval($odometro_valor) <= $start_odo) {
+                    throw new Exception("El odómetro final ($odometro_valor) debe ser mayor al inicial ($start_odo).");
+                }
 
                 // 1. Update Route
                 $stmt = $db->prepare("UPDATE rutas SET estado = 'finalizada', ended_at = CURRENT_TIMESTAMP 
@@ -104,8 +144,8 @@ switch ($method) {
 
                 $stmt = $db->prepare("SELECT cuota_diaria FROM vehiculos WHERE id = :vid");
                 $stmt->execute(['vid' => $vid]);
-                $v = $stmt->fetch();
-                $cuota = $v['cuota_diaria'];
+                $v_cuota = $stmt->fetch(); // Renamed to avoid conflict with $v later
+                $cuota = $v_cuota['cuota_diaria'];
 
                 $fecha_hoy = date('Y-m-d');
                 $stmt = $db->prepare("INSERT IGNORE INTO pagos_diarios (cooperativa_id, vehiculo_id, chofer_id, monto, monto_efectivo, monto_pagomovil, fecha) 
@@ -120,10 +160,8 @@ switch ($method) {
                     'fecha' => $fecha_hoy
                 ]);
 
-                $db->commit();
-
-                // 4. Alert Engine Logic (Cerebro)
-                $stmt = $db->prepare("SELECT r.*, v.placa, u.telegram_id, u.nombre as dueno_nombre,
+                // 4. Fuel Audit Logic (Operational Intelligence) - Get route info again for full details
+                $stmt = $db->prepare("SELECT r.*, v.placa, v.km_por_litro, v.odometro_mantenimiento, v.frecuencia_mantenimiento, u.telegram_id, u.nombre as dueno_nombre,
                                      (SELECT valor FROM odometros WHERE ruta_id = r.id AND tipo = 'inicio') as odometro_inicio
                                      FROM rutas r 
                                      JOIN vehiculos v ON r.vehiculo_id = v.id 
@@ -132,46 +170,88 @@ switch ($method) {
                 $stmt->execute(['ruta_id' => $ruta_id]);
                 $ruta_info = $stmt->fetch();
 
-                if ($ruta_info && $ruta_info['telegram_id']) {
-                    require_once 'notificaciones.php';
+                if ($ruta_info) {
                     $distancia = $odometro_valor - $ruta_info['odometro_inicio'];
+                    $km_litro = $ruta_info['km_por_litro'] ?: 8.0;
+                    $consumo_reportado = $data['combustible_reportado'] ?? 0;
                     
-                    if ($distancia > 50) {
-                         $msg = "⚠️ *ALERTA DE SEGURIDAD - TuCooperativa*\n\n";
-                         $msg .= "Se detectó un recorrido inusual en la unidad *{$ruta_info['placa']}*.\n";
-                         $msg .= "Recorrido: {$distancia} KM.\n";
-                         $msg .= "Estado: *BAJO REVISIÓN POR POSIBLE ORDEÑO*";
-                         sendTelegramNotification($ruta_info['telegram_id'], $msg);
-                    } else {
-                         $msg = "✅ *Viaje Finalizado - TuCooperativa*\n\n";
-                         $msg .= "Unidad: *{$ruta_info['placa']}*\n";
-                         $msg .= "Recorrido: {$distancia} KM.\n";
-                         $msg .= "Estado: Normal.";
-                         sendTelegramNotification($ruta_info['telegram_id'], $msg);
+                    // Fuel Discrepancy Engine
+                    $consumo_estimado = $distancia / $km_litro;
+                    $alerta = 0;
+                    
+                    if ($consumo_estimado > 0) {
+                        $diferencia_proc = abs($consumo_estimado - $consumo_reportado) / $consumo_estimado;
+                        if ($diferencia_proc > 0.15) { // 15% threshold
+                            $alerta = 1;
+                        }
+                    }
+
+                    // Update Route with fuel data and alert
+                    $stmt = $db->prepare("UPDATE rutas SET combustible_reportado = :fuel, alerta_combustible = :alerta WHERE id = :ruta_id");
+                    $stmt->execute(['fuel' => $consumo_reportado, 'alerta' => $alerta, 'ruta_id' => $ruta_id]);
+
+                    if ($ruta_info['telegram_id']) {
+                        require_once 'notificaciones.php';
+                        if ($alerta) {
+                            $msg = "🚨 *ALERTA DE COMBUSTIBLE - TuCooperativa*\n\n";
+                            $msg .= "Unidad: *{$ruta_info['placa']}*\n";
+                            $msg .= "Recorrido: {$distancia} KM\n";
+                            $msg .= "Consumo Est.: " . round($consumo_estimado, 2) . " L\n";
+                            $msg .= "Reportado: " . round($consumo_reportado, 2) . " L\n";
+                            $msg .= "⚠️ *DISCREPANCIA DETECTADA (>15%)*";
+                            sendTelegramNotification($ruta_info['telegram_id'], $msg, $coop_id);
+                        } else {
+                            $msg = "✅ *Viaje Finalizado - TuCooperativa*\n\n";
+                            $msg .= "Unidad: *{$ruta_info['placa']}*\n";
+                            $msg .= "Recorrido: {$distancia} KM\n";
+                            $msg .= "Estado: Normal.";
+                            sendTelegramNotification($ruta_info['telegram_id'], $msg, $coop_id);
+                        }
                     }
                 }
 
-                // 5. Mantenimiento Predictivo logic
-                $stmt = $db->prepare("UPDATE mantenimientos 
-                                     SET km_restantes = km_restantes - ? 
-                                     WHERE vehiculo_id = ?");
-                $stmt->execute([$distancia, $vid]);
+                // 5. Mantenimiento Predictivo Granular (Phase 32)
+                $stmtMaint = $db->prepare("SELECT * FROM mantenimiento_items WHERE vehiculo_id = ?");
+                $stmtMaint->execute([$vid]);
+                $items = $stmtMaint->fetchAll();
+                
+                $alertas_enviadas = [];
+                foreach ($items as $item) {
+                    $km_since_last = $odometro_valor - floatval($item['ultimo_odometro']);
+                    $freq = intval($item['frecuencia']);
+                    $km_restantes = $freq - $km_since_last;
+                    
+                    if ($km_restantes < 500) {
+                        $estado = ($km_restantes <= 0) ? "VENCIDO" : "PRÓXIMO";
+                        $alertas_enviadas[] = [
+                            'item' => $item['nombre'],
+                            'restantes' => max(0, $km_restantes),
+                            'estado' => $estado
+                        ];
 
-                // 6. Check for low maintenance alerts
-                $stmt = $db->prepare("SELECT * FROM mantenimientos WHERE vehiculo_id = ? AND km_restantes < 500");
-                $stmt->execute([$vid]);
-                $low_maint = $stmt->fetchAll();
-
-                foreach ($low_maint as $m) {
-                    $msg = "🔧 *MANTENIMIENTO REQUERIDO*\n\n";
-                    $msg .= "Unidad: *{$ruta_info['placa']}*\n";
-                    $msg .= "Servicio: *{$m['tipo']}*\n";
-                    $msg .= "Kilómetros restantes: *{$m['km_restantes']} KM*\n";
-                    $msg .= "¡Favor agendar servicio pronto!";
-                    sendTelegramNotification($ruta_info['telegram_id'], $msg);
+                        if ($ruta_info['telegram_id']) {
+                            $emoji = ($km_restantes <= 0) ? "🚨" : "⚠️";
+                            $msg_maint = "$emoji *ALERTA DE MANTENIMIENTO*\n\n";
+                            $msg_maint .= "Unidad: *{$ruta_info['placa']}*\n";
+                            $msg_maint .= "Componente: *{$item['nombre']}*\n";
+                            $msg_maint .= "Estado: *$estado*\n";
+                            $msg_maint .= "Kilómetros restantes: *{$km_restantes} KM*\n";
+                            $msg_maint .= "¡Favor agendar servicio!";
+                            sendTelegramNotification($ruta_info['telegram_id'], $msg_maint, $coop_id);
+                        }
+                    }
                 }
 
-                sendResponse(['message' => 'Route ended, fee logged, and maintenance updated']);
+                $db->commit();
+                sendResponse([
+                    'message' => 'Ruta finalizada con éxito',
+                    'alerta_fuel' => $alerta,
+                    'distancia' => $distancia,
+                    'mantenimiento' => [
+                        'requerido' => ($km_restantes <= 0),
+                        'km_restantes' => max(0, $km_restantes)
+                    ]
+                ]);
             } catch (Exception $e) {
                 $db->rollBack();
                 sendResponse(['error' => 'Failed to end route: ' . $e->getMessage()], 500);
@@ -183,7 +263,20 @@ switch ($method) {
         break;
 
     case 'GET':
-        // List active routes for this cooperative
+        $active_for_me = $_GET['active_for_me'] ?? false;
+        if ($active_for_me) {
+            $stmt = $db->prepare("SELECT r.*, v.placa, 
+                                 (SELECT valor FROM odometros WHERE ruta_id = r.id AND tipo = 'inicio') as odometro_inicio
+                                 FROM rutas r 
+                                 JOIN vehiculos v ON r.vehiculo_id = v.id 
+                                 WHERE r.chofer_id = :chofer_id AND r.estado = 'activa' 
+                                 LIMIT 1");
+            $stmt->execute(['chofer_id' => $user['user_id']]);
+            $res = $stmt->fetch();
+            sendResponse($res ?: ['error' => 'No tienes una ruta activa actualmente']);
+        }
+
+        // List all active routes for this cooperative
         $stmt = $db->prepare("SELECT r.*, v.placa, u.nombre as chofer_nombre 
                              FROM rutas r 
                              JOIN vehiculos v ON r.vehiculo_id = v.id 

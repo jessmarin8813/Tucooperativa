@@ -1,0 +1,16 @@
+﻿============================================================
+  TUCOOPERATIVA - SISTEMA DE VALIDACI├ôN INTEGRAL (BUILD)
+============================================================
+
+[1/3] Revisando sintaxis PHP...
+- PHP: Todo Correcto.
+
+[2/3] Validando Frontend (React + Vite)...
+[ERROR] Fallo en ESLint. Revisa el codigo client/src.
+- Build: OK.
+
+[3/3] Revisando Bot de Telegram (Python)...
+- Python: Todo Correcto.
+
+============================================================
+   RESULTADO: [FALLO] - Corrige los errores antes de continuar.

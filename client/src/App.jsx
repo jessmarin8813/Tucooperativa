@@ -10,6 +10,14 @@ function App() {
   const [activeView, setActiveView] = useState('dashboard')
   const [initializing, setInitializing] = useState(true)
   const { callApi } = useApi()
+  
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const view = params.get('view')
+    if (view && ['dashboard', 'choferes', 'bi', 'gastos', 'cobranza', 'config', 'flota'].includes(view)) {
+      setActiveView(view)
+    }
+  }, [])
 
   // Verify session on mount
   useEffect(() => {
@@ -29,10 +37,10 @@ function App() {
     checkSession()
   }, [callApi])
 
-  const handleLogin = async (email, password) => {
+  const handleLogin = async (username, password) => {
     const data = await callApi('login.php', {
       method: 'POST',
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ username, password })
     })
     setIsLoggedIn(true)
     setUser(data.user)

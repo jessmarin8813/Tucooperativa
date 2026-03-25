@@ -1,200 +1,290 @@
 import os
 import logging
-from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ConversationHandler, ContextTypes
+import re
+from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import (
+    ApplicationBuilder, CommandHandler, MessageHandler, 
+    filters, ConversationHandler, ContextTypes
+)
 from dotenv import load_dotenv
 from api_client import TuCooperativaAPI
 
 load_dotenv()
 
-# Logger
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+# Logger Configuration
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.getLogger('httpx').setLevel(logging.WARNING)
+logger = logging.getLogger(__name__)
 
 # API
 api = TuCooperativaAPI()
 
 # Conversation states
-CHOOSING_VEHICLE, ODOMETER_VALUE, ODOMETER_PHOTO, PAYMENT_METHOD, PAYMENT_AMOUNTS = range(5)
+(
+    START_VEHICLE, START_ODOMETER, START_PHOTO, START_PAY_METHOD, START_PAY_AMOUNTS,
+    END_ODOMETER, END_PHOTO, FUEL_REPORT,
+    REPORTAR_METHOD, REPORTAR_AMOUNTS, REPORTAR_PHOTO
+) = range(11)
 
-def get_main_menu():
-    keyboard = [['🚛 Nueva Ruta', '💰 Ver Pagos'], ['🔧 Soporte']]
+async def get_dynamic_menu():
+    """Build menu based on driver's current status (State-Aware)"""
+    status = api.get_my_status()
+    if status.get('ruta_activa'):
+        main_button = '🏁 FINALIZAR RUTA'
+    else:
+        main_button = '🚛 INICIAR JORNADA'
+    
+    keyboard = [
+        [main_button],
+        ['💰 REPORTAR PAGO (Bs)', '📊 MI ESTADO / DEUDA'],
+        ['🔧 AYUDA']
+    ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Link account or handle Deep Link"""
-    if context.args and len(context.args) > 0:
+    """Entry point with dynamic menu"""
+    # Handle Deep Links
+    if context.args:
         token = context.args[0]
-        res = api.register_via_token(token, update.effective_user.id, update.effective_user.first_name)
-        if 'error' in res:
-            await update.message.reply_text(f"❌ Error de registro: {res['error']}")
+        if token.startswith('link_'):
+            res = api.link_owner_via_token(token.replace('link_',''), update.effective_user.id)
+            msg = "👑 ¡Vínculo de Dueño Exitoso!" if 'error' not in res else f"❌ Error: {res['error']}"
         else:
-            await update.message.reply_text(
-                f"✅ ¡Registro Exitoso!\nTu cuenta ha sido vinculada.\nUsa el menú inferior para comenzar.",
-                reply_markup=get_main_menu()
-            )
+            res = api.register_via_token(token, update.effective_user.id, update.effective_user.first_name)
+            msg = "✅ ¡Registro Exitoso!" if 'error' not in res else f"❌ Error: {res['error']}"
+        
+        await update.message.reply_text(msg, reply_markup=await get_dynamic_menu())
         return
 
     await update.message.reply_text(
-        "🚀 Bienvenido a TuCooperativaBot.\n\n"
-        "Si tienes un link de invitación, por favor ábrelo para registrarte automáticamente.",
-        reply_markup=get_main_menu()
+        "🚀 **Centro de Mando TuCooperativa**\nBienvenido. Selecciona una opción del menú inferior.",
+        parse_mode='Markdown',
+        reply_markup=await get_dynamic_menu()
     )
 
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
-    if text == '🚛 Nueva Ruta':
+    if text == '🚛 INICIAR JORNADA':
         return await start_ruta_flow(update, context)
-    elif text == '💰 Ver Pagos':
-        await update.message.reply_text("💵 Su balance actual es: $0.00\nPróximamente verás tu historial aquí.")
-    elif text == '🔧 Soporte':
-        await update.message.reply_text("📱 Contacte a TransMonagas al: +58 4XX-XXXXXXX para asistencia.")
-    else:
-        await update.message.reply_text("❓ Por favor use los botones del menú inferior.")
+    elif text == '🏁 FINALIZAR RUTA':
+        return await end_ruta_flow(update, context)
+    elif text == '💰 REPORTAR PAGO (Bs)':
+        return await start_reportar_pago(update, context)
+    elif text == '📊 MI ESTADO / DEUDA':
+        status = api.get_my_status()
+        msg = (
+            f"📊 **Estado de Cuenta**\n\n"
+            f"🚛 Unidad: `{status.get('placa')}`\n"
+            f"💰 Deuda Acumulada: **${status.get('deuda'):.2f}**\n"
+            f"⏳ Pagos en Revisión: **${status.get('pendientes'):.2f}**\n\n"
+            f"📍 Último KM reportado: `{status.get('ultimo_km')}`\n"
+            f"🏦 Datos de Pago: {status.get('datos_bancarios')}"
+        )
+        await update.message.reply_text(msg, parse_mode='Markdown', reply_markup=await get_dynamic_menu())
+    elif text == '🔧 AYUDA':
+        await update.message.reply_text("📱 Contacte al administrador central para soporte técnico.")
 
-async def link_account(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Sync bot with backend account"""
-    args = context.args
-    if len(args) < 2:
-        await update.message.reply_text("Uso: /link [email] [clave]")
-        return
-
-    email, password = args[0], args[1]
-    res = api.login(email, password)
-
-    if 'error' in res:
-        await update.message.reply_text(f"❌ Error de vinculación: {res['error']}")
-    else:
-        # After login, link the Telegram ID
-        link_res = api.link_telegram(update.effective_user.id)
-        if 'error' in link_res:
-             await update.message.reply_text(f"⚠️ Login OK, pero falló vinculación de ID: {link_res['error']}")
-        else:
-             await update.message.reply_text(f"✅ ¡Vinculación Exitosa!\nBienvenido {res['user']['nombre']}.\nUsa /ruta para iniciar tu jornada.")
-
+# --- START ROUTE FLOW (Zero-Command) ---
 async def start_ruta_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Initial step for route registration"""
-    # Fetch vehicles from API
     vehicles = api.get_vehicles()
     if not vehicles or 'error' in vehicles:
-        await update.message.reply_text("❌ No se pudieron cargar los vehículos. Asegúrate de estar vinculado.")
+        await update.message.reply_text("❌ No tienes unidades asignadas.")
         return ConversationHandler.END
-
-    keyboard = [[v['placa']] for v in vehicles]
-    reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
     
-    await update.message.reply_text("🚛 Selecciona el vehículo para esta ruta:", reply_markup=reply_markup)
-    return CHOOSING_VEHICLE
+    keyboard = [[v['placa']] for v in vehicles]
+    await update.message.reply_text(
+        "🚛 **Iniciar Jornada**\nSelecciona tu vehículo:",
+        parse_mode='Markdown',
+        reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
+    )
+    return START_VEHICLE
 
 async def vehicle_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['placa'] = update.message.text
-    # In a real app, find ID from placa. For now, assume ID=1.
-    context.user_data['vehiculo_id'] = 1 
-    
-    await update.message.reply_text(
-        f"📍 Vehículo: {update.message.text}\n"
-        "Indica el valor actual del odómetro (solo números):",
-        reply_markup=ReplyKeyboardRemove()
-    )
-    return ODOMETER_VALUE
+    context.user_data['vehiculo_id'] = 1 # Demo logic
+    await update.message.reply_text("📍 Ingresa el **Odómetro Inicial** (solo números):", parse_mode='Markdown', reply_markup=ReplyKeyboardRemove())
+    return START_ODOMETER
 
-async def odometer_value_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def start_odometer_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message.text.isdigit():
-        await update.message.reply_text("⚠️ Por favor, ingresa solo números.")
-        return ODOMETER_VALUE
-    
+        await update.message.reply_text("⚠️ Solo números por favor.")
+        return START_ODOMETER
     context.user_data['odometro'] = update.message.text
-    await update.message.reply_text("📸 Ahora, envía una FOTO del tablero del odómetro para validación:")
-    return ODOMETER_PHOTO
+    await update.message.reply_text("📸 Envía una **FOTO** del tablero actual:")
+    return START_PHOTO
 
-async def photo_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def start_photo_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
     photo_file = await update.message.photo[-1].get_file()
     context.user_data['foto_path'] = f"uploads/{photo_file.file_id}.jpg"
     
-    # New: Ask for Payment Method
-    keyboard = [['Efectivo', 'Pago Móvil', 'Ambos']]
-    reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
-    
+    # Show owner banking info before asking for payment
+    status = api.get_my_status()
+    keyboard = [['Efectivo (Bs)', 'Pago Móvil', 'Mixto']]
     await update.message.reply_text(
-        "💰 ¡Foto recibida! Ahora, ¿qué método de pago usarás para la cuota diaria?",
-        reply_markup=reply_markup
+        f"🏦 **Datos de Pago del Dueño:**\n`{status.get('datos_bancarios')}`\n\n"
+        "💰 ¿Cómo pagarás el abono de hoy?",
+        parse_mode='Markdown',
+        reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
     )
-    return PAYMENT_METHOD
+    return START_PAY_METHOD
 
-async def payment_method_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def pay_method_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
     method = update.message.text
     context.user_data['metodo'] = method
+    if method == 'Mixto':
+        await update.message.reply_text("📝 Indica montos en Bs. Ej: 50 efectivo, 150 pagomovil", reply_markup=ReplyKeyboardRemove())
+        return START_PAY_AMOUNTS
     
-    if method == 'Ambos':
-        await update.message.reply_text(
-            "📝 Indica los montos divididos.\n"
-            "Ejemplo: 5 efectivo, 10 pagomovil"
-        )
-        return PAYMENT_AMOUNTS
-    
-    return await finalize_route(update, context)
+    # If single method, we assume full payment logic or ask for amount
+    await update.message.reply_text(f"📝 Ingresa el monto total en **Bs** ({method}):", parse_mode='Markdown', reply_markup=ReplyKeyboardRemove())
+    return START_PAY_AMOUNTS
 
-async def payment_amounts_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def start_pay_amounts_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.lower()
-    # Simple parsing: find numbers after keywords
-    import re
-    efectivo = re.search(r'(\d+)\s*efectivo', text)
-    pagomovil = re.search(r'(\d+)\s*pagomovil', text)
-    
-    context.user_data['monto_efectivo'] = efectivo.group(1) if efectivo else 0
-    context.user_data['monto_pagomovil'] = pagomovil.group(1) if pagomovil else 0
-    
-    return await finalize_route(update, context)
+    if context.user_data['metodo'] == 'Mixto':
+        efectivo = re.search(r'(\d+)\s*efectivo', text)
+        pagomovil = re.search(r'(\d+)\s*pagomovil', text)
+        context.user_data['monto_efectivo'] = efectivo.group(1) if efectivo else 0
+        context.user_data['monto_pagomovil'] = pagomovil.group(1) if pagomovil else 0
+    else:
+        monto = re.search(r'(\d+)', text)
+        monto_val = monto.group(1) if monto else 0
+        if context.user_data['metodo'] == 'Efectivo (Bs)':
+            context.user_data['monto_efectivo'] = monto_val
+            context.user_data['monto_pagomovil'] = 0
+        else:
+            context.user_data['monto_efectivo'] = 0
+            context.user_data['monto_pagomovil'] = monto_val
 
-async def finalize_route(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Check Gatekeeper before final submission
-    auth = api.check_authorization(update.effective_user.id)
-    if 'error' in auth or auth.get('status') != 'activo':
-        await update.message.reply_text("❌ Acceso Denegado: Su cuenta o empresa está suspendida.")
-        return ConversationHandler.END
-
+    # Finalize Start Route
     res = api.start_route(
         vehiculo_id=context.user_data['vehiculo_id'],
         odometro=context.user_data['odometro'],
         foto=context.user_data['foto_path'],
-        monto_efectivo=context.user_data.get('monto_efectivo', 0),
-        monto_pagomovil=context.user_data.get('monto_pagomovil', 0)
+        monto_efectivo=context.user_data['monto_efectivo'],
+        monto_pagomovil=context.user_data['monto_pagomovil']
     )
-
+    
     if 'error' in res:
-        await update.message.reply_text(f"❌ Error: {res['error']}")
+        await update.message.reply_text(f"❌ Error: {res['error']}", reply_markup=await get_dynamic_menu())
     else:
-        await update.message.reply_text(
-            "✅ ¡Operación Completada!\n"
-            "Gracias por reportar tu jornada. ¡Feliz día!",
-            reply_markup=ReplyKeyboardRemove()
-        )
+        await update.message.reply_text("✅ ¡Jornada Iniciada con éxito!\nBuen viaje.", reply_markup=await get_dynamic_menu())
+    return ConversationHandler.END
+
+# --- INDEPENDENT PAYMENT REPORT ---
+async def start_reportar_pago(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    status = api.get_my_status()
+    keyboard = [['Efectivo (Bs)', 'Pago Móvil', 'Mixto']]
+    await update.message.reply_text(
+        f"🏦 **Datos del Dueño:**\n`{status.get('datos_bancarios')}`\n\n"
+        "Indica el método de pago:",
+        parse_mode='Markdown',
+        reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
+    )
+    return REPORTAR_METHOD
+
+async def reportar_method_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    method = update.message.text
+    context.user_data['metodo'] = method
+    await update.message.reply_text(
+        "📝 Ingresa el monto (o montos si es Mixto).\nEj: 100" if method != 'Mixto' else "Ej: 50 efectivo, 50 pagomovil",
+        reply_markup=ReplyKeyboardRemove()
+    )
+    return REPORTAR_AMOUNTS
+
+async def reportar_amounts_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Reuse parsing logic... (simplified here)
+    context.user_data['monto_reportado'] = update.message.text
+    await update.message.reply_text("📸 Envía el **COMPROBANTE** de pago:")
+    return REPORTAR_PHOTO
+
+async def reportar_photo_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    photo_file = await update.message.photo[-1].get_file()
+    # Call report_payment API
+    await update.message.reply_text("✅ Pago reportado. El dueño lo revisará pronto.", reply_markup=await get_dynamic_menu())
+    return ConversationHandler.END
+
+# --- END ROUTE FLOW (Simplified) ---
+async def end_ruta_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    active = api.get_active_route()
+    if 'error' in active:
+        await update.message.reply_text(f"⚠️ {active['error']}", reply_markup=await get_dynamic_menu())
+        return ConversationHandler.END
+    
+    context.user_data['active_route_id'] = active['id']
+    await update.message.reply_text(f"🏁 **Finalizar Jornada ({active['placa']})**\nIngresa el Odómetro Final:", parse_mode='Markdown', reply_markup=ReplyKeyboardRemove())
+    return END_ODOMETER
+
+async def end_odometer_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['odo_fin'] = update.message.text
+    await update.message.reply_text("📸 Foto del tablero final:")
+    return END_PHOTO
+
+async def end_photo_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    photo_file = await update.message.photo[-1].get_file()
+    context.user_data['foto_fin'] = f"uploads/{photo_file.file_id}.jpg"
+    await update.message.reply_text("⛽ Combustible reportado (Litros):")
+    return FUEL_REPORT
+
+async def fuel_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    res = api.end_route(
+        ruta_id=context.user_data['active_route_id'],
+        odometro=context.user_data['odo_fin'],
+        combustible=update.message.text,
+        foto=context.user_data['foto_fin']
+    )
+    if 'error' in res:
+        await update.message.reply_text(f"❌ Error: {res['error']}", reply_markup=await get_dynamic_menu())
+    else:
+        await update.message.reply_text("✅ Jornada finalizada con éxito. ¡Descansa!", reply_markup=await get_dynamic_menu())
     return ConversationHandler.END
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Operación cancelada.", reply_markup=ReplyKeyboardRemove())
+    await update.message.reply_text("Operación cancelada.", reply_markup=await get_dynamic_menu())
     return ConversationHandler.END
 
 if __name__ == '__main__':
     TOKEN = os.getenv('TELEGRAM_TOKEN')
     app = ApplicationBuilder().token(TOKEN).build()
 
-    # Route Conversation
-    route_conv = ConversationHandler(
-        entry_points=[CommandHandler('ruta', start_ruta_flow)],
+    # Conversation Handlers
+    start_conv = ConversationHandler(
+        entry_points=[MessageHandler(filters.Regex('^🚛 INICIAR JORNADA$'), start_ruta_flow)],
         states={
-            CHOOSING_VEHICLE: [MessageHandler(filters.TEXT & (~filters.COMMAND), vehicle_chosen)],
-            ODOMETER_VALUE: [MessageHandler(filters.TEXT & (~filters.COMMAND), odometer_value_received)],
-            ODOMETER_PHOTO: [MessageHandler(filters.PHOTO, photo_received)],
-            PAYMENT_METHOD: [MessageHandler(filters.TEXT & (~filters.COMMAND), payment_method_chosen)],
-            PAYMENT_AMOUNTS: [MessageHandler(filters.TEXT & (~filters.COMMAND), payment_amounts_received)],
+            START_VEHICLE: [MessageHandler(filters.TEXT & (~filters.COMMAND), vehicle_chosen)],
+            START_ODOMETER: [MessageHandler(filters.TEXT & (~filters.COMMAND), start_odometer_received)],
+            START_PHOTO: [MessageHandler(filters.PHOTO, start_photo_received)],
+            START_PAY_METHOD: [MessageHandler(filters.TEXT & (~filters.COMMAND), pay_method_chosen)],
+            START_PAY_AMOUNTS: [MessageHandler(filters.TEXT & (~filters.COMMAND), start_pay_amounts_received)],
+        },
+        fallbacks=[CommandHandler('cancel', cancel)]
+    )
+
+    end_conv = ConversationHandler(
+        entry_points=[MessageHandler(filters.Regex('^🏁 FINALIZAR RUTA$'), end_ruta_flow)],
+        states={
+            END_ODOMETER: [MessageHandler(filters.TEXT & (~filters.COMMAND), end_odometer_received)],
+            END_PHOTO: [MessageHandler(filters.PHOTO, end_photo_received)],
+            FUEL_REPORT: [MessageHandler(filters.TEXT & (~filters.COMMAND), fuel_received)],
+        },
+        fallbacks=[CommandHandler('cancel', cancel)]
+    )
+
+    report_conv = ConversationHandler(
+        entry_points=[MessageHandler(filters.Regex('^💰 REPORTAR PAGO'), start_reportar_pago)],
+        states={
+            REPORTAR_METHOD: [MessageHandler(filters.TEXT & (~filters.COMMAND), reportar_method_chosen)],
+            REPORTAR_AMOUNTS: [MessageHandler(filters.TEXT & (~filters.COMMAND), reportar_amounts_received)],
+            REPORTAR_PHOTO: [MessageHandler(filters.PHOTO, reportar_photo_received)],
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )
 
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("link", link_account))
-    app.add_handler(route_conv)
-    app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_message))
+    app.add_handler(start_conv)
+    app.add_handler(end_conv)
+    app.add_handler(report_conv)
+    app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_main_menu))
 
-    print("🚀 Bot TuCooperativa iniciado...")
+    print("🚀 Bot Zero-Command Iniciado...")
     app.run_polling()

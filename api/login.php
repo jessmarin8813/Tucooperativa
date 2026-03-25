@@ -15,18 +15,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $data = json_decode(file_get_contents('php://input'), true);
-$email = $data['email'] ?? '';
+$username = $data['username'] ?? '';
 $password = $data['password'] ?? '';
 
-if (empty($email) || empty($password)) {
+if (empty($username) || empty($password)) {
     http_response_code(400);
-    echo json_encode(['error' => 'Email and password are required']);
+    echo json_encode(['error' => 'Username and password are required']);
     exit;
 }
 
 $db = DB::getInstance();
-$stmt = $db->prepare("SELECT id, cooperativa_id, nombre, password_hash, rol FROM usuarios WHERE email = :email");
-$stmt->execute(['email' => $email]);
+$stmt = $db->prepare("SELECT id, cooperativa_id, nombre, password_hash, rol FROM usuarios WHERE username = :un");
+$stmt->execute(['un' => $username]);
 $user = $stmt->fetch();
 
 if ($user && password_verify($password, $user['password_hash'])) {
@@ -45,6 +45,7 @@ if ($user && password_verify($password, $user['password_hash'])) {
         ]
     ]);
 } else {
+    error_log("Login failed for user: " . $username);
     http_response_code(401);
-    echo json_encode(['error' => 'Invalid credentials']);
+    echo json_encode(['error' => 'Invalid credentials', 'debug_hint' => 'Check if username exists and password matches admin123']);
 }

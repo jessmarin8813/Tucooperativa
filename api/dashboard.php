@@ -1,6 +1,6 @@
 <?php
 /**
- * Dashboard Statistics API
+ * Dashboard Statistics API (Refactored for Phase 35)
  */
 require_once 'includes/middleware.php';
 
@@ -23,20 +23,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmt->execute([$coop_id]);
         $rutas_activas = $stmt->fetch()['total'];
 
-        // 3. Revenue Today
-        $stmt = $db->prepare("SELECT SUM(monto) as total FROM pagos_diarios 
-                              WHERE cooperativa_id = ? AND fecha = CURDATE()");
+        // 3. Revenue Today (REFACTORED: Sum of approved payments today)
+        $stmt = $db->prepare("SELECT SUM(monto) as total FROM pagos_reportados 
+                              WHERE cooperativa_id = ? AND estado = 'aprobado' AND DATE(fecha_revision) = CURDATE()");
         $stmt->execute([$coop_id]);
         $recaudacion_hoy = $stmt->fetch()['total'] ?? 0;
 
-        // 4. Alerts (Simplified: Odometers pending fin for yesterday's routes)
-        // This is a placeholder for the real "Intelligence" logic in Phase 19
-        $stmt = $db->prepare("SELECT COUNT(*) as total FROM rutas r
-                              LEFT JOIN odometros o ON r.id = o.ruta_id AND o.tipo = 'fin'
-                              WHERE r.cooperativa_id = ? 
-                              AND r.estado = 'activa' 
-                              AND DATE(r.started_at) < CURDATE()");
-        $stmt->execute([$coop_id]);
+        // 4. Alerts (Stale routes AND fuel discrepancies)
+        $stmt = $db->prepare("SELECT 
+                              (SELECT COUNT(*) FROM rutas 
+                               WHERE cooperativa_id = ? AND estado = 'activa' AND DATE(started_at) < CURDATE())
+                               +
+                              (SELECT COUNT(*) FROM rutas 
+                               WHERE cooperativa_id = ? AND alerta_combustible = 1 AND DATE(ended_at) = CURDATE())
+                               as total");
+        $stmt->execute([$coop_id, $coop_id]);
         $alertas_criticas = $stmt->fetch()['total'];
 
         sendResponse([
@@ -45,11 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'rutas_activas' => $rutas_activas,
                 'recaudacion_hoy' => number_format((float)$recaudacion_hoy, 2, '.', ''),
                 'alertas_criticas' => $alertas_criticas
-            ],
-            'fleet_preview' => [] // More detailed fleet list pending Phase 18
+            ]
         ]);
     } catch (Exception $e) {
         sendResponse(['error' => 'Dashboard calculation failed', 'msg' => $e->getMessage()], 500);
     }
 }
-?>

@@ -16,13 +16,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Generar un token único de 16 bytes (32 caracteres hex)
+    $data = json_decode(file_get_contents('php://input'), true);
+    $vehiculo_id = $data['vehiculo_id'] ?? null;
+    
+    // Generar un token único
     $token = bin2hex(random_bytes(16));
     
-    $stmt = $db->prepare("INSERT INTO invitaciones (cooperativa_id, token) VALUES (?, ?)");
-    $stmt->execute([$auth['cooperativa_id'], $token]);
+    $stmt = $db->prepare("INSERT INTO invitaciones (cooperativa_id, vehiculo_id, token) VALUES (?, ?, ?)");
+    $stmt->execute([$auth['cooperativa_id'], $vehiculo_id, $token]);
 
-    $bot_username = "TuCooperativaBot"; // Update if different
+    $bot_username = getenv('TELEGRAM_BOT_NAME') ?: 'TuCooperativa_bot';
     $link = "https://t.me/$bot_username?start=$token";
     
     sendResponse([

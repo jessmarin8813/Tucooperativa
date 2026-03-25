@@ -48,10 +48,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $stmt->execute([$coop_id]);
     $recientes = $stmt->fetchAll();
 
+    // 4. Datos de la Cooperativa (Settings)
+    $stmt = $db->prepare("SELECT * FROM cooperativas WHERE id = ?");
+    $stmt->execute([$coop_id]);
+    $cooperativa = $stmt->fetch();
+
     sendResponse([
         'resumen' => $resumen,
         'grafico' => array_reverse($por_dia),
-        'recientes' => $recientes
+        'recientes' => $recientes,
+        'cooperativa' => $cooperativa
     ]);
 }
 ?>

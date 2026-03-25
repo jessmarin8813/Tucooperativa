@@ -1,70 +1,110 @@
 import React from 'react'
-import { MoreVertical, User, Tag, Calendar } from 'lucide-react'
+import { MoreVertical, User, ChevronRight, AlertTriangle, Car } from 'lucide-react'
+import { motion as Motion } from 'framer-motion'
 
 const FleetList = ({ vehicles = [] }) => {
+  if (vehicles.length === 0) {
+    return (
+      <div className="glass-premium p-16 text-center text-white/20 font-black uppercase tracking-widest text-xs border-dashed">
+        No hay vehículos registrados en la flota.
+      </div>
+    )
+  }
+
   return (
-    <div className="glass" style={{ marginTop: '32px', overflow: 'hidden' }}>
-      <div style={{ padding: '24px', borderBottom: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Estado de la Flota</h3>
-        <button className="glass-hover" style={{ padding: '8px 16px', fontSize: '0.875rem' }}>Ver Todos</button>
+    <div className="glass-premium rounded-3xl overflow-hidden shadow-2xl mt-8">
+      <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/2">
+        <h3 className="text-xl font-black text-white tracking-tight">Estado de la Flota</h3>
+        <button className="btn-primary px-6 py-2 text-xs font-black uppercase tracking-widest">Ver Historial</button>
       </div>
 
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
           <thead>
-            <tr style={{ background: 'rgba(255,255,255,0.02)', color: 'var(--text-dim)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              <th style={{ padding: '20px 24px' }}>Vehículo / Placa</th>
-              <th style={{ padding: '20px 24px' }}>Dueño</th>
-              <th style={{ padding: '20px 24px' }}>Cuota Diaria</th>
-              <th style={{ padding: '20px 24px' }}>Estado</th>
-              <th style={{ padding: '20px 24px' }}>Salud (Aceite / Cauchos)</th>
-              <th style={{ padding: '20px 24px', textAlign: 'right' }}>Acciones</th>
+            <tr className="text-xs font-black uppercase text-white/20 tracking-widest border-b border-white/5 bg-white/2">
+              <th className="p-8">Vehículo / Placa</th>
+              <th className="p-8">Dueño / Chofer</th>
+              <th className="p-8 text-center">Cuota</th>
+              <th className="p-8">Estado</th>
+              <th className="p-8 text-right">Acciones</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-white/2">
             {vehicles.map((v, i) => (
-              <tr key={i} className="glass-hover" style={{ borderTop: '1px solid var(--glass-border)' }}>
-                <td style={{ padding: '20px 24px' }}>
-                  <div style={{ fontSize: '1rem', fontWeight: 600 }}>{v.modelo}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 700 }}>{v.placa}</div>
-                </td>
-                <td style={{ padding: '20px 24px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <User size={14} />
+              <Motion.tr 
+                key={v.id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className="glass-hover group"
+              >
+                <td className="p-8">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white/5 rounded-3xl flex items-center justify-center text-white/20 group-hover:bg-accent/10 group-hover:text-accent transition-colors">
+                        <Car size={24} />
                     </div>
-                    <span>{v.dueno}</span>
+                    <div>
+                        <p className="text-white font-black text-lg tracking-tighter group-hover:translate-x-1 transition-transform">{v.modelo || 'Unidad de Flota'}</p>
+                        <p className="text-xs text-accent font-black tracking-widest uppercase">{v.placa}</p>
+                    </div>
                   </div>
                 </td>
-                <td style={{ padding: '20px 24px', fontWeight: 600 }}>
-                  ${v.cuota}
-                </td>
-                <td style={{ padding: '20px 24px' }}>
-                  <span style={{ 
-                    padding: '4px 12px', 
-                    borderRadius: '20px', 
-                    fontSize: '0.75rem', 
-                    fontWeight: 700,
-                    background: v.status === 'activo' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-                    color: v.status === 'activo' ? 'var(--success)' : 'var(--warning)'
-                  }}>
-                    {v.status.toUpperCase()}
-                  </span>
-                </td>
-                <td style={{ padding: '20px 24px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '120px' }}>
-                      <div style={{ height: '4px', width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: '75%', background: 'var(--success)' }}></div>
-                      </div>
-                      <div style={{ height: '4px', width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: '40%', background: 'var(--warning)' }}></div>
-                      </div>
+                <td className="p-8">
+                  <div className="flex items-center gap-2 mb-1">
+                    <User size={14} className="text-white/20" />
+                    <span className="text-white font-bold text-sm tracking-tight">{v.dueno_nombre}</span>
+                  </div>
+                  {v.chofer_nombre && (
+                    <div className="text-xs text-white/30 font-bold uppercase tracking-wide ml-5">
+                      Op: {v.chofer_nombre}
                     </div>
-                 </td>
-                <td style={{ padding: '20px 24px', textAlign: 'right' }}>
-                  <MoreVertical size={18} style={{ color: 'var(--text-dim)', cursor: 'pointer' }} />
+                  )}
                 </td>
-              </tr>
+                <td className="p-8 text-center font-black text-white/60 text-lg">${v.cuota_diaria}</td>
+                <td className="p-8">
+                   <div className="flex items-center gap-3">
+                      <span className={`px-4 py-1.5 rounded-pill text-xs font-black uppercase tracking-widest border ${
+                        v.status_label === 'en ruta'
+                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-lg shadow-emerald-500/5'
+                          : 'bg-white/5 text-white/30 border-white/5'
+                      }`}>
+                        {v.status_label}
+                      </span>
+                      {v.alerta_combustible == 1 && (
+                        <div className="flex items-center gap-2 bg-red-500/10 text-red-500 border border-red-500/20 px-3 py-1.5 rounded-pill text-xs font-black animate-pulse">
+                          <AlertTriangle size={12} />
+                          FUEL ALERT
+                        </div>
+                      )}
+                   </div>
+                </td>
+                <td className="p-8 text-right">
+                  <div className="flex justify-end gap-4 items-center">
+                    {!v.chofer_id && (
+                      <button 
+                        onClick={async () => {
+                          const res = await fetch('/api/invitaciones.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ vehiculo_id: v.id })
+                          });
+                          const data = await res.json();
+                          if (data.status === 'success') {
+                            navigator.clipboard.writeText(data.link);
+                            alert('✅ Link de Invitación copiado al portapapeles. Envíalo al chofer.');
+                          }
+                        }}
+                        className="btn-primary px-4 py-2 text-[10px] font-black uppercase tracking-widest border-neon"
+                      >
+                        INVITAR CHOFER
+                      </button>
+                    )}
+                    <button className="w-10 h-10 bg-white/5 rounded-2xl flex items-center justify-center text-white/20 hover:text-white transition-colors">
+                        <MoreVertical size={20} />
+                    </button>
+                  </div>
+                </td>
+              </Motion.tr>
             ))}
           </tbody>
         </table>

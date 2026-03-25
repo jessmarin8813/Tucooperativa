@@ -1,23 +1,29 @@
-# Estándar de Desarrollo: TuCooperativa "AI-Proof"
+# Stability & Development Rules: TuCooperativa Hub
 
-Este documento define el estilo arquitectónico obligatorio para este proyecto, diseñado para maximizar la estabilidad, la mantenibilidad y la precisión del asistente de IA.
+Este documento contiene las "Reglas de Oro" que deben seguirse para cualquier desarrollo futuro en este sistema. El incumplimiento de estas reglas romperá la integridad de la plataforma.
 
-## 1. Frontend (React / Vite)
-- **Modularidad Total**: Prohibido el uso de "God Components". `App.jsx` solo debe manejar el enrutamiento y el estado global inicial.
-- **Componentes de Vista**: Cada pantalla principal debe residir en `client/src/components/` (ej: `LoginView.jsx`, `Dashboard.jsx`).
-- **Hook useApi**: Todas las peticiones al backend deben pasar por el hook centralizado `useApi.js`. No usar `fetch()` directo en los componentes de vista.
-- **Micro-Animaciones**: Utilizar `framer-motion` para transiciones suaves (fade-in, slide) en cambios de estado o navegación.
-- **Glassmorphism**: Mantener fondos translúcidos, bordes neon sutiles y tipografía moderna (`Inter` u `Outfit`).
+## 🛡️ La Regla #1: Omni-Guard
+**NUNCA** consideres un cambio como terminado si no pasa el `build.bat`.
+- El build audita: Sintaxis PHP, Sintaxis Python (Bot), Integridad de DB, y Sincronización de Variables.
+- Si el build falla, el sistema NO es apto para producción.
 
-## 2. Backend (PHP)
-- **Middleware Obligatorio**: Todo archivo API debe incluir `includes/middleware.php`.
-- **Respuestas JSON**: Prohibido imprimir HTML. Usar siempre `sendResponse($data, $code)`.
-- **Escudo de Errores**: El middleware debe capturar excepciones y errores fatales para devolver un JSON de error 500 estructurado.
-- **Aislamiento Multi-tenant**: Todas las consultas SQL deben incluir `cooperativa_id` en el `WHERE` para garantizar la privacidad entre cooperativas.
+## 🎨 Estética Premium (UI/UX)
+- Mantener el estilo **Glassmorphism**: Fondos radiales oscuros (`#1e1b4b` a `#0a0b12`), bordes neon (`--accent`) y efectos de desenfoque (`backdrop-filter: blur`).
+- No usar colores genéricos. Seguir la paleta del `index.css`.
+- Todas las vistas deben ser responsivas (Desktop first, pero Mobile friendly).
 
-## 3. Calidad y Verificación
-- **El Oráculo (build.bat)**: Ante cualquier cambio crítico, es obligatorio ejecutar `build.bat` en la raíz. El proyecto no se considera listo si el resultado no es 100% verde (PHP Syntax, React Build/Lint, Python Flake8).
+## 📊 Lógica de Negocio (Core)
+1. **Cuota Diaria ($10)**: La deuda se calcula siempre como `(Días operados * 10) - Pagos aprobados`.
+2. **Sistema Forense**: Cualquier reporte de odómetro debe compararse con el cierre anterior en `api/rutas.php`. Los saltos de kilometraje ("Gaps") disparan una alerta de nivel "Crítico".
+3. **Cobranza en Bs**: Los pagos reportados por choferes deben admitir modelo mixto (Efectivo + Pago Móvil) en Bolívares.
+4. **Multi-tenant**: Todo debe estar filtrado por `cooperativa_id` para permitir múltiples líneas de transporte.
 
-## 4. Estilo de IA
-- **No Hallucinations**: Si una ruta o tabla no existe, preguntar antes de implementarla.
-- **Incrementalidad**: No reescribir archivos completos a menos que sea necesario para el refactor modular. Usar `replace_file_content` o `multi_replace_file_content` para ediciones quirúrgicas.
+## 🔒 Seguridad y Bots
+- **Zero-Command**: El bot de Telegram no debe usar comandos escritos. Todo debe ser a través de Inline Keyboards (botones) para facilitar el uso a choferes.
+- **Gatekeeper**: Antes de procesar cualquier acción en el bot, verificar que el usuario y su vehículo estén activos en la base de datos.
+- **Login**: La autenticación administrativa es por **Nombre de Usuario** (no email).
+
+## 🛠️ Procedimiento de Troubleshooting
+1. Ejecutar `.\build.bat`.
+2. Revisar `error_log` en el servidor PHP si hay fallos 500.
+3. Usar `c:\xampp\php\php.exe debug_login.php` si hay problemas de acceso.

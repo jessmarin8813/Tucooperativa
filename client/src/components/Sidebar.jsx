@@ -1,77 +1,67 @@
-import React from 'react'
-import { LayoutDashboard, Truck, MapPin, CreditCard, Settings, LogOut } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { LayoutDashboard, Truck, MapPin, CreditCard, Settings, LogOut, Trophy, BarChart3, DollarSign, Users, ShieldCheck } from 'lucide-react'
+import { motion as Motion } from 'framer-motion'
 
 const Sidebar = ({ onLogout, userRole, activeView, setActiveView }) => {
   const menuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Centro de Mando' },
     { id: 'flota', icon: Truck, label: 'Flota de Vehículos' },
-    { id: 'choferes', icon: Truck, label: 'Gestión de Choferes' },
+    { id: 'choferes', icon: Users, label: 'Gestión de Choferes' },
     { id: 'invitar', icon: MapPin, label: 'Invitar Chofer' },
-    { id: 'config', icon: Settings, label: 'Pagos & Config' },
+    { id: 'ranking', icon: Trophy, label: 'Ranking de Honor' },
+    { id: 'bi', icon: BarChart3, label: 'Inteligencia BI' },
+    { id: 'gastos', icon: CreditCard, label: 'Gastos Operativos' },
+    { id: 'cobranza', icon: DollarSign, label: 'Cobranza y Cuotas' },
+    { id: 'config', icon: ShieldCheck, label: 'Finanzas' },
   ]
 
   return (
-    <aside className="glass" style={{ width: '280px', margin: '20px', borderRadius: '24px', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ padding: '32px' }}>
-        <h2 className="neon-text brand" style={{ fontSize: '1.5rem' }}>TuCooperativa</h2>
-        {userRole === 'superadmin' && (
-          <div style={{ 
-            marginTop: '8px', 
-            background: 'var(--accent)', 
-            color: 'white', 
-            fontSize: '0.65rem', 
-            padding: '2px 8px', 
-            borderRadius: '100px',
-            display: 'inline-block',
-            fontWeight: 800,
-            letterSpacing: '0.05em'
-          }}>SUPER ADMIN</div>
-        )}
+    <aside className="p-glass p-flex p-flex-col" style={{ width: '260px', minWidth: '260px', height: 'calc(100vh - 32px)', margin: '16px', padding: '24px 12px', borderRadius: '32px' }}>
+      <div style={{ marginBottom: '32px', padding: '0 12px' }}>
+        <div className="p-flex p-items-center p-gap-3">
+            <div className="p-flex p-items-center p-justify-center" style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'var(--primary)', boxShadow: '0 0 12px var(--primary-glow)' }}>
+                <ShieldCheck size={18} color="white" />
+            </div>
+            <h2 className="brand p-neon-text" style={{ fontSize: '1.25rem', margin: 0 }}>TuCooperativa</h2>
+        </div>
+        <p style={{ fontSize: '9px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.2, marginTop: '6px' }}>Control Inteligente v4.5</p>
       </div>
 
-      <nav style={{ flex: 1, padding: '0 16px' }}>
+      <nav className="p-flex p-flex-col p-gap-1.5" style={{ flex: 1, overflowY: 'auto' }}>
         {menuItems.map((item, idx) => {
           const isActive = activeView === item.id;
           return (
             <div 
               key={idx} 
               onClick={() => setActiveView(item.id)}
-              className={`glass-hover ${isActive ? 'neon-border' : ''}`}
+              className="p-flex p-items-center p-gap-3 transition-all"
               style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '12px', 
-                padding: '14px 20px', 
-                borderRadius: '12px', 
-                marginBottom: '8px',
+                padding: '10px 16px', 
+                borderRadius: '100px', 
                 cursor: 'pointer',
-                background: isActive ? 'var(--primary)' : 'transparent',
-                color: isActive ? 'white' : 'var(--text-dim)'
+                background: isActive ? 'rgba(124, 58, 237, 0.08)' : 'transparent',
+                border: isActive ? '1px solid rgba(124, 58, 237, 0.2)' : '1px solid transparent',
+                color: isActive ? 'white' : 'var(--text-dim)',
               }}
             >
-              <item.icon size={20} />
-              <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{item.label}</span>
+              <item.icon size={18} style={{ color: isActive ? 'var(--primary)' : 'inherit' }} />
+              <span style={{ fontSize: '0.8rem', fontWeight: isActive ? 700 : 500, whiteSpace: 'nowrap' }}>{item.label}</span>
             </div>
           )
         })}
       </nav>
 
-      <div style={{ padding: '24px' }}>
+      <div style={{ padding: '16px 12px 0' }}>
         <button 
           onClick={onLogout}
-          className="glass-hover" 
+          className="p-flex p-items-center p-justify-center p-gap-3"
           style={{ 
-            width: '100%', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            gap: '8px',
-            color: 'var(--danger)',
-            background: 'rgba(239, 68, 68, 0.1)'
+            width: '100%', padding: '12px', borderRadius: '100px', border: '1px solid rgba(239, 68, 68, 0.15)',
+            background: 'rgba(239, 68, 68, 0.03)', color: 'var(--danger)', cursor: 'pointer', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.05em'
           }}
         >
-          <LogOut size={18} />
-          <span>Cerrar Sesión</span>
+          <LogOut size={16} />
+          CERRAR SESIÓN
         </button>
       </div>
     </aside>

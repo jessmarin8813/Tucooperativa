@@ -1,11 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import StatCard from './StatCard'
 import FleetList from './FleetList'
-import { Truck, Activity, DollarSign, AlertCircle } from 'lucide-react'
+import Modal from './Modal'
+import VehicleForm from './VehicleForm'
+import MaintenanceCenter from './MaintenanceCenter'
+import { Truck, Activity, DollarSign, AlertCircle, BarChart3, ShieldCheck } from 'lucide-react'
 import { useApi } from '../hooks/useApi'
+import { motion as Motion } from 'framer-motion'
 
 const Dashboard = () => {
   const { callApi, loading, error } = useApi()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [currentUser, setCurrentUser] = useState(null)
   const [data, setData] = useState({
     stats: {
       total_vehiculos: 0,
@@ -13,67 +19,138 @@ const Dashboard = () => {
       recaudacion_hoy: '0.00',
       alertas_criticas: 0
     },
-    mockVehicles: [
-      { modelo: 'Encava ENT-610', placa: 'A12BC3D', dueno: 'Jesus Marin', cuota: 25.00, status: 'activo' },
-      { modelo: 'NPR Turbo', placa: 'X98YZ7W', dueno: 'Jose Perez', cuota: 20.00, status: 'en ruta' },
-    ]
+    vehicles: []
   })
+  const [activeTab, setActiveTab] = useState('operaciones')
+
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      if (!currentUser) {
+        const sessionRes = await callApi('session.php')
+        setCurrentUser(sessionRes.user)
+      }
+      const statsRes = await callApi('dashboard.php')
+      const fleetRes = await callApi('vehiculos.php')
+      setData({ stats: statsRes.stats, vehicles: fleetRes })
+    } catch { /* Handled */ }
+  }, [callApi, currentUser])
 
   useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const result = await callApi('dashboard.php')
-        setData(prev => ({
-          ...prev,
-          stats: result.stats
-        }))
-      } catch (err) {
-        console.error("Dashboard error:", err)
-      }
-    }
-    fetchDashboard()
-  }, [callApi])
+    fetchDashboardData()
+  }, [fetchDashboardData])
+
+  const handleRegistrationSuccess = () => {
+    setIsModalOpen(false)
+    fetchDashboardData()
+  }
 
   if (loading && data.stats.total_vehiculos === 0) {
     return (
-      <div style={{ padding: '40px', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="neon-text animate-pulse">SINCRONIZANDO CENTRO DE MANDO...</div>
+      <div className="p-flex p-items-center p-justify-center" style={{ height: '400px', width: '100%' }}>
+        <div style={{ color: 'var(--primary)', fontWeight: 900, letterSpacing: '0.2em' }} className="animate-pulse">SINCRONIZANDO CENTRO DE MANDO...</div>
       </div>
     )
   }
 
   return (
-    <div style={{ padding: '40px', flex: 1, overflowY: 'auto' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-        <div className="animate-fade">
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 700 }}>Centro de Mando</h1>
-          <p style={{ color: 'var(--text-dim)' }}>Gestionando Operaciones en Tiempo Real</p>
+    <div className="animate-fade">
+      <header className="p-flex p-justify-between p-items-center" style={{ marginBottom: '48px' }}>
+        <div>
+          <h1 className="p-neon-text" style={{ fontSize: '3rem', fontWeight: 900, margin: 0 }}>Centro de Mando</h1>
+          <p style={{ color: 'var(--text-dim)', fontWeight: 700, marginTop: '8px' }}>Gestión de Operaciones en Tiempo Real</p>
         </div>
         
-        {data.stats.alertas_criticas > 0 && (
-          <div className="glass neon-border animate-bounce" style={{ padding: '10px 20px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.05)' }}>
-            <AlertCircle size={18} />
-            <span style={{ fontSize: '0.875rem', fontWeight: 700 }}>{data.stats.alertas_criticas} ALERTAS DE SEGURIDAD</span>
-          </div>
-        )}
+        <div className="p-flex p-gap-4 p-items-center">
+          {data.stats.alertas_criticas > 0 && (
+            <div className="p-glass-premium" style={{ border: '1px solid rgba(239, 68, 68, 0.4)', padding: '12px 24px', borderRadius: '100px', display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--danger)' }}>
+              <AlertCircle size={18} />
+              <span style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{data.stats.alertas_criticas} ALERTS</span>
+            </div>
+          )}
+          <button 
+            className="btn-primary"
+            style={{ padding: '16px 32px' }}
+            onClick={() => setIsModalOpen(true)}
+          >
+            + REGISTRAR UNIDAD
+          </button>
+        </div>
       </header>
 
-      {error && (
-        <div className="glass" style={{ padding: '16px', marginBottom: '24px', color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.1)' }}>
-          {error}. Los datos mostrados podrían estar desactualizados.
-        </div>
+      {/* CONNECTION HUB */}
+      {!currentUser?.telegram_chat_id && (
+        <Motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="p-glass-premium" style={{ padding: '40px', marginBottom: '48px', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: 0, right: 0, width: '200px', height: '200px', background: 'var(--primary)', filter: 'blur(100px)', opacity: 0.1 }} />
+          <div className="p-flex p-justify-between p-items-center" style={{ position: 'relative', zIndex: 10 }}>
+            <div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--primary)', margin: '0 0 12px' }} className="p-neon-text">¡Conecta tu Centro de Mando!</h3>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600, maxWidth: '500px', margin: 0 }}>Recibe alertas del Guardián Forense y notificaciones de caja directamente en tu Telegram.</p>
+            </div>
+            <button 
+              onClick={async () => {
+                const res = await fetch('/api/admin/generate_link_token.php');
+                const data = await res.json();
+                if(data.success && data.link) window.open(data.link, '_blank');
+              }}
+              className="btn-primary" 
+              style={{ padding: '16px 32px' }}
+            >
+              VINCULAR TELEGRAM
+            </button>
+          </div>
+        </Motion.div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+      <div className="p-grid p-grid-cols-3">
         <StatCard label="FLOTA TOTAL" value={data.stats.total_vehiculos} icon={Truck} trend="+0" />
         <StatCard label="EN OPERACIÓN" value={data.stats.rutas_activas} icon={Activity} color="var(--accent)" />
         <StatCard label="RECAUDACIÓN HOY" value={`$${data.stats.recaudacion_hoy}`} icon={DollarSign} color="var(--success)" trend="Real-time" />
       </div>
 
-      <div style={{ marginTop: '48px' }}>
-        <h2 style={{ fontSize: '1.5rem', marginBottom: '24px' }}>Estado de la Flota (Mock Preview)</h2>
-        <FleetList vehicles={data.mockVehicles} />
+      <div style={{ marginTop: '64px' }}>
+        <div className="p-flex p-gap-8" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: '32px' }}>
+          <button 
+            onClick={() => setActiveTab('operaciones')}
+            className="pb-4"
+            style={{ 
+                fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', cursor: 'pointer',
+                color: activeTab === 'operaciones' ? 'white' : 'rgba(255,255,255,0.2)',
+                borderBottom: activeTab === 'operaciones' ? '2px solid var(--primary)' : '2px solid transparent',
+                background: 'transparent', transition: 'all 0.3s ease'
+            }}
+          >
+            VISTA OPERATIVA
+          </button>
+          <button 
+            onClick={() => setActiveTab('mantenimiento')}
+            className="pb-4"
+            style={{ 
+                fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', cursor: 'pointer',
+                color: activeTab === 'mantenimiento' ? 'white' : 'rgba(255,255,255,0.2)',
+                borderBottom: activeTab === 'mantenimiento' ? '2px solid var(--primary)' : '2px solid transparent',
+                background: 'transparent', transition: 'all 0.3s ease'
+            }}
+          >
+            MANTENIMIENTO
+          </button>
+        </div>
+
+        {activeTab === 'operaciones' ? (
+          <>
+            <div className="p-flex p-items-center p-gap-4" style={{ marginBottom: '24px' }}>
+                <BarChart3 style={{ opacity: 0.2 }} size={20} />
+                <h2 style={{ fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.4 }}>Estado de la Flota (Forense)</h2>
+            </div>
+            <FleetList vehicles={data.vehicles} />
+          </>
+        ) : (
+          <MaintenanceCenter />
+        )}
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nueva Unidad">
+        <VehicleForm currentUser={currentUser} onSuccess={handleRegistrationSuccess} />
+      </Modal>
     </div>
   )
 }
