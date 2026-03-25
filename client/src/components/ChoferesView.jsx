@@ -32,7 +32,7 @@ const ChoferesView = () => {
   }
 
   return (
-    <div className="view-container animate-fade" style={{ padding: '40px' }}>
+    <div className="view-container animate-fade">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div>
           <h1 className="h1-premium neon-text">Gestión de Choferes</h1>

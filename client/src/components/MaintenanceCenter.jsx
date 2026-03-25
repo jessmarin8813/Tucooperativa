@@ -58,7 +58,7 @@ const MaintenanceCenter = () => {
   const totalCritical = fleetHealth.reduce((acc, v) => acc + v.items.filter(i => i.estado === 'critico').length, 0)
 
   return (
-    <div className="view-container animate-fade" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="view-container animate-fade">
       {/* Header */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '20px' }}>
         <div>

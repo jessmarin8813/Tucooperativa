@@ -53,7 +53,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="animate-fade">
+    <div className="view-container animate-fade">
       <header className="p-flex p-justify-between p-items-center" style={{ marginBottom: '48px' }}>
         <div>
           <h1 className="h1-premium neon-text">Centro de Mando</h1>
