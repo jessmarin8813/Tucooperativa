@@ -6,9 +6,11 @@
 require_once __DIR__ . '/../includes/middleware.php';
 
 $user = checkAuth();
-if ($user['rol'] !== 'superadmin') {
+if (!in_array($user['rol'], ['superadmin', 'owner'])) {
     sendResponse(['error' => 'Forbidden'], 403);
 }
+
+$coop_id = ($user['rol'] === 'owner') ? $user['cooperativa_id'] : null;
 
 $db = DB::getInstance();
 
@@ -32,6 +34,7 @@ try {
         JOIN odometros odo_ini ON r.id = odo_ini.ruta_id AND odo_ini.tipo = 'inicio'
         JOIN odometros odo_fin ON r.id = odo_fin.ruta_id AND odo_fin.tipo = 'fin'
         WHERE r.estado = 'finalizada'
+        " . ($coop_id ? "AND r.cooperativa_id = $coop_id" : "") . "
         ORDER BY r.ended_at DESC
         LIMIT 100
     ";
@@ -92,6 +95,7 @@ try {
         JOIN vehiculos v ON r.vehiculo_id = v.id
         JOIN cooperativas c ON r.cooperativa_id = c.id
         JOIN usuarios u ON r.chofer_id = u.id
+        " . ($coop_id ? "WHERE r.cooperativa_id = $coop_id" : "") . "
         ORDER BY v.id, o.created_at ASC
         LIMIT 500
     ";
@@ -133,7 +137,7 @@ try {
         // Find owners of this cooperativa to notify
         // For now, simplify to notify all owners of the coops involved in alerts
         foreach ($critical_alerts as $alert) {
-            $stmtOwner = $db->prepare("SELECT telegram_chat_id, cooperativa_id FROM usuarios WHERE rol = 'owner' AND telegram_chat_id IS NOT NULL");
+            $stmtOwner = $db->prepare("SELECT telegram_chat_id, cooperativa_id FROM usuarios WHERE rol = 'owner' AND telegram_chat_id IS NOT NULL" . ($coop_id ? " AND cooperativa_id = $coop_id" : ""));
             $stmtOwner->execute();
             $owners = $stmtOwner->fetchAll(PDO::FETCH_ASSOC);
             
