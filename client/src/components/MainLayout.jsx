@@ -18,10 +18,19 @@ const VehiculosView = lazy(() => import('./VehiculosView'))
 const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
+  const [headerHeight, setHeaderHeight] = useState(0)
+  const headerRef = React.useRef(null)
 
   React.useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024)
+    const handleResize = () => {
+        setIsMobile(window.innerWidth < 1024)
+        if (headerRef.current) {
+            setHeaderHeight(headerRef.current.offsetHeight)
+        }
+    }
     window.addEventListener('resize', handleResize)
+    // Initial measure
+    handleResize()
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
@@ -46,7 +55,10 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
       </div>
 
       {/* Mobile Top Header */}
-      <header className="mobile-header" style={{ 
+      <header 
+        ref={headerRef}
+        className="mobile-header" 
+        style={{ 
           position: 'fixed', top: 0, left: 0, right: 0, height: 'var(--header-h-mobile)', 
           background: 'rgba(7, 8, 13, 0.9)', backdropFilter: 'blur(10px)',
           borderBottom: '1px solid var(--glass-border)', alignItems: 'center', 
@@ -92,7 +104,8 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
         flex: 1, 
         height: '100vh', 
         overflowY: 'auto',
-        position: 'relative'
+        position: 'relative',
+        paddingTop: isMobile ? `${headerHeight}px` : '0'
       }}>
         <div className="view-container animate-fade">
             <Suspense fallback={<LoadingSpinner />}>

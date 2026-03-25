@@ -244,7 +244,7 @@ button {
     display: flex;
   }
   .view-container {
-    padding-top: calc(var(--header-h-mobile) + 6vh) !important;
+    padding-top: 32px !important;
     padding-left: clamp(16px, 5vw, 32px) !important;
     padding-right: clamp(16px, 5vw, 32px) !important;
     padding-bottom: 60px !important;
