@@ -93,7 +93,7 @@ const Dashboard = () => {
                 if(data.success && data.link) window.open(data.link, '_blank');
               }}
               className="btn-primary" 
-              style={{ padding: '16px 32px', width: '100%' }}
+              style={{ width: '100%' }}
             >
               VINCULAR TELEGRAM
             </button>
