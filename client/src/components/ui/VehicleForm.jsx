@@ -11,7 +11,7 @@ const VehicleForm = ({ onSuccess, currentUser }) => {
     anio: new Date().getFullYear(),
     cuota_diaria: '',
     km_por_litro: '8.0',
-    dueno_id: ''
+    dueno_id: currentUser?.rol === 'dueno' ? currentUser.user_id : ''
   })
 
   // Load owners if user is admin
@@ -29,6 +29,9 @@ const VehicleForm = ({ onSuccess, currentUser }) => {
         }
       }
       init()
+    } else if (currentUser?.rol === 'dueno') {
+      // Auto-set owner if not already set (re-run as backup)
+      setFormData(prev => ({ ...prev, dueno_id: currentUser.user_id }))
     }
     return () => { ignore = true }
   }, [callApi, currentUser])
@@ -166,7 +169,6 @@ const VehicleForm = ({ onSuccess, currentUser }) => {
           step="0.1"
           value={formData.km_por_litro}
           onChange={handleChange}
-          required
           style={{ 
             width: '100%', 
             padding: '12px 16px', 
