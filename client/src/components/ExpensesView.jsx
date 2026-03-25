@@ -58,7 +58,7 @@ const ExpensesView = () => {
 
   return (
     <div>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+      <header className="p-flex-responsive p-justify-between" style={{ marginBottom: '40px' }}>
         <Motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
           <h1 className="h1-premium neon-text">Gastos Operativos</h1>
           <p className="p-subtitle">Control financiero de mantenimiento y activos</p>
@@ -66,7 +66,6 @@ const ExpensesView = () => {
 
         <button 
           className="btn-primary" 
-          style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px 32px' }}
           onClick={() => setShowForm(!showForm)}
         >
           {showForm ? 'CANCELAR' : <><Plus size={20} /> REGISTRAR GASTO</>}
@@ -82,7 +81,7 @@ const ExpensesView = () => {
             className="glass"
             style={{ padding: '48px', marginBottom: '40px', border: '1px solid var(--accent)' }}
           >
-            <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+            <form onSubmit={handleSubmit} className="p-grid p-grid-cols-2">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <label style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>Vehículo (Opcional)</label>
                 <select 

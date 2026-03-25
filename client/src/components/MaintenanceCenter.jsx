@@ -60,7 +60,7 @@ const MaintenanceCenter = () => {
   return (
     <div>
       {/* Header */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '20px' }}>
+      <header className="p-flex-responsive p-justify-between" style={{ marginBottom: '24px' }}>
         <div>
           <h1 className="h1-premium neon-text">Centro de Mantenimiento</h1>
           <p className="p-subtitle">Control detallado de componentes por telemetría</p>
@@ -92,8 +92,8 @@ const MaintenanceCenter = () => {
             }} />
 
             <div style={{ position: 'relative', zIndex: 10 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+              <div className="p-flex-responsive p-justify-between" style={{ marginBottom: '32px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
                   <div style={{ width: '56px', height: '56px', background: 'rgba(255,255,255,0.05)', borderRadius: '16px', border: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)' }}>
                     <Car size={28} />
                   </div>
@@ -110,9 +110,8 @@ const MaintenanceCenter = () => {
                     setShowAddModal(v.id);
                   }}
                   className="btn-primary"
-                  style={{ height: '52px', padding: '0 24px', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
-                  <Plus size={18} /> <span className="desktop-only text-nowrap">AÑADIR RECORDATORIO</span>
+                  <Plus size={18} /> <span className="text-nowrap">AÑADIR RECORDATORIO</span>
                 </button>
               </div>
 
