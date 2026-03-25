@@ -157,8 +157,8 @@ button {
   display: none; /* Desktop default */
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px 10px 24px;
-  margin-bottom: 16px;
+  padding: 1px 24px 0px 24px;
+  margin-bottom: 8px;
   z-index: 60;
   flex-shrink: 0;
 }
