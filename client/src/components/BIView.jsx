@@ -32,7 +32,7 @@ const BIView = () => {
   }
 
   return (
-    <div className="view-container animate-fade">
+    <div>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }} className="print:hidden">
         <div>
           <h1 className="h1-premium neon-text">Inteligencia Financiera</h1>

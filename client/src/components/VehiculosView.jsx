@@ -27,7 +27,7 @@ const VehiculosView = () => {
   }
 
   return (
-    <div className="view-container animate-fade">
+    <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '48px', gap: '24px', flexWrap: 'wrap' }}>
         <div style={{ flex: 1, minWidth: '300px' }}>
           <h1 className="h1-premium neon-text">Flota de Vehículos</h1>

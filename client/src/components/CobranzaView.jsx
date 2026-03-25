@@ -39,7 +39,7 @@ const CobranzaView = () => {
     const totalDeudaFlota = data.resumen.reduce((acc, v) => acc + Math.max(0, v.saldo_pendiente), 0)
 
     return (
-        <div className="view-container animate-fade">
+        <div>
             <header style={{ marginBottom: '32px' }}>
                 <h1 className="h1-premium neon-text">Gestión de Cobranza</h1>
                 <p className="p-subtitle">Control de solvencia y aprobación de abonos diarios</p>

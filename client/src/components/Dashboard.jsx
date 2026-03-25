@@ -46,14 +46,14 @@ const Dashboard = () => {
 
   if (loading && data.stats.total_vehiculos === 0) {
     return (
-      <div className="p-flex p-items-center p-justify-center" style={{ height: '400px', width: '100%' }}>
+      <div>
         <div style={{ color: 'var(--primary)', fontWeight: 900, letterSpacing: '0.2em' }} className="animate-pulse">SINCRONIZANDO CENTRO DE MANDO...</div>
       </div>
     )
   }
 
   return (
-    <div className="view-container animate-fade">
+    <div>
       <header className="p-flex p-justify-between p-items-center" style={{ marginBottom: '48px' }}>
         <div>
           <h1 className="h1-premium neon-text">Centro de Mando</h1>

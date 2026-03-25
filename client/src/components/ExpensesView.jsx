@@ -57,7 +57,7 @@ const ExpensesView = () => {
   ]
 
   return (
-    <div className="view-container animate-fade">
+    <div>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
         <Motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
           <h1 className="h1-premium neon-text">Gastos Operativos</h1>
