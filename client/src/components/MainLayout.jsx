@@ -36,7 +36,7 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
     <div className="p-flex" style={{ height: '100vh', width: '100vw', background: 'var(--bg-dark)', position: 'relative', overflow: 'hidden' }}>
       
       {/* Desktop Sidebar */}
-      <div className="desktop-only">
+      <div className="desktop-only" style={{ width: 'var(--sidebar-width)', flexShrink: 0 }}>
         <Sidebar 
           onLogout={onLogout} 
           userRole={user?.rol || 'owner'} 

@@ -26,7 +26,7 @@ const Sidebar = ({ onLogout, userRole, activeView, setActiveView }) => {
 
   return (
     <aside className="glass" style={{ 
-        width: 'var(--sidebar-width)', 
+        width: '100%', 
         height: '100vh', 
         display: 'flex', 
         flexDirection: 'column', 
