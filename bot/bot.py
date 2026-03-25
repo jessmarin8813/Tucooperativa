@@ -38,11 +38,30 @@ async def post_init(application):
     START_VEHICLE, START_ODOMETER, START_PHOTO, START_PAY_METHOD, START_PAY_AMOUNTS,
     END_ODOMETER, END_PHOTO, FUEL_REPORT,
     REPORTAR_METHOD, REPORTAR_AMOUNTS, REPORTAR_PHOTO,
-    REGISTRAR_NOMBRE, REGISTRAR_CEDULA
-) = range(13)
+    REGISTRAR_NOMBRE, REGISTRAR_CEDULA,
+    INCIDENCIA_TIPO, INCIDENCIA_DESC, INCIDENCIA_PHOTO
+) = range(16)
 
-async def get_dynamic_menu():
-    """Build menu based on driver's current status (State-Aware)"""
+async def get_dynamic_menu(update: Update):
+    """Build menu based on user role and driver's current status"""
+    user_id = update.effective_user.id
+    auth = api.check_authorization(user_id)
+    
+    if auth.get('status') != 'activo':
+        return ReplyKeyboardRemove()
+
+    role = auth.get('rol')
+    nombre = auth.get('nombre', 'Usuario')
+
+    if role in ['admin', 'dueno', 'owner']:
+        # Menú Minimalista para Dueños/Admins
+        keyboard = [
+            ['📊 RESUMEN COOPERATIVA'],
+            ['🔔 ALERTAS CRÍTICAS', '🔧 SOPORTE']
+        ]
+        return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    
+    # Menú para Choferes (State-Aware)
     status = api.get_my_status()
     if status.get('ruta_activa'):
         main_button = '🏁 FINALIZAR RUTA'
@@ -52,7 +71,7 @@ async def get_dynamic_menu():
     keyboard = [
         [main_button],
         ['💰 REPORTAR PAGO (Bs)', '📊 MI ESTADO / DEUDA'],
-        ['🔧 AYUDA']
+        ['⚠️ REPORTAR FALLA', '🔧 AYUDA']
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
@@ -63,7 +82,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if token.startswith('link_'):
             res = api.link_owner_via_token(token.replace('link_',''), update.effective_user.id)
             msg = "👑 ¡Vínculo de Dueño Exitoso!" if 'error' not in res else f"❌ Error: {res['error']}"
-            await update.message.reply_text(msg, reply_markup=await get_dynamic_menu())
+            await update.message.reply_text(msg, reply_markup=await get_dynamic_menu(update))
             return ConversationHandler.END
         else:
             # Initiate Driver Onboarding Flow
@@ -78,7 +97,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "🚀 **Centro de Mando TuCooperativa**\nBienvenido. Selecciona una opción del menú inferior.",
         parse_mode='Markdown',
-        reply_markup=await get_dynamic_menu()
+        reply_markup=await get_dynamic_menu(update)
     )
     return ConversationHandler.END
 
@@ -287,6 +306,47 @@ async def fuel_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("✅ Jornada finalizada con éxito. ¡Descansa!", reply_markup=await get_dynamic_menu())
     return ConversationHandler.END
 
+# --- REPORT INCIDENT FLOW (New Requirement) ---
+async def start_reportar_falla(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [['Mecánica', 'Eléctrica'], ['Carrocería', 'Neumáticos'], ['Accidente', 'Otro']]
+    await update.message.reply_text(
+        "⚠️ **Reportar Falla o Incidencia**\n¿Qué tipo de problema presenta la unidad?",
+        parse_mode='Markdown',
+        reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
+    )
+    return INCIDENCIA_TIPO
+
+async def incidencia_tipo_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['incidencia_tipo'] = update.message.text.lower()
+    await update.message.reply_text(
+        "📝 Describe brevemente el problema (Ej: Falla en frenos, choque leve, repuesto comprado):",
+        reply_markup=ReplyKeyboardRemove()
+    )
+    return INCIDENCIA_DESC
+
+async def incidencia_desc_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['incidencia_desc'] = update.message.text
+    await update.message.reply_text("📸 Envía una **FOTO** como evidencia (tablero, pieza, daño o factura):")
+    return INCIDENCIA_PHOTO
+
+async def incidencia_photo_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    photo_file = await update.message.photo[-1].get_file()
+    context.user_data['incidencia_foto'] = f"uploads/incidencia_{photo_file.file_id}.jpg"
+    
+    res = api.report_incident(
+        telegram_id=update.effective_user.id,
+        tipo=context.user_data['incidencia_tipo'],
+        descripcion=context.user_data['incidencia_desc'],
+        foto=context.user_data['incidencia_foto']
+    )
+    
+    if 'success' in res:
+        await update.message.reply_text("✅ Incidencia reportada con éxito. El dueño ha sido notificado.", reply_markup=await get_dynamic_menu(update))
+    else:
+        await update.message.reply_text(f"❌ Error al reportar: {res.get('error')}", reply_markup=await get_dynamic_menu(update))
+    
+    return ConversationHandler.END
+
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Operación cancelada.", reply_markup=await get_dynamic_menu())
     return ConversationHandler.END
@@ -334,6 +394,16 @@ if __name__ == '__main__':
         fallbacks=[CommandHandler('cancel', cancel)]
     )
 
+    incident_conv = ConversationHandler(
+        entry_points=[MessageHandler(filters.Regex('^⚠️ REPORTAR FALLA$'), start_reportar_falla)],
+        states={
+            INCIDENCIA_TIPO: [MessageHandler(filters.TEXT & (~filters.COMMAND), incidencia_tipo_chosen)],
+            INCIDENCIA_DESC: [MessageHandler(filters.TEXT & (~filters.COMMAND), incidencia_desc_received)],
+            INCIDENCIA_PHOTO: [MessageHandler(filters.PHOTO, incidencia_photo_received)],
+        },
+        fallbacks=[CommandHandler('cancel', cancel)]
+    )
+
     # Registration Conversation
     registration_conv = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
@@ -348,6 +418,7 @@ if __name__ == '__main__':
     app.add_handler(start_conv)
     app.add_handler(end_conv)
     app.add_handler(report_conv)
+    app.add_handler(incident_conv)
     app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_main_menu))
 
     print("🚀 Bot Zero-Command Iniciado...")

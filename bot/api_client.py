@@ -105,10 +105,24 @@ class TuCooperativaAPI:
 
     def check_authorization(self, telegram_id):
         try:
-            response = self.session.get(f"{self.base_url}/usuarios.php?check_auth=1&telegram_id={telegram_id}")
+            # Ahora el backend devuelve rol, nombre, etc.
+            response = self.session.get(f"{self.base_url}/auth/usuarios.php?check_auth=1&telegram_id={telegram_id}")
             return response.json()
         except Exception as e:
             return {'error': str(e)}
+
+    def report_incident(self, telegram_id, tipo, descripcion, foto=''):
+        try:
+            response = self.session.post(f"{self.base_url}/fleet/reportar_incidencia.php", json={
+                'telegram_id': telegram_id,
+                'tipo': tipo,
+                'descripcion': descripcion,
+                'foto_path': foto
+            })
+            return response.json()
+        except Exception as e:
+            return {'error': str(e)}
+
 
     def get_my_vehicle(self):
         try:

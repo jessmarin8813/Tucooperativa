@@ -20,23 +20,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['list_owners'])) {
     exit;
 }
 
-// Gatekeeper Check (Original logic)
+// Gatekeeper Check (Updated with Role)
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['check_auth'])) {
     $tid = $_GET['telegram_id'] ?? '';
-    $stmt = $db->prepare("SELECT u.status as u_status, c.status as c_status 
-                         FROM usuarios u 
-                         JOIN cooperativas c ON u.cooperativa_id = c.id 
-                         WHERE u.telegram_id = ?");
+    // Corregimos la consulta para traer campos vitales para el Bot
+    $stmt = $db->prepare("SELECT u.id as user_id, u.nombre, u.rol, u.status as u_status, 
+                                 c.id as cooperativa_id, c.nombre as cooperativa_nombre, c.status as c_status 
+                          FROM usuarios u 
+                          JOIN cooperativas c ON u.cooperativa_id = c.id 
+                          WHERE u.telegram_id = ?");
     $stmt->execute([$tid]);
     $res = $stmt->fetch();
     
     if ($res && $res['u_status'] === 'activo' && $res['c_status'] === 'activo') {
-        sendResponse(['status' => 'activo']);
+        sendResponse([
+            'status' => 'activo',
+            'user_id' => $res['user_id'],
+            'nombre' => $res['nombre'],
+            'rol' => $res['rol'],
+            'cooperativa_id' => $res['cooperativa_id'],
+            'cooperativa_nombre' => $res['cooperativa_nombre']
+        ]);
     } else {
         sendResponse(['status' => 'suspendido']);
     }
     exit;
 }
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
