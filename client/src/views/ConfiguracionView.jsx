@@ -107,7 +107,7 @@ const ConfiguracionView = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     className="glass-premium"
-                    style={{ padding: 'clamp(24px, 5vw, 48px)', borderRadius: '32px', maxWidth: '1200px' }}
+                    style={{ padding: '32px', borderRadius: '32px', maxWidth: '1200px' }}
                 >
                     {activeTab === 'sistema' && (
                         <div className="p-grid p-grid-cols-2" style={{ gap: '48px' }}>
