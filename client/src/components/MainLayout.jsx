@@ -14,6 +14,7 @@ const BIView = lazy(() => import('./BIView'))
 const ExpensesView = lazy(() => import('./ExpensesView'))
 const CobranzaView = lazy(() => import('./CobranzaView'))
 const VehiculosView = lazy(() => import('./VehiculosView'))
+const MaintenanceCenter = lazy(() => import('./MaintenanceCenter'))
 
 const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -33,57 +34,40 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
   }
 
   return (
-    <div className="p-flex" style={{ 
-      height: '100vh', 
-      width: '100vw', 
-      background: 'var(--bg-dark)', 
-      position: 'relative', 
-      overflow: 'hidden',
-      flexDirection: 'row'
-    }}>
+    <div className="app-root-container">
       
-      {/* Desktop Sidebar */}
-      <div className="desktop-only" style={{ width: 'var(--sidebar-width)', flexShrink: 0 }}>
+      {/* 1. Desktop Sidebar (Managed by CSS Classes) */}
+      <aside className="sidebar-desktop-wrapper desktop-only">
         <Sidebar 
           onLogout={onLogout} 
           userRole={user?.rol || 'owner'} 
           activeView={activeView} 
           setActiveView={handleNavigate} 
         />
-      </div>
+      </aside>
 
-      {/* Content Vertical Stack */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', minWidth: 0 }}>
+      {/* 2. Content Container (Full Width Stack) */}
+      <div className="content-stack-wrapper">
         
-        {/* Mobile Top Header */}
-        <header className="mobile-header" style={{ 
-            height: '70px', width: '100%',
-            background: 'rgba(7, 8, 13, 0.95)', backdropFilter: 'blur(20px)',
-            borderBottom: '1px solid var(--glass-border)',
-            alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', zIndex: 60,
-            flexShrink: 0
-        }}>
-            <h1 className="neon-text brand" style={{ fontSize: '1.35rem', fontWeight: 900, lineHeight: '1.2' }}>TuCooperativa</h1>
-            <button 
-              onClick={toggleMobileMenu}
-              style={{ background: 'var(--bg-card)', color: 'white', padding: '10px' }}
-            >
-                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+        {/* Mobile Header (Managed by CSS Classes) */}
+        <header className="mobile-top-header">
+          <h1 className="neon-text brand" style={{ fontSize: '1.35rem', fontWeight: 900 }}>TuCooperativa</h1>
+          <button 
+            onClick={toggleMobileMenu}
+            className="mobile-menu-trigger"
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </header>
 
-        {/* Main Content Area */}
-        <main style={{ 
-          flex: 1, 
-          overflowY: 'auto',
-          position: 'relative'
-        }}>
+        {/* Scrollable View Area */}
+        <main className="main-scroll-area">
           <div className="view-container animate-fade">
-              <Suspense fallback={<LoadingSpinner />}>
+            <Suspense fallback={<LoadingSpinner />}>
               {user?.rol === 'superadmin' ? (
-                  <SuperAdminDashboard />
+                <SuperAdminDashboard />
               ) : (
-                  <>
+                <React.Fragment>
                   {activeView === 'dashboard' && <Dashboard />}
                   {activeView === 'choferes' && <ChoferesView />}
                   {activeView === 'invitar' && <InvitacionesView />}
@@ -93,12 +77,43 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
                   {activeView === 'gastos' && <ExpensesView />}
                   {activeView === 'cobranza' && <CobranzaView />}
                   {activeView === 'flota' && <VehiculosView />}
-                  </>
+                  {activeView === 'mantenimiento' && <MaintenanceCenter />}
+                </React.Fragment>
               )}
-              </Suspense>
+            </Suspense>
           </div>
         </main>
       </div>
+
+      {/* 3. Mobile Navigation Overlay & Sidebar */}
+      <AnimatePresence>
+        {isMobile && isMobileMenuOpen && (
+          <React.Fragment>
+            <Motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={toggleMobileMenu}
+              className="mobile-overlay"
+            />
+            <Motion.div 
+              initial={{ x: '-100%' }} 
+              animate={{ x: 0 }} 
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="mobile-drawer-container"
+            >
+              <Sidebar 
+                onLogout={onLogout} 
+                userRole={user?.rol || 'owner'} 
+                activeView={activeView} 
+                setActiveView={handleNavigate} 
+                isMobile={true}
+              />
+            </Motion.div>
+          </React.Fragment>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
