@@ -59,7 +59,6 @@ const Dashboard = () => {
           <h1 className="h1-premium neon-text">Centro de Mando</h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <p className="p-subtitle">Gestión de Operaciones en Tiempo Real</p>
-            <span style={{ fontSize: '9px', fontWeight: 900, background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '4px', color: 'var(--text-dim)' }}>v5.1.5-PIXEL-PERFECT</span>
           </div>
         </div>
         
@@ -74,7 +73,7 @@ const Dashboard = () => {
             className="btn-primary mobile-full-btn"
             onClick={() => setIsModalOpen(true)}
           >
-            + REGISTRAR UNIDAD
+            + NUEVA UNIDAD
           </button>
         </div>
       </header>
@@ -115,7 +114,7 @@ const Dashboard = () => {
             className={`tab-item ${activeTab === 'operaciones' ? 'active' : ''}`}
           >
             <Activity size={18} />
-            VISTA OPERATIVA
+            ACTIVOS RECIENTES
           </button>
           <button 
             onClick={() => setActiveTab('mantenimiento')}
@@ -128,11 +127,19 @@ const Dashboard = () => {
 
         {activeTab === 'operaciones' ? (
           <>
-            <div className="p-flex p-items-center p-gap-4" style={{ marginBottom: '24px' }}>
-                <BarChart3 style={{ opacity: 0.2 }} size={20} />
-                <h2 style={{ fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.4 }}>Estado de la Flota (Forense)</h2>
+            <div className="p-flex p-items-center p-justify-between" style={{ marginBottom: '24px' }}>
+                <div className="p-flex p-items-center p-gap-4">
+                  <BarChart3 style={{ opacity: 0.2 }} size={20} />
+                  <h2 style={{ fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.4 }}>Últimas Unidades (Forense)</h2>
+                </div>
+                <button 
+                  onClick={() => window.location.search = '?view=vehiculos'}
+                  style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '11px', fontWeight: 900, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.1em' }}
+                >
+                  Ver Flota Completa →
+                </button>
             </div>
-            <FleetList vehicles={data.vehicles} />
+            <FleetList vehicles={data.vehicles.slice(0, 5)} />
           </>
         ) : (
           <MaintenanceCenter />
