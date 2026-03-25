@@ -1,5 +1,5 @@
 RewriteEngine On
-RewriteRule ^$ dist/ [L]
+RewriteRule ^$ client/dist/ [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^((?!api|bot|driver_sim).*) dist/$1 [L,QSA]
+RewriteRule ^((?!api|bot|driver_sim).*) client/dist/$1 [L,QSA]

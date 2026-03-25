@@ -111,11 +111,11 @@ def main():
         # RE-INSERT .HTACCESS FOR REACT ROUTER (Safe-Guard)
         htaccess_content = """<IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteBase /TuCooperativa/dist/
+  RewriteBase /TuCooperativa/client/dist/
   RewriteRule ^index\\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /TuCooperativa/dist/index.html [L]
+  RewriteRule . /TuCooperativa/client/dist/index.html [L]
 </IfModule>"""
         with open("client/dist/.htaccess", "w") as f:
             f.write(htaccess_content)
