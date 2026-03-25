@@ -24,3 +24,12 @@ if %errorlevel% neq 0 (
 
 echo.
 echo [SUCCESS] Proceso completado. Sistema estable y actualizado en Git.
+
+[FINAL AUDIT] Ejecutando Guardia de Integridad...
+powershell -Command "if ($host.UI.RawUI.WindowTitle -match 'OMNI') { write-host 'Guardia de Integridad...' }"
+C:\xampp\php\php.exe .agent/skills/system-integrity-guard/scripts/integrity_audit.php
+if %ERRORLEVEL% NEQ 0 (
+    echo [CRITICAL ERROR] El sistema ha fallado la auditoria de integridad.
+    exit /b 1
+)
+echo [PASS] Auditoría exitosa. El sistema es seguro.

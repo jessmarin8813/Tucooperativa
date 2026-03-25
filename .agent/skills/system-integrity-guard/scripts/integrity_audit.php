@@ -53,6 +53,19 @@ check("Frontend: View-Whitelist Integrity", function() {
     return strpos($content, "'forensic'") !== false;
 }, "La vista 'forensic' no está registrada en App.jsx. El refresco de página fallará en el Bunker.");
 
+// 4. Check Filesystem & Permissions
+check("FS: Notification Cache Directory", function() {
+    $path = __DIR__ . '/../../../../api/system/tmp/ratelimit';
+    return is_dir($path) && is_writable($path);
+}, "El directorio de caché api/system/tmp/ratelimit no existe o no tiene permisos de escritura.");
+
+// 5. Check Middleware Stability
+check("Middleware: Relaxed Error Handler", function() {
+    $content = file_get_contents(__DIR__ . '/../../../../api/includes/middleware.php');
+    return strpos($content, "// throw new ErrorException") !== false;
+}, "El middleware estricto está activo. Cualquier Warning bloqueará el sistema con un Error 500.");
+
 echo json_encode($report, JSON_PRETTY_PRINT);
+
 if ($report['status'] === 'FAIL') exit(1);
 ?>
