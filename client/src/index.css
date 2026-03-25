@@ -155,7 +155,7 @@ button {
   width: 100%;
   background: transparent;
   display: none; /* Desktop default */
-  align-items: flex-start !important;
+  align-items: center !important;
   justify-content: space-between;
   padding: 0px 24px !important;
   margin: 0 !important;
@@ -165,12 +165,12 @@ button {
 
 .mobile-top-header h1 {
   margin: 0 !important;
-  padding-top: 4px !important;
+  padding: 0 !important;
   line-height: 1 !important;
 }
 
 .mobile-menu-trigger {
-  margin-top: 4px !important;
+  margin: 0 !important;
 }
 
 .main-scroll-area {
