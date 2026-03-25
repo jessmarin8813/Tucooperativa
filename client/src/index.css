@@ -314,18 +314,40 @@ button {
   }
   .mobile-top-header {
     display: flex !important;
-    margin-bottom: 8px !important;
-    padding-bottom: 0px !important;
+    margin-bottom: 24px !important;
+    padding-top: clamp(60px, env(safe-area-inset-top, 60px), 80px) !important;
   }
   .view-container {
-    padding: 8px 20px 100px 20px !important;
+    padding: 0 28px 120px 28px !important;
   }
   .p-grid-responsive {
-    gap: 20px !important;
+    gap: 32px !important;
   }
   .glass {
-    padding: 24px !important;
+    padding: 32px 28px !important;
   }
+  /* Pure CSS Hamburger */
+  .hamburger-box {
+    width: 32px;
+    height: 24px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hamburger-inner, .hamburger-inner::before, .hamburger-inner::after {
+    width: 32px;
+    height: 3px;
+    background-color: #fff;
+    border-radius: 4px;
+    position: absolute;
+    transition: all 0.3s ease;
+  }
+  .hamburger-inner::before { content: ""; top: -10px; left: 0; }
+  .hamburger-inner::after { content: ""; top: 10px; left: 0; }
+  .hamburger-inner.active { background-color: transparent; }
+  .hamburger-inner.active::before { transform: translateY(10px) rotate(45deg); }
+  .hamburger-inner.active::after { transform: translateY(-10px) rotate(-45deg); }
 }
 
 /* Premium Tab System (Segmented Control) */

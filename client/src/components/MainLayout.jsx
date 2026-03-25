@@ -59,7 +59,9 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
               onClick={toggleMobileMenu}
               className="mobile-menu-trigger"
             >
-              <Menu size={38} strokeWidth={2.5} />
+              <div className="hamburger-box">
+                <div className={`hamburger-inner ${isMobileMenuOpen ? 'active' : ''}`} />
+              </div>
             </button>
           </header>
 
