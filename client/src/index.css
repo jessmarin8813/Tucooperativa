@@ -243,7 +243,7 @@ button {
     display: flex;
   }
   .view-container {
-    padding: 110px 16px 40px 16px !important;
+    padding: clamp(100px, 12vh, 140px) clamp(16px, 5vw, 32px) clamp(32px, 8vh, 64px) clamp(16px, 5vw, 32px) !important;
   }
   .p-grid-responsive {
     grid-template-columns: 1fr !important;
