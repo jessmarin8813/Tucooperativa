@@ -47,7 +47,7 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
 
       {/* Mobile Top Header */}
       <header className="mobile-header" style={{ 
-          position: 'fixed', top: 0, left: 0, right: 0, height: '70px', 
+          position: 'fixed', top: 0, left: 0, right: 0, height: 'var(--header-h-mobile)', 
           background: 'rgba(7, 8, 13, 0.9)', backdropFilter: 'blur(10px)',
           borderBottom: '1px solid var(--glass-border)', alignItems: 'center', 
           justifyContent: 'space-between', padding: '0 24px', zIndex: 60 
