@@ -23,5 +23,5 @@ export const getApiUrl = (endpoint) => {
   if (import.meta.env.DEV) {
     return `/api/${resolved}`;
   }
-  return `../api/${resolved}`;
+  return `../../api/${resolved}`;
 };
