@@ -136,3 +136,26 @@ h1, h2, h3, .brand {
   0%, 100% { opacity: 1; filter: brightness(1); }
   50% { opacity: 0.6; filter: brightness(1.5); }
 }
+
+/* Responsive Utilities */
+.mobile-header {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .desktop-only {
+    display: none !important;
+  }
+  .mobile-header {
+    display: flex;
+  }
+  .view-container {
+    padding: 100px 20px 40px 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
