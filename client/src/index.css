@@ -125,16 +125,12 @@ button {
 }
 
 .mobile-top-header {
-  height: clamp(100px, 15vh, 130px);
   width: 100%;
-  background: rgba(7, 8, 13, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--glass-border);
+  background: transparent;
   display: none; /* Desktop default */
   align-items: center;
   justify-content: space-between;
-  padding: clamp(40px, env(safe-area-inset-top, 40px), 64px) 24px 0 24px;
+  padding: clamp(60px, env(safe-area-inset-top, 60px), 80px) 24px 20px 24px;
   z-index: 60;
   flex-shrink: 0;
 }
@@ -164,15 +160,16 @@ button {
 }
 
 .mobile-menu-trigger {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--glass-border);
-  color: white;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
 @media (max-width: 1024px) {

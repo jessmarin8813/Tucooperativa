@@ -46,22 +46,23 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
         />
       </aside>
 
-      {/* 2. Content Container (Full Width Stack) */}
+      {/* 2. Content Container (Scrollable Stack) */}
       <div className="content-stack-wrapper">
         
-        {/* Mobile Header (Managed by CSS Classes) */}
-        <header className="mobile-top-header">
-          <h1 className="neon-text brand" style={{ fontSize: '1.35rem', fontWeight: 900 }}>TuCooperativa</h1>
-          <button 
-            onClick={toggleMobileMenu}
-            className="mobile-menu-trigger"
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </header>
-
         {/* Scrollable View Area */}
         <main className="main-scroll-area">
+          
+          {/* Mobile-Only Header - Moves with scroll */}
+          <header className="mobile-top-header mobile-only">
+            <h1 className="neon-text brand" style={{ fontSize: '1.35rem', fontWeight: 900 }}>TuCooperativa</h1>
+            <button 
+              onClick={toggleMobileMenu}
+              className="mobile-menu-trigger"
+            >
+              <Menu size={24} />
+            </button>
+          </header>
+
           <div className="view-container animate-fade">
             <Suspense fallback={<LoadingSpinner />}>
               {user?.rol === 'superadmin' ? (
