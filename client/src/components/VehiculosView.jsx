@@ -28,22 +28,22 @@ const VehiculosView = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '48px', gap: '24px', flexWrap: 'wrap' }}>
-        <div style={{ flex: 1, minWidth: '300px' }}>
+      <div className="p-flex-responsive p-justify-between" style={{ marginBottom: '48px' }}>
+        <div>
           <h1 className="h1-premium neon-text">Flota de Vehículos</h1>
           <p className="p-subtitle">Monitorización de unidades y salud de activos en tiempo real</p>
         </div>
-        <div style={{ display: 'flex', gap: '16px' }}>
+        <div className="p-flex p-gap-4">
           <button 
             onClick={fetchVehicles} 
             className="glass"
-            style={{ padding: '16px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}
+            style={{ width: '56px', height: '56px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}
           >
             <RefreshCw size={24} className={loading ? 'animate-spin' : ''} />
           </button>
-          <button className="btn-primary" style={{ padding: '0 32px', height: '56px', display: 'flex', alignItems: 'center', gap: '12px', borderRadius: '16px' }}>
+          <button className="btn-primary">
             <Plus size={24} />
-            <span style={{ fontWeight: 800, letterSpacing: '0.05em' }}>NUEVA UNIDAD</span>
+            <span>NUEVA UNIDAD</span>
           </button>
         </div>
       </div>

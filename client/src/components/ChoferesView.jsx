@@ -33,14 +33,16 @@ const ChoferesView = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+      <div className="p-flex-responsive p-justify-between" style={{ marginBottom: '40px' }}>
         <div>
           <h1 className="h1-premium neon-text">Gestión de Choferes</h1>
           <p className="p-subtitle">Control de acceso y estado de la fuerza de transporte</p>
         </div>
-        <button onClick={fetchChoferes} className="glass-hover" style={{ padding: '12px' }}>
-          <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
-        </button>
+        <div className="p-flex p-gap-4">
+          <button onClick={fetchChoferes} className="glass" style={{ width: '56px', height: '56px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <RefreshCw size={24} className={loading ? 'animate-spin' : ''} />
+          </button>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
