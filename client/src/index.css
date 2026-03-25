@@ -157,7 +157,13 @@ button {
   50% { opacity: 0.6; filter: brightness(1.5); }
 }
 
-/* Responsive Utilities */
+/* Mobile Specific Styles */
+.mobile-sidebar {
+  background: rgba(10, 11, 18, 0.98) !important;
+  backdrop-filter: blur(30px) !important;
+  box-shadow: 20px 0 50px rgba(0, 0, 0, 0.5);
+}
+
 .mobile-header {
   display: none;
 }

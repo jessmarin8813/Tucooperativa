@@ -74,6 +74,7 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
                     initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
                     transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                     style={{ position: 'fixed', left: 0, top: 0, bottom: 0, width: '280px', zIndex: 110 }}
+                    className="mobile-sidebar"
                 >
                     <Sidebar 
                         onLogout={onLogout} 
