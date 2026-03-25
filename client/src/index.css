@@ -167,7 +167,7 @@ button {
 }
 
 .mobile-top-header.header-hidden {
-  transform: translateY(-110%);
+  transform: translateY(-200px); /* Covers height + large padding-top + shadow */
 }
 
 @media (max-width: 1024px) {
