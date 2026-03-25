@@ -39,7 +39,7 @@ const Sidebar = ({ onLogout, userRole, activeView, setActiveView }) => {
         zIndex: 50
     }}>
       <div style={{ padding: '40px 32px' }}>
-        <h2 className="neon-text brand" style={{ fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.05em' }}>TuCoop</h2>
+        <h2 className="neon-text brand" style={{ fontSize: '2.2rem', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: '1.2' }}>TuCooperativa</h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
             <div style={{ width: '6px', height: '6px', background: 'var(--success)', borderRadius: '100px' }} className="animate-pulse" />
             <span style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>SISTEMA ONLINE</span>

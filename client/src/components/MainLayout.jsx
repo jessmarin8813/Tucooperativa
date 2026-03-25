@@ -52,7 +52,7 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
           borderBottom: '1px solid var(--glass-border)', alignItems: 'center', 
           justifyContent: 'space-between', padding: '0 24px', zIndex: 60 
       }}>
-          <h1 className="neon-text brand" style={{ fontSize: '1.25rem', fontWeight: 900 }}>TuCoop</h1>
+          <h1 className="neon-text brand" style={{ fontSize: '1.35rem', fontWeight: 900, lineHeight: '1.2' }}>TuCooperativa</h1>
           <button 
             onClick={toggleMobileMenu}
             style={{ background: 'var(--bg-card)', color: 'white', padding: '10px' }}

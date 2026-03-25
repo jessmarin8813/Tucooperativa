@@ -35,12 +35,26 @@ h1, h2, h3, .brand {
   font-family: 'Outfit', sans-serif;
 }
 
-/* Premium Glassmorphism */
+/* Premium Glassmorphism Optimized */
 .glass {
   background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
+  will-change: backdrop-filter;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  line-height: 1;
 }
 
 .glass-hover {
@@ -60,7 +74,11 @@ h1, h2, h3, .brand {
 .neon-text.brand {
   background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  line-height: 1.4;
+  padding-bottom: 4px;
+  display: inline-block;
 }
 
 .neon-border {
@@ -107,10 +125,11 @@ h1, h2, h3, .brand {
 .btn-primary {
   background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
   color: white;
-  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
-  font-weight: 800;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  border: none;
+  outline: none;
 }
 
 .btn-primary:hover {
@@ -125,7 +144,8 @@ h1, h2, h3, .brand {
 }
 
 .animate-fade {
-  animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  will-change: transform, opacity;
 }
 
 .animate-pulse {

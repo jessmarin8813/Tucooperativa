@@ -43,14 +43,14 @@ const LoginView = ({ onLogin }) => {
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.875rem', fontWeight: 600 }}>Usuario Administrativo</label>
             <input type="text" placeholder="admin" name="username" autoComplete="off" className="glass" style={{ 
-              width: '100%', padding: '14px', background: 'rgba(0,0,0,0.2)', color: 'white', outline: 'none' 
+              width: '100%', padding: '16px', background: 'rgba(0,0,0,0.2)', color: 'white', outline: 'none' 
             }} required />
           </div>
           
           <div style={{ marginBottom: '32px' }}>
             <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.875rem', fontWeight: 600 }}>Clave de Seguridad</label>
             <input type="password" placeholder="••••••••" name="password" autoComplete="off" className="glass" style={{ 
-              width: '100%', padding: '14px', background: 'rgba(0,0,0,0.2)', color: 'white', outline: 'none' 
+              width: '100%', padding: '16px', background: 'rgba(0,0,0,0.2)', color: 'white', outline: 'none' 
             }} required />
           </div>
           

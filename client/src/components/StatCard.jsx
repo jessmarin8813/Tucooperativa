@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { motion as Motion } from 'framer-motion'
 
 const StatCard = ({ label, value, icon: Icon, color = 'var(--primary)', trend }) => {
@@ -44,4 +44,4 @@ const StatCard = ({ label, value, icon: Icon, color = 'var(--primary)', trend })
   )
 }
 
-export default StatCard
+export default memo(StatCard)
