@@ -4,7 +4,7 @@ import FleetList from './FleetList'
 import Modal from './Modal'
 import VehicleForm from './VehicleForm'
 import MaintenanceCenter from './MaintenanceCenter'
-import { Truck, Activity, DollarSign, AlertCircle, BarChart3, ShieldCheck } from 'lucide-react'
+import { Truck, Activity, DollarSign, AlertCircle, BarChart3, ShieldCheck, Wrench } from 'lucide-react'
 import { useApi } from '../hooks/useApi'
 import { motion as Motion } from 'framer-motion'
 
@@ -120,7 +120,7 @@ const Dashboard = () => {
             onClick={() => setActiveTab('mantenimiento')}
             className={`tab-item ${activeTab === 'mantenimiento' ? 'active' : ''}`}
           >
-            <Tool size={18} />
+            <Wrench size={18} />
             MANTENIMIENTO
           </button>
         </div>
