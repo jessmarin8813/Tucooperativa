@@ -37,7 +37,7 @@ const VehiculosView = () => {
           <button 
             onClick={fetchVehicles} 
             className="glass"
-            style={{ padding: '16px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            style={{ padding: '16px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}
           >
             <RefreshCw size={24} className={loading ? 'animate-spin' : ''} />
           </button>
@@ -61,15 +61,15 @@ const VehiculosView = () => {
             <RefreshCw size={48} className="animate-spin text-accent" />
         </div>
       ) : vehicles.length === 0 ? (
-        <div className="glass" style={{ padding: '80px', textAlign: 'center', borderRadius: '32px', border: '2px dashed var(--glass-border)' }}>
+        <div className="glass empty-state-card" style={{ padding: '80px 40px', textAlign: 'center', borderRadius: '32px', border: '2px dashed var(--glass-border)' }}>
           <div style={{ width: '80px', height: '80px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
             <Truck size={40} style={{ color: 'var(--primary)' }} />
           </div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'white', marginBottom: '12px' }}>No hay vehículos registrados</h2>
-          <p style={{ color: 'var(--text-dim)', maxWidth: '400px', margin: '0 auto 32px' }}>Comienza a gestionar tu flota agregando la primera unidad administrativa para monitorear su rendimiento y gastos.</p>
-          <button className="btn-primary" style={{ padding: '16px 40px', display: 'inline-flex', alignItems: 'center', gap: '12px' }}>
+          <h2 className="empty-state-title" style={{ fontSize: '2.5rem', fontWeight: 900, color: 'white', marginBottom: '16px', letterSpacing: '-0.03em' }}>No hay vehículos registrados</h2>
+          <p className="empty-state-desc" style={{ color: 'var(--text-dim)', maxWidth: '450px', margin: '0 auto 40px', fontSize: '1.1rem', fontWeight: 600, lineHeight: 1.6 }}>Crea tu flota digital ahora para tomar el control total de los activos, gastos y rendimientos en tiempo real.</p>
+          <button className="btn-primary mobile-full-btn" style={{ padding: '20px 48px', display: 'inline-flex', alignItems: 'center', gap: '16px', borderRadius: '20px', justifyContent: 'center' }}>
             <Plus size={24} />
-            <span>AGREGAR MI PRIMERA UNIDAD</span>
+            <span style={{ fontSize: '1rem', fontWeight: 900, letterSpacing: '0.05em' }}>AGREGAR MI PRIMERA UNIDAD</span>
           </button>
         </div>
       ) : (

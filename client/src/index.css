@@ -188,6 +188,26 @@ button {
   line-height: 1;
 }
 
+/* Empty State Responsiveness */
+@media (max-width: 768px) {
+  .empty-state-card {
+    padding: 40px 20px !important;
+  }
+  
+  .empty-state-title {
+    font-size: 1.75rem !important;
+  }
+  
+  .empty-state-desc {
+    font-size: 0.95rem !important;
+  }
+  
+  .mobile-full-btn {
+    width: 100% !important;
+    padding: 16px !important;
+  }
+}
+
 /* Mobile Specific Styles */
 .mobile-sidebar {
   background: rgba(10, 11, 18, 0.98) !important;
