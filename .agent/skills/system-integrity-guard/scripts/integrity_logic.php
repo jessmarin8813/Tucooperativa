@@ -8,7 +8,7 @@
 check("DB: Cooperativas Banco Columns", function() {
     global $db;
     if (!isset($db)) {
-        require_once __DIR__ . '/../../../api/includes/db.php';
+        require_once __DIR__ . '/../../../../api/includes/db.php';
         $db = DB::getInstance();
     }
     $stmt = $db->query("DESCRIBE cooperativas");
