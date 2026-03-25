@@ -18,7 +18,7 @@ function App() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const view = params.get('view')
-    if (view && ['dashboard', 'choferes', 'bi', 'gastos', 'cobranza', 'config', 'flota', 'mantenimiento', 'ranking'].includes(view)) {
+    if (view && ['dashboard', 'choferes', 'bi', 'gastos', 'cobranza', 'config', 'flota', 'mantenimiento', 'ranking', 'forensic'].includes(view)) {
       setActiveView(view)
     }
   }, [])

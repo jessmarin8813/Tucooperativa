@@ -128,7 +128,7 @@ try {
     $critical_alerts = array_filter($incidencias, fn($i) => $i['nivel'] === 'alto' || $i['nivel'] === 'critico');
 
     if (!empty($critical_alerts)) {
-        require_once __DIR__ . '/../notificaciones.php';
+        require_once __DIR__ . '/../system/notificaciones.php';
         
         // Find owners of this cooperativa to notify
         // For now, simplify to notify all owners of the coops involved in alerts
