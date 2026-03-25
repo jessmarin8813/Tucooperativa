@@ -39,8 +39,9 @@ async def post_init(application):
     END_ODOMETER, END_PHOTO, FUEL_REPORT,
     REPORTAR_METHOD, REPORTAR_AMOUNTS, REPORTAR_PHOTO,
     REGISTRAR_NOMBRE, REGISTRAR_CEDULA,
-    INCIDENCIA_TIPO, INCIDENCIA_DESC, INCIDENCIA_PHOTO
-) = range(16)
+    INCIDENCIA_TIPO, INCIDENCIA_DESC, INCIDENCIA_PHOTO,
+    REACTIVACION_PHOTO
+) = range(17)
 
 async def get_dynamic_menu(update: Update):
     """Build menu based on user role and driver's current status"""
@@ -51,18 +52,17 @@ async def get_dynamic_menu(update: Update):
         return ReplyKeyboardRemove()
 
     role = auth.get('rol')
-    nombre = auth.get('nombre', 'Usuario')
-
     if role in ['admin', 'dueno', 'owner']:
-        # Menú Minimalista para Dueños/Admins
-        keyboard = [
-            ['📊 RESUMEN COOPERATIVA'],
-            ['🔔 ALERTAS CRÍTICAS', '🔧 SOPORTE']
-        ]
+        keyboard = [['📊 RESUMEN COOPERATIVA'], ['🔔 ALERTAS CRÍTICAS', '🔧 SOPORTE']]
         return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     
-    # Menú para Choferes (State-Aware)
+    # Chofer Logic
     status = api.get_my_status()
+    # Verificamos si la unidad está bloqueada por falla
+    if status.get('estado_unidad') == 'inactivo':
+        keyboard = [['✅ REPARACIÓN FINALIZADA'], ['📊 MI ESTADO / DEUDA'], ['🔧 AYUDA']]
+        return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
     if status.get('ruta_activa'):
         main_button = '🏁 FINALIZAR RUTA'
     else:
@@ -74,6 +74,7 @@ async def get_dynamic_menu(update: Update):
         ['⚠️ REPORTAR FALLA', '🔧 AYUDA']
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Entry point with dynamic menu and deep link handling"""
@@ -347,6 +348,25 @@ async def incidencia_photo_received(update: Update, context: ContextTypes.DEFAUL
     
     return ConversationHandler.END
 
+# --- REACTIVATION FLOW ---
+async def start_reactivacion_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "🛠️ **Cierre de Mantenimiento**\nPara reactivar la unidad, por favor envía una **FOTO** del trabajo realizado o repuesto instalado:",
+        parse_mode='Markdown',
+        reply_markup=ReplyKeyboardRemove()
+    )
+    return REACTIVACION_PHOTO
+
+async def reactivacion_photo_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    photo_file = await update.message.photo[-1].get_file()
+    res = api.reactivate_vehicle(update.effective_user.id, f"uploads/repair_{photo_file.file_id}.jpg")
+    
+    if 'success' in res:
+        await update.message.reply_text("✨ ¡Unidad REACTIVADA! El bloqueo ha sido levantado.", reply_markup=await get_dynamic_menu(update))
+    else:
+        await update.message.reply_text(f"❌ Error: {res.get('error')}", reply_markup=await get_dynamic_menu(update))
+    return ConversationHandler.END
+
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Operación cancelada.", reply_markup=await get_dynamic_menu())
     return ConversationHandler.END
@@ -404,6 +424,14 @@ if __name__ == '__main__':
         fallbacks=[CommandHandler('cancel', cancel)]
     )
 
+    reactivate_conv = ConversationHandler(
+        entry_points=[MessageHandler(filters.Regex('^✅ REPARACIÓN FINALIZADA$'), start_reactivacion_flow)],
+        states={
+            REACTIVACION_PHOTO: [MessageHandler(filters.PHOTO, reactivacion_photo_received)],
+        },
+        fallbacks=[CommandHandler('cancel', cancel)]
+    )
+
     # Registration Conversation
     registration_conv = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
@@ -419,7 +447,9 @@ if __name__ == '__main__':
     app.add_handler(end_conv)
     app.add_handler(report_conv)
     app.add_handler(incident_conv)
+    app.add_handler(reactivate_conv)
     app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_main_menu))
+
 
     print("🚀 Bot Zero-Command Iniciado...")
     app.run_polling()

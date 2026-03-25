@@ -131,12 +131,16 @@ class TuCooperativaAPI:
         except Exception as e:
             return {'error': str(e)}
 
-    def get_active_route(self):
+    def reactivate_vehicle(self, telegram_id, foto=''):
         try:
-            response = self.session.get(f"{self.base_url}/rutas.php?active_for_me=1")
+            response = self.session.post(f"{self.base_url}/fleet/reactivar_vehiculo.php", json={
+                'telegram_id': telegram_id,
+                'foto_path': foto
+            })
             return response.json()
         except Exception as e:
             return {'error': str(e)}
+
 
     def update_bot_info(self, bot_username):
         """Automatically reports bot username to backend for link generation"""

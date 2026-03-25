@@ -47,6 +47,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $foto
     ]);
 
-    sendResponse(['success' => true, 'message' => 'Falla reportada con éxito.']);
+    // 4. BLOQUEO DE UNIDAD: La unidad queda inactiva hasta reparación
+    $stmt = $db->prepare("UPDATE vehiculos SET estado = 'inactivo' WHERE id = ?");
+    $stmt->execute([$vehicle['id']]);
+
+    // 5. DILEMA: ¿Qué pasa si estaba en ruta?
+    // Buscamos si hay una ruta abierta para este chofer
+    $stmt = $db->prepare("SELECT id FROM rutas WHERE chofer_id = ? AND status = 'abierta' LIMIT 1");
+    $stmt->execute([$user['id']]);
+    $active_route = $stmt->fetch();
+
+    if ($active_route) {
+        // Marcamos la ruta como interrumpida por falla
+        $stmt = $db->prepare("UPDATE rutas SET status = 'interrumpida', observacion = ? WHERE id = ?");
+        $stmt->execute(["Interrumpida por falla: " . $desc, $active_route['id']]);
+    }
+
+    sendResponse(['success' => true, 'message' => 'Falla reportada. Unidad BLOQUEADA hasta reparación.']);
 }
 ?>
+
