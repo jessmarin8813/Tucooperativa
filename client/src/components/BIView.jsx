@@ -156,13 +156,30 @@ const BIView = () => {
                 <div style={{ height: UI_CHART_HEIGHT, width: '100%' }}>
                     <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={[
-                        { name: 'Proyectado', total: global.proyectado, fill: 'var(--primary)' },
-                        { name: 'Real', total: global.recaudado, fill: 'var(--success)' }
+                        { name: 'Proyectado', total: global.proyectado, color: '#818cf8' },
+                        { name: 'Real', total: global.recaudado, color: '#34d399' }
                     ]}>
-                        <XAxis dataKey="name" stroke="var(--glass-border)" fontSize={10} axisLine={false} tickLine={false} />
-                        <Tooltip cursor={{fill: 'rgba(255,255,255,0.03)'}} contentStyle={{ background: '#0a0b12', border: '1px solid var(--glass-border)', borderRadius: '16px' }} />
-                        <Bar dataKey="total" radius={[8, 8, 8, 8]} barSize={40}>
-                             { (entry) => <Cell fill={entry.fill} /> }
+                        <XAxis 
+                            dataKey="name" 
+                            stroke="rgba(255,255,255,0.4)" 
+                            fontSize={10} 
+                            axisLine={false} 
+                            tickLine={false} 
+                            tick={{ fill: 'rgba(255,255,255,0.4)', fontWeight: 700 }}
+                        />
+                        <Tooltip 
+                            cursor={{fill: 'rgba(255,255,255,0.05)'}} 
+                            contentStyle={{ background: '#0a0b12', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', color: 'white' }} 
+                        />
+                        <Bar dataKey="total" radius={[8, 8, 8, 8]} barSize={44}>
+                             {
+                                [
+                                    { name: 'Proyectado', total: global.proyectado, color: '#818cf8' },
+                                    { name: 'Real', total: global.recaudado, color: '#34d399' }
+                                ].map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                ))
+                             }
                         </Bar>
                     </BarChart>
                     </ResponsiveContainer>
@@ -186,8 +203,8 @@ const BIView = () => {
                                     cursor={{fill: 'rgba(255,255,255,0.02)'}}
                                     contentStyle={{ background: '#0a0b12', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px' }}
                                 />
-                                <Bar dataKey="efectivo" stackId="a" fill="var(--success)" radius={[0, 0, 0, 0]} barSize={30} />
-                                <Bar dataKey="pagomovil" stackId="a" fill="var(--accent)" radius={[6, 6, 0, 0]} barSize={30} />
+                                <Bar dataKey="efectivo" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} barSize={30} />
+                                <Bar dataKey="pagomovil" stackId="a" fill="#06b6d4" radius={[6, 6, 0, 0]} barSize={30} />
                             </BarChart>
                         </ResponsiveContainer>
                  </div>
