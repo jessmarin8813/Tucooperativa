@@ -38,8 +38,7 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
       width: '100vw', 
       background: 'var(--bg-dark)', 
       position: 'relative', 
-      overflow: 'hidden',
-      flexDirection: isMobile ? 'column' : 'row'
+      overflow: 'hidden'
     }}>
       
       {/* Desktop Sidebar */}
@@ -54,11 +53,10 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
 
       {/* Mobile Top Header */}
       <header className="mobile-header" style={{ 
-          position: 'sticky', top: 0, left: 0, right: 0, height: '70px', 
+          position: 'fixed', top: 0, left: 0, right: 0, height: '64px', 
           background: 'rgba(7, 8, 13, 0.95)', backdropFilter: 'blur(20px)',
           borderBottom: '1px solid var(--glass-border)', display: isMobile ? 'flex' : 'none',
-          alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', zIndex: 60,
-          flexShrink: 0
+          alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', zIndex: 100,
       }}>
           <h1 className="neon-text brand" style={{ fontSize: '1.35rem', fontWeight: 900, lineHeight: '1.2' }}>TuCooperativa</h1>
           <button 
@@ -98,9 +96,10 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
       {/* Main Content Area */}
       <main style={{ 
         flex: 1, 
-        height: isMobile ? 'calc(100vh - 70px)' : '100vh', 
+        height: '100vh', 
         overflowY: 'auto',
-        position: 'relative'
+        position: 'relative',
+        paddingTop: isMobile ? '64px' : '0'
       }}>
         <div className="view-container animate-fade">
             <Suspense fallback={<LoadingSpinner />}>
