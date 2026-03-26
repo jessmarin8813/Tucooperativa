@@ -41,10 +41,10 @@ const VehiculosView = () => {
   }
 
   const stats = {
-    total: vehicles.length,
-    active: vehicles.filter(v => v.estado === 'activo' || v.status === 'activo').length,
-    maintenance: vehicles.filter(v => v.estado === 'mantenimiento' || v.status === 'mantenimiento').length,
-    inactive: vehicles.filter(v => v.estado === 'inactivo' || v.status === 'inactivo').length
+    total: Array.isArray(vehicles) ? vehicles.length : 0,
+    active: (Array.isArray(vehicles) ? vehicles : []).filter(v => v.estado === 'activo' || v.status === 'activo').length,
+    maintenance: (Array.isArray(vehicles) ? vehicles : []).filter(v => v.estado === 'mantenimiento' || v.status === 'mantenimiento').length,
+    inactive: (Array.isArray(vehicles) ? vehicles : []).filter(v => v.estado === 'inactivo' || v.status === 'inactivo').length
   }
 
   return (
