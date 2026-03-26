@@ -14,135 +14,133 @@ const FleetList = ({ vehicles = [] }) => {
   }
 
   return (
-    <div className="glass-premium rounded-3xl overflow-hidden shadow-2xl mt-8 border border-white/5 bg-white/2">
+    <div className="glass shadow-2xl mt-8" style={{ borderRadius: '32px', overflow: 'hidden' }}>
       <div className="p-8 border-b border-white/5 flex flex-wrap gap-4 justify-between items-center bg-white/2">
-        <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+        <div className="p-flex p-items-center p-gap-4">
+            <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center text-primary" style={{ background: 'rgba(99, 102, 241, 0.1)', borderRadius: '16px' }}>
                 <Car size={20} />
             </div>
             <h3 className="text-xl font-black text-white tracking-tight">Estado de la Flota</h3>
         </div>
-        <button className="btn-primary px-6 py-2 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+        <button className="btn-secondary" style={{ height: '40px', padding: '0 20px', fontSize: '10px' }}>
             <History size={14} />
-            Ver Historial
+            <span style={{ marginLeft: '8px' }}>VER HISTORIAL</span>
         </button>
       </div>
 
-      <div className="p-0 overflow-x-auto custom-scrollbar">
-        <div className="min-w-[800px]">
-          {/* Header */}
-          <div className="grid grid-cols-[2.5fr_2fr_1fr_1.5fr_1.5fr] text-[10px] font-black uppercase text-white/20 tracking-widest border-b border-white/5 bg-white/2 p-6 px-10">
-            <div>Vehículo / Placa</div>
-            <div>Dueño / Chofer</div>
-            <div className="text-center">Cuota</div>
-            <div className="text-center">Estado</div>
-            <div className="text-right">Acciones</div>
-          </div>
+      <div className="p-fleet-container custom-scrollbar">
+        <div className="p-fleet-grid p-fleet-header">
+          <div>Vehículo / Placa</div>
+          <div>Dueño / Chofer</div>
+          <div className="p-text-center">Cuota</div>
+          <div className="p-text-center">Estado</div>
+          <div className="p-text-right">Acciones</div>
+        </div>
 
-          {/* Body */}
-          <div className="divide-y divide-white/5">
-            {safeVehicles.map((v, i) => (
-              <Motion.div 
-                key={v.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                className="grid grid-cols-[2.5fr_2fr_1fr_1.5fr_1.5fr] items-center p-8 px-10 glass-hover group"
-              >
-                {/* Vehículo */}
-                <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 bg-white/5 rounded-[22px] flex items-center justify-center text-white/10 group-hover:bg-accent/10 group-hover:text-accent transition-all duration-500 border border-white/5 group-hover:border-accent/20">
-                      <Car size={28} />
-                  </div>
-                  <div>
-                      <p className="text-white font-black text-lg tracking-tighter group-hover:translate-x-1 transition-transform duration-300">{v.modelo || 'Unidad de Flota'}</p>
-                      <p className="text-[10px] text-accent font-black tracking-widest uppercase mt-1 px-2 py-0.5 bg-accent/5 rounded-md inline-block border border-accent/10">{v.placa}</p>
-                  </div>
+        <div className="divide-y divide-white/5">
+          {safeVehicles.map((v, i) => (
+            <Motion.div 
+              key={v.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+              className="p-fleet-grid p-fleet-row"
+            >
+              {/* Vehículo */}
+              <div className="p-flex p-items-center p-gap-4">
+                <div className="p-avatar-box">
+                    <Car size={24} />
                 </div>
+                <div>
+                    <p style={{ fontSize: '1.1rem', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>{v.modelo || 'Unidad de Flota'}</p>
+                    <p style={{ fontSize: '10px', color: 'var(--accent)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '4px' }}>{v.placa}</p>
+                </div>
+              </div>
 
-                {/* Dueño / Chofer */}
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-white/5 rounded-full flex items-center justify-center">
-                        <User size={12} className="text-white/40" />
-                    </div>
-                    <span className="text-white font-bold text-sm tracking-tight truncate">{v.dueno_nombre}</span>
+              {/* Dueño / Chofer */}
+              <div className="p-flex p-flex-col p-gap-2">
+                <div className="p-flex p-items-center p-gap-2">
+                  <User size={14} style={{ opacity: 0.3 }} />
+                  <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'white' }}>{v.dueno_nombre}</span>
+                </div>
+                {v.chofer_nombre ? (
+                  <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', paddingLeft: '22px' }}>
+                    Op: {v.chofer_nombre}
                   </div>
-                  {v.chofer_nombre ? (
-                    <div className="text-[9px] text-white/30 font-black uppercase tracking-wider pl-8 flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-emerald-500/40 rounded-full animate-pulse"></div>
-                      Op: {v.chofer_nombre}
-                    </div>
-                  ) : (
-                    <div className="text-[9px] text-white/10 font-bold uppercase tracking-wider pl-8">
-                      Sin Chofer
-                    </div>
+                ) : (
+                  <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.1)', fontWeight: 800, textTransform: 'uppercase', paddingLeft: '22px' }}>
+                    Sin Chofer
+                  </div>
+                )}
+              </div>
+
+              {/* Cuota */}
+              <div className="p-text-center">
+                  <div style={{ display: 'inline-block', padding: '8px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white' }}>${v.cuota_diaria}</span>
+                  </div>
+              </div>
+
+              {/* Estado */}
+              <div className="p-flex p-flex-col p-items-center p-gap-2">
+                 <span style={{ 
+                    padding: '6px 16px', 
+                    borderRadius: '100px', 
+                    fontSize: '9px', 
+                    fontWeight: 900, 
+                    textTransform: 'uppercase', 
+                    letterSpacing: '0.1em',
+                    background: v.status_label === 'en ruta' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)',
+                    color: v.status_label === 'en ruta' ? 'var(--success)' : 'rgba(255,255,255,0.3)',
+                    border: `1px solid ${v.status_label === 'en ruta' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255,255,255,0.05)'}`
+                 }}>
+                   {v.status_label || 'Inactivo'}
+                 </span>
+                 {v.alerta_combustible == 1 && (
+                  <div className="animate-pulse" style={{ fontSize: '8px', fontWeight: 900, color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <AlertTriangle size={10} />
+                      COMBUSTIBLE BAJO
+                  </div>
                   )}
-                </div>
+              </div>
 
-                {/* Cuota */}
-                <div className="text-center">
-                    <div className="inline-block px-4 py-2 bg-white/3 rounded-2xl border border-white/5">
-                        <span className="text-white/40 text-[10px] font-black mr-1">$</span>
-                        <span className="text-white font-black text-xl">{v.cuota_diaria}</span>
-                    </div>
-                </div>
-
-                {/* Estado */}
-                <div className="flex flex-col items-center gap-2">
-                   <div className="flex items-center gap-3">
-                      <span className={`px-4 py-1.5 rounded-pill text-[10px] font-black uppercase tracking-widest border transition-all ${
-                        v.status_label === 'en ruta'
-                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-lg shadow-emerald-500/5'
-                          : 'bg-white/5 text-white/30 border-white/5'
-                      }`}>
-                        {v.status_label || 'Inactivo'}
-                      </span>
-                   </div>
-                   {v.alerta_combustible == 1 && (
-                    <div className="flex items-center gap-2 bg-red-500/10 text-red-500 border border-red-500/20 px-3 py-1.5 rounded-pill text-[9px] font-black animate-pulse">
-                        <AlertTriangle size={10} />
-                        FUEL ALERT
-                    </div>
-                    )}
-                </div>
-
-                {/* Acciones */}
-                <div className="flex justify-end gap-3 items-center">
-                    {!v.chofer_id && (
-                      <button 
-                        onClick={async () => {
-                          try {
-                            const res = await fetch('/api/invitaciones.php', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ vehiculo_id: v.id })
-                            });
-                            const data = await res.json();
-                            if (data.status === 'success') {
-                                navigator.clipboard.writeText(data.link);
-                                alert('✅ Link de Invitación copiado al portapapeles. Envíalo al chofer.');
-                            }
-                          } catch (e) {
-                            alert('❌ Error al generar invitación');
+              {/* Acciones */}
+              <div className="p-flex p-justify-end p-gap-3">
+                  {!v.chofer_id && (
+                    <button 
+                      onClick={async () => {
+                        try {
+                          const res = await fetch('/api/invitaciones.php', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ vehiculo_id: v.id })
+                          });
+                          const data = await res.json();
+                          if (data.status === 'success') {
+                              navigator.clipboard.writeText(data.link);
+                              alert('✅ Link de Invitación copiado al portapapeles.');
                           }
-                        }}
-                        className="btn-primary hover:bg-emerald-500 h-10 px-4 text-[9px] font-black uppercase tracking-widest border border-white/10 flex-shrink-0"
-                      >
-                        INVITAR CHOFER
-                      </button>
-                    )}
-                    <button className="w-10 h-10 bg-white/5 rounded-2xl flex items-center justify-center text-white/20 hover:text-white hover:bg-white/10 transition-all border border-white/5">
-                        <MoreVertical size={18} />
+                        } catch (e) {
+                          alert('❌ Error al generar invitación');
+                        }
+                      }}
+                      className="btn-primary"
+                      style={{ height: '40px', padding: '0 16px', fontSize: '9px' }}
+                    >
+                      INVITAR
                     </button>
-                </div>
-              </Motion.div>
-            ))}
-          </div>
+                  )}
+                  <button className="btn-secondary" style={{ width: '40px', height: '40px', padding: 0 }}>
+                      <MoreVertical size={18} style={{ opacity: 0.3 }} />
+                  </button>
+              </div>
+            </Motion.div>
+          ))}
         </div>
       </div>
     </div>
   )
+
 }
 
 export default FleetList

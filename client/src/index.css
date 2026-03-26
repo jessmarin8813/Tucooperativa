@@ -610,3 +610,70 @@ button {
     padding-left: 0 !important;
   }
 }
+/* Fleet Module Premium Grid (Vanilla CSS) */
+.p-fleet-grid {
+  display: grid;
+  grid-template-columns: 2.5fr 2fr 1fr 1.5fr 1.5fr;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+}
+
+.p-fleet-header {
+  padding: 24px 40px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.p-fleet-row {
+  padding: 32px 40px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.4s ease;
+}
+
+.p-fleet-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.p-text-center { text-align: center; }
+.p-text-right { text-align: right; }
+
+.p-avatar-box {
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.5s ease;
+}
+
+.p-fleet-row:hover .p-avatar-box {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.2);
+  color: var(--primary);
+}
+
+@media (max-width: 1024px) {
+  .p-fleet-container {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+  .p-fleet-grid {
+    min-width: 900px; /* Ensure table structure is preserved on mobile via scroll */
+  }
+}
+
+@media (max-width: 768px) {
+  .p-fleet-header, .p-fleet-row {
+    padding: 20px 24px;
+  }
+}
