@@ -3,7 +3,9 @@ import { MoreVertical, User, AlertTriangle, Car, History } from 'lucide-react'
 import { motion as Motion } from 'framer-motion'
 
 const FleetList = ({ vehicles = [] }) => {
-  if (vehicles.length === 0) {
+  const safeVehicles = Array.isArray(vehicles) ? vehicles : [];
+  
+  if (safeVehicles.length === 0) {
     return (
       <div className="glass-premium p-16 text-center text-white/20 font-black uppercase tracking-widest text-xs border-dashed border-2 border-white/5 rounded-3xl m-8">
         No hay vehículos registrados en la flota.
@@ -39,7 +41,7 @@ const FleetList = ({ vehicles = [] }) => {
 
           {/* Body */}
           <div className="divide-y divide-white/5">
-            {vehicles.map((v, i) => (
+            {safeVehicles.map((v, i) => (
               <Motion.div 
                 key={v.id}
                 initial={{ opacity: 0, y: 10 }}

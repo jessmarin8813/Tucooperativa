@@ -23,7 +23,10 @@ const Dashboard = () => {
     try {
       const statsRes = await callApi('dashboard.php')
       const fleetRes = await callApi('vehiculos.php')
-      setData({ stats: statsRes.stats, vehicles: fleetRes })
+      setData({ 
+        stats: statsRes?.stats || data.stats, 
+        vehicles: Array.isArray(fleetRes) ? fleetRes : [] 
+      })
     } catch { /* Handled */ }
   }, [callApi])
 
@@ -139,7 +142,7 @@ const Dashboard = () => {
                 Ver Flota Completa →
               </button>
           </div>
-          <FleetList vehicles={data.vehicles.slice(0, 5)} />
+          <FleetList vehicles={(data?.vehicles || []).slice(0, 5)} />
       </div>
     </div>
   )
