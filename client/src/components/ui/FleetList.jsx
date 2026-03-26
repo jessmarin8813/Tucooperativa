@@ -19,17 +19,18 @@ const FleetList = ({ vehicles = [], minimal = false }) => {
       {/* 1. HEADER - Only show if not minimal */}
       {!minimal && (
         <div className="p-flex-responsive p-justify-between p-items-center" style={{ paddingBottom: '40px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-            <div className="p-flex p-items-center p-gap-6" style={{ minWidth: 0 }}>
+            <div className="p-flex p-items-center" style={{ minWidth: 0, gap: '24px' }}>
                 <div style={{ 
-                    width: '56px', height: '56px', borderRadius: '18px', 
+                    width: '64px', height: '64px', borderRadius: '20px', 
                     background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99,102,241,0.2)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0
                 }}>
-                    <Car size={28} className="text-primary" />
+                    <Car size={32} className="text-primary" />
                 </div>
                 <div style={{ overflow: 'hidden' }}>
-                    <h3 className="text-white font-black uppercase italic" style={{ fontSize: '1.6rem', letterSpacing: '0.08em', lineHeight: 1 }}>Módulo de Flota</h3>
-                    <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '10px' }}>Gestión Operativa Senior</p>
+                    <h3 className="text-white font-black uppercase italic" style={{ fontSize: '1.8rem', letterSpacing: '0.04em', lineHeight: 1 }}>Módulo de Flota</h3>
+                    <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '8px' }}>Gestión Operativa Senior</p>
                 </div>
             </div>
             <button className="btn-secondary mobile-hide" style={{ height: '52px', padding: '0 28px', fontSize: '11px', fontWeight: 1000 }}>
@@ -42,10 +43,10 @@ const FleetList = ({ vehicles = [], minimal = false }) => {
       <div className="p-fleet-container custom-scrollbar" style={{ marginTop: minimal ? '0' : '40px' }}>
         {/* 2. PC GRID HEADER - Strict Alignment */}
         <div className={`p-fleet-grid p-fleet-header ${minimal ? 'minimal-grid' : ''}`}>
-          <div style={{ paddingLeft: '20px' }}>UNIDAD / OPERADOR</div>
+          <div>UNIDAD / OPERADOR</div>
           {!minimal && <div className="p-text-center">CUOTA DIARIA</div>}
           <div className="p-text-center">ESTADO</div>
-          {!minimal && <div className="p-text-right" style={{ paddingRight: '20px' }}>ACCIONES</div>}
+          {!minimal && <div className="p-text-right">ACCIONES</div>}
         </div>
 
         {/* 3. SENIOR ROWS */}
@@ -126,7 +127,7 @@ const FleetList = ({ vehicles = [], minimal = false }) => {
                             } catch (e) { alert('❌ Error'); }
                         }}
                         className="btn-primary"
-                        style={{ height: '48px', padding: '0 24px', fontSize: '12px', fontWeight: 1000, borderRadius: '14px' }}
+                        style={{ height: '48px', padding: '0 24px', fontSize: '12px', fontWeight: 1000, borderRadius: '14px', marginRight: '16px' }}
                         >
                         INVITAR
                         </button>
@@ -134,7 +135,7 @@ const FleetList = ({ vehicles = [], minimal = false }) => {
                     <button 
                         onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }}
                         className="btn-secondary" 
-                        style={{ width: '48px', height: '48px', padding: 0, borderRadius: '14px' }}
+                        style={{ width: '48px', height: '48px', padding: 0, borderRadius: '14px', flexShrink: 0 }}
                     >
                         <MoreVertical size={22} className={activeDropdown === v.id ? 'text-primary' : 'text-white/30'} />
                     </button>
