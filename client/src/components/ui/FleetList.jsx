@@ -40,7 +40,7 @@ const FleetList = ({ vehicles = [], minimal = false }) => {
         </div>
       )}
 
-      <div className="p-fleet-container custom-scrollbar" style={{ marginTop: minimal ? '0' : '40px' }}>
+      <div className="p-fleet-container custom-scrollbar" style={{ marginTop: minimal ? '0' : '40px', paddingBottom: '160px' }}>
         {/* 2. PC GRID HEADER - Strict Alignment */}
         <div className={`p-fleet-grid p-fleet-header ${minimal ? 'minimal-grid' : ''}`}>
           <div>UNIDAD / OPERADOR</div>

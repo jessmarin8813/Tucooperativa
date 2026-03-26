@@ -99,7 +99,7 @@ const VehiculosView = ({ user, config }) => {
           </button>
         </div>
       ) : (
-        <div className="glass" style={{ borderRadius: '24px', overflow: 'hidden' }}>
+        <div className="glass" style={{ borderRadius: '24px', overflow: 'visible' }}>
           <FleetList vehicles={vehicles} config={config} user={user} />
         </div>
       )}
