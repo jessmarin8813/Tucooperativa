@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Plus, RefreshCw, Truck, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react'
+import { Plus, RefreshCw, Truck, CheckCircle2, AlertTriangle, XCircle, Search } from 'lucide-react'
 import { useApi } from '../hooks/useApi'
 import FleetList from '../components/ui/FleetList'
 import StatCard from '../components/ui/StatCard'
@@ -10,6 +10,8 @@ const VehiculosView = ({ user, config, setActiveView }) => {
   const [vehicles, setVehicles] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedVehicle, setSelectedVehicle] = useState(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterStatus, setFilterStatus] = useState('all')
   const { callApi, loading } = useApi()
 
   // Use the passed user or fall back (safety)
@@ -54,6 +56,13 @@ const VehiculosView = ({ user, config, setActiveView }) => {
     setSelectedVehicle(null)
   }
 
+  const filteredVehicles = (Array.isArray(vehicles) ? vehicles : []).filter(v => {
+    const matchesSearch = v.placa.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          v.modelo.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || v.estado === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
+
   // Logic for dynamic trends
   const now = new Date();
   const todayVehicles = (Array.isArray(vehicles) ? vehicles : []).filter(v => {
@@ -94,26 +103,59 @@ const VehiculosView = ({ user, config, setActiveView }) => {
         <StatCard title="Fuera de Servicio" value={stats.inactive} trend="+0" icon={XCircle} color="var(--danger)" />
       </div>
 
-      {loading && vehicles.length === 0 ? (
+      {/* 2. SEARCH & FILTERS - Tactical Scalability */}
+      <div className="p-flex-responsive p-justify-between p-items-center" style={{ marginBottom: '32px', gap: '16px' }}>
+        <div className="glass" style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '0 20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <Search size={18} className="text-white/20" />
+          <input 
+            type="text" 
+            placeholder="Buscar por Placa o Modelo..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ 
+              width: '100%', padding: '16px', background: 'transparent', border: 'none', 
+              color: 'white', outline: 'none', fontSize: '0.9rem', fontWeight: 600 
+            }}
+          />
+        </div>
+        <div className="p-flex" style={{ gap: '10px', overflowX: 'auto', paddingBottom: '5px' }}>
+          {['all', 'activo', 'mantenimiento', 'inactivo'].map(st => (
+            <button 
+              key={st}
+              onClick={() => setFilterStatus(st)}
+              className={`p-status-pill ${filterStatus === st ? 'active-filter' : 'lite-filter'}`}
+              style={{ cursor: 'pointer', transition: 'all 0.2s', border: 'none', whiteSpace: 'nowrap' }}
+            >
+              {st === 'all' ? 'TODOS' : st.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {loading && filteredVehicles.length === 0 ? (
         <div className="flex items-center justify-center p-24">
             <RefreshCw size={48} className="animate-spin text-accent" />
         </div>
-      ) : vehicles.length === 0 ? (
+      ) : filteredVehicles.length === 0 ? (
         <div className="glass empty-state-card" style={{ padding: '80px 40px', textAlign: 'center', borderRadius: '32px', border: '2px dashed var(--glass-border)' }}>
           <div style={{ width: '80px', height: '80px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
             <Truck size={40} style={{ color: 'var(--primary)' }} />
           </div>
-          <h2 className="empty-state-title" style={{ fontSize: '2.5rem', fontWeight: 900, color: 'white', marginBottom: '16px', letterSpacing: '-0.03em' }}>No hay vehículos registrados</h2>
-          <p className="empty-state-desc" style={{ color: 'var(--text-dim)', maxWidth: '450px', margin: '0 auto 40px', fontSize: '1.1rem', fontWeight: 600, lineHeight: 1.6 }}>Crea tu flota digital ahora para tomar el control total de los activos, gastos y rendimientos en tiempo real.</p>
-          <button className="btn-primary mobile-full-btn btn-wrap" style={{ gap: '16px', borderRadius: '20px' }} onClick={() => setIsModalOpen(true)}>
-            <Plus size={24} />
-            <span style={{ fontSize: '1rem', fontWeight: 900, letterSpacing: '0.05em' }}>AGREGAR MI PRIMERA UNIDAD</span>
-          </button>
+          <h2 className="empty-state-title" style={{ fontSize: '2rem', fontWeight: 900, color: 'white', marginBottom: '16px', letterSpacing: '-0.03em' }}>No hay resultados</h2>
+          <p className="empty-state-desc" style={{ color: 'var(--text-dim)', maxWidth: '450px', margin: '0 auto 40px', fontSize: '1.1rem', fontWeight: 600, lineHeight: 1.6 }}>
+            {searchTerm || filterStatus !== 'all' ? 'No se encontraron unidades que coincidan con tu búsqueda.' : 'Crea tu flota digital ahora para tomar el control total.'}
+          </p>
+          {!searchTerm && filterStatus === 'all' && (
+            <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
+              <Plus size={24} />
+              <span>AGREGAR MI PRIMERA UNIDAD</span>
+            </button>
+          )}
         </div>
       ) : (
         <div className="glass" style={{ borderRadius: '24px', overflow: 'visible' }}>
           <FleetList 
-            vehicles={vehicles} 
+            vehicles={filteredVehicles} 
             config={config} 
             user={user} 
             setActiveView={setActiveView} 
