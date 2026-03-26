@@ -29,9 +29,6 @@ const VehicleForm = ({ onSuccess, currentUser }) => {
         }
       }
       init()
-    } else if (currentUser?.rol === 'dueno') {
-      // Auto-set owner if not already set (re-run as backup)
-      setFormData(prev => ({ ...prev, dueno_id: currentUser.user_id }))
     }
     return () => { ignore = true }
   }, [callApi, currentUser])

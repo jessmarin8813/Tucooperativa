@@ -2,7 +2,7 @@
 /**
  * SuperAdmin Master Statistics API
  */
-require_once __DIR__ . '/../includes/middleware.php';
+require_once 'includes/middleware.php';
 
 $user = checkAuth();
 if ($user['rol'] !== 'superadmin') {
@@ -29,10 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmt = $db->query("SELECT SUM(monto) as total FROM pagos_diarios WHERE fecha = CURDATE()");
         $recaudacion_total = $stmt->fetch()['total'] ?? 0;
 
-        // 5. Billing Projection ($1.00 USD per vehicle / day)
-        $billing_projection = $total_vehiculos * 1.00;
-
-        // 6. Cooperatives List with metadata
+        // 5. Cooperatives List with metadata
         $stmt = $db->query("SELECT c.*, 
                             (SELECT COUNT(*) FROM vehiculos WHERE cooperativa_id = c.id) as vehiculos_count,
                             (SELECT COUNT(*) FROM rutas WHERE cooperativa_id = c.id AND estado = 'activa' AND DATE(started_at) = CURDATE()) as rutas_activas
@@ -44,8 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'total_cooperativas' => $total_coops,
                 'total_vehiculos' => $total_vehiculos,
                 'total_rutas_activas' => $total_rutas,
-                'recaudacion_total' => number_format((float)$recaudacion_total, 2, '.', ''),
-                'proyeccion_saas' => number_format((float)$billing_projection, 2, '.', '')
+                'recaudacion_total' => number_format((float)$recaudacion_total, 2, '.', '')
             ],
             'cooperativas' => $cooperativas
         ]);
