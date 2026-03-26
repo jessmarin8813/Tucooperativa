@@ -764,10 +764,17 @@ button {
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .minimal-grid { grid-template-columns: 60% 40% !important; } 
 
-/* Desktop Col Management */
+/* Desktop Col Management - Restored Alignment Surgical Fix */
+.p-fleet-header > div:first-child,
 .p-fleet-row-content > div:first-child {
   padding-left: 20px;
+  text-align: left;
 }
+
+.p-fleet-header > div:last-child,
 .p-fleet-row-content > div:last-child {
   padding-right: 20px;
+  text-align: right;
+  display: flex !important;
+  justify-content: flex-end;
 }

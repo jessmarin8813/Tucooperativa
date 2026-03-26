@@ -70,11 +70,9 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.05 }}
-              className={`p-fleet-grid p-fleet-row ${minimal ? 'minimal-grid' : ''}`}
+              className={`p-fleet-grid p-fleet-row-content ${minimal ? 'minimal-grid' : ''}`}
               style={{ padding: minimal ? '20px 0' : '32px 0' }}
             >
-              {/* Row Grid Wrapper */}
-              <div className={`p-fleet-grid p-fleet-row-content ${minimal ? 'minimal-grid' : ''}`}>
                 {/* 1. Identity (Desktop & Mobile) */}
                 <div className="p-identity-col">
                   <div className="p-flex p-items-center p-gap-4" style={{ width: '100%' }}>
@@ -187,7 +185,6 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                       </div>
                   </div>
                 )}
-              </div>
             </Motion.div>
           ))}
         </div>
