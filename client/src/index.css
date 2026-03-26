@@ -619,30 +619,109 @@ button {
   width: 100%;
 }
 
+/* ==========================================================================
+   FLEET PREMIUM SYSTEM v6.0 (Phase 6 Surgical Redesign)
+   ========================================================================== */
+
+.p-fleet-card-root {
+  background: rgba(10, 11, 18, 0.4);
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 40px;
+  overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+  margin-top: 48px;
+}
+
+.p-fleet-container {
+  overflow-x: auto;
+  border-radius: 40px;
+}
+
+/* PC Grid definition with strict percentages for alignment */
+.p-fleet-grid {
+  display: grid;
+  grid-template-columns: 35% 25% 15% 15% 10%;
+  align-items: center;
+  gap: 0;
+}
+
 .p-fleet-header {
-  padding: 24px 40px;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 32px 48px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   text-transform: uppercase;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.15em;
-  color: rgba(255, 255, 255, 0.3);
-  border-top-left-radius: 32px;
-  border-top-right-radius: 32px;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
 }
 
 .p-fleet-row {
-  padding: 32px 40px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 40px 48px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  background: transparent;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
 }
 
-.p-fleet-row:hover {
-  background: rgba(255, 255, 255, 0.03);
+.p-fleet-row:last-child {
+  border-bottom: none;
 }
+
+.p-fleet-row:hover {
+  background: rgba(255, 255, 255, 0.015);
+  box-shadow: inset 0 0 50px rgba(99, 102, 241, 0.03);
+}
+
+.p-mobile-label {
+  display: none;
+}
+
+/* MOBILE REDESIGN (Responsive Breakpoint) */
+@media (max-width: 1024px) {
+  .p-fleet-header {
+    display: none !important; /* KILL TECHNICAL LIST */
+  }
+
+  .p-fleet-grid {
+    grid-template-columns: 1fr;
+    display: block;
+  }
+
+  .p-fleet-row {
+    margin: 20px;
+    padding: 32px;
+    border-radius: 36px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    backdrop-filter: blur(20px);
+  }
+
+  .p-mobile-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 950;
+    color: rgba(255, 255, 255, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 12px;
+  }
+
+  .p-fleet-card-root {
+    background: transparent;
+    border: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    margin-top: 24px;
+  }
+}
+
 
 .p-text-center { text-align: center; }
 .p-text-right { text-align: right; }
