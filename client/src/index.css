@@ -640,10 +640,10 @@ button {
   width: 100%;
 }
 
-/* PC Grid definition with strict percentages and truncation */
+/* PC Grid definition with 4 columns (Removed redundant Owner column) */
 .p-fleet-grid {
   display: grid;
-  grid-template-columns: 35% 25% 15% 15% 10%;
+  grid-template-columns: 45% 20% 20% 15%;
   align-items: center;
   gap: 0;
   width: 100%;
