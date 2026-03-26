@@ -110,7 +110,9 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                             <div className={`p-status-pill-v2 ${status}`}>
                                 {status.toUpperCase()}
                             </div>
-                            {v.motivo_estado && <span className="p-status-reason">{v.motivo_estado}</span>}
+                            <span className="p-status-reason">
+                                {v.motivo_estado || 'Operación Normal'}
+                            </span>
                           </div>
                       </div>
 

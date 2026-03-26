@@ -617,13 +617,37 @@ button {
 */
 
 .p-fleet-card-root { margin-top: 40px; width: 100%; }
-.p-fleet-container { width: 100%; overflow: visible; }
 
-/* 💻 DESKTOP GRID (Strict 4% Symmetry) */
+/* --- FILTER BRANDING v18.1 --- */
+.active-filter {
+  background: var(--primary) !important;
+  color: white !important;
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4);
+  border: 1px solid rgba(255,255,255,0.2) !important;
+}
+
+.lite-filter {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: rgba(255, 255, 255, 0.45) !important;
+  border: 1px solid rgba(255,255,255,0.05) !important;
+}
+
+.lite-filter:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: white !important;
+}
+
+.p-fleet-container { 
+  width: 100%; 
+  overflow: visible; 
+  padding: 0 4% !important; /* Centralized Sacred Symmetry */
+}
+
+/* 💻 DESKTOP GRID (Alignment inherited from Parent) */
 .p-fleet-header-pc {
   display: grid;
   grid-template-columns: 35% 20% 20% 25%;
-  padding: 0 4% 32px 4% !important;
+  padding: 0 0 32px 0 !important; /* Zero padding here; parent handles it */
   text-align: left;
   color: rgba(255,255,255,0.25);
   font-size: 11px;
@@ -636,7 +660,7 @@ button {
 .p-fleet-row-pc {
   display: grid;
   grid-template-columns: 35% 20% 20% 25%;
-  padding: 32px 4% !important;
+  padding: 32px 0 !important; /* Zero padding here; parent handles it */
   border-bottom: 1px solid rgba(255,255,255,0.03);
   align-items: center;
   transition: all 0.3s ease;
@@ -690,16 +714,51 @@ button {
 .p-status-pill-v2.inactivo { background: #ef4444; color: #fff; }
 .p-status-pill-v2.pill-sm { padding: 6px 14px; font-size: 9px; }
 
-.p-status-reason { font-size: 9px; color: rgba(255,255,255,0.3); font-weight: 800; text-transform: uppercase; margin-top: 10px; letter-spacing: 0.02em; }
+.p-status-reason { 
+  font-size: 10px; 
+  color: rgba(255,255,255,0.45); 
+  font-weight: 800; 
+  text-transform: uppercase; 
+  margin-top: 10px; 
+  letter-spacing: 0.05em;
+  font-style: italic;
+}
 
 /* Shared Utilities */
 .p-plate-badge { font-size: 9px; color: #06b6d4; font-weight: 950; background: rgba(6, 182, 212, 0.1); padding: 3px 10px; border-radius: 8px; border: 1px solid rgba(6,182,212,0.2); }
 .p-driver-tag { font-size: 9px; color: rgba(255,255,255,0.35); font-weight: 800; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 10px; }
 .p-fee-label { font-size: 8px; color: rgba(255,255,255,0.25); font-weight: 1000; text-transform: uppercase; margin-top: 8px; display: block; }
 .p-unit-avatar-wrapper { min-width: 64px; height: 64px; background: rgba(255, 255, 255, 0.02); border-radius: 14px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.05); }
-.p-dropdown-menu { position: absolute; top: 55px; right: 0; z-index: 100; width: 220px; padding: 12px; border-radius: 20px; background: #0a0b12; border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(60px); box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
-.p-dropdown-item { width: 100%; display: flex; justify-content: flex-start; padding: 12px 16px; font-size: 12px; border-radius: 12px; color: white; transition: all 0.2s; font-weight: 700; }
-.p-dropdown-item:hover { background: rgba(255,255,255,0.06); color: var(--primary); }
+.p-dropdown-menu { 
+  position: absolute; 
+  top: 55px; 
+  right: 0; 
+  z-index: 1000; 
+  width: 220px; 
+  padding: 12px; 
+  border-radius: 20px; 
+  background: #0f1019 !important; /* Force Dark Solid Background */
+  border: 1px solid rgba(255,255,255,0.15); 
+  backdrop-filter: blur(80px); 
+  box-shadow: 0 25px 60px rgba(0,0,0,0.8); 
+}
+.p-dropdown-item { 
+  width: 100%; 
+  display: flex !important; 
+  justify-content: flex-start !important; 
+  padding: 12px 20px !important; 
+  font-size: 13px !important; 
+  border-radius: 12px !important; 
+  color: #fff !important; 
+  background: transparent !important;
+  transition: all 0.2s ease; 
+  font-weight: 700 !important; 
+  border: none !important;
+}
+.p-dropdown-item:hover { 
+  background: rgba(255,255,255,0.08) !important; 
+  color: var(--primary) !important; 
+}
 .p-dropdown-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 8px 0; }
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .minimal-grid { grid-template-columns: 60% 40% !important; } 
