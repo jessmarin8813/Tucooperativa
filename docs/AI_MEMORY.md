@@ -1,27 +1,27 @@
-# 🧠 TuCooperativa - AI MEMORY (LEER PRIMERO)
+# 🧠 TuCooperativa - AI MEMORY (PRO SENIOR HANDOVER)
 
-Este archivo es la "Memoria de Trabajo" para el asistente de IA. Define reglas críticas, deudas técnicas y el estado exacto de la lógica de negocio.
+Este archivo es el **Cerebro Central** del proyecto. El siguiente agente DEBE leer esto antes de tocar una sola línea de código.
 
-## 📌 Contexto de la Misión
-Estamos construyendo una plataforma SaaS para cooperativas de transporte. El foco actual es la **Estabilización de Operaciones** (v7.5.0+).
+## 📌 Contexto de la Misión (v17.6-Stable)
+SaaS para gestión de cooperativas de transporte. El sistema está en una fase de **Refinamiento de Alta Gama**.
 
-## 🏗️ Reglas Arquitectónicas Innegociables
-1. **Frontend Premium**: Siempre usar Glassmorphism, DarkMode y Framer Motion. Consultar la skill `standard-ui-guard`.
-2. **Backend Blindado**: No hay endpoints "abiertos". Todos usan `checkAuth()` y validación estricta de roles.
-3. **Bot Anti-Crash**: El bot de Python DEBE tener manejadores de error globales y guardias de `NoneType` en cada formateo de API.
-4. **Build System**: El único comando válido para desplegar/verificar es `python build_system.py`. Los archivos `.bat` están deprecados por inestabilidad de encoding.
+## 🏗️ Reglas de Oro (Innegociables)
+1.  **Identidad de Marca**: El logo es el texto **"TuCooperativa"** con estilo `neon-text brand`. NO lo cambies por iconos genéricos. Es el alma visual del sistema.
+2.  **Clinical Grid Architecture**: El módulo de flota para PC usa una rejilla matemática de **35% 20% 20% 25%**. Esta alineación es sagrada para evitar el "hacinamiento".
+3.  **Zero-Collision Mobile**: Las tarjetas móviles deben ser independientes (0% tabla). No uses filas de tabla en móvil; usa el sistema de tarjetas `p-fleet-row` definido en `index.css`.
+4.  **Tactical Dashboard**: El dashboard es un resumen para métricas. NO debe mostrar listados de gestión completos. Usa el prop `minimal={true}` si necesitas mostrar resúmenes de flota.
+5.  **Build Protocol**: NUNCA des por terminada una tarea sin ejecutar `python build_system.py`. Si el build falla, la tarea NO está terminada.
 
-## ⚠️ Deuda Técnica y "Pendientes"
-- **Sincronización de IP**: El archivo `ip_sync.py` es vital para pruebas locales, pero debe desactivarse o cambiar a dominio real en producción.
-- **Validación de Combustible**: Actualmente acepta cualquier número; falta una auditoría de "Consumo Excesivo" basada en KM.
-- **Alertas de Dueño**: Las notificaciones de falla vía Telegram son 1:1; a futuro se necesitará un sistema de "broadcast" para múltiples admins.
+## 🚀 Estado Exacto del Desarrollo (Handover 2026-03-26)
+- **Logro v17.5**: Restauración de la arquitectura global de `index.css` (813 líneas). Se recuperó el login y el glassmorphism premium.
+- **Logro v17.6**: Limpieza total del Dashboard. Ahora es 100% táctico.
+- **Próximo Paso Inmediato**: **Fase 7 - Gestión de Datos Corporativos VIP**. Implementar la vista para que el dueño cambie su RIF, Slogan y Logo dinámicamente.
 
-## 🚀 Estado de la Sesión Actual
-- **Último Hito**: Implementación de la Auditoría del Bot integrada en el Build.
-- **Punto de Pausa**: Sistema verificado y estable en v7.6.0-Stable. Listo para pruebas de usuario. (2026-03-26 09:17:35)
-- **Hacia donde vamos**: Optimización del reporte de deudas y Dashboard de analítica.
+## 🛠️ Herramientas Pendientes
+- **Audit Skill**: Se incorporó `Integrity-Audit` en `.agent/skills/`. Úsala siempre.
+- **Omni-Guard**: La guardia de integridad (v5.0) está activa y funcional.
 
 ---
 > [!IMPORTANT]
-> **INSTRUCCIÓN PARA EL ASISTENTE**:
-> Al iniciar, lee este archivo y la skill `Stability-Protocol`. No preguntes al usuario sobre el historial si está documentado aquí. Actualiza la sección "Punto de Pausa" al final de cada tarea importante.
+> **ORDEN PARA EL SIGUIENTE AGENTE**:
+> Mantén la disciplina arquitectónica. No improvises con el layout. Usa las clases de `index.css` existentes para mantener la coherencia. Si el usuario pide cambios en el Dashboard, recuerda: **TÁCTICO > OPERATIVO**.
