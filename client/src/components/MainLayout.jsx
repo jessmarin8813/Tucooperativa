@@ -116,7 +116,7 @@ const MainLayout = ({ user, config, activeView, setActiveView, onLogout }) => {
                       {activeView === 'bi' && <BIView />}
                       {activeView === 'gastos' && <ExpensesView />}
                       {activeView === 'cobranza' && <CobranzaView />}
-                      {activeView === 'flota' && <VehiculosView user={user} config={config} />}
+                      {activeView === 'flota' && <VehiculosView user={user} config={config} setActiveView={handleNavigate} />}
                       {activeView === 'mantenimiento' && <MaintenanceCenter />}
                       {activeView === 'forensic' && <ForensicView />}
                     </React.Fragment>

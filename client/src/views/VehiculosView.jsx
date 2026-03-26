@@ -6,7 +6,7 @@ import StatCard from '../components/ui/StatCard'
 import Modal from '../components/ui/Modal'
 import VehicleForm from '../components/ui/VehicleForm'
 
-const VehiculosView = ({ user, config }) => {
+const VehiculosView = ({ user, config, setActiveView }) => {
   const [vehicles, setVehicles] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { callApi, loading } = useApi()
