@@ -1,27 +1,24 @@
-# 🧠 TuCooperativa - AI MEMORY (LEER PRIMERO)
+# TuCooperativa - AI MEMORY (v17.1-Stable)
 
-Este archivo es la "Memoria de Trabajo" para el asistente de IA. Define reglas críticas, deudas técnicas y el estado exacto de la lógica de negocio.
+## 📌 Contexto Actual
+El sistema es una plataforma SaaS multi-tenant para cooperativas de transporte, con bot de Telegram integrado y panel web.
 
-## 📌 Contexto de la Misión
-Estamos construyendo una plataforma SaaS para cooperativas de transporte. El foco actual es la **Estabilización de Operaciones** (v7.5.0+).
+### 🎭 Estructura de Roles (RBAC)
+1. **`superadmin`** (Encargado): Gestión técnica global. Pestaña: `SuperAdminDashboard.jsx`.
+2. **`dueno`** (Dueño de Cooperativa): Gestión de flota, choferes y finanzas de SU cooperativa. Pestaña: `Dashboard.jsx`.
+3. **`chofer`** (Chofer): Operativa vía Telegram Bot.
 
-## 🏗️ Reglas Arquitectónicas Innegociables
-1. **Frontend Premium**: Siempre usar Glassmorphism, DarkMode y Framer Motion. Consultar la skill `standard-ui-guard`.
-2. **Backend Blindado**: No hay endpoints "abiertos". Todos usan `checkAuth()` y validación estricta de roles.
-3. **Bot Anti-Crash**: El bot de Python DEBE tener manejadores de error globales y guardias de `NoneType` en cada formateo de API.
-4. **Build System**: El único comando válido para desplegar/verificar es `python build_system.py`. Los archivos `.bat` están deprecados por inestabilidad de encoding.
+### 🔑 Cuentas Críticas (Pruebas)
+- **ID 9**: `username: superadmin`, `rol: superadmin`.
+- **ID 10**: `username: admin`, `rol: dueno` (Cuenta principal del usuario para pruebas de negocio).
+- **Password**: `admin123` (En desarrollo).
 
-## ⚠️ Deuda Técnica y "Pendientes"
-- **Sincronización de IP**: El archivo `ip_sync.py` es vital para pruebas locales, pero debe desactivarse o cambiar a dominio real en producción.
-- **Validación de Combustible**: Actualmente acepta cualquier número; falta una auditoría de "Consumo Excesivo" basada en KM.
-- **Alertas de Dueño**: Las notificaciones de falla vía Telegram son 1:1; a futuro se necesitará un sistema de "broadcast" para múltiples admins.
+### 🛠️ Protocolo de Operación
+- **Verificación**: Siempre usar `python build_system.py` después de cambios en Frontend o API. Este script audita el bot, hace linting de PHP y compila el bundle de producción.
+- **Bot**: Localizado en `bot/bot.py`. Usa `api_client.py` para hablar con el backend.
+- **Realtime**: `bot/realtime_server.py` maneja WebSockets para el dashboard.
+- **Skills**: Ubicadas en `.agent/skills/` para auditoría y automatización.
 
-## 🚀 Estado de la Sesión Actual
-- **Último Hito**: Implementación de la Auditoría del Bot integrada en el Build.
-- **Punto de Pausa**: Sistema verificado y estable en v7.6.0-Stable. Listo para pruebas de usuario. (2026-03-25 20:17:54)
-- **Hacia donde vamos**: Optimización del reporte de deudas y Dashboard de analítica.
-
----
-> [!IMPORTANT]
-> **INSTRUCCIÓN PARA EL ASISTENTE**:
-> Al iniciar, lee este archivo y la skill `Stability-Protocol`. No preguntes al usuario sobre el historial si está documentado aquí. Actualiza la sección "Punto de Pausa" al final de cada tarea importante.
+### 🚩 Estado del Proyecto
+- **Estabilidad**: v17.1-Stable (Armonización Quirúrgica de Roles Completada).
+- **Próximos Pasos**: Desarrollo de módulos exclusivos para `superadmin`.
