@@ -39,17 +39,22 @@ const Sidebar = ({ onLogout, activeView, setActiveView, config }) => {
         position: 'relative',
         zIndex: 50
     }}>
-      <div style={{ padding: '40px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-        <h2 
-          onClick={() => setActiveView('dashboard')}
-          className="neon-text brand" 
-          style={{ fontSize: '1.8rem', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: '1.2', cursor: 'pointer' }}
-        >
-          {config?.nombre_cooperativa || 'TuCooperativa'}
-        </h2>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '12px' }}>
+      <div style={{ padding: '40px 32px 20px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+        {/* Generic Professional Logo */}
+        <div style={{ 
+            width: '64px', height: '64px', borderRadius: '22px', 
+            background: 'linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            marginBottom: '20px', boxShadow: '0 20px 40px rgba(99, 102, 241, 0.3)'
+        }}>
+           <LayoutDashboard size={32} className="text-white" />
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
             <div style={{ width: '6px', height: '6px', background: 'var(--success)', borderRadius: '100px' }} className="animate-pulse" />
-            <span style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>SISTEMA ONLINE</span>
+            <span style={{ fontSize: '0.9rem', fontWeight: 1000, textTransform: 'uppercase', color: 'white', letterSpacing: '0.05em' }}>
+                {config?.nombre_cooperativa || 'TU COOPERATIVA'}
+            </span>
         </div>
       </div>
 
