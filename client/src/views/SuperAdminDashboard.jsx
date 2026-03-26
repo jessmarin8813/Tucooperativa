@@ -5,7 +5,7 @@ import { useApi } from '../hooks/useApi'
 import { formatMoney, formatDate } from '../utils/DashboardConstants'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 
-const SuperAdminDashboard = () => {
+const SuperAdminDashboard = ({ user }) => {
   const { callApi, loading } = useApi()
   const [data, setData] = useState({
     stats: {
@@ -43,10 +43,7 @@ const SuperAdminDashboard = () => {
   }
 
   useEffect(() => {
-    let ignore = false
     const init = async () => {
-      await Promise.resolve()
-      if (ignore) return
       try {
         const result = await callApi('admin/master_stats.php')
         setData(result)
@@ -55,7 +52,6 @@ const SuperAdminDashboard = () => {
       }
     }
     init()
-    return () => { ignore = true }
   }, [callApi])
 
   const fetchForensicData = useCallback(async () => {

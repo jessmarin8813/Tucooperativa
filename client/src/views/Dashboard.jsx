@@ -6,9 +6,9 @@ import { useApi } from '../hooks/useApi'
 import { useRealtime } from '../hooks/useRealtime'
 import { motion as Motion } from 'framer-motion'
 
-const Dashboard = () => {
+const Dashboard = ({ user: initialUser }) => {
   const { callApi, loading } = useApi()
-  const [currentUser, setCurrentUser] = useState(null)
+  const [currentUser, setCurrentUser] = useState(initialUser)
   const [data, setData] = useState({
     stats: {
       total_vehiculos: 0,
@@ -38,20 +38,8 @@ const Dashboard = () => {
   })
 
   useEffect(() => {
-    let ignore = false
-    const init = async () => {
-      await Promise.resolve()
-      if (ignore) return
-
-      if (!currentUser) {
-        const sessionRes = await callApi('session.php')
-        setCurrentUser(sessionRes.user)
-      }
-      fetchDashboardData()
-    }
-    init()
-    return () => { ignore = true }
-  }, [callApi, fetchDashboardData, currentUser])
+    fetchDashboardData()
+  }, [fetchDashboardData])
 
   if (loading && data.stats.total_vehiculos === 0) {
     return (
