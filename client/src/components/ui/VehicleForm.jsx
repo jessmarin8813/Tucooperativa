@@ -11,7 +11,7 @@ const VehicleForm = ({ onSuccess, currentUser }) => {
     anio: new Date().getFullYear(),
     cuota_diaria: '',
     km_por_litro: '8.0',
-    dueno_id: currentUser?.rol === 'dueno' ? currentUser.user_id : ''
+    dueno_id: currentUser?.user_id || ''
   })
 
   // Load owners if user is admin
@@ -193,7 +193,6 @@ const VehicleForm = ({ onSuccess, currentUser }) => {
             name="dueno_id"
             value={formData.dueno_id}
             onChange={handleChange}
-            required
             style={{ 
               width: '100%', 
               padding: '12px 16px', 
