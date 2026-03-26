@@ -12,123 +12,121 @@ const FleetList = ({ vehicles = [] }) => {
       </div>
     )
   }
-  const [activeDropdown, setActiveDropdown] = React.useState(null);
+  const [activeDropdown, setActiveDropdown] = React.useState(null);
 
   return (
-    <div className="glass shadow-2xl mt-8" style={{ borderRadius: '32px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
-      {/* Table Header Section */}
-      <div className="p-8 border-b border-white/5 flex flex-wrap gap-4 justify-between items-center" style={{ background: 'rgba(255,255,255,0.01)', paddingLeft: '40px' }}>
+    <div className="p-fleet-card-root">
+      {/* 1. Header Section - Balanced & Airy */}
+      <div className="p-flex-responsive p-justify-between p-items-center" style={{ padding: '40px 48px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div className="p-flex p-items-center p-gap-6">
-            <div className="p-avatar-box" style={{ background: 'var(--primary-glow)', borderColor: 'rgba(99, 102, 241, 0.3)', width: '48px', height: '48px' }}>
-                <Car size={22} className="text-white" />
+            <div className="p-avatar-box" style={{ background: 'var(--primary-glow)', width: '64px', height: '64px', borderRadius: '22px' }}>
+                <Car size={32} className="text-white" />
             </div>
             <div>
-                <h3 className="text-xl font-black text-white tracking-tighter uppercase italic" style={{ fontSize: '1.2rem' }}>Estado de la Flota</h3>
-                <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Control Forense de Unidades y Operadores</p>
+                <h3 className="text-2xl font-black text-white tracking-widest uppercase italic" style={{ fontSize: '1.6rem', lineHeight: 1 }}>Estado de la Flota</h3>
+                <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '10px' }}>Control Forense en Tiempo Real</p>
             </div>
         </div>
-        <button className="btn-secondary" style={{ height: '44px', padding: '0 24px', fontSize: '11px', borderRadius: '16px' }}>
-            <History size={16} />
-            <span style={{ marginLeft: '10px', fontWeight: 900 }}>VER HISTORIAL</span>
+        <button className="btn-secondary mobile-hide" style={{ height: '56px', padding: '0 32px', fontSize: '12px', borderRadius: '18px', fontWeight: 950 }}>
+            <History size={20} />
+            <span style={{ marginLeft: '12px' }}>EXPLORAR HISTORIAL</span>
         </button>
       </div>
 
       <div className="p-fleet-container custom-scrollbar">
-        {/* Table Column Headers */}
-        <div className="p-fleet-grid p-fleet-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-          <div>Vehículo / Placa</div>
-          <div>Responsabilidad</div>
-          <div className="p-text-center">Cuota diaria</div>
-          <div className="p-text-center">Estado Operativo</div>
-          <div className="p-text-right" style={{ paddingRight: '20px' }}>Acciones</div>
+        {/* 2. Table Column Headers - PC Only */}
+        <div className="p-fleet-grid p-fleet-header">
+          <div>Unidades Operativas</div>
+          <div>Titular de Concesión</div>
+          <div className="p-text-center">Tarifa Diaria</div>
+          <div className="p-text-center">Estatus Forense</div>
+          <div className="p-text-right">Acciones</div>
         </div>
 
-        <div className="divide-y divide-white/5">
+        {/* 3. The List of Items */}
+        <div className="divide-y divide-white/2">
           {safeVehicles.map((v, i) => (
             <Motion.div 
               key={v.id}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.05 }}
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.1, type: 'spring', damping: 25 }}
               className="p-fleet-grid p-fleet-row"
-              style={{ padding: '24px 40px' }}
             >
-              {/* Col 1: Vehículo */}
-              <div className="p-flex p-items-center p-gap-5">
+              {/* Col 1: Unit Info */}
+              <div className="p-flex p-items-center p-gap-6">
                 <span className="p-mobile-label">Unidad</span>
-                <div className="p-avatar-box" style={{ width: '64px', height: '64px' }}>
-                    <Car size={28} />
+                <div className="p-avatar-box" style={{ width: '80px', height: '80px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px' }}>
+                    <Car size={36} style={{ opacity: 0.9 }} />
                 </div>
                 <div>
-                    <p style={{ fontSize: '1.15rem', fontWeight: 900, color: 'white', letterSpacing: '-0.02em', lineHeight: 1 }}>{v.modelo || 'Unidad de Flota'}</p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
-                        <span style={{ fontSize: '10px', color: 'var(--accent)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{v.placa}</span>
-                        <span style={{ width: '4px', height: '4px', borderRadius: '100%', background: 'rgba(255,255,255,0.2)' }}></span>
-                        <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>#{v.id}</span>
+                    <p style={{ fontSize: '1.4rem', fontWeight: 950, color: 'white', letterSpacing: '-0.04em', lineHeight: 1 }}>{v.modelo || 'Unidad de Flota'}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '12px' }}>
+                        <div style={{ background: 'rgba(99, 102, 241, 0.15)', padding: '5px 12px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.25)' }}>
+                            <span style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 950, textTransform: 'uppercase' }}>{v.placa}</span>
+                        </div>
+                        <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', fontWeight: 900 }}>VINS: #{v.id}</span>
                     </div>
                 </div>
               </div>
 
-              {/* Col 2: Responsabilidad */}
+              {/* Col 2: Ownership */}
               <div className="p-flex p-flex-col p-gap-1">
-                <span className="p-mobile-label">Responsable</span>
-                <div className="p-flex p-items-center p-gap-3">
-                  <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <User size={16} className="text-white/60" />
+                <span className="p-mobile-label">Responsabilidad</span>
+                <div className="p-flex p-items-center p-gap-5">
+                  <div style={{ padding: '12px', borderRadius: '16px', background: 'rgba(255,255,255,0.03)' }}>
+                    <User size={20} className="text-white/40" />
                   </div>
                   <div>
-                    <p style={{ fontSize: '0.9rem', fontWeight: 800, color: 'white', lineHeight: 1 }}>{v.dueno_nombre}</p>
-                    <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Propietario</p>
+                    <p style={{ fontSize: '1.1rem', fontWeight: 950, color: 'white', lineHeight: 1 }}>{v.dueno_nombre}</p>
+                    <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontWeight: 950, textTransform: 'uppercase', marginTop: '6px' }}>Propietario</p>
                   </div>
                 </div>
                 {v.chofer_nombre ? (
-                  <div style={{ marginTop: '8px', fontSize: '9px', color: 'rgba(255,255,255,0.4)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', paddingLeft: '44px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <div style={{ width: '4px', height: '4px', background: 'var(--success)', borderRadius: '100%' }}></div>
-                    Operador: {v.chofer_nombre}
+                  <div style={{ marginTop: '14px', fontSize: '10px', color: 'rgba(16, 185, 129, 0.7)', fontWeight: 950, textTransform: 'uppercase', paddingLeft: '56px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '5px', height: '5px', background: 'currentColor', borderRadius: '50%' }}></div>
+                    Operando: {v.chofer_nombre}
                   </div>
                 ) : (
-                  <div style={{ marginTop: '8px', fontSize: '9px', color: 'rgba(255,255,255,0.15)', fontWeight: 800, textTransform: 'uppercase', paddingLeft: '44px' }}>
-                    Sin Chofer Asignado
+                  <div style={{ marginTop: '14px', fontSize: '10px', color: 'rgba(255,255,255,0.2)', fontWeight: 950, textTransform: 'uppercase', paddingLeft: '56px' }}>
+                    Sin Operador Activo
                   </div>
                 )}
               </div>
 
-              {/* Col 3: Cuota */}
-              <div className="p-text-center">
-                  <span className="p-mobile-label">Tarifa</span>
-                  <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <p style={{ fontSize: '1.4rem', fontWeight: 950, color: 'white', lineHeight: 1 }}>${v.cuota_diaria}</p>
-                      <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.3)', fontWeight: 900, textTransform: 'uppercase', marginTop: '4px' }}>Dólares / Día</span>
+              {/* Secondary Details Grouping */}
+              <div style={{ display: 'contents' }}>
+                  {/* Col 3: Income */}
+                  <div className="p-text-center">
+                      <span className="p-mobile-label">Tarifa</span>
+                      <div>
+                          <p style={{ fontSize: '2rem', fontWeight: 1000, color: 'white', lineHeight: 1 }}>${parseFloat(v.cuota_diaria).toFixed(2)}</p>
+                          <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', fontWeight: 950, textTransform: 'uppercase', marginTop: '8px', display: 'block' }}>USD / DIARIO</span>
+                      </div>
+                  </div>
+
+                  {/* Col 4: Status */}
+                  <div className="p-flex p-flex-col p-items-center p-gap-4">
+                    <span className="p-mobile-label">Estado</span>
+                    <div style={{ 
+                        padding: '12px 28px', 
+                        borderRadius: '20px', 
+                        fontSize: '11px', 
+                        fontWeight: 1000, 
+                        textTransform: 'uppercase', 
+                        letterSpacing: '0.2em',
+                        background: v.status_label === 'en ruta' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                        color: v.status_label === 'en ruta' ? '#10b981' : 'rgba(255, 255, 255, 0.35)',
+                        border: `1px solid ${v.status_label === 'en ruta' ? 'rgba(16, 185, 129, 0.4)' : 'rgba(255, 255, 255, 0.12)'}`,
+                        boxShadow: v.status_label === 'en ruta' ? '0 0 50px rgba(16, 185, 129, 0.15)' : 'none'
+                    }}>
+                      {v.status_label || 'Sin Datos'}
+                    </div>
                   </div>
               </div>
 
-              {/* Col 4: Estado */}
-              <div className="p-flex p-flex-col p-items-center p-gap-3">
-                 <span className="p-mobile-label">Estado</span>
-                 <div style={{ 
-                    padding: '8px 20px', 
-                    borderRadius: '100px', 
-                    fontSize: '9px', 
-                    fontWeight: 950, 
-                    textTransform: 'uppercase', 
-                    letterSpacing: '0.12em',
-                    background: v.status_label === 'en ruta' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(255,255,255,0.06)',
-                    color: v.status_label === 'en ruta' ? 'var(--success)' : 'rgba(255,255,255,0.4)',
-                    border: `1px solid ${v.status_label === 'en ruta' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(255,255,255,0.1)'}`,
-                    boxShadow: v.status_label === 'en ruta' ? '0 0 20px rgba(16, 185, 129, 0.1)' : 'none'
-                 }}>
-                   {v.status_label || 'Inactivo'}
-                 </div>
-                 {v.alerta_combustible == 1 && (
-                  <div className="animate-pulse" style={{ fontSize: '8px', fontWeight: 900, color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <AlertTriangle size={12} />
-                      FORENSIC ALERT: FUEL
-                  </div>
-                  )}
-              </div>
-
-              {/* Col 5: Acciones */}
-              <div className="p-flex p-justify-end p-items-center p-gap-3" style={{ position: 'relative' }}>
+              {/* Col 5: Actions */}
+              <div className="p-flex p-justify-end p-items-center p-gap-5" style={{ position: 'relative' }}>
                   {!v.chofer_id && (
                     <button 
                       onClick={async () => {
@@ -148,7 +146,7 @@ const FleetList = ({ vehicles = [] }) => {
                         }
                       }}
                       className="btn-primary"
-                      style={{ height: '44px', padding: '0 24px', fontSize: '11px', fontWeight: 950, borderRadius: '16px' }}
+                      style={{ height: '56px', padding: '0 36px', fontSize: '13px', fontWeight: 1000, borderRadius: '18px', boxShadow: '0 15px 40px rgba(99, 102, 241, 0.35)' }}
                     >
                       INVITAR
                     </button>
@@ -156,33 +154,33 @@ const FleetList = ({ vehicles = [] }) => {
                   <button 
                     onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }}
                     className="btn-secondary" 
-                    style={{ width: '44px', height: '44px', padding: 0, borderRadius: '16px' }}
+                    style={{ width: '56px', height: '56px', padding: 0, borderRadius: '18px' }}
                   >
-                      <MoreVertical size={20} className={activeDropdown === v.id ? 'text-primary' : 'text-white/30'} />
+                      <MoreVertical size={28} className={activeDropdown === v.id ? 'text-primary' : 'text-white/20'} />
                   </button>
                   
                   <AnimatePresence>
                     {activeDropdown === v.id && (
                       <Motion.div 
-                        initial={{ opacity: 0, scale: 0.95, y: 10, filter: 'blur(10px)' }}
+                        initial={{ opacity: 0, scale: 0.95, y: 15, filter: 'blur(20px)' }}
                         animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
-                        exit={{ opacity: 0, scale: 0.95, y: 10, filter: 'blur(10px)' }}
-                        className="glass shadow-premium"
+                        exit={{ opacity: 0, scale: 0.95, y: 15, filter: 'blur(20px)' }}
+                        className="p-glass-premium shadow-2xl"
                         style={{ 
-                          position: 'absolute', top: '55px', right: 0, zIndex: 100, 
-                          width: '200px', padding: '12px', borderRadius: '24px', 
+                          position: 'absolute', top: '75px', right: 0, zIndex: 100, 
+                          width: '260px', padding: '18px', borderRadius: '28px', 
                           border: '1px solid rgba(255,255,255,0.15)',
-                          background: 'rgba(15, 15, 15, 0.95)',
-                          backdropFilter: 'blur(20px)'
+                          background: 'rgba(10, 11, 18, 0.98)',
+                          backdropFilter: 'blur(50px)'
                         }}
                       >
-                         <div style={{ padding: '8px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: '8px' }}>
-                            <p style={{ fontSize: '9px', fontWeight: 900, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>Opciones de Unidad</p>
+                         <div style={{ padding: '12px 18px', borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: '14px' }}>
+                            <p style={{ fontSize: '11px', fontWeight: 1000, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Acciones Especiales</p>
                          </div>
-                         <button className="tab-item dropdown-item" style={{ width: '100%', justifyContent: 'flex-start', padding: '14px 16px', fontSize: '11px', borderRadius: '12px' }}>Modificar Datos</button>
-                         <button className="tab-item dropdown-item" style={{ width: '100%', justifyContent: 'flex-start', padding: '14px 16px', fontSize: '11px', borderRadius: '12px' }}>Ver Historial</button>
-                         <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '8px 0' }}></div>
-                         <button className="tab-item dropdown-item p-delete-action" style={{ width: '100%', justifyContent: 'flex-start', padding: '14px 16px', fontSize: '11px', borderRadius: '12px', color: 'var(--danger)' }}>Dar de Baja</button>
+                         <button className="tab-item dropdown-item" style={{ width: '100%', justifyContent: 'flex-start', padding: '18px 22px', fontSize: '13px', borderRadius: '16px', fontWeight: 900 }}>Modificar Parámetros</button>
+                         <button className="tab-item dropdown-item" style={{ width: '100%', justifyContent: 'flex-start', padding: '18px 22px', fontSize: '13px', borderRadius: '16px', fontWeight: 900 }}>Ver Historial Forense</button>
+                         <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', margin: '14px 0' }}></div>
+                         <button className="tab-item dropdown-item" style={{ width: '100%', justifyContent: 'flex-start', padding: '18px 22px', fontSize: '13px', borderRadius: '16px', fontWeight: 1000, color: 'var(--danger)' }}>Baja de Sistema</button>
                       </Motion.div>
                     )}
                   </AnimatePresence>
