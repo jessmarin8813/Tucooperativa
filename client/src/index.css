@@ -610,203 +610,121 @@ button {
     padding-left: 0 !important;
   }
 }
-/* Fleet Module Premium Grid (Vanilla CSS) */
-.p-fleet-grid {
-  display: grid;
-  grid-template-columns: 2.5fr 2fr 1fr 1.5fr 1.5fr;
-  align-items: center;
-  gap: 24px;
-  width: 100%;
-}
-
-/* ==========================================================================
-   FLEET PREMIUM SYSTEM v6.0 (Phase 6 Surgical Redesign)
-   ========================================================================== */
+/* 
+   ==========================================================================
+   FLEET "CLINICAL MASTERY" SYSTEM v6.5
+   Architecture: High-Transparency Glassmorphism / Zero-Collision Grid
+   ========================================================================== 
+*/
 
 .p-fleet-card-root {
-  background: rgba(10, 11, 18, 0.4);
-  backdrop-filter: blur(40px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0; /* USER REQUESTED NO ROUNDED CORNERS ON PC */
-  overflow: hidden;
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
-  margin-top: 48px;
+  margin-top: 40px;
   width: 100%;
+  background: transparent;
 }
 
 .p-fleet-container {
-  overflow-x: hidden; /* REMOVED FORCED SCROLL */
-  border-radius: 0;
   width: 100%;
+  overflow: visible; /* Prevent clipping */
 }
 
-/* PC Grid definition with 4 columns (Removed redundant Owner column) */
+/* --- PC MASTER GRID (Desktop Mastery) --- */
 .p-fleet-grid {
   display: grid;
-  grid-template-columns: 45% 20% 20% 15%;
+  grid-template-columns: 40% 20% 20% 20%; /* 4 Clinical Columns */
   align-items: center;
-  gap: 0;
   width: 100%;
   box-sizing: border-box;
+  transition: all 0.3s ease;
 }
 
 .p-fleet-header {
-  padding: 32px 48px;
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  text-transform: uppercase;
-  font-size: 11px;
+  padding: 24px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 10px;
   font-weight: 950;
-  letter-spacing: 0.2em;
-  color: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(20px);
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: rgba(255, 255, 255, 0.2);
 }
 
 .p-fleet-row {
-  padding: 40px 48px;
+  padding: 32px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-  background: transparent;
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-}
-
-.p-fleet-row:last-child {
-  border-bottom: none;
+  transition: background 0.4s ease;
 }
 
 .p-fleet-row:hover {
-  background: rgba(255, 255, 255, 0.015);
-  box-shadow: inset 0 0 50px rgba(99, 102, 241, 0.03);
+  background: rgba(255, 255, 255, 0.01);
 }
 
-.p-mobile-label {
-  display: none;
+/* Status Pill - Precision Engineering */
+.p-status-pill {
+  display: inline-flex;
+  padding: 8px 20px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 1000;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  white-space: nowrap;
 }
 
-/* MOBILE REDESIGN (Responsive Breakpoint) */
+/* --- MOBILE MASTER CARDS (Responsive Mastery) --- */
 @media (max-width: 1024px) {
-  /* ESCALATE SPECIFICITY TO ENSURE HIDING */
-  div.p-fleet-card-root div.p-fleet-header,
   .p-fleet-header {
-    display: none !important; 
+    display: none !important;
   }
 
   .p-fleet-grid {
-    grid-template-columns: 1fr;
-    display: block;
+    display: block !important;
     width: 100%;
   }
 
   .p-fleet-row {
-    margin: 24px 16px;
-    padding: 24px;
-    border-radius: 24px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    margin: 16px 0 32px 0;
+    padding: 28px;
+    background: rgba(15, 16, 25, 0.6);
+    backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
     display: flex;
     flex-direction: column;
     gap: 24px;
-    backdrop-filter: blur(20px);
-    align-items: flex-start; /* FIX OVERLAPPING BY ALIGNING START */
-  }
-
-  /* Ensure rows in mobile don't have the PC grid columns */
-  .p-fleet-row > div {
-    width: 100%;
-    margin-bottom: 8px;
-  }
-
-  .p-mobile-label {
-    display: block;
-    font-size: 9px;
-    font-weight: 950;
-    color: rgba(255, 255, 255, 0.15);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    margin-bottom: 8px;
-  }
-
-  .p-fleet-card-root {
-    background: transparent;
-    border: none;
-    backdrop-filter: none;
-    box-shadow: none;
-    margin-top: 0;
   }
 }
 
+/* Micro-Labels for Mobile Clarity */
+.p-mobile-label {
+  display: none;
+}
 
-.p-text-center { text-align: center; }
-.p-text-right { text-align: right; }
+@media (max-width: 1024px) {
+  .p-mobile-label {
+    display: block;
+    font-size: 8px;
+    font-weight: 1000;
+    color: rgba(255, 255, 255, 0.15);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 12px;
+  }
+}
 
-.p-avatar-box {
-  width: 56px;
-  height: 56px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 18px;
+/* Anti-Collision Avatar Wrapper */
+.p-unit-avatar-wrapper {
+  min-width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.5s ease;
 }
 
-.p-fleet-row:hover .p-avatar-box {
-  background: rgba(99, 102, 241, 0.1);
-  border-color: rgba(99, 102, 241, 0.2);
-  color: var(--primary);
-}
-
-.p-mobile-label {
-  display: none;
-}
-
-@media (max-width: 1024px) {
-  .p-fleet-grid {
-    grid-template-columns: 2fr 1.5fr 1fr 1fr 1.2fr;
-    gap: 16px;
-  }
-  .p-fleet-header, .p-fleet-row {
-    padding: 24px 20px;
-  }
-}
-
-@media (max-width: 768px) {
-  .p-fleet-header {
-    display: none !important;
-  }
-  .p-fleet-grid {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 12px !important;
-  }
-  .p-fleet-row {
-    padding: 24px !important;
-    border-radius: 24px !important;
-    background: rgba(255, 255, 255, 0.03) !important;
-    margin-bottom: 16px !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    gap: 16px !important;
-  }
-  .p-avatar-box {
-    width: 48px !important;
-    height: 48px !important;
-  }
-  .p-mobile-label {
-    display: block !important;
-    font-size: 8px !important;
-    font-weight: 900 !important;
-    text-transform: uppercase !important;
-    color: rgba(255, 255, 255, 0.2) !important;
-    margin-bottom: 4px !important;
-    letter-spacing: 0.1em !important;
-  }
-  .p-text-center, .p-text-right {
-    text-align: left !important;
-  }
-  .p-fleet-container {
-    overflow-x: visible !important;
-  }
-}
+/* Alignment Helpers */
+.p-text-center { text-align: center; }
+.p-text-right { text-align: right; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
