@@ -57,9 +57,9 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
         {/* 2. PC GRID HEADER - Strict Alignment */}
         <div className={`p-fleet-grid p-fleet-header ${minimal ? 'minimal-grid' : ''}`}>
           <div>UNIDAD / OPERADOR</div>
-          {!minimal && <div className="p-text-center">CUOTA DIARIA</div>}
-          <div className="p-text-center">ESTADO</div>
-          {!minimal && <div className="p-text-right">ACCIONES</div>}
+          {!minimal && <div className="p-flex p-items-center p-justify-center">CUOTA DIARIA</div>}
+          <div className="p-flex p-items-center p-justify-center">ESTADO</div>
+          {!minimal && <div className="p-flex p-items-center p-justify-end">ACCIONES</div>}
         </div>
 
         {/* 3. SENIOR ROWS */}
@@ -107,41 +107,19 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                 {/* 3. Status */}
                 <div className="p-status-col p-flex p-items-center p-justify-center">
                   <div className="p-status-pill" style={{ 
-                      background: v.status_label === 'en ruta' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(255, 255, 255, 0.04)',
-                      color: v.status_label === 'en ruta' ? 'var(--success)' : 'rgba(255, 255, 255, 0.25)',
-                      border: `1px solid ${v.status_label === 'en ruta' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`,
+                      background: v.estado === 'activo' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(255, 255, 255, 0.04)',
+                      color: v.estado === 'activo' ? 'var(--success)' : 'rgba(255, 255, 255, 0.25)',
+                      border: `1px solid ${v.estado === 'activo' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`,
                       padding: minimal ? '6px 14px' : '10px 24px',
                       fontSize: minimal ? '9px' : '10px'
                   }}>
-                    {v.status_label || 'Inactivo'}
+                    {v.estado || 'Detenido'}
                   </div>
                 </div>
 
                 {/* 4. Actions (Desktop Priority) */}
                 {!minimal && (
                   <div className="p-actions-col p-flex p-justify-end p-items-center p-gap-4">
-                      {!v.chofer_id && (
-                          <button 
-                            onClick={async () => {
-                                try {
-                                    const res = await fetch('/api/invitaciones.php', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ vehiculo_id: v.id })
-                                    });
-                                    const data = await res.json();
-                                    if (data.status === 'success') {
-                                        navigator.clipboard.writeText(data.link);
-                                        alert('✅ Link de Invitación copiado.');
-                                    }
-                                } catch (e) { alert('❌ Error'); }
-                            }}
-                            className="btn-primary invite-btn"
-                          >
-                            INVITAR
-                          </button>
-                      )}
-                      
                       <div style={{ position: 'relative' }}>
                         <button 
                             onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }}
@@ -184,6 +162,29 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                         </AnimatePresence>
                       </div>
                   </div>
+                )}
+
+                {/* Invite Button (Direct Grid Child for Mobile Spanning) */}
+                {!minimal && !v.chofer_id && (
+                  <button 
+                    onClick={async () => {
+                        try {
+                            const res = await fetch('/api/invitaciones.php', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ vehiculo_id: v.id })
+                            });
+                            const data = await res.json();
+                            if (data.status === 'success') {
+                                navigator.clipboard.writeText(data.link);
+                                alert('✅ Link de Invitación copiado.');
+                            }
+                        } catch (e) { alert('❌ Error'); }
+                    }}
+                    className="btn-primary invite-btn"
+                  >
+                    INVITAR
+                  </button>
                 )}
             </Motion.div>
           ))}
