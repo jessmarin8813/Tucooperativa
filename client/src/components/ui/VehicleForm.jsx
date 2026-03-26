@@ -181,33 +181,26 @@ const VehicleForm = ({ onSuccess, currentUser }) => {
         />
       </div>
 
-      {currentUser?.rol === 'admin' && (
-        <div className="input-group">
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: 'var(--text-dim)', fontSize: '0.875rem' }}>
-            <UserCheck size={14} /> PROPIETARIO ASIGNADO
-          </label>
-          <select 
-            name="dueno_id"
-            value={formData.dueno_id}
-            onChange={handleChange}
-            required
-            style={{ 
-              width: '100%', 
-              padding: '12px 16px', 
-              background: 'rgba(255,255,255,0.05)', 
-              border: '1px solid var(--glass-border)', 
-              borderRadius: '12px',
-              color: 'white',
-              outline: 'none'
-            }}
-          >
-            <option value="" style={{ background: '#1a1b26' }}>Seleccionar Propietario</option>
-            {owners.map(o => (
-              <option key={o.id} value={o.id} style={{ background: '#1a1b26' }}>{o.nombre} ({o.email})</option>
-            ))}
-          </select>
+      {/* Automatic Owner Assignment for Smart Flow */}
+      <div className="input-group">
+        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: 'var(--text-dim)', fontSize: '0.875rem' }}>
+          <UserCheck size={14} /> PROPIETARIO
+        </label>
+        <div 
+          className="glass"
+          style={{ 
+            padding: '16px', 
+            background: 'rgba(255,255,255,0.03)', 
+            borderRadius: '12px',
+            color: 'var(--primary)',
+            fontWeight: 800,
+            fontSize: '0.875rem',
+            border: '1px solid rgba(99, 102, 241, 0.2)'
+          }}
+        >
+          {currentUser?.nombre || 'MI PERFIL'} (ASIGNACIÓN AUTOMÁTICA)
         </div>
-      )}
+      </div>
 
       <button 
         type="submit" 

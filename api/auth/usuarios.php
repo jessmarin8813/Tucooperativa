@@ -7,7 +7,7 @@ $db = DB::getInstance();
 // List owners for Admin dropdown
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['list_owners'])) {
     $user = checkAuth();
-    if ($user['rol'] !== 'admin') {
+    if ($user['rol'] !== 'superadmin' && $user['rol'] !== 'dueno' && $user['rol'] !== 'admin') {
         sendResponse(['error' => 'Unauthorized'], 403);
     }
     $coop_id = $user['cooperativa_id'];

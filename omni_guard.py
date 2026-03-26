@@ -116,11 +116,32 @@ def main():
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /TuCooperativa/client/dist/index.html [L]
+
+  # Professional Anti-Cache (v17.1-Stable)
+  <FilesMatch "\.(html|htm)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires 0
+  </FilesMatch>
 </IfModule>"""
         with open("client/dist/.htaccess", "w") as f:
             f.write(htaccess_content)
 
         print("[PASS] Build publicado exitosamente con .htaccess de protección.")
+
+        # 4.3 Cache-Busting Injection (v17.1-Stable Logic)
+        import time
+        ts = int(time.time())
+        final_index = "client/dist/index.html"
+        with open(final_index, "r", encoding="utf-8") as f:
+            html = f.read()
+        
+        # Inject timestamp into hashed assets to bypass ISP/Proxy caches
+        html = html.replace('.js"', f'.js?v={ts}"').replace('.css"', f'.css?v={ts}"')
+        with open(final_index, "w", encoding="utf-8") as f:
+            f.write(html)
+        print(f"[DEPLOY] Cache-Busting inyectado (v={ts}).")
+
     except Exception as e:
         print(f"[CRITICAL] Error durante el intercambio de carpetas: {str(e)}")
         sys.exit(1)

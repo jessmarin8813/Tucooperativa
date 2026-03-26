@@ -8,3 +8,10 @@ RewriteCond %{REQUEST_URI} !^/TuCooperativa/(api|bot|client|driver_sim|docs) [NC
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ /TuCooperativa/client/dist/$1 [R,L,QSA]
+
+# 3. Anti-Cache for Modern UI (v17.1-Stable)
+<FilesMatch "\.(html|htm)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires 0
+</FilesMatch>
