@@ -73,119 +73,121 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
               className={`p-fleet-grid p-fleet-row ${minimal ? 'minimal-grid' : ''}`}
               style={{ padding: minimal ? '20px 0' : '32px 0' }}
             >
-              {/* Col 1: Identity */}
-              <div className="p-flex p-items-center p-gap-6" style={{ minWidth: 0, paddingLeft: '20px' }}>
-                <span className="p-mobile-label">IDENTIFICACIÓN</span>
-                <div className="p-flex p-items-center p-gap-6" style={{ width: '100%' }}>
-                    <div className="p-unit-avatar-wrapper" style={{ minWidth: minimal ? '48px' : '72px', height: minimal ? '48px' : '72px', borderRadius: minimal ? '14px' : '20px', flexShrink: 0 }}>
-                        <Car size={minimal ? 20 : 26} className="text-white/40" />
-                    </div>
-                    <div style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                        <p className="text-white font-black truncate" style={{ fontSize: minimal ? '1.1rem' : '1.25rem', letterSpacing: '-0.02em', lineHeight: 1.1 }}>{v.modelo || 'Unidad Activa'}</p>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: minimal ? '4px' : '10px' }}>
-                            <span style={{ fontSize: '9px', color: 'var(--accent)', fontWeight: 1000, textTransform: 'uppercase', background: 'rgba(6, 182, 212, 0.1)', padding: '2px 8px', borderRadius: '6px', border: '1px solid rgba(6,182,212,0.15)' }}>{v.placa}</span>
-                            {v.chofer_nombre && !minimal && (
-                              <span style={{ fontSize: '9px', color: 'rgba(16, 185, 129, 0.7)', fontWeight: 1000, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                <div style={{ width: '4px', height: '4px', background: 'currentColor', borderRadius: '50%' }}></div>
-                                {v.chofer_nombre}
-                              </span>
-                            )}
-                        </div>
-                    </div>
+              {/* Row Grid Wrapper */}
+              <div className={`p-fleet-grid p-fleet-row-content ${minimal ? 'minimal-grid' : ''}`}>
+                {/* 1. Identity (Desktop & Mobile) */}
+                <div className="p-identity-col">
+                  <div className="p-flex p-items-center p-gap-4" style={{ width: '100%' }}>
+                      <div className="p-unit-avatar-wrapper" style={{ minWidth: minimal ? '48px' : '64px', height: minimal ? '48px' : '64px', borderRadius: minimal ? '14px' : '18px', flexShrink: 0 }}>
+                          <Car size={minimal ? 20 : 24} className="text-white/40" />
+                      </div>
+                      <div style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                          <p className="text-white font-black truncate" style={{ fontSize: minimal ? '1rem' : '1.15rem', letterSpacing: '-0.02em', lineHeight: 1.1 }}>{v.modelo || 'Unidad Activa'}</p>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: minimal ? '4px' : '8px' }}>
+                              <span style={{ fontSize: '9px', color: 'var(--accent)', fontWeight: 1000, textTransform: 'uppercase', background: 'rgba(6, 182, 212, 0.1)', padding: '2px 8px', borderRadius: '6px', border: '1px solid rgba(6,182,212,0.15)' }}>{v.placa}</span>
+                              {v.chofer_nombre && !minimal && (
+                                <span className="mobile-hide" style={{ fontSize: '9px', color: 'rgba(16, 185, 129, 0.7)', fontWeight: 1000, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                  <div style={{ width: '4px', height: '4px', background: 'currentColor', borderRadius: '50%' }}></div>
+                                  {v.chofer_nombre}
+                                </span>
+                              )}
+                          </div>
+                      </div>
+                  </div>
                 </div>
-              </div>
 
-              {/* Col 2: Fee (Hidden in minimal) */}
-              {!minimal && (
-                <div className="p-text-center">
-                    <span className="p-mobile-label">TARIFA DIARIA</span>
-                    <div style={{ marginTop: '4px' }}>
-                        <p className="text-white font-black" style={{ fontSize: '1.8rem', lineHeight: 1 }}>${parseFloat(v.cuota_diaria).toFixed(2)}</p>
-                        <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.25)', fontWeight: 1000, textTransform: 'uppercase', marginTop: '8px', display: 'block' }}>DÓLARES / DÍA</span>
-                    </div>
+                {/* 2. Fee (Desktop Priority) */}
+                {!minimal && (
+                  <div className="p-fee-col p-text-center">
+                      <div className="fee-container">
+                          <p className="text-white font-black" style={{ fontSize: '1.6rem', lineHeight: 1 }}>${parseFloat(v.cuota_diaria).toFixed(2)}</p>
+                          <span className="fee-label">USD / DÍA</span>
+                      </div>
+                  </div>
+                )}
+
+                {/* 3. Status */}
+                <div className="p-status-col p-flex p-items-center p-justify-center">
+                  <div className="p-status-pill" style={{ 
+                      background: v.status_label === 'en ruta' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(255, 255, 255, 0.04)',
+                      color: v.status_label === 'en ruta' ? 'var(--success)' : 'rgba(255, 255, 255, 0.25)',
+                      border: `1px solid ${v.status_label === 'en ruta' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`,
+                      padding: minimal ? '6px 14px' : '10px 24px',
+                      fontSize: minimal ? '9px' : '10px'
+                  }}>
+                    {v.status_label || 'Inactivo'}
+                  </div>
                 </div>
-              )}
 
-              {/* Col 3: Status */}
-              <div className="p-flex p-flex-col p-items-center p-gap-2">
-                <span className="p-mobile-label">ESTADO ACTUAL</span>
-                <div className="p-status-pill" style={{ 
-                    background: v.status_label === 'en ruta' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(255, 255, 255, 0.04)',
-                    color: v.status_label === 'en ruta' ? 'var(--success)' : 'rgba(255, 255, 255, 0.25)',
-                    border: `1px solid ${v.status_label === 'en ruta' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`,
-                    padding: minimal ? '6px 14px' : '10px 24px',
-                    fontSize: minimal ? '9px' : '10px'
-                }}>
-                  {v.status_label || 'Inactivo'}
-                </div>
-              </div>
-
-              {/* Col 4: Actions (Hidden in minimal) */}
-              {!minimal && (
-                <div className="p-flex p-justify-end p-items-center p-gap-5" style={{ position: 'relative', paddingRight: '20px' }}>
-                    {!v.chofer_id && (
-                        <button 
-                        onClick={async () => {
-                            try {
-                            const res = await fetch('/api/invitaciones.php', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ vehiculo_id: v.id })
-                            });
-                            const data = await res.json();
-                            if (data.status === 'success') {
-                                navigator.clipboard.writeText(data.link);
-                                alert('✅ Link de Invitación copiado.');
-                            }
-                            } catch (e) { alert('❌ Error'); }
-                        }}
-                        className="btn-primary"
-                        style={{ height: '48px', padding: '0 24px', fontSize: '12px', fontWeight: 1000, borderRadius: '14px', marginRight: '16px' }}
-                        >
-                        INVITAR
-                        </button>
-                    )}
-                    <button 
-                        onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }}
-                        className="btn-secondary dropdown-trigger" 
-                        style={{ width: '48px', height: '48px', padding: 0, borderRadius: '14px', flexShrink: 0 }}
-                    >
-                        <MoreVertical size={22} className={activeDropdown === v.id ? 'text-primary' : 'text-white/30'} />
-                    </button>
-                    
-                    <AnimatePresence>
-                        {activeDropdown === v.id && (
-                        <Motion.div 
-                            initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }}
-                            className="glass shadow-2xl dropdown-menu"
-                            style={{ 
-                            position: 'absolute', top: '65px', right: '20px', zIndex: 100, 
-                            width: '220px', padding: '15px', borderRadius: '20px', 
-                            background: '#0a0b12', border: '1px solid rgba(255,255,255,0.12)',
-                            backdropFilter: 'blur(60px)'
+                {/* 4. Actions (Desktop Priority) */}
+                {!minimal && (
+                  <div className="p-actions-col p-flex p-justify-end p-items-center p-gap-4">
+                      {!v.chofer_id && (
+                          <button 
+                            onClick={async () => {
+                                try {
+                                    const res = await fetch('/api/invitaciones.php', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ vehiculo_id: v.id })
+                                    });
+                                    const data = await res.json();
+                                    if (data.status === 'success') {
+                                        navigator.clipboard.writeText(data.link);
+                                        alert('✅ Link de Invitación copiado.');
+                                    }
+                                } catch (e) { alert('❌ Error'); }
                             }}
+                            className="btn-primary invite-btn"
+                          >
+                            INVITAR
+                          </button>
+                      )}
+                      
+                      <div style={{ position: 'relative' }}>
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }}
+                            className="btn-secondary dropdown-trigger" 
+                            style={{ width: '48px', height: '48px', padding: 0, borderRadius: '14px', flexShrink: 0 }}
                         >
-                            <button 
-                              onClick={(e) => { e.stopPropagation(); setActiveDropdown(null); onEdit && onEdit(v); }}
-                              className="tab-item dropdown-item" 
-                              style={{ width: '100%', justifyContent: 'flex-start', padding: '14px 18px', fontSize: '12px', borderRadius: '12px' }}
+                            <MoreVertical size={22} className={activeDropdown === v.id ? 'text-primary' : 'text-white/30'} />
+                        </button>
+                        
+                        <AnimatePresence>
+                            {activeDropdown === v.id && (
+                            <Motion.div 
+                                initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }}
+                                className="glass shadow-2xl dropdown-menu"
+                                style={{ 
+                                position: 'absolute', top: '65px', right: 0, zIndex: 100, 
+                                width: '220px', padding: '15px', borderRadius: '20px', 
+                                background: '#0a0b12', border: '1px solid rgba(255,255,255,0.12)',
+                                backdropFilter: 'blur(60px)'
+                                }}
                             >
-                              Modificar Unidad
-                            </button>
-                            <button 
-                              onClick={() => setActiveView && setActiveView('forensic')}
-                              className="tab-item dropdown-item" 
-                              style={{ width: '100%', justifyContent: 'flex-start', padding: '14px 18px', fontSize: '12px', borderRadius: '12px' }}
-                            >
-                              Ver Auditoría
-                            </button>
-                            <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '10px 0' }}></div>
-                            <button className="tab-item dropdown-item" style={{ width: '100%', justifyContent: 'flex-start', padding: '14px 18px', fontSize: '12px', borderRadius: '12px', color: 'var(--danger)', fontWeight: 1000 }}>Eliminar</button>
-                        </Motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-              )}
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); setActiveDropdown(null); onEdit && onEdit(v); }}
+                                  className="tab-item dropdown-item" 
+                                  style={{ width: '100%', justifyContent: 'flex-start', padding: '14px 18px', fontSize: '12px', borderRadius: '12px' }}
+                                >
+                                  Modificar Unidad
+                                </button>
+                                <button 
+                                  onClick={() => setActiveView && setActiveView('forensic')}
+                                  className="tab-item dropdown-item" 
+                                  style={{ width: '100%', justifyContent: 'flex-start', padding: '14px 18px', fontSize: '12px', borderRadius: '12px' }}
+                                >
+                                  Ver Auditoría
+                                </button>
+                                <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '10px 0' }}></div>
+                                <button className="tab-item dropdown-item" style={{ width: '100%', justifyContent: 'flex-start', padding: '14px 18px', fontSize: '12px', borderRadius: '12px', color: 'var(--danger)', fontWeight: 1000 }}>Eliminar</button>
+                            </Motion.div>
+                            )}
+                        </AnimatePresence>
+                      </div>
+                  </div>
+                )}
+              </div>
             </Motion.div>
           ))}
         </div>
