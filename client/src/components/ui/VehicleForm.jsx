@@ -17,7 +17,7 @@ const VehicleForm = ({ onSuccess, currentUser }) => {
   // Load owners if user is admin
   useEffect(() => {
     let ignore = false
-    if (currentUser?.rol === 'admin') {
+    if (currentUser?.rol === 'superadmin') {
       const init = async () => {
         await Promise.resolve()
         if (ignore) return
@@ -184,7 +184,7 @@ const VehicleForm = ({ onSuccess, currentUser }) => {
         />
       </div>
 
-      {currentUser?.rol === 'admin' && (
+      {currentUser?.rol === 'superadmin' && (
         <div className="input-group">
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: 'var(--text-dim)', fontSize: '0.875rem' }}>
             <UserCheck size={14} /> PROPIETARIO ASIGNADO

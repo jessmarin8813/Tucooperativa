@@ -58,7 +58,7 @@ switch ($method) {
         break;
 
     case 'POST':
-        if ($user['rol'] !== 'admin' && $user['rol'] !== 'dueno') {
+        if ($user['rol'] !== 'admin' && $user['rol'] !== 'dueno' && $user['rol'] !== 'superadmin') {
             sendResponse(['error' => 'Permission denied'], 403);
         }
 
