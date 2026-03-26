@@ -2,9 +2,12 @@ import React from 'react'
 import { MoreVertical, User, AlertTriangle, Car, History } from 'lucide-react'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 
-const FleetList = ({ vehicles = [] }) => {
+const FleetList = ({ vehicles = [], config }) => {
   const safeVehicles = Array.isArray(vehicles) ? vehicles : [];
   
+  // Use company name from config or fall back to vehicle data
+  const companyName = config?.nombre_cooperativa || 'Cooperativa';
+
   if (safeVehicles.length === 0) {
     return (
       <div className="glass-premium p-16 text-center text-white/20 font-black uppercase tracking-widest text-xs border-dashed border-2 border-white/5 rounded-3xl m-8">
@@ -18,16 +21,16 @@ const FleetList = ({ vehicles = [] }) => {
     <div className="p-fleet-card-root">
       {/* 1. Header Section - Balanced & Airy */}
       <div className="p-flex-responsive p-justify-between p-items-center" style={{ padding: '40px 48px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <div className="p-flex p-items-center p-gap-6">
-            <div className="p-avatar-box" style={{ background: 'var(--primary-glow)', width: '64px', height: '64px', borderRadius: '22px' }}>
+        <div className="p-flex p-items-center p-gap-6" style={{ minWidth: 0 }}>
+            <div className="p-avatar-box" style={{ background: 'var(--primary-glow)', minWidth: '64px', height: '64px', borderRadius: '18px' }}>
                 <Car size={32} className="text-white" />
             </div>
-            <div>
-                <h3 className="text-2xl font-black text-white tracking-widest uppercase italic" style={{ fontSize: '1.6rem', lineHeight: 1 }}>Estado de la Flota</h3>
-                <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '10px' }}>Control Forense en Tiempo Real</p>
+            <div style={{ overflow: 'hidden' }}>
+                <h3 className="text-2xl font-black text-white tracking-widest uppercase italic truncate" style={{ fontSize: '1.5rem', lineHeight: 1 }}>Estado de la Flota</h3>
+                <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '10px' }}>Sistema de Gestión Forense</p>
             </div>
         </div>
-        <button className="btn-secondary mobile-hide" style={{ height: '56px', padding: '0 32px', fontSize: '12px', borderRadius: '18px', fontWeight: 950 }}>
+        <button className="btn-secondary mobile-hide" style={{ height: '56px', padding: '0 32px', fontSize: '12px', borderRadius: '14px', fontWeight: 950, whiteSpace: 'nowrap' }}>
             <History size={20} />
             <span style={{ marginLeft: '12px' }}>EXPLORAR HISTORIAL</span>
         </button>
@@ -54,42 +57,42 @@ const FleetList = ({ vehicles = [] }) => {
               className="p-fleet-grid p-fleet-row"
             >
               {/* Col 1: Unit Info */}
-              <div className="p-flex p-items-center p-gap-6">
-                <span className="p-mobile-label">Unidad</span>
-                <div className="p-avatar-box" style={{ width: '80px', height: '80px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px' }}>
-                    <Car size={36} style={{ opacity: 0.9 }} />
-                </div>
-                <div>
-                    <p style={{ fontSize: '1.4rem', fontWeight: 950, color: 'white', letterSpacing: '-0.04em', lineHeight: 1 }}>{v.modelo || 'Unidad de Flota'}</p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '12px' }}>
-                        <div style={{ background: 'rgba(99, 102, 241, 0.15)', padding: '5px 12px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.25)' }}>
-                            <span style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 950, textTransform: 'uppercase' }}>{v.placa}</span>
+              <div className="p-flex p-items-center p-gap-6" style={{ minWidth: 0 }}>
+                <span className="p-mobile-label">Unidad Operativa</span>
+                <div className="p-flex p-items-center p-gap-6" style={{ width: '100%' }}>
+                    <div className="p-avatar-box" style={{ minWidth: '72px', height: '72px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px' }}>
+                        <Car size={32} style={{ opacity: 0.9 }} />
+                    </div>
+                    <div style={{ overflow: 'hidden' }}>
+                        <p style={{ fontSize: '1.25rem', fontWeight: 950, color: 'white', letterSpacing: '-0.04em', lineHeight: 1 }} className="truncate">{v.modelo || 'Unidad de Flota'}</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+                            <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '4px 10px', borderRadius: '8px', border: '1px solid rgba(99,102,241,0.2)' }}>
+                                <span style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 950, textTransform: 'uppercase' }}>{v.placa}</span>
+                            </div>
+                            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.15)', fontWeight: 900 }}>#{v.id}</span>
                         </div>
-                        <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', fontWeight: 900 }}>VINS: #{v.id}</span>
                     </div>
                 </div>
               </div>
 
               {/* Col 2: Ownership */}
-              <div className="p-flex p-flex-col p-gap-1">
-                <span className="p-mobile-label">Responsabilidad</span>
+              <div className="p-flex p-flex-col p-gap-1" style={{ minWidth: 0 }}>
+                <span className="p-mobile-label">Titular de Concesión</span>
                 <div className="p-flex p-items-center p-gap-5">
-                  <div style={{ padding: '12px', borderRadius: '16px', background: 'rgba(255,255,255,0.03)' }}>
-                    <User size={20} className="text-white/40" />
+                  <div style={{ minWidth: '40px', height: '40px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <User size={18} className="text-white/40" />
                   </div>
-                  <div>
-                    <p style={{ fontSize: '1.1rem', fontWeight: 950, color: 'white', lineHeight: 1 }}>{v.dueno_nombre}</p>
-                    <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontWeight: 950, textTransform: 'uppercase', marginTop: '6px' }}>Propietario</p>
+                  <div style={{ overflow: 'hidden' }}>
+                    <p style={{ fontSize: '1.05rem', fontWeight: 950, color: 'white', lineHeight: 1 }} className="truncate">
+                      {v.dueno_nombre === 'Dueño Cooperativa' ? companyName : v.dueno_nombre}
+                    </p>
+                    <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', fontWeight: 950, textTransform: 'uppercase', marginTop: '5px' }}>Administrador de Activo</p>
                   </div>
                 </div>
-                {v.chofer_nombre ? (
-                  <div style={{ marginTop: '14px', fontSize: '10px', color: 'rgba(16, 185, 129, 0.7)', fontWeight: 950, textTransform: 'uppercase', paddingLeft: '56px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '5px', height: '5px', background: 'currentColor', borderRadius: '50%' }}></div>
-                    Operando: {v.chofer_nombre}
-                  </div>
-                ) : (
-                  <div style={{ marginTop: '14px', fontSize: '10px', color: 'rgba(255,255,255,0.2)', fontWeight: 950, textTransform: 'uppercase', paddingLeft: '56px' }}>
-                    Sin Operador Activo
+                {v.chofer_nombre && (
+                  <div style={{ marginTop: '12px', fontSize: '9px', color: 'rgba(16, 185, 129, 0.6)', fontWeight: 950, textTransform: 'uppercase', paddingLeft: '55px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '4px', height: '4px', background: 'currentColor', borderRadius: '50%' }}></div>
+                    Operador: {v.chofer_nombre}
                   </div>
                 )}
               </div>

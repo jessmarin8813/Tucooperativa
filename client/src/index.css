@@ -627,23 +627,27 @@ button {
   background: rgba(10, 11, 18, 0.4);
   backdrop-filter: blur(40px);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 40px;
+  border-radius: 0; /* USER REQUESTED NO ROUNDED CORNERS ON PC */
   overflow: hidden;
   box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
   margin-top: 48px;
+  width: 100%;
 }
 
 .p-fleet-container {
-  overflow-x: auto;
-  border-radius: 40px;
+  overflow-x: hidden; /* REMOVED FORCED SCROLL */
+  border-radius: 0;
+  width: 100%;
 }
 
-/* PC Grid definition with strict percentages for alignment */
+/* PC Grid definition with strict percentages and truncation */
 .p-fleet-grid {
   display: grid;
   grid-template-columns: 35% 25% 15% 15% 10%;
   align-items: center;
   gap: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .p-fleet-header {
@@ -681,36 +685,46 @@ button {
 
 /* MOBILE REDESIGN (Responsive Breakpoint) */
 @media (max-width: 1024px) {
+  /* ESCALATE SPECIFICITY TO ENSURE HIDING */
+  div.p-fleet-card-root div.p-fleet-header,
   .p-fleet-header {
-    display: none !important; /* KILL TECHNICAL LIST */
+    display: none !important; 
   }
 
   .p-fleet-grid {
     grid-template-columns: 1fr;
     display: block;
+    width: 100%;
   }
 
   .p-fleet-row {
-    margin: 20px;
-    padding: 32px;
-    border-radius: 36px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+    margin: 24px 16px;
+    padding: 24px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 24px;
     backdrop-filter: blur(20px);
+    align-items: flex-start; /* FIX OVERLAPPING BY ALIGNING START */
+  }
+
+  /* Ensure rows in mobile don't have the PC grid columns */
+  .p-fleet-row > div {
+    width: 100%;
+    margin-bottom: 8px;
   }
 
   .p-mobile-label {
     display: block;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 950;
-    color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.15);
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   .p-fleet-card-root {
@@ -718,7 +732,7 @@ button {
     border: none;
     backdrop-filter: none;
     box-shadow: none;
-    margin-top: 24px;
+    margin-top: 0;
   }
 }
 

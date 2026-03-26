@@ -6,11 +6,13 @@ import StatCard from '../components/ui/StatCard'
 import Modal from '../components/ui/Modal'
 import VehicleForm from '../components/ui/VehicleForm'
 
-const VehiculosView = () => {
+const VehiculosView = ({ user, config }) => {
   const [vehicles, setVehicles] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [currentUser, setCurrentUser] = useState(null)
   const { callApi, loading } = useApi()
+
+  // Use the passed user or fall back (safety)
+  const [currentUser, setCurrentUser] = useState(user)
 
   const fetchVehicles = useCallback(async () => {
     try {
@@ -98,7 +100,7 @@ const VehiculosView = () => {
         </div>
       ) : (
         <div className="glass" style={{ borderRadius: '24px', overflow: 'hidden' }}>
-          <FleetList vehicles={vehicles} />
+          <FleetList vehicles={vehicles} config={config} user={user} />
         </div>
       )}
 
