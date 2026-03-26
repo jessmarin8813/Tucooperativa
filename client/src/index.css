@@ -766,17 +766,26 @@ button {
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .minimal-grid { grid-template-columns: 60% 40% !important; } 
 
-/* Desktop Col Management - Restored Alignment Surgical Fix */
+/* Desktop Col Management - Symmetry Master Clean-up */
 .p-fleet-header > div:first-child,
 .p-fleet-row-content > div:first-child {
-  padding-left: 20px;
+  padding-left: 1%;
   text-align: left;
 }
 
 .p-fleet-header > div:last-child,
 .p-fleet-row-content > div:last-child {
-  padding-right: 20px;
+  padding-right: 1%;
   text-align: right;
   display: flex !important;
   justify-content: flex-end;
+}
+
+.p-flex-col { display: flex; flex-direction: column; }
+.p-flex-wrap { flex-wrap: wrap; }
+@media (max-width: 768px) {
+  .p-status-pill {
+    padding: 12px 16px !important;
+    font-size: 11px !important;
+  }
 }

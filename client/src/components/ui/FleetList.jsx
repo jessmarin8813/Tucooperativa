@@ -105,21 +105,56 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                 )}
 
                 {/* 3. Status */}
-                <div className="p-status-col p-flex p-items-center p-justify-center">
+                <div className="p-status-col p-flex-col p-items-center p-justify-center" style={{ gap: '6px' }}>
                   <div className="p-status-pill" style={{ 
                       background: v.estado === 'activo' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(255, 255, 255, 0.04)',
                       color: v.estado === 'activo' ? 'var(--success)' : 'rgba(255, 255, 255, 0.25)',
                       border: `1px solid ${v.estado === 'activo' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`,
                       padding: minimal ? '6px 14px' : '10px 24px',
-                      fontSize: minimal ? '9px' : '10px'
+                      fontSize: minimal ? '9px' : '10px',
+                      textTransform: 'uppercase'
                   }}>
-                    {v.estado || 'Detenido'}
+                    {v.estado || 'Inactivo'}
                   </div>
+                  {v.motivo_estado && (
+                    <span 
+                      style={{ 
+                        fontSize: '9px', 
+                        color: 'rgba(255,255,255,0.3)', 
+                        fontWeight: 600, 
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.02em'
+                      }}
+                    >
+                      {v.motivo_estado}
+                    </span>
+                  )}
                 </div>
 
                 {/* 4. Actions (Desktop Priority) */}
                 {!minimal && (
                   <div className="p-actions-col p-flex p-justify-end p-items-center p-gap-4">
+                      {!v.chofer_id && (
+                          <button 
+                            onClick={async () => {
+                                try {
+                                    const res = await fetch('/api/invitaciones.php', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ vehiculo_id: v.id })
+                                    });
+                                    const data = await res.json();
+                                    if (data.status === 'success') {
+                                        navigator.clipboard.writeText(data.link);
+                                        alert('✅ Link de Invitación copiado.');
+                                    }
+                                } catch (e) { alert('❌ Error'); }
+                            }}
+                            className="btn-primary invite-btn mobile-hide-btn"
+                          >
+                            INVITAR
+                          </button>
+                      )}
                       <div style={{ position: 'relative' }}>
                         <button 
                             onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }}
@@ -162,29 +197,6 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                         </AnimatePresence>
                       </div>
                   </div>
-                )}
-
-                {/* Invite Button (Direct Grid Child for Mobile Spanning) */}
-                {!minimal && !v.chofer_id && (
-                  <button 
-                    onClick={async () => {
-                        try {
-                            const res = await fetch('/api/invitaciones.php', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ vehiculo_id: v.id })
-                            });
-                            const data = await res.json();
-                            if (data.status === 'success') {
-                                navigator.clipboard.writeText(data.link);
-                                alert('✅ Link de Invitación copiado.');
-                            }
-                        } catch (e) { alert('❌ Error'); }
-                    }}
-                    className="btn-primary invite-btn"
-                  >
-                    INVITAR
-                  </button>
                 )}
             </Motion.div>
           ))}
