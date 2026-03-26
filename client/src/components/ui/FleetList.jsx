@@ -61,7 +61,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
       <div className="p-fleet-container custom-scrollbar" style={{ marginTop: minimal ? '0' : '40px', paddingBottom: '160px' }}>
         {/* 2. PC GRID HEADER - Strict Alignment (Only in Desktop) */}
         {!isMobile && (
-          <div className={`p-fleet-grid p-fleet-header-pc p-fleet-row-pc ${minimal ? 'minimal-grid' : ''}`}>
+          <div className={`p-fleet-grid p-fleet-header-pc ${minimal ? 'minimal-grid' : ''}`}>
             <div>UNIDAD / OPERADOR</div>
             {!minimal && <div className="p-flex p-items-center p-justify-center">CUOTA DIARIA</div>}
             <div className="p-flex p-items-center p-justify-center">ESTADO</div>
@@ -101,7 +101,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                       )}
 
                       <div className="p-status-col p-flex p-items-center p-justify-center">
-                          <div className="p-flex-col p-items-center">
+                          <div className="p-flex-col p-items-center p-justify-center" style={{ display: 'flex', flexDirection: 'column' }}>
                             <div className={`p-status-pill-v2 ${status}`}>
                                 {status.toUpperCase()}
                             </div>

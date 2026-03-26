@@ -87,7 +87,10 @@ button {
 
 /* Layout Utilities (Missing in previous version) */
 .p-flex { display: flex; }
-.p-flex-col { flex-direction: column; }
+.p-flex-col { 
+  display: flex !important; 
+  flex-direction: column !important; 
+}
 .p-items-center { align-items: center; }
 .p-justify-between { justify-content: space-between; }
 .p-gap-2 { gap: 8px; }
@@ -663,16 +666,20 @@ button {
   font-weight: 1000;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  border-bottom: 2px solid rgba(255,255,255,0.05); /* Stronger separator */
+  border-bottom: 2px solid rgba(255,255,255,0.08);
 }
 
 .p-fleet-row-pc {
   padding: 32px 0 !important;
   border-bottom: 1px solid rgba(255,255,255,0.03);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px; /* Premium rounding */
+  cursor: pointer;
 }
 
-.p-fleet-row-pc:hover { background: rgba(255,255,255,0.02); }
+.p-fleet-row-pc:hover { 
+  background: rgba(255,255,255,0.03) !important; 
+}
 
 /* 📱 MOBILE CARDS (Native App Flow) */
 .p-fleet-card-mobile {
