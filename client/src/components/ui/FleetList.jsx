@@ -77,10 +77,10 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
               <div className="p-flex p-items-center p-gap-6" style={{ minWidth: 0, paddingLeft: '20px' }}>
                 <span className="p-mobile-label">IDENTIFICACIÓN</span>
                 <div className="p-flex p-items-center p-gap-6" style={{ width: '100%' }}>
-                    <div className="p-unit-avatar" style={{ minWidth: minimal ? '48px' : '72px', height: minimal ? '48px' : '72px', borderRadius: minimal ? '14px' : '20px' }}>
+                    <div className="p-unit-avatar-wrapper" style={{ minWidth: minimal ? '48px' : '72px', height: minimal ? '48px' : '72px', borderRadius: minimal ? '14px' : '20px', flexShrink: 0 }}>
                         <Car size={minimal ? 20 : 26} className="text-white/40" />
                     </div>
-                    <div style={{ overflow: 'hidden' }}>
+                    <div style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                         <p className="text-white font-black truncate" style={{ fontSize: minimal ? '1.1rem' : '1.25rem', letterSpacing: '-0.02em', lineHeight: 1.1 }}>{v.modelo || 'Unidad Activa'}</p>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: minimal ? '4px' : '10px' }}>
                             <span style={{ fontSize: '9px', color: 'var(--accent)', fontWeight: 1000, textTransform: 'uppercase', background: 'rgba(6, 182, 212, 0.1)', padding: '2px 8px', borderRadius: '6px', border: '1px solid rgba(6,182,212,0.15)' }}>{v.placa}</span>
