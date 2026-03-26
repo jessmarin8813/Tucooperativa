@@ -31,7 +31,7 @@ const LoginView = ({ onLogin }) => {
     }}>
       <div className="glass animate-fade" style={{ padding: '48px', width: '100%', maxWidth: '400px' }}>
         <h1 className="neon-text brand" style={{ fontSize: '2.5rem', marginBottom: '8px', textAlign: 'center', fontWeight: 900 }}>TuCooperativa</h1>
-        <p style={{ color: 'var(--text-dim)', textAlign: 'center', marginBottom: '32px', fontSize: '0.875rem' }}>Terminal de Acceso Administrativo</p>
+        <p style={{ color: 'var(--text-dim)', textAlign: 'center', marginBottom: '32px', fontSize: '0.875rem' }}>Ecosistema de Control para Dueños</p>
         
         {error && (
           <div className="glass" style={{ padding: '12px', marginBottom: '24px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', fontSize: '0.875rem', textAlign: 'center', borderRadius: '8px' }}>
@@ -42,7 +42,7 @@ const LoginView = ({ onLogin }) => {
         <form onSubmit={handleSubmit} autoComplete="off">
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.875rem', fontWeight: 600 }}>Usuario Administrativo</label>
-            <input type="text" placeholder="admin" name="username" autoComplete="off" className="glass" style={{ 
+            <input type="text" placeholder="dueño_cooperativa" name="username" autoComplete="off" className="glass" style={{ 
               width: '100%', padding: '16px', background: 'rgba(0,0,0,0.2)', color: 'white', outline: 'none' 
             }} required />
           </div>

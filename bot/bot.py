@@ -69,7 +69,7 @@ async def get_dynamic_menu(update: Update):
         return ReplyKeyboardRemove()
 
     role = auth.get('rol')
-    if role in ['admin', 'dueno', 'owner']:
+    if role in ['dueno', 'propietario']:
         keyboard = [['📊 RESUMEN COOPERATIVA'], ['🔔 ALERTAS CRÍTICAS', '🔧 SOPORTE']]
         return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     
@@ -101,6 +101,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if context.args:
         token = context.args[0]
         if token.startswith('link_'):
+            res = api.link_owner(user_id, token)
             msg = "👑 ¡Vínculo de Dueño Exitoso!" if 'error' not in res else f"❌ Error: {res['error']}"
             await update.message.reply_text(msg, reply_markup=await get_dynamic_menu(update))
             

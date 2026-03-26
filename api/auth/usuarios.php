@@ -7,14 +7,14 @@ $db = DB::getInstance();
 // List owners for Admin dropdown
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['list_owners'])) {
     $user = checkAuth();
-    if ($user['rol'] !== 'admin') {
+    if ($user['rol'] !== 'dueno' && $user['rol'] !== 'superadmin') {
         sendResponse(['error' => 'Unauthorized'], 403);
     }
     $coop_id = $user['cooperativa_id'];
     if (!$coop_id) {
         sendResponse(['error' => 'No organization assigned'], 403);
     }
-    $stmt = $db->prepare("SELECT id, nombre, email FROM usuarios WHERE cooperativa_id = ? AND (rol = 'dueno' OR rol = 'admin')");
+    $stmt = $db->prepare("SELECT id, nombre, email FROM usuarios WHERE cooperativa_id = ? AND rol = 'dueno'");
     $stmt->execute([$coop_id]);
     sendResponse($stmt->fetchAll());
     exit;

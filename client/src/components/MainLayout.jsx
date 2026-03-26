@@ -104,22 +104,16 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
                 transition={{ duration: 0.2, ease: "easeOut" }}
               >
                 <Suspense fallback={<LoadingSpinner />}>
-                  {user?.rol === 'superadmin' ? (
-                    <SuperAdminDashboard />
-                  ) : (
-                    <React.Fragment>
-                      {activeView === 'dashboard' && <Dashboard />}
-                      {activeView === 'choferes' && <ChoferesView />}
-                      {activeView === 'ranking' && <DriverRanking />}
-                      {activeView === 'config' && <ConfiguracionView />}
-                      {activeView === 'bi' && <BIView />}
-                      {activeView === 'gastos' && <ExpensesView />}
-                      {activeView === 'cobranza' && <CobranzaView />}
-                      {activeView === 'flota' && <VehiculosView />}
-                      {activeView === 'mantenimiento' && <MaintenanceCenter />}
-                      {activeView === 'forensic' && <ForensicView />}
-                    </React.Fragment>
-                  )}
+                  {activeView === 'dashboard' && (user?.rol === 'superadmin' ? <SuperAdminDashboard /> : <Dashboard />)}
+                  {activeView === 'choferes' && <ChoferesView />}
+                  {activeView === 'ranking' && <DriverRanking />}
+                  {activeView === 'config' && <ConfiguracionView />}
+                  {activeView === 'bi' && <BIView />}
+                  {activeView === 'gastos' && <ExpensesView />}
+                  {activeView === 'cobranza' && <CobranzaView />}
+                  {activeView === 'flota' && <VehiculosView />}
+                  {activeView === 'mantenimiento' && <MaintenanceCenter />}
+                  {activeView === 'forensic' && <ForensicView />}
                 </Suspense>
               </Motion.div>
             </AnimatePresence>
