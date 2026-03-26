@@ -10,7 +10,7 @@ def run_step(name, command, cwd=None, allow_fail=False):
     except subprocess.CalledProcessError as e:
         if allow_fail:
             return True
-        print(f"\n🚨 [CRITICAL ERROR] Step '{name}' failed with code {e.returncode}")
+        print(f"\n[CRITICAL ERROR] Step '{name}' failed with code {e.returncode}")
         return False
 
 
@@ -49,7 +49,7 @@ def main():
     run_step("Actualizando Memoria del Proyecto (docs/)", "python .agent/skills/stability-protocol/scripts/update_docs.py", allow_fail=True)
 
     print("\n[INFO] El Servidor Realtime y el Bot deben estar corriendo en segundo plano.")
-    print("\n✅ [SUCCESS] Sistema estable y verificado. Proceso completado con éxito.")
+    print("\n[SUCCESS] Sistema estable y verificado. Proceso completado con éxito.")
     sys.exit(0)
 
 if __name__ == '__main__':
