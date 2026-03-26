@@ -191,12 +191,12 @@ async def handle_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"💰 Deuda Acumulada: **${float(deuda):.2f}**\n"
             f"⏳ Pagos en Revisión: **${float(pendientes):.2f}**\n\n"
             f"📍 Último KM reportado: `{status.get('ultimo_km', '0')}`\n"
-            f"🏦 Datos de Pago: {status.get('datos_bancarios', 'Consulte Admin')}"
+            f"🏦 Datos de Pago: {status.get('datos_bancarios', 'Consulte al Dueño')}"
         )
         await update.message.reply_text(msg, parse_mode='Markdown', reply_markup=await get_dynamic_menu(update))
 
     elif text == '🔧 AYUDA':
-        await update.message.reply_text("📱 Contacte al administrador central para soporte técnico.")
+        await update.message.reply_text("📱 Contacte al soporte técnico de la cooperativa.")
 
 # --- START ROUTE FLOW (Zero-Command) ---
 async def start_ruta_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
