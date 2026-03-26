@@ -61,7 +61,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
       <div className="p-fleet-container custom-scrollbar" style={{ marginTop: minimal ? '0' : '40px', paddingBottom: '160px' }}>
         {/* 2. PC GRID HEADER - Strict Alignment (Only in Desktop) */}
         {!isMobile && (
-          <div className={`p-fleet-grid p-fleet-header-pc ${minimal ? 'minimal-grid' : ''}`}>
+          <div className={`p-fleet-grid p-fleet-header-pc p-fleet-row-pc ${minimal ? 'minimal-grid' : ''}`}>
             <div>UNIDAD / OPERADOR</div>
             {!minimal && <div className="p-flex p-items-center p-justify-center">CUOTA DIARIA</div>}
             <div className="p-flex p-items-center p-justify-center">ESTADO</div>
@@ -83,22 +83,17 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
                     className={`p-fleet-grid p-fleet-row-pc ${minimal ? 'minimal-grid' : ''}`}
                   >
-                      <div className="p-identity-col p-flex p-items-center p-gap-5">
-                          <div className="p-unit-avatar-wrapper" style={{ minWidth: minimal ? '44px' : '56px', height: minimal ? '44px' : '56px', borderRadius: '14px' }}>
-                              <Car size={minimal ? 18 : 22} className="text-white/40" />
-                          </div>
-                          <div className="truncate">
-                              <p className="text-white font-black" style={{ fontSize: minimal ? '0.95rem' : '1.1rem', letterSpacing: '-0.01em' }}>{v.modelo || 'Unidad Activa'}</p>
-                              <div className="p-flex p-items-center p-gap-3" style={{ marginTop: '4px' }}>
-                                  <span className="p-plate-badge">{v.placa}</span>
-                                  {v.chofer_nombre && !minimal && <span className="p-driver-tag">{v.chofer_nombre}</span>}
-                              </div>
+                      <div className="p-identity-col">
+                          <p className="text-white font-black" style={{ fontSize: minimal ? '0.95rem' : '1.1rem', letterSpacing: '-0.01em' }}>{v.modelo || 'Unidad Activa'}</p>
+                          <div className="p-flex p-items-center p-gap-3" style={{ marginTop: '4px' }}>
+                              <span className="p-plate-badge">{v.placa}</span>
+                              {v.chofer_nombre && !minimal && <span className="p-driver-tag">{v.chofer_nombre}</span>}
                           </div>
                       </div>
 
                       {!minimal && (
                         <div className="p-fee-col p-flex p-items-center p-justify-center">
-                            <div className="p-text-center">
+                            <div className="p-flex-col p-items-center">
                                 <p className="text-white font-black" style={{ fontSize: '1.4rem' }}>${parseFloat(v.cuota_diaria).toFixed(2)}</p>
                                 <span className="p-fee-label">USD / DÍA</span>
                             </div>

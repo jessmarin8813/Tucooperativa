@@ -618,7 +618,9 @@ button {
 
 .p-fleet-card-root { margin-top: 40px; width: 100%; }
 
-/* --- FILTER BRANDING v18.1 --- */
+.p-fleet-card-root { margin-top: 40px; width: 100%; }
+
+/* --- FILTER BRANDING v19.0 --- */
 .active-filter {
   background: var(--primary) !important;
   color: white !important;
@@ -637,32 +639,36 @@ button {
   color: white !important;
 }
 
+/* 🧱 GLOBAL GRID CONTAINER (Sacred Symmetry) */
 .p-fleet-container { 
   width: 100%; 
   overflow: visible; 
-  padding: 0 4% !important; /* Centralized Sacred Symmetry */
+  padding: 0 4% !important; 
 }
 
-/* 💻 DESKTOP GRID (Alignment inherited from Parent) */
+/* 💻 DESKTOP MATRIX (Mathematical Alignment) */
+.p-fleet-grid {
+  display: grid !important;
+  /* 1fr for the Unit Name, then fixed widths for data consistency */
+  grid-template-columns: 1fr 160px 220px 160px !important; 
+  align-items: center;
+  width: 100%;
+}
+
 .p-fleet-header-pc {
-  display: grid;
-  grid-template-columns: 35% 20% 20% 25%;
-  padding: 0 0 32px 0 !important; /* Zero padding here; parent handles it */
+  padding: 0 0 32px 0 !important;
   text-align: left;
   color: rgba(255,255,255,0.25);
   font-size: 11px;
   font-weight: 1000;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 2px solid rgba(255,255,255,0.05); /* Stronger separator */
 }
 
 .p-fleet-row-pc {
-  display: grid;
-  grid-template-columns: 35% 20% 20% 25%;
-  padding: 32px 0 !important; /* Zero padding here; parent handles it */
+  padding: 32px 0 !important;
   border-bottom: 1px solid rgba(255,255,255,0.03);
-  align-items: center;
   transition: all 0.3s ease;
 }
 
@@ -681,23 +687,7 @@ button {
   gap: 16px;
 }
 
-.p-unit-avatar-mobile {
-  width: 48px; height: 48px; min-width: 48px;
-  background: rgba(255,255,255,0.03);
-  border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
-  border: 1px solid rgba(255,255,255,0.05);
-}
-
-.p-plate-badge-mobile {
-  font-size: 10px; color: var(--accent); font-weight: 800;
-  background: rgba(6,182,212,0.1); padding: 2px 8px; border-radius: 6px;
-}
-
-.p-card-divider { height: 1px; background: rgba(255,255,255,0.05); width: 100%; }
-.p-fee-label-mobile { font-size: 9px; color: rgba(255,255,255,0.3); font-weight: 800; text-transform: uppercase; }
-
-/* 💊 STATUS PILL v2 (TRUE PILL) */
+/* 💊 STATUS PILL v2 (CENTERED) */
 .p-status-pill-v2 {
   padding: 10px 22px;
   border-radius: 50px; 
@@ -712,23 +702,33 @@ button {
 .p-status-pill-v2.activo { background: #10b981; color: #000; }
 .p-status-pill-v2.mantenimiento { background: #f59e0b; color: #000; }
 .p-status-pill-v2.inactivo { background: #ef4444; color: #fff; }
-.p-status-pill-v2.pill-sm { padding: 6px 14px; font-size: 9px; }
 
 .p-status-reason { 
   font-size: 10px; 
-  color: rgba(255,255,255,0.45); 
+  color: rgba(255,255,255,0.4); 
   font-weight: 800; 
   text-transform: uppercase; 
   margin-top: 10px; 
   letter-spacing: 0.05em;
-  font-style: italic;
+  text-align: center;
+  white-space: nowrap;
 }
 
-/* Shared Utilities */
+/* --- LABELS & DATA --- */
+.p-fee-label { 
+  font-size: 8px; 
+  color: rgba(255,255,255,0.25); 
+  font-weight: 1000; 
+  text-transform: uppercase; 
+  margin-top: 8px; 
+  display: block; 
+  text-align: center;
+}
+
 .p-plate-badge { font-size: 9px; color: #06b6d4; font-weight: 950; background: rgba(6, 182, 212, 0.1); padding: 3px 10px; border-radius: 8px; border: 1px solid rgba(6,182,212,0.2); }
 .p-driver-tag { font-size: 9px; color: rgba(255,255,255,0.35); font-weight: 800; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 10px; }
-.p-fee-label { font-size: 8px; color: rgba(255,255,255,0.25); font-weight: 1000; text-transform: uppercase; margin-top: 8px; display: block; }
-.p-unit-avatar-wrapper { min-width: 64px; height: 64px; background: rgba(255, 255, 255, 0.02); border-radius: 14px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.05); }
+
+/* 🖱️ DROP-DOWN CONTRAST MASTER */
 .p-dropdown-menu { 
   position: absolute; 
   top: 55px; 
@@ -737,11 +737,12 @@ button {
   width: 220px; 
   padding: 12px; 
   border-radius: 20px; 
-  background: #0f1019 !important; /* Force Dark Solid Background */
+  background: #0f1019 !important; 
   border: 1px solid rgba(255,255,255,0.15); 
   backdrop-filter: blur(80px); 
   box-shadow: 0 25px 60px rgba(0,0,0,0.8); 
 }
+
 .p-dropdown-item { 
   width: 100%; 
   display: flex !important; 
@@ -755,10 +756,7 @@ button {
   font-weight: 700 !important; 
   border: none !important;
 }
-.p-dropdown-item:hover { 
-  background: rgba(255,255,255,0.08) !important; 
-  color: var(--primary) !important; 
-}
+
+.p-dropdown-item:hover { background: rgba(255,255,255,0.08) !important; color: var(--primary) !important; }
 .p-dropdown-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 8px 0; }
-.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .minimal-grid { grid-template-columns: 60% 40% !important; } 
