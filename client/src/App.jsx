@@ -7,6 +7,11 @@ import { useApi } from './hooks/useApi'
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState(null)
+  const [config, setConfig] = useState({
+    nombre_cooperativa: 'TuCooperativa',
+    rif: '',
+    lema: 'SaaS de Gestión de Flotas'
+  })
   const [activeView, setActiveView] = useState('dashboard')
   const [initializing, setInitializing] = useState(true)
   const { callApi } = useApi()
@@ -34,10 +39,16 @@ function App() {
 
   const checkSession = useCallback(async () => {
     try {
-      const data = await callApi('session.php')
-      if (data.isLoggedIn) {
+      const sessData = await callApi('auth/session.php')
+      if (sessData.isLoggedIn) {
         setIsLoggedIn(true)
-        setUser(data.user)
+        setUser(sessData.user)
+        
+        // Fetch config once logged in
+        try {
+          const configData = await callApi('admin/get_config.php')
+          if (configData) setConfig(configData)
+        } catch (e) { console.error("Config fetch error", e) }
       }
     } catch {
       // Not logged in, stay on LoginView
@@ -85,6 +96,7 @@ function App() {
   return isLoggedIn ? (
     <MainLayout 
       user={user} 
+      config={config}
       activeView={activeView} 
       setActiveView={setActiveView} 
       onLogout={handleLogout} 

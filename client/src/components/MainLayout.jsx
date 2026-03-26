@@ -16,7 +16,7 @@ const VehiculosView = lazy(() => import('../views/VehiculosView'))
 const MaintenanceCenter = lazy(() => import('../views/MaintenanceCenter'))
 const ForensicView = lazy(() => import('../views/ForensicView'))
 
-const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
+const MainLayout = ({ user, config, activeView, setActiveView, onLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
   const [showHeader, setShowHeader] = useState(true)
@@ -62,6 +62,7 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
       <aside className="sidebar-desktop-wrapper desktop-only">
         <Sidebar 
           onLogout={onLogout} 
+          config={config}
           activeView={activeView} 
           setActiveView={handleNavigate} 
         />
@@ -82,7 +83,7 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
               className="neon-text brand" 
               style={{ fontSize: '1.35rem', fontWeight: 900, cursor: 'pointer' }}
             >
-              TuCooperativa
+              {config?.nombre_cooperativa || 'TuCooperativa'}
             </h1>
             <button 
               onClick={toggleMobileMenu}
@@ -147,6 +148,7 @@ const MainLayout = ({ user, activeView, setActiveView, onLogout }) => {
             >
               <Sidebar 
                 onLogout={onLogout} 
+                config={config}
                 activeView={activeView} 
                 setActiveView={handleNavigate} 
                 isMobile={true}

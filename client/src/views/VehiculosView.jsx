@@ -40,9 +40,19 @@ const VehiculosView = () => {
     fetchVehicles()
   }
 
+  // Logic for dynamic trends
+  const now = new Date();
+  const todayVehicles = (Array.isArray(vehicles) ? vehicles : []).filter(v => {
+    if (!v.created_at) return false;
+    const createdAt = new Date(v.created_at);
+    return (now - createdAt) < 24 * 60 * 60 * 1000;
+  }).length;
+
   const stats = {
     total: Array.isArray(vehicles) ? vehicles.length : 0,
+    totalTrend: todayVehicles > 0 ? `+${todayVehicles}` : "+0",
     active: (Array.isArray(vehicles) ? vehicles : []).filter(v => v.estado === 'activo' || v.status === 'activo').length,
+    activeTrend: "+0",
     maintenance: (Array.isArray(vehicles) ? vehicles : []).filter(v => v.estado === 'mantenimiento' || v.status === 'mantenimiento').length,
     inactive: (Array.isArray(vehicles) ? vehicles : []).filter(v => v.estado === 'inactivo' || v.status === 'inactivo').length
   }
@@ -64,10 +74,10 @@ const VehiculosView = () => {
 
       {/* Stats Overview */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px', marginBottom: '48px' }}>
-        <StatCard title="Total Unidades" value={stats.total} trend="+0" icon={Truck} color="99, 102, 241" />
-        <StatCard title="Operativas" value={stats.active} trend="+0" icon={CheckCircle2} color="16, 185, 129" />
-        <StatCard title="Mantenimiento" value={stats.maintenance} trend="+0" icon={AlertTriangle} color="245, 158, 11" />
-        <StatCard title="Fuera de Servicio" value={stats.inactive} trend="+0" icon={XCircle} color="239, 68, 68" />
+        <StatCard title="Total Unidades" value={stats.total} trend={stats.totalTrend} icon={Truck} color="var(--primary)" />
+        <StatCard title="Operativas" value={stats.active} trend={stats.activeTrend} icon={CheckCircle2} color="var(--success)" />
+        <StatCard title="Mantenimiento" value={stats.maintenance} trend="+0" icon={AlertTriangle} color="var(--warning)" />
+        <StatCard title="Fuera de Servicio" value={stats.inactive} trend="+0" icon={XCircle} color="var(--danger)" />
       </div>
 
       {loading && vehicles.length === 0 ? (

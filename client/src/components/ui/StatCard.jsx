@@ -19,9 +19,19 @@ const StatCard = ({ title, label, value, icon: Icon, color = 'var(--primary)', t
             {value}
           </div>
           {trend && (
-            <p style={{ fontSize: '0.875rem', fontWeight: 700, marginTop: '12px', color: (trend.startsWith('+') || trend === 'Real-time') ? 'var(--success)' : 'var(--danger)' }}>
-              {trend} {trend !== 'Real-time' && 'vs ayer'}
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
+              <div style={{ 
+                padding: '4px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 900,
+                background: (trend.toString().startsWith('+') || trend === 'Real-time') ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                color: (trend.toString().startsWith('+') || trend === 'Real-time') ? 'var(--success)' : 'var(--danger)',
+                border: `1px solid ${(trend.toString().startsWith('+') || trend === 'Real-time') ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
+              }}>
+                {trend}
+              </div>
+              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                {trend === 'Real-time' ? 'Sincronizado' : 'vs ayer'}
+              </span>
+            </div>
           )}
         </div>
         

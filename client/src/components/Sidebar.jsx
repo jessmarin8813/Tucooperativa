@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import { motion as Motion } from 'framer-motion'
 
-const Sidebar = ({ onLogout, activeView, setActiveView }) => {
+const Sidebar = ({ onLogout, activeView, setActiveView, config }) => {
   const menuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Centro de Mando' },
     { id: 'flota', icon: Truck, label: 'Flota de Vehículos' },
@@ -43,9 +43,9 @@ const Sidebar = ({ onLogout, activeView, setActiveView }) => {
         <h2 
           onClick={() => setActiveView('dashboard')}
           className="neon-text brand" 
-          style={{ fontSize: '2.2rem', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: '1.2', cursor: 'pointer' }}
+          style={{ fontSize: '1.8rem', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: '1.2', cursor: 'pointer' }}
         >
-          TuCooperativa
+          {config?.nombre_cooperativa || 'TuCooperativa'}
         </h2>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '12px' }}>
             <div style={{ width: '6px', height: '6px', background: 'var(--success)', borderRadius: '100px' }} className="animate-pulse" />
