@@ -2,7 +2,7 @@ import React from 'react'
 import { MoreVertical, User, AlertTriangle, Car, History } from 'lucide-react'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 
-const FleetList = ({ vehicles = [], minimal = false }) => {
+const FleetList = ({ vehicles = [], minimal = false, setActiveView }) => {
   const safeVehicles = Array.isArray(vehicles) ? vehicles : [];
   
   if (safeVehicles.length === 0) {
@@ -13,6 +13,19 @@ const FleetList = ({ vehicles = [], minimal = false }) => {
     )
   }
   const [activeDropdown, setActiveDropdown] = React.useState(null);
+  // Click-away logic to close dropdown
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (activeDropdown !== null) {
+        // If the click is not on a dropdown trigger or inside a dropdown, close it
+        if (!event.target.closest('.dropdown-trigger') && !event.target.closest('.dropdown-menu')) {
+          setActiveDropdown(null);
+        }
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [activeDropdown]);
 
   return (
     <div className="p-fleet-card-root">
@@ -134,7 +147,7 @@ const FleetList = ({ vehicles = [], minimal = false }) => {
                     )}
                     <button 
                         onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }}
-                        className="btn-secondary" 
+                        className="btn-secondary dropdown-trigger" 
                         style={{ width: '48px', height: '48px', padding: 0, borderRadius: '14px', flexShrink: 0 }}
                     >
                         <MoreVertical size={22} className={activeDropdown === v.id ? 'text-primary' : 'text-white/30'} />
@@ -144,7 +157,7 @@ const FleetList = ({ vehicles = [], minimal = false }) => {
                         {activeDropdown === v.id && (
                         <Motion.div 
                             initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }}
-                            className="glass shadow-2xl"
+                            className="glass shadow-2xl dropdown-menu"
                             style={{ 
                             position: 'absolute', top: '65px', right: '20px', zIndex: 100, 
                             width: '220px', padding: '15px', borderRadius: '20px', 
@@ -153,9 +166,15 @@ const FleetList = ({ vehicles = [], minimal = false }) => {
                             }}
                         >
                             <button className="tab-item dropdown-item" style={{ width: '100%', justifyContent: 'flex-start', padding: '14px 18px', fontSize: '12px', borderRadius: '12px' }}>Modificar Unidad</button>
-                            <button className="tab-item dropdown-item" style={{ width: '100%', justifyContent: 'flex-start', padding: '14px 18px', fontSize: '12px', borderRadius: '12px' }}>Ver Auditoría</button>
+                            <button 
+                              onClick={() => setActiveView && setActiveView('forensic')}
+                              className="tab-item dropdown-item" 
+                              style={{ width: '100%', justifyContent: 'flex-start', padding: '14px 18px', fontSize: '12px', borderRadius: '12px' }}
+                            >
+                              Ver Auditoría
+                            </button>
                             <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '10px 0' }}></div>
-                            <button className="tab-item dropdown-item" style={{ width: '100%', justifyContent: 'flex-start', padding: '14px 18px', fontSize: '12px', borderRadius: '12px', color: 'var(--danger)', fontWeight: 1000 }}>Baja Permanente</button>
+                            <button className="tab-item dropdown-item" style={{ width: '100%', justifyContent: 'flex-start', padding: '14px 18px', fontSize: '12px', borderRadius: '12px', color: 'var(--danger)', fontWeight: 1000 }}>Eliminar</button>
                         </Motion.div>
                         )}
                     </AnimatePresence>

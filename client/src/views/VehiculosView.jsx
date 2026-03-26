@@ -100,7 +100,12 @@ const VehiculosView = ({ user, config }) => {
         </div>
       ) : (
         <div className="glass" style={{ borderRadius: '24px', overflow: 'visible' }}>
-          <FleetList vehicles={vehicles} config={config} user={user} />
+          <FleetList 
+            vehicles={vehicles} 
+            config={config} 
+            user={user} 
+            setActiveView={setActiveView} 
+          />
         </div>
       )}
 
