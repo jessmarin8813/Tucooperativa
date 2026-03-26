@@ -116,7 +116,14 @@ def main():
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /TuCooperativa/client/dist/index.html [L]
-</IfModule>"""
+</IfModule>
+
+# ZERO-CACHE FOR INDEX.HTML (v12.0)
+<FilesMatch "index\\.html">
+  Header set Cache-Control "no-cache, no-store, must-revalidate"
+  Header set Pragma "no-cache"
+  Header set Expires 0
+</FilesMatch>"""
         with open("client/dist/.htaccess", "w") as f:
             f.write(htaccess_content)
 
