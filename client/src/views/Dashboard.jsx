@@ -6,8 +6,9 @@ import { useApi } from '../hooks/useApi'
 import { useRealtime } from '../hooks/useRealtime'
 import { motion as Motion } from 'framer-motion'
 
-const Dashboard = () => {
+const Dashboard = ({ setActiveView }) => {
   const { callApi, loading } = useApi()
+  // ... (existing state)
   const [currentUser, setCurrentUser] = useState(null)
   const [data, setData] = useState({
     stats: {
@@ -136,13 +137,13 @@ const Dashboard = () => {
                 <h2 style={{ fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.4 }}>Últimas Unidades (Forense)</h2>
               </div>
               <button 
-                onClick={() => window.location.search = '?view=flota'}
+                onClick={() => setActiveView('flota')}
                 style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '11px', fontWeight: 900, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.1em' }}
               >
                 Ver Flota Completa →
               </button>
           </div>
-          <FleetList vehicles={(data?.vehicles || []).slice(0, 5)} />
+          <FleetList vehicles={(data?.vehicles || []).slice(0, 5)} minimal={true} />
       </div>
     </div>
   )

@@ -109,7 +109,7 @@ const MainLayout = ({ user, config, activeView, setActiveView, onLogout }) => {
                     <SuperAdminDashboard />
                   ) : (
                     <React.Fragment>
-                      {activeView === 'dashboard' && <Dashboard />}
+                      {activeView === 'dashboard' && <Dashboard setActiveView={handleNavigate} />}
                       {activeView === 'choferes' && <ChoferesView />}
                       {activeView === 'ranking' && <DriverRanking />}
                       {activeView === 'config' && <ConfiguracionView />}
