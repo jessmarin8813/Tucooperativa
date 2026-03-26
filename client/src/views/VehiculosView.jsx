@@ -59,7 +59,8 @@ const VehiculosView = ({ user, config, setActiveView }) => {
   const filteredVehicles = (Array.isArray(vehicles) ? vehicles : []).filter(v => {
     const matchesSearch = v.placa.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           v.modelo.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || v.estado === filterStatus;
+    const vStatus = (v.estado || v.status_label || 'inactivo').toLowerCase();
+    const matchesStatus = filterStatus === 'all' || vStatus === filterStatus.toLowerCase();
     return matchesSearch && matchesStatus;
   });
 
