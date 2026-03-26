@@ -2,7 +2,7 @@ import React from 'react'
 import { MoreVertical, User, AlertTriangle, Car, History } from 'lucide-react'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 
-const FleetList = ({ vehicles = [], minimal = false, setActiveView }) => {
+const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) => {
   const safeVehicles = Array.isArray(vehicles) ? vehicles : [];
   
   if (safeVehicles.length === 0) {
@@ -28,10 +28,10 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView }) => {
   }, [activeDropdown]);
 
   return (
-    <div className="p-fleet-card-root">
+    <div className="p-fleet-card-root" style={{ width: '100%' }}>
       {/* 1. HEADER - Only show if not minimal */}
       {!minimal && (
-        <div className="p-flex-responsive p-justify-between p-items-center" style={{ paddingBottom: '40px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="p-flex-responsive p-justify-between p-items-center" style={{ padding: '0 32px 40px 32px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
             <div className="p-flex p-items-center" style={{ minWidth: 0, gap: '24px' }}>
                 <div style={{ 
                     width: '64px', height: '64px', borderRadius: '20px', 
@@ -165,7 +165,13 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView }) => {
                             backdropFilter: 'blur(60px)'
                             }}
                         >
-                            <button className="tab-item dropdown-item" style={{ width: '100%', justifyContent: 'flex-start', padding: '14px 18px', fontSize: '12px', borderRadius: '12px' }}>Modificar Unidad</button>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); setActiveDropdown(null); onEdit && onEdit(v); }}
+                              className="tab-item dropdown-item" 
+                              style={{ width: '100%', justifyContent: 'flex-start', padding: '14px 18px', fontSize: '12px', borderRadius: '12px' }}
+                            >
+                              Modificar Unidad
+                            </button>
                             <button 
                               onClick={() => setActiveView && setActiveView('forensic')}
                               className="tab-item dropdown-item" 

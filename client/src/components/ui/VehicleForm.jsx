@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react'
 import { useApi } from '../../hooks/useApi'
 import { Truck, Hash, Calendar, DollarSign, UserCheck } from 'lucide-react'
 
-const VehicleForm = ({ onSuccess, currentUser }) => {
+const VehicleForm = ({ onSuccess, currentUser, initialData }) => {
   const { callApi, loading, error } = useApi()
   const [owners, setOwners] = useState([])
   const [formData, setFormData] = useState({
-    placa: '',
-    modelo: '',
-    anio: new Date().getFullYear(),
-    cuota_diaria: '',
-    km_por_litro: '8.0',
-    dueno_id: currentUser?.rol === 'dueno' ? currentUser.user_id : ''
+    placa: initialData?.placa || '',
+    modelo: initialData?.modelo || '',
+    anio: initialData?.anio || new Date().getFullYear(),
+    cuota_diaria: initialData?.cuota_diaria || '',
+    km_por_litro: initialData?.km_por_litro || '8.0',
+    dueno_id: initialData?.dueno_id || (currentUser?.rol === 'dueno' ? currentUser.user_id : '')
   })
 
   // Load owners if user is admin
@@ -47,9 +47,10 @@ const VehicleForm = ({ onSuccess, currentUser }) => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      const isEdit = !!initialData?.id;
       await callApi('vehiculos.php', {
-        method: 'POST',
-        body: JSON.stringify(formData)
+        method: isEdit ? 'PUT' : 'POST',
+        body: JSON.stringify(isEdit ? { ...formData, id: initialData.id } : formData)
       })
       onSuccess()
     } catch {
@@ -208,7 +209,7 @@ const VehicleForm = ({ onSuccess, currentUser }) => {
         disabled={loading}
         style={{ marginTop: '12px', width: '100%', padding: '16px' }}
       >
-        {loading ? 'REGISTRANDO...' : 'CONFIRMAR REGISTRO'}
+        {loading ? 'GUARDANDO...' : (initialData ? 'GUARDAR CAMBIOS' : 'CONFIRMAR REGISTRO')}
       </button>
     </form>
   )

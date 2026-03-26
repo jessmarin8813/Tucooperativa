@@ -9,6 +9,7 @@ import VehicleForm from '../components/ui/VehicleForm'
 const VehiculosView = ({ user, config, setActiveView }) => {
   const [vehicles, setVehicles] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedVehicle, setSelectedVehicle] = useState(null)
   const { callApi, loading } = useApi()
 
   // Use the passed user or fall back (safety)
@@ -39,7 +40,18 @@ const VehiculosView = ({ user, config, setActiveView }) => {
 
   const handleRegistrationSuccess = () => {
     setIsModalOpen(false)
+    setSelectedVehicle(null)
     fetchVehicles()
+  }
+
+  const handleEditVehicle = (vehicle) => {
+    setSelectedVehicle(vehicle)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setSelectedVehicle(null)
   }
 
   // Logic for dynamic trends
@@ -105,12 +117,17 @@ const VehiculosView = ({ user, config, setActiveView }) => {
             config={config} 
             user={user} 
             setActiveView={setActiveView} 
+            onEdit={handleEditVehicle}
           />
         </div>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nueva Unidad">
-        <VehicleForm currentUser={currentUser} onSuccess={handleRegistrationSuccess} />
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={selectedVehicle ? "Modificar Unidad" : "Nueva Unidad"}>
+        <VehicleForm 
+          currentUser={currentUser} 
+          onSuccess={handleRegistrationSuccess} 
+          initialData={selectedVehicle}
+        />
       </Modal>
     </div>
   )

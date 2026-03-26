@@ -17,7 +17,8 @@ function App() {
   const { callApi } = useApi()
 
   useEffect(() => {
-    console.log("%c TuCooperativa v5.0.7-ULTRA FIXED %c", "background: #6366f1; color: white; font-weight: bold; padding: 4px; border-radius: 4px;", "");
+    const buildDate = new Date().toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    console.log(`%c TuCooperativa v5.0.7-FIXED [Build: ${buildDate}] %c`, "background: #6366f1; color: white; font-weight: bold; padding: 4px; border-radius: 4px;", "");
   }, [])
   
   useEffect(() => {
