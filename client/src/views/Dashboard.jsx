@@ -130,21 +130,6 @@ const Dashboard = ({ setActiveView }) => {
         <StatCard title="RECAUDACIÓN HOY" value={`$${data.stats.recaudacion_hoy}`} icon={DollarSign} color="34, 197, 94" trend="Real-time" />
       </div>
 
-      <div style={{ marginTop: '32px' }}>
-          <div className="p-flex p-items-center p-justify-between" style={{ marginBottom: '24px' }}>
-              <div className="p-flex p-items-center p-gap-4">
-                <BarChart3 style={{ opacity: 0.2 }} size={20} />
-                <h2 style={{ fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.4 }}>Últimas Unidades (Forense)</h2>
-              </div>
-              <button 
-                onClick={() => setActiveView('flota')}
-                style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '11px', fontWeight: 900, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.1em' }}
-              >
-                Ver Flota Completa →
-              </button>
-          </div>
-          <FleetList vehicles={(data?.vehicles || []).slice(0, 5)} minimal={true} />
-      </div>
     </div>
   )
 }

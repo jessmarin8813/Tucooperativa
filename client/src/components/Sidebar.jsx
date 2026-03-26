@@ -39,26 +39,25 @@ const Sidebar = ({ onLogout, activeView, setActiveView, config }) => {
         position: 'relative',
         zIndex: 50
     }}>
-      <div style={{ padding: '40px 32px 20px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-        {/* Generic Professional Logo */}
-        <div style={{ 
-            width: '64px', height: '64px', borderRadius: '22px', 
-            background: 'linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            marginBottom: '20px', boxShadow: '0 20px 40px rgba(99, 102, 241, 0.3)'
-        }}>
-           <LayoutDashboard size={32} className="text-white" />
-        </div>
+      <div style={{ padding: '40px 32px 30px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+        {/* RESTORED BRAND LOGO TEXT */}
+        <h2 
+          onClick={() => setActiveView('dashboard')}
+          className="neon-text brand" 
+          style={{ fontSize: '2.2rem', fontWeight: 950, letterSpacing: '-0.04em', lineHeight: '1', cursor: 'pointer', marginBottom: '12px' }}
+        >
+          TuCooperativa
+        </h2>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
             <div style={{ width: '6px', height: '6px', background: 'var(--success)', borderRadius: '100px' }} className="animate-pulse" />
-            <span style={{ fontSize: '0.9rem', fontWeight: 1000, textTransform: 'uppercase', color: 'white', letterSpacing: '0.05em' }}>
-                {config?.nombre_cooperativa || 'TU COOPERATIVA'}
+            <span style={{ fontSize: '0.8rem', fontWeight: 1000, textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em' }}>
+                {config?.nombre_cooperativa || 'SIN NOMBRE'}
             </span>
         </div>
       </div>
 
-      <nav style={{ flex: 1, padding: '0 16px', overflowY: 'auto', marginTop: '20px' }}>
+      <nav style={{ flex: 1, padding: '0 16px', overflowY: 'auto', marginTop: '10px' }}>
         {menuItems.map((item, idx) => {
           const isActive = activeView === item.id;
           return (
@@ -73,7 +72,7 @@ const Sidebar = ({ onLogout, activeView, setActiveView, config }) => {
                 justifyContent: 'space-between',
                 padding: '16px 20px', 
                 borderRadius: '16px', 
-                marginBottom: '10px',
+                marginBottom: '8px',
                 cursor: 'pointer',
                 background: isActive ? 'linear-gradient(90deg, rgba(99, 102, 241, 0.15) 0%, transparent 100%)' : 'transparent',
                 color: isActive ? 'white' : 'var(--text-dim)',
