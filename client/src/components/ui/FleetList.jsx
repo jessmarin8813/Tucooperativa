@@ -13,18 +13,23 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
     )
   }
   const [activeDropdown, setActiveDropdown] = React.useState(null);
-  // Click-away logic to close dropdown
+  const [isMobile, setIsMobile] = React.useState(typeof window !== 'undefined' ? window.innerWidth <= 1024 : false);
+
   React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 1024);
+    window.addEventListener('resize', handleResize);
     const handleClickOutside = (event) => {
       if (activeDropdown !== null) {
-        // If the click is not on a dropdown trigger or inside a dropdown, close it
-        if (!event.target.closest('.dropdown-trigger') && !event.target.closest('.dropdown-menu')) {
+        if (!event.target.closest('.dropdown-trigger-pc') && !event.target.closest('.dropdown-menu')) {
           setActiveDropdown(null);
         }
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+        window.removeEventListener('resize', handleResize);
+        document.removeEventListener('mousedown', handleClickOutside);
+    }
   }, [activeDropdown]);
 
   return (
@@ -54,112 +59,122 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
       )}
 
       <div className="p-fleet-container custom-scrollbar" style={{ marginTop: minimal ? '0' : '40px', paddingBottom: '160px' }}>
-        {/* 2. PC GRID HEADER - Strict Alignment (Desktop Only) */}
-        <div className={`p-fleet-grid p-fleet-header p-desktop-header ${minimal ? 'minimal-grid' : ''}`}>
-          <div>UNIDAD / OPERADOR</div>
-          {!minimal && <div className="p-flex p-items-center p-justify-center">CUOTA DIARIA</div>}
-          <div className="p-flex p-items-center p-justify-center">ESTADO</div>
-          {!minimal && <div className="p-flex p-items-center p-justify-end">ACCIONES</div>}
-        </div>
+        {/* 2. PC GRID HEADER - Strict Alignment (Only in Desktop) */}
+        {!isMobile && (
+          <div className={`p-fleet-grid p-fleet-header-pc ${minimal ? 'minimal-grid' : ''}`}>
+            <div>UNIDAD / OPERADOR</div>
+            {!minimal && <div className="p-flex p-items-center p-justify-center">CUOTA DIARIA</div>}
+            <div className="p-flex p-items-center p-justify-center">ESTADO</div>
+            {!minimal && <div className="p-flex p-items-center p-justify-end">ACCIONES</div>}
+          </div>
+        )}
 
-        {/* 3. SENIOR ROWS (Berlin Wall Implementation) */}
-        <div className="divide-y divide-white/2">
+        {/* 3. SENIOR ROWS (Atomic Conditional Delivery) */}
+        <div className={!isMobile ? "divide-y divide-white/2" : ""}>
           {safeVehicles.map((v, i) => {
-            const status = (v.estado || v.status_label || 'inactivo').toLowerCase();
-            const isActivo = status === 'activo' || status === 'en ruta';
-            const isMantenimiento = status === 'mantenimiento' || status === 'taller';
+            const statusRaw = (v.estado || v.status_label || 'inactivo').toLowerCase();
+            const status = statusRaw === 'en ruta' ? 'activo' : statusRaw;
             
             return (
               <React.Fragment key={v.id}>
-                {/* --- DESKTOP ROW --- */}
-                <Motion.div 
-                  initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
-                  className={`p-fleet-grid p-fleet-row-pc p-desktop-row ${minimal ? 'minimal-grid' : ''}`}
-                >
-                    <div className="p-identity-col p-flex p-items-center p-gap-5">
-                        <div className="p-unit-avatar-wrapper" style={{ minWidth: minimal ? '44px' : '56px', height: minimal ? '44px' : '56px', borderRadius: '14px' }}>
-                            <Car size={minimal ? 18 : 22} className="text-white/40" />
-                        </div>
-                        <div className="truncate">
-                            <p className="text-white font-black" style={{ fontSize: minimal ? '0.95rem' : '1.1rem', letterSpacing: '-0.01em' }}>{v.modelo || 'Unidad Activa'}</p>
-                            <div className="p-flex p-items-center p-gap-3" style={{ marginTop: '4px' }}>
-                                <span className="p-plate-badge">{v.placa}</span>
-                                {v.chofer_nombre && !minimal && <span className="p-driver-tag">{v.chofer_nombre}</span>}
-                            </div>
-                        </div>
-                    </div>
-
-                    {!minimal && (
-                      <div className="p-fee-col p-flex p-items-center p-justify-center">
-                          <div className="p-text-center">
-                              <p className="text-white font-black" style={{ fontSize: '1.4rem' }}>${parseFloat(v.cuota_diaria).toFixed(2)}</p>
-                              <span className="fee-label">USD / DÍA</span>
+                {!isMobile ? (
+                  /* --- DESKTOP ROW (True Grid) --- */
+                  <Motion.div 
+                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                    className={`p-fleet-grid p-fleet-row-pc ${minimal ? 'minimal-grid' : ''}`}
+                  >
+                      <div className="p-identity-col p-flex p-items-center p-gap-5">
+                          <div className="p-unit-avatar-wrapper" style={{ minWidth: minimal ? '44px' : '56px', height: minimal ? '44px' : '56px', borderRadius: '14px' }}>
+                              <Car size={minimal ? 18 : 22} className="text-white/40" />
+                          </div>
+                          <div className="truncate">
+                              <p className="text-white font-black" style={{ fontSize: minimal ? '0.95rem' : '1.1rem', letterSpacing: '-0.01em' }}>{v.modelo || 'Unidad Activa'}</p>
+                              <div className="p-flex p-items-center p-gap-3" style={{ marginTop: '4px' }}>
+                                  <span className="p-plate-badge">{v.placa}</span>
+                                  {v.chofer_nombre && !minimal && <span className="p-driver-tag">{v.chofer_nombre}</span>}
+                              </div>
                           </div>
                       </div>
-                    )}
 
-                    <div className="p-status-col p-flex-col p-items-center p-justify-center">
-                        <div className={`p-status-pill-v2 ${status}`}>
-                            {status.toUpperCase()}
+                      {!minimal && (
+                        <div className="p-fee-col p-flex p-items-center p-justify-center">
+                            <div className="p-text-center">
+                                <p className="text-white font-black" style={{ fontSize: '1.4rem' }}>${parseFloat(v.cuota_diaria).toFixed(2)}</p>
+                                <span className="p-fee-label">USD / DÍA</span>
+                            </div>
                         </div>
-                        {v.motivo_estado && <span className="p-status-reason">{v.motivo_estado}</span>}
-                    </div>
+                      )}
 
-                    {!minimal && (
-                      <div className="p-actions-col p-flex p-justify-end p-items-center p-gap-4">
-                          {!v.chofer_id && (
-                              <button onClick={() => {/* invitation logic */}} className="btn-primary invite-btn-pc">INVITAR</button>
-                          )}
-                          <div style={{ position: 'relative' }}>
-                            <button onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} className="btn-secondary dropdown-trigger-pc">
-                                <MoreVertical size={20} className={activeDropdown === v.id ? 'text-primary' : 'text-white/30'} />
-                            </button>
-                            <AnimatePresence>
-                                {activeDropdown === v.id && (
-                                    <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="p-dropdown-menu">
-                                        <button onClick={() => onEdit && onEdit(v)} className="p-dropdown-item">Modificar Unidad</button>
-                                        <button onClick={() => setActiveView && setActiveView('forensic')} className="p-dropdown-item">Ver Auditoría</button>
-                                        <div className="p-dropdown-divider"></div>
-                                        <button className="p-dropdown-item text-danger">Eliminar</button>
-                                    </Motion.div>
-                                )}
-                            </AnimatePresence>
+                      <div className="p-status-col p-flex p-items-center p-justify-center">
+                          <div className="p-flex-col p-items-center">
+                            <div className={`p-status-pill-v2 ${status}`}>
+                                {status.toUpperCase()}
+                            </div>
+                            {v.motivo_estado && <span className="p-status-reason">{v.motivo_estado}</span>}
                           </div>
                       </div>
-                    )}
-                </Motion.div>
 
-                {/* --- MOBILE CARD --- */}
-                <Motion.div 
-                  initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.03 }}
-                  className="p-fleet-card-mobile p-mobile-row"
-                >
-                    <div className="p-flex p-justify-between p-items-start">
-                        <div className="p-flex p-gap-4">
-                            <div className="p-unit-avatar-mobile">
-                                <Car size={20} className="text-white/30" />
+                      {!minimal && (
+                        <div className="p-actions-col p-flex p-justify-end p-items-center p-gap-4">
+                            {!v.chofer_id && (
+                                <button className="btn-primary invite-btn-pc" style={{ fontSize: '10px', height: '44px', fontWeight: 1000 }}>INVITAR</button>
+                            )}
+                            <div style={{ position: 'relative' }}>
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} 
+                                  className="btn-secondary dropdown-trigger-pc"
+                                  style={{ width: '44px', height: '44px', borderRadius: '12px', padding: 0 }}
+                                >
+                                    <MoreVertical size={20} className={activeDropdown === v.id ? 'text-primary' : 'text-white/30'} />
+                                </button>
+                                <AnimatePresence>
+                                    {activeDropdown === v.id && (
+                                        <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="p-dropdown-menu">
+                                            <button onClick={() => onEdit && onEdit(v)} className="p-dropdown-item">Modificar Unidad</button>
+                                            <button onClick={() => setActiveView && setActiveView('forensic')} className="p-dropdown-item">Ver Auditoría</button>
+                                            <div className="p-dropdown-divider"></div>
+                                            <button className="p-dropdown-item text-danger">Eliminar</button>
+                                        </Motion.div>
+                                    )}
+                                </AnimatePresence>
                             </div>
-                            <div>
-                                <p className="text-white font-black">{v.modelo}</p>
-                                <span className="p-plate-badge-mobile">{v.placa}</span>
-                            </div>
                         </div>
-                        <div className={`p-status-pill-v2 pill-sm ${status}`}>
-                            {status.toUpperCase()}
-                        </div>
-                    </div>
-                    <div className="p-card-divider"></div>
-                    <div className="p-flex p-justify-between p-items-center">
-                        <div>
-                            <p className="text-white/40 font-bold uppercase" style={{ fontSize: '9px' }}>Cuota Diaria</p>
-                            <p className="text-white font-black" style={{ fontSize: '1.2rem' }}>${parseFloat(v.cuota_diaria).toFixed(2)}</p>
-                        </div>
-                        <div className="p-flex p-gap-2">
-                           {!v.chofer_id && <button className="btn-primary invite-btn-mobile">INVITAR</button>}
-                           <button onClick={() => onEdit && onEdit(v)} className="btn-secondary icon-btn-mobile"><MoreVertical size={18} /></button>
-                        </div>
-                    </div>
-                </Motion.div>
+                      )}
+                  </Motion.div>
+                ) : (
+                  /* --- MOBILE CARD (Tactical Flow) --- */
+                  <Motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.03 }}
+                    className="p-fleet-card-mobile"
+                  >
+                      <div className="p-flex p-justify-between p-items-start">
+                          <div className="p-flex p-gap-4">
+                              <div className="p-unit-avatar-mobile">
+                                  <Car size={20} className="text-white/30" />
+                              </div>
+                              <div>
+                                  <p className="text-white font-black">{v.modelo}</p>
+                                  <span className="p-plate-badge-mobile">{v.placa}</span>
+                              </div>
+                          </div>
+                          <div className={`p-status-pill-v2 pill-sm ${status}`}>
+                              {status.toUpperCase()}
+                          </div>
+                      </div>
+                      {v.motivo_estado && <p className="p-status-reason-mobile">{v.motivo_estado}</p>}
+                      <div className="p-card-divider"></div>
+                      <div className="p-flex p-justify-between p-items-center">
+                          <div>
+                              <p className="p-fee-label-mobile">Cuota Diaria</p>
+                              <p className="text-white font-black" style={{ fontSize: '1.2rem' }}>${parseFloat(v.cuota_diaria).toFixed(2)}</p>
+                          </div>
+                          <div className="p-flex p-gap-2">
+                             {!v.chofer_id && <button className="btn-primary invite-btn-mobile">INVITAR</button>}
+                             <button onClick={() => onEdit && onEdit(v)} className="btn-secondary icon-btn-mobile"><MoreVertical size={18} /></button>
+                          </div>
+                      </div>
+                  </Motion.div>
+                )}
               </React.Fragment>
             );
           })}
