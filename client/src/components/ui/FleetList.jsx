@@ -1,6 +1,6 @@
 import React from 'react'
 import { MoreVertical, User, AlertTriangle, Car, History } from 'lucide-react'
-import { motion as Motion } from 'framer-motion'
+import { motion as Motion, AnimatePresence } from 'framer-motion'
 
 const FleetList = ({ vehicles = [] }) => {
   const safeVehicles = Array.isArray(vehicles) ? vehicles : [];
