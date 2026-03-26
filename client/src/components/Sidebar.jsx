@@ -49,8 +49,27 @@ const Sidebar = ({ onLogout, activeView, setActiveView, config }) => {
           TuCooperativa
         </h2>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-            <div style={{ width: '6px', height: '6px', background: 'var(--success)', borderRadius: '100px' }} className="animate-pulse" />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+            {config?.logo_path && (
+                <div style={{ 
+                    width: '28px', 
+                    height: '28px', 
+                    borderRadius: '8px', 
+                    overflow: 'hidden', 
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>
+                    <img 
+                        src={config.logo_path} 
+                        alt="Logo" 
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '2px' }} 
+                    />
+                </div>
+            )}
+            {!config?.logo_path && <div style={{ width: '6px', height: '6px', background: 'var(--success)', borderRadius: '100px' }} className="animate-pulse" />}
             <span style={{ fontSize: '0.8rem', fontWeight: 1000, textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em' }}>
                 {config?.nombre_cooperativa || 'SIN NOMBRE'}
             </span>

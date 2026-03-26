@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Settings, ShieldCheck, CreditCard, DollarSign, Bot, Save, AlertCircle, CheckCircle, Users } from 'lucide-react'
+import { Settings, ShieldCheck, CreditCard, DollarSign, Bot, Save, AlertCircle, CheckCircle, Users, Upload, Image as ImageIcon, Trash2 } from 'lucide-react'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 import { useApi } from '../hooks/useApi'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
@@ -52,6 +52,34 @@ const ConfiguracionView = () => {
         } finally {
             setSaving(false)
             setTimeout(() => setStatus(null), 3000)
+        }
+    }
+
+    const handleLogoUpload = async (e) => {
+        const file = e.target.files[0]
+        if (!file) return
+        
+        const formData = new FormData()
+        formData.append('logo', file)
+        
+        setSaving(true)
+        try {
+            const res = await fetch('api/admin/upload_logo.php', {
+                method: 'POST',
+                body: formData
+            })
+            const data = await res.json()
+            if (data.success) {
+                setConfig({ ...config, logo_path: data.logo_path })
+                setStatus({ type: 'success', msg: 'Logo actualizado correctamente' })
+                // Force reload if necessary or just let state handle it
+            } else {
+                setStatus({ type: 'error', msg: data.error || 'Error al subir logo' })
+            }
+        } catch {
+            setStatus({ type: 'error', msg: 'Error de conexión al subir logo' })
+        } finally {
+            setSaving(false)
         }
     }
 
@@ -290,38 +318,111 @@ const ConfiguracionView = () => {
                             <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '32px', fontSize: '0.9rem' }}>Actualiza el nombre y los datos fiscales de tu organización.</p>
                             
                             <div className="p-grid p-grid-cols-2 p-config-content" style={{ columnGap: '32px' }}>
-                                <div className="p-field-divider">
-                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>NOMBRE DE LA COOPERATIVA</label>
-                                    <input 
-                                        type="text"
-                                        value={config.nombre_cooperativa}
-                                        onChange={(e) => setConfig({...config, nombre_cooperativa: e.target.value})}
-                                        placeholder="Ej: Cooperativa El Progreso"
-                                        className="glass p-mobile-input-premium"
-                                        style={{ width: '100%', padding: '16px 24px', fontSize: '1.2rem', fontWeight: 800 }}
-                                    />
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                    <div className="p-field-divider">
+                                        <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>NOMBRE DE LA COOPERATIVA</label>
+                                        <input 
+                                            type="text"
+                                            value={config.nombre_cooperativa}
+                                            onChange={(e) => setConfig({...config, nombre_cooperativa: e.target.value})}
+                                            placeholder="Ej: Cooperativa El Progreso"
+                                            className="glass p-mobile-input-premium"
+                                            style={{ width: '100%', padding: '16px 24px', fontSize: '1.2rem', fontWeight: 800 }}
+                                        />
+                                    </div>
+                                    <div className="p-field-divider">
+                                        <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>RIF / IDENTIFICACIÓN FISCAL</label>
+                                        <input 
+                                            type="text"
+                                            value={config.rif}
+                                            onChange={(e) => setConfig({...config, rif: e.target.value})}
+                                            placeholder="J-12345678-0"
+                                            className="glass p-mobile-input-premium"
+                                            style={{ width: '100%', padding: '16px 24px' }}
+                                        />
+                                    </div>
+                                    <div className="p-field-divider">
+                                        <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>LEMA O SLOGAN</label>
+                                        <input 
+                                            type="text"
+                                            value={config.lema}
+                                            onChange={(e) => setConfig({...config, lema: e.target.value})}
+                                            placeholder="Ej: Transportando el futuro"
+                                            className="glass p-mobile-input-premium"
+                                            style={{ width: '100%', padding: '16px 24px' }}
+                                        />
+                                    </div>
                                 </div>
-                                <div className="p-field-divider">
-                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>RIF / IDENTIFICACIÓN FISCAL</label>
-                                    <input 
-                                        type="text"
-                                        value={config.rif}
-                                        onChange={(e) => setConfig({...config, rif: e.target.value})}
-                                        placeholder="J-12345678-0"
-                                        className="glass p-mobile-input-premium"
-                                        style={{ width: '100%', padding: '16px 24px' }}
-                                    />
-                                </div>
-                                <div className="p-field-divider">
-                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>LEMA O SLOGAN</label>
-                                    <input 
-                                        type="text"
-                                        value={config.lema}
-                                        onChange={(e) => setConfig({...config, lema: e.target.value})}
-                                        placeholder="Ej: Transportando el futuro"
-                                        className="glass p-mobile-input-premium"
-                                        style={{ width: '100%', padding: '16px 24px' }}
-                                    />
+
+                                <div style={{ 
+                                    background: 'rgba(255,255,255,0.02)', 
+                                    borderRadius: '24px', 
+                                    border: '1px solid rgba(255,255,255,0.05)', 
+                                    padding: '32px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '24px',
+                                    position: 'relative'
+                                }}>
+                                    <label style={{ position: 'absolute', top: '20px', left: '20px', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Logo Corporativo VIP</label>
+                                    
+                                    <div style={{ 
+                                        width: '140px', 
+                                        height: '140px', 
+                                        borderRadius: '32px', 
+                                        background: 'var(--glass-bg)',
+                                        border: '1px solid var(--glass-border)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        overflow: 'hidden',
+                                        boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                                        position: 'relative'
+                                    }} className="glass-hover">
+                                        {config.logo_path ? (
+                                            <img 
+                                                src={config.logo_path} 
+                                                alt="Logo Coop" 
+                                                style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '10px' }} 
+                                            />
+                                        ) : (
+                                            <ImageIcon size={48} style={{ opacity: 0.2 }} />
+                                        )}
+                                    </div>
+
+                                    <div style={{ textAlign: 'center' }}>
+                                        <p style={{ fontSize: '0.8rem', fontWeight: 700, marginBottom: '16px', color: 'rgba(255,255,255,0.6)' }}>
+                                            {config.logo_path ? '¿Deseas cambiar el logo?' : 'Personaliza tu identidad visual'}
+                                        </p>
+                                        <input 
+                                            type="file" 
+                                            id="logo-upload" 
+                                            hidden 
+                                            accept="image/*"
+                                            onChange={handleLogoUpload}
+                                        />
+                                        <label 
+                                            htmlFor="logo-upload" 
+                                            className="btn-secondary"
+                                            style={{ 
+                                                display: 'flex', 
+                                                alignItems: 'center', 
+                                                gap: '8px', 
+                                                cursor: 'pointer',
+                                                padding: '12px 24px',
+                                                fontSize: '11px'
+                                            }}
+                                        >
+                                            <Upload size={14} />
+                                            {config.logo_path ? 'SUBIR NUEVO LOGO' : 'CARGAR LOGO'}
+                                        </label>
+                                    </div>
+                                    
+                                    <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', maxWidth: '200px', textAlign: 'center', lineHeight: 1.5 }}>
+                                        Recomendado: PNG o WEBP con fondo transparente. Máx 2MB.
+                                    </p>
                                 </div>
                             </div>
 
