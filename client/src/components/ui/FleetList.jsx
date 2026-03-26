@@ -96,8 +96,8 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
 
                 {/* 2. Fee (Desktop Priority) */}
                 {!minimal && (
-                  <div className="p-fee-col p-text-center">
-                      <div className="fee-container">
+                  <div className="p-fee-col p-flex p-items-center p-justify-center">
+                      <div className="fee-container p-text-center">
                           <p className="text-white font-black" style={{ fontSize: '1.6rem', lineHeight: 1 }}>${parseFloat(v.cuota_diaria).toFixed(2)}</p>
                           <span className="fee-label">USD / DÍA</span>
                       </div>
