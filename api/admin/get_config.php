@@ -16,7 +16,8 @@ $coop_id = $user['cooperativa_id'];
 try {
     $stmt = $db->prepare("SELECT 
         telegram_bot_token, telegram_bot_name, telegram_chat_id, cuota_diaria, moneda,
-        banco_nombre, banco_tipo, banco_identidad, banco_telefono
+        banco_nombre, banco_tipo, banco_identidad, banco_telefono,
+        nombre_cooperativa, rif, lema
     FROM cooperativas WHERE id = :id");
     $stmt->execute(['id' => $coop_id]);
     $config = $stmt->fetch(PDO::FETCH_ASSOC);

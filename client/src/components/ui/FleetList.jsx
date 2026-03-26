@@ -13,11 +13,13 @@ const FleetList = ({ vehicles = [] }) => {
     )
   }
 
+  const [activeDropdown, setActiveDropdown] = React.useState(null);
+
   return (
     <div className="glass shadow-2xl mt-8" style={{ borderRadius: '32px', overflow: 'hidden' }}>
-      <div className="p-8 border-b border-white/5 flex flex-wrap gap-4 justify-between items-center bg-white/2">
+      <div className="p-8 border-b border-white/5 flex flex-wrap gap-4 justify-between items-center bg-white/2" style={{ paddingLeft: '40px' }}>
         <div className="p-flex p-items-center p-gap-4">
-            <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center text-primary" style={{ background: 'rgba(99, 102, 241, 0.1)', borderRadius: '16px' }}>
+            <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center text-primary" style={{ background: 'rgba(99, 102, 241, 0.1)', borderRadius: '16px', marginLeft: '10px' }}>
                 <Car size={20} />
             </div>
             <h3 className="text-xl font-black text-white tracking-tight">Estado de la Flota</h3>
@@ -48,6 +50,7 @@ const FleetList = ({ vehicles = [] }) => {
             >
               {/* Vehículo */}
               <div className="p-flex p-items-center p-gap-4">
+                <span className="p-mobile-label">Unidad</span>
                 <div className="p-avatar-box">
                     <Car size={24} />
                 </div>
@@ -59,6 +62,7 @@ const FleetList = ({ vehicles = [] }) => {
 
               {/* Dueño / Chofer */}
               <div className="p-flex p-flex-col p-gap-2">
+                <span className="p-mobile-label">Responsabilidad</span>
                 <div className="p-flex p-items-center p-gap-2">
                   <User size={14} style={{ opacity: 0.3 }} />
                   <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'white' }}>{v.dueno_nombre}</span>
@@ -76,6 +80,7 @@ const FleetList = ({ vehicles = [] }) => {
 
               {/* Cuota */}
               <div className="p-text-center">
+                  <span className="p-mobile-label">Tarifa Diaria</span>
                   <div style={{ display: 'inline-block', padding: '8px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
                       <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white' }}>${v.cuota_diaria}</span>
                   </div>
@@ -83,6 +88,7 @@ const FleetList = ({ vehicles = [] }) => {
 
               {/* Estado */}
               <div className="p-flex p-flex-col p-items-center p-gap-2">
+                 <span className="p-mobile-label">Estado Actual</span>
                  <span style={{ 
                     padding: '6px 16px', 
                     borderRadius: '100px', 
@@ -105,7 +111,7 @@ const FleetList = ({ vehicles = [] }) => {
               </div>
 
               {/* Acciones */}
-              <div className="p-flex p-justify-end p-gap-3">
+              <div className="p-flex p-justify-end p-gap-3" style={{ position: 'relative' }}>
                   {!v.chofer_id && (
                     <button 
                       onClick={async () => {
@@ -125,14 +131,33 @@ const FleetList = ({ vehicles = [] }) => {
                         }
                       }}
                       className="btn-primary"
-                      style={{ height: '40px', padding: '0 16px', fontSize: '9px' }}
+                      style={{ height: '40px', padding: '0 16px', fontSize: '10px' }}
                     >
                       INVITAR
                     </button>
                   )}
-                  <button className="btn-secondary" style={{ width: '40px', height: '40px', padding: 0 }}>
+                  <button 
+                    onClick={() => setActiveDropdown(activeDropdown === v.id ? null : v.id)}
+                    className="btn-secondary" 
+                    style={{ width: '40px', height: '40px', padding: 0 }}
+                  >
                       <MoreVertical size={18} style={{ opacity: 0.3 }} />
                   </button>
+                  
+                  <AnimatePresence>
+                    {activeDropdown === v.id && (
+                      <Motion.div 
+                        initial={{ opacity: 0, scale: 0.95, y: 5 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 5 }}
+                        className="glass"
+                        style={{ position: 'absolute', top: '50px', right: 0, zIndex: 100, width: '180px', padding: '8px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
+                      >
+                         <button className="tab-item" style={{ width: '100%', justifyContent: 'flex-start', padding: '12px 16px', fontSize: '11px' }}>Editar Unidad</button>
+                         <button className="tab-item" style={{ width: '100%', justifyContent: 'flex-start', padding: '12px 16px', fontSize: '11px', color: 'var(--danger)' }}>Dar de Baja</button>
+                      </Motion.div>
+                    )}
+                  </AnimatePresence>
               </div>
             </Motion.div>
           ))}
@@ -140,6 +165,7 @@ const FleetList = ({ vehicles = [] }) => {
       </div>
     </div>
   )
+
 
 }
 

@@ -634,6 +634,7 @@ button {
   padding: 32px 40px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.4s ease;
+  position: relative; /* For dropdowns */
 }
 
 .p-fleet-row:hover {
@@ -661,19 +662,55 @@ button {
   color: var(--primary);
 }
 
+.p-mobile-label {
+  display: none;
+}
+
 @media (max-width: 1024px) {
-  .p-fleet-container {
-    overflow-x: auto;
-    width: 100%;
-    -webkit-overflow-scrolling: touch;
-  }
   .p-fleet-grid {
-    min-width: 900px; /* Ensure table structure is preserved on mobile via scroll */
+    grid-template-columns: 2fr 1.5fr 1fr 1fr 1.2fr;
+    gap: 16px;
+  }
+  .p-fleet-header, .p-fleet-row {
+    padding: 24px 20px;
   }
 }
 
 @media (max-width: 768px) {
-  .p-fleet-header, .p-fleet-row {
-    padding: 20px 24px;
+  .p-fleet-header {
+    display: none !important;
+  }
+  .p-fleet-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  .p-fleet-row {
+    padding: 24px !important;
+    border-radius: 24px !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    margin-bottom: 16px !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    gap: 16px !important;
+  }
+  .p-avatar-box {
+    width: 48px !important;
+    height: 48px !important;
+  }
+  .p-mobile-label {
+    display: block !important;
+    font-size: 8px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    color: rgba(255, 255, 255, 0.2) !important;
+    margin-bottom: 4px !important;
+    letter-spacing: 0.1em !important;
+  }
+  .p-text-center, .p-text-right {
+    text-align: left !important;
+  }
+  .p-fleet-container {
+    overflow-x: visible !important;
   }
 }

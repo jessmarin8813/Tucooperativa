@@ -87,6 +87,13 @@ const ConfiguracionView = () => {
                         <CreditCard size={18} />
                         DATOS DE PAGO
                     </button>
+                    <button 
+                        onClick={() => setActiveTab('empresa')}
+                        className={`tab-item ${activeTab === 'empresa' ? 'active' : ''}`}
+                    >
+                        <Users size={18} />
+                        DATOS DE LA EMPRESA
+                    </button>
                 </div>
             </div>
 
@@ -270,6 +277,63 @@ const ConfiguracionView = () => {
                                 >
                                     {saving ? <div className="animate-spin"><Settings size={18} /></div> : <Save size={18} />}
                                     {saving ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'empresa' && (
+                        <div style={{ marginBottom: '24px' }}>
+                            <h3 style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <Users className="text-secondary" /> Identidad de la Cooperativa
+                            </h3>
+                            <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '32px', fontSize: '0.9rem' }}>Actualiza el nombre y los datos fiscales de tu organización.</p>
+                            
+                            <div className="p-grid p-grid-cols-2 p-config-content" style={{ columnGap: '32px' }}>
+                                <div className="p-field-divider">
+                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>NOMBRE DE LA COOPERATIVA</label>
+                                    <input 
+                                        type="text"
+                                        value={config.nombre_cooperativa}
+                                        onChange={(e) => setConfig({...config, nombre_cooperativa: e.target.value})}
+                                        placeholder="Ej: Cooperativa El Progreso"
+                                        className="glass p-mobile-input-premium"
+                                        style={{ width: '100%', padding: '16px 24px', fontSize: '1.2rem', fontWeight: 800 }}
+                                    />
+                                </div>
+                                <div className="p-field-divider">
+                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>RIF / IDENTIFICACIÓN FISCAL</label>
+                                    <input 
+                                        type="text"
+                                        value={config.rif}
+                                        onChange={(e) => setConfig({...config, rif: e.target.value})}
+                                        placeholder="J-12345678-0"
+                                        className="glass p-mobile-input-premium"
+                                        style={{ width: '100%', padding: '16px 24px' }}
+                                    />
+                                </div>
+                                <div className="p-field-divider">
+                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>LEMA O SLOGAN</label>
+                                    <input 
+                                        type="text"
+                                        value={config.lema}
+                                        onChange={(e) => setConfig({...config, lema: e.target.value})}
+                                        placeholder="Ej: Transportando el futuro"
+                                        className="glass p-mobile-input-premium"
+                                        style={{ width: '100%', padding: '16px 24px' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ marginTop: '40px', display: 'flex', justifyContent: 'flex-end' }}>
+                                <button 
+                                    onClick={handleSave}
+                                    disabled={saving}
+                                    className="btn-primary p-mobile-full-width"
+                                    style={{ padding: '16px 48px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', opacity: saving ? 0.7 : 1 }}
+                                >
+                                    {saving ? <div className="animate-spin"><Settings size={18} /></div> : <Save size={18} />}
+                                    {saving ? 'GUARDANDO...' : 'ACTUALIZAR IDENTIDAD'}
                                 </button>
                             </div>
                         </div>

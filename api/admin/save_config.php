@@ -19,7 +19,8 @@ if ($method === 'POST') {
     
     $fields = [
         'telegram_bot_token', 'telegram_bot_name', 'telegram_chat_id', 'cuota_diaria', 'moneda',
-        'banco_nombre', 'banco_tipo', 'banco_identidad', 'banco_telefono'
+        'banco_nombre', 'banco_tipo', 'banco_identidad', 'banco_telefono',
+        'nombre_cooperativa', 'rif', 'lema'
     ];
     
     $updates = [];
