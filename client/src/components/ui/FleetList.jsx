@@ -201,6 +201,8 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                                     >
                                         <button onClick={() => onEdit && onEdit(v)} className="p-dropdown-item">Modificar Unidad</button>
                                         <button onClick={() => setActiveView && setActiveView('forensic')} className="p-dropdown-item">Ver Auditoría</button>
+                                        <div className="p-dropdown-divider"></div>
+                                        <button className="p-dropdown-item text-danger">Eliminar</button>
                                     </Motion.div>
                                 )}
                             </AnimatePresence>

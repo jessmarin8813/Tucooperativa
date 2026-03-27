@@ -175,8 +175,8 @@ const VehiculosView = ({ user, config, setActiveView }) => {
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="glass"
                   style={{ 
-                      width: '100%', padding: '0 16px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)',
-                      color: 'white', background: '#0f1019', outline: 'none', fontWeight: 1000, fontSize: '11px',
+                      width: '100%', padding: '0 16px', borderRadius: '16px', border: '1px solid var(--glass-border)',
+                      color: 'white', background: 'var(--glass-bg)', outline: 'none', fontWeight: 1000, fontSize: '11px',
                       appearance: 'none', textAlign: 'center', cursor: 'pointer', textTransform: 'uppercase',
                       height: '50px', lineHeight: 'normal'
                   }}
