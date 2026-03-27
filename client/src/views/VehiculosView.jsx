@@ -290,7 +290,11 @@ const VehiculosView = ({ user, config, setActiveView }) => {
               </div>
             </div>
 
-            <button onClick={handleCloseModal} className="glass-hover" style={{ width: '100%', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', color: 'white', fontWeight: 900, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+            <button 
+              onClick={handleCloseModal} 
+              className="btn-secondary" 
+              style={{ width: '100%', height: '56px' }}
+            >
               Cerrar
             </button>
           </div>
