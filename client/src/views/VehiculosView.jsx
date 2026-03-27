@@ -72,8 +72,9 @@ const VehiculosView = ({ user, config, setActiveView }) => {
     
     try {
       const res = await callApi('auth/invitaciones.php', 'POST', { vehiculo_id: vehicle.id })
-      if (res?.token) {
-        setInviteToken(res.token)
+      const rawData = res?.data || res;
+      if (rawData?.token) {
+        setInviteToken(rawData.token)
       } else if (res?.status === 'success' && res.token) {
          setInviteToken(res.token)
       }
