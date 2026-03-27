@@ -1,5 +1,5 @@
 import React from 'react'
-import { MoreVertical, User, AlertTriangle, Car, History, Truck, Wrench, XCircle, UserMinus } from 'lucide-react'
+import { MoreVertical, User, AlertTriangle, Car, History, Truck, Wrench, XCircle, UserMinus, Trash2 } from 'lucide-react'
 
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 
@@ -229,7 +229,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                                  height: '40px', 
                                  borderRadius: '12px', 
                                  background: 'rgba(239, 68, 68, 0.15)', 
-                                 border: '1px solid rgba(239, 68, 68, 0.35)', 
+                                 border: '1px solid rgba(239, 68, 68, 0.4)', 
                                  cursor: 'pointer', 
                                  transition: 'all 0.2s',
                                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.1)',
@@ -239,7 +239,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                                }}
                                title="Desvincular Chofer"
                            >
-                               <UserMinus size={22} color="#ef4444" strokeWidth={2.5} />
+                               <Trash2 size={20} color="#ef4444" strokeWidth={2.5} />
                            </button>
                         </div>
                       ) : (
