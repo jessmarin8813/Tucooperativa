@@ -646,16 +646,16 @@ button {
 .p-fleet-container { 
   width: 100%; 
   overflow: visible; 
-  padding: 0 4% !important; 
+  padding: 0 !important; /* Padding moved to grid for hover synchronization */
 }
 
 /* 💻 DESKTOP MATRIX (Mathematical Alignment) */
 .p-fleet-grid {
   display: grid !important;
-  /* 1fr for the Unit Name, then fixed widths for data consistency */
   grid-template-columns: 1fr 160px 220px 160px !important; 
   align-items: center;
   width: 100%;
+  padding: 0 4% !important; /* Sacred Symmetry 4% */
 }
 
 .p-fleet-header-pc {
@@ -670,15 +670,17 @@ button {
 }
 
 .p-fleet-row-pc {
-  padding: 32px 0 !important;
+  padding: 24px 0 !important;
   border-bottom: 1px solid rgba(255,255,255,0.03);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 16px; /* Premium rounding */
+  border-radius: 0; /* Removing radius for full-width hover effect if needed, or maintain if preferred */
   cursor: pointer;
+  margin: 0 !important;
 }
 
 .p-fleet-row-pc:hover { 
   background: rgba(255,255,255,0.03) !important; 
+  /* Visual alignment with 4% padding requires the background to span the whole row */
 }
 
 /* 📱 MOBILE CARDS (Native App Flow) */

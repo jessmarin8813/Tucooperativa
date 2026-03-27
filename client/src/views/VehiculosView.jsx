@@ -119,13 +119,13 @@ const VehiculosView = ({ user, config, setActiveView }) => {
             }}
           />
         </div>
-        <div className="p-flex p-flex-wrap" style={{ gap: '10px', paddingBottom: '5px' }}>
+        <div className="p-flex p-flex-wrap" style={{ gap: '12px', paddingBottom: '5px' }}>
           {['all', 'activo', 'mantenimiento', 'inactivo'].map(st => (
             <button 
               key={st}
               onClick={() => setFilterStatus(st)}
               className={`p-status-pill ${filterStatus === st ? 'active-filter' : 'lite-filter'}`}
-              style={{ cursor: 'pointer', transition: 'all 0.2s', border: 'none', whiteSpace: 'nowrap', flex: '1 1 auto', minWidth: '100px' }}
+              style={{ cursor: 'pointer', transition: 'all 0.2s', border: 'none', whiteSpace: 'nowrap', flex: '1 1 auto', minWidth: '110px' }}
             >
               {st === 'all' ? 'TODOS' : st.toUpperCase()}
             </button>

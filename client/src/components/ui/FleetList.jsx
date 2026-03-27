@@ -58,7 +58,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
         </div>
       )}
 
-      <div className="p-fleet-container custom-scrollbar" style={{ marginTop: minimal ? '0' : '40px', paddingBottom: '160px' }}>
+      <div className="p-fleet-container custom-scrollbar" style={{ marginTop: minimal ? '0' : '40px', paddingBottom: '240px' }}>
         {/* 2. PC GRID HEADER - Strict Alignment (Only in Desktop) */}
         {!isMobile && (
           <div className={`p-fleet-grid p-fleet-header-pc ${minimal ? 'minimal-grid' : ''}`}>
@@ -101,11 +101,11 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                       )}
 
                       <div className="p-status-col p-flex p-items-center p-justify-center">
-                          <div className="p-flex-col p-items-center p-justify-center" style={{ display: 'flex', flexDirection: 'column' }}>
+                          <div className="p-flex-col p-items-center p-justify-center" style={{ width: '100%' }}>
                             <div className={`p-status-pill-v2 ${status}`}>
                                 {status.toUpperCase()}
                             </div>
-                            <span className="p-status-reason">
+                            <span className="p-status-reason" style={{ width: '100%', textAlign: 'center' }}>
                                 {v.motivo_estado || 'Operación Normal'}
                             </span>
                           </div>
