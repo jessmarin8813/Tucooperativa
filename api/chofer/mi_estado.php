@@ -4,11 +4,13 @@
  * Path: api/chofer/mi_estado.php
  */
 require_once __DIR__ . '/../includes/middleware.php';
+require_once __DIR__ . '/../includes/bcv_helper.php';
 
 $user = checkAuth();
 $db = DB::getInstance();
 $user_id = $user['user_id'];
 $coop_id = $user['cooperativa_id'];
+$bcv_rate = get_bcv_rate();
 
 // 1. INTENTO DE BUSCAR RUTA ACTIVA (Y DATOS DE FLOTA)
 $sql = "SELECT 

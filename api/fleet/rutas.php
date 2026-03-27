@@ -219,6 +219,7 @@ switch ($method) {
                 $items = $stmtMaint->fetchAll();
                 
                 $alertas_enviadas = [];
+                $km_restantes = 99999; // Default value if no items
                 foreach ($items as $item) {
                     $km_since_last = $odometro_valor - floatval($item['ultimo_odometro']);
                     $freq = intval($item['frecuencia']);
