@@ -631,14 +631,17 @@ if __name__ == '__main__':
     
     # 2. Correr ambos loops juntos usando asyncio
     async def main():
-        # Iniciamos el Bot
+        # Iniciamos el Bot de forma asíncrona
         await app.initialize()
-        await app.start_polling()
+        await app.start()
+        await app.updater.start_polling()
         
         # Iniciamos el Servidor Web (Realtime)
+        # Esto es bloqueante dentro de main, pero el bot ya está en polling (async)
         await server.serve()
         
         # Al terminar (shutdown)
+        await app.updater.stop()
         await app.stop()
         await app.shutdown()
 
