@@ -4,6 +4,7 @@
  * Path: api/admin/get_config.php
  */
 require_once __DIR__ . '/../includes/middleware.php';
+require_once __DIR__ . '/../includes/bcv_helper.php';
 
 $user = checkAuth();
 if (!in_array($user['rol'], ['superadmin', 'owner', 'admin', 'dueno'])) {
@@ -27,6 +28,7 @@ try {
     }
 
     $config['user_telegram_chat_id'] = $user['telegram_chat_id'];
+    $config['bcv_rate'] = get_bcv_rate();
     sendResponse($config);
 
 } catch (Exception $e) {

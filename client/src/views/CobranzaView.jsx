@@ -60,7 +60,10 @@ const CobranzaView = () => {
 
     if (loading || apiLoading) return <LoadingSpinner />
 
-    const totalPendienteMonto = (data?.pendientes || []).reduce((acc, p) => acc + (p?.monto || 0), 0)
+    const totalPendienteMonto = (data?.pendientes || []).reduce((acc, p) => {
+        const normalizedMonto = p.moneda === 'Bs' ? (p.monto / (p.tasa_cambio || 1)) : p.monto;
+        return acc + normalizedMonto;
+    }, 0)
     const totalDeudaFlota = (data?.resumen || []).reduce((acc, v) => acc + Math.max(0, v?.saldo_pendiente || 0), 0)
 
     return (
@@ -178,16 +181,23 @@ const CobranzaView = () => {
                     ) : (data?.pendientes || []).map((p, i) => (
                         <Motion.div key={p.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="glass glass-hover" style={{ padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
-                                <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: 'var(--primary)', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 0 20px var(--primary-glow)' }}>
-                                    <span style={{ fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', opacity: 0.7 }}>Bs</span>
-                                    <span style={{ fontSize: '1.25rem', fontWeight: 900 }}>{formatBs(p.monto * 60)}</span>
-                                </div>
+                                 <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: p.moneda === 'Bs' ? 'var(--primary)' : 'var(--success)', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 0 20px ${p.moneda === 'Bs' ? 'var(--primary-glow)' : 'var(--success-glow)'}` }}>
+                                    <span style={{ fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', opacity: 0.7 }}>{p.moneda}</span>
+                                    <span style={{ fontSize: '1.25rem', fontWeight: 900 }}>{p.moneda === 'Bs' ? formatBs(p.monto) : p.monto}</span>
+                                 </div>
                                 <div style={{ minWidth: 0 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                                         <p style={{ color: 'white', fontWeight: 900, fontSize: '1.1rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.chofer}</p>
                                         <span style={{ padding: '2px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: '100px', fontSize: '0.6rem', fontWeight: 800, color: 'var(--text-dim)', flexShrink: 0 }}>{p.placa}</span>
                                     </div>
-                                    <p style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', fontWeight: 900, letterSpacing: '0.1em', marginTop: '4px' }}>{formatDate(p.fecha_reportado)}</p>
+                                    <p style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', fontWeight: 900, letterSpacing: '0.1em', marginTop: '4px' }}>
+                                        {formatDate(p.fecha_reportado)} • {p.moneda === 'Bs' ? `@ ${p.tasa_cambio}` : `REFERENCIA: ${p.referencia || 'N/A'}`}
+                                    </p>
+                                    {p.moneda === 'Bs' && (
+                                        <p style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--success)', marginTop: '2px' }}>
+                                            ≈ $ {(p.monto / (p.tasa_cambio || 1)).toFixed(2)}
+                                        </p>
+                                    )}
                                 </div>
                              </div>
                              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>

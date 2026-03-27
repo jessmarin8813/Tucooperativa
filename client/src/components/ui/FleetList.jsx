@@ -3,7 +3,7 @@ import { MoreVertical, User, AlertTriangle, Car, History, Truck, Wrench, XCircle
 
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 
-const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onInvite, onUnlink }) => {
+const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onInvite, onUnlink, config }) => {
   const safeVehicles = Array.isArray(vehicles) ? vehicles : [];
 
   if (safeVehicles.length === 0) {
@@ -111,7 +111,9 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                     <div className="p-fee-col p-flex p-items-center p-justify-center">
                       <div className="p-flex-col p-items-center" style={{ background: 'rgba(255,255,255,0.03)', padding: '12px 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', width: 'fit-content' }}>
                         <p className="text-white font-black" style={{ fontSize: '1.5rem', color: 'var(--success)', lineHeight: 1 }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
-                        <span style={{ fontSize: '10px', fontWeight: 900, opacity: 0.75, marginTop: '5px', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.85)' }}>USD / DIARIO</span>
+                        <span style={{ fontSize: '10px', fontWeight: 900, opacity: 0.75, marginTop: '5px', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.85)' }}>
+                          USD / ≈ Bs {(v.cuota_diaria * (config?.bcv_rate || 36.5)).toFixed(2)}
+                        </span>
                       </div>
                     </div>
 
@@ -206,6 +208,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                        <div style={{ textAlign: 'center' }}>
                          <p className="text-dim uppercase font-black" style={{ fontSize: '9px', letterSpacing: '0.1em', opacity: 0.75, color: 'rgba(255,255,255,0.85)' }}>Tarifa Diaria</p>
                          <p className="text-white font-black" style={{ fontSize: '1.4rem', marginTop: '4px' }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
+                         <p className="font-black" style={{ fontSize: '10px', color: 'var(--accent)', marginTop: '2px' }}>≈ Bs {(v.cuota_diaria * (config?.bcv_rate || 36.5)).toFixed(2)}</p>
                        </div>
                        <div style={{ textAlign: 'center' }}>
                          <p className="text-dim uppercase font-black" style={{ fontSize: '9px', letterSpacing: '0.1em', opacity: 0.75, color: 'rgba(255,255,255,0.85)' }}>Rendimiento</p>

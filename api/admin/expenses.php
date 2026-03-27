@@ -35,8 +35,11 @@ if ($method === 'POST') {
         sendResponse(['error' => 'Monto, fecha y categoría son obligatorios'], 400);
     }
     
-    $query = "INSERT INTO gastos (cooperativa_id, vehiculo_id, mantenimiento_item_id, categoria, monto, descripcion, fecha) 
-              VALUES (:cid, :vid, :mid, :cat, :monto, :desc, :fecha)";
+    $moneda = $data['moneda'] ?? 'USD';
+    $tasa_cambio = $data['tasa_cambio'] ?? 1.0;
+    
+    $query = "INSERT INTO gastos (cooperativa_id, vehiculo_id, mantenimiento_item_id, categoria, monto, moneda, tasa_cambio, descripcion, fecha) 
+              VALUES (:cid, :vid, :mid, :cat, :monto, :moneda, :tasa, :desc, :fecha)";
     
     $stmt = $db->prepare($query);
     $stmt->execute([
@@ -45,6 +48,8 @@ if ($method === 'POST') {
         'mid' => !empty($data['mantenimiento_item_id']) ? $data['mantenimiento_item_id'] : null,
         'cat' => $data['categoria'],
         'monto' => $data['monto'],
+        'moneda' => $moneda,
+        'tasa' => $tasa_cambio,
         'desc' => !empty($data['descripcion']) ? $data['descripcion'] : '',
         'fecha' => $data['fecha']
     ]);

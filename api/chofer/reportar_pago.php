@@ -5,6 +5,7 @@
  */
 require_once __DIR__ . '/../includes/middleware.php';
 require_once __DIR__ . '/../includes/realtime.php';
+require_once __DIR__ . '/../includes/bcv_helper.php';
 
 $user = checkAuth();
 $db = DB::getInstance();

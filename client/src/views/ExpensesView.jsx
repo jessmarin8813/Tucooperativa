@@ -17,10 +17,13 @@ const ExpensesView = () => {
     mantenimiento_item_id: '',
     categoria: 'otros',
     monto: '',
+    moneda: 'USD',
+    tasa_cambio: '',
     descripcion: '',
     fecha: new Date().toISOString().split('T')[0]
   })
   const [maintItems, setMaintItems] = useState([])
+  const [bcvRate, setBcvRate] = useState(1)
 
   const fetchMaintAlerts = useCallback(async (vid) => {
     if (!vid) {
@@ -46,8 +49,14 @@ const ExpensesView = () => {
     try {
       const expRes = await callApi('admin/expenses.php')
       const fleetRes = await callApi('vehiculos.php')
+      const rateRes = await callApi('admin/get_rate.php')
+      
       setExpenses(expRes.expenses || [])
       setVehicles(fleetRes || [])
+      if (rateRes.rate) {
+          setBcvRate(rateRes.rate)
+          setFormData(prev => ({ ...prev, tasa_cambio: rateRes.rate }))
+      }
     } catch { /* Handled */ }
   }, [callApi])
 
@@ -175,17 +184,51 @@ const ExpensesView = () => {
               )}
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <label style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>Monto ($)</label>
-                <input 
-                  type="number" 
-                  step="0.01"
-                  required
-                  value={formData.monto} 
-                  onChange={e => setFormData({...formData, monto: e.target.value})}
-                  className="glass"
-                  style={{ padding: '16px', background: 'rgba(0,0,0,0.2)', color: 'white', fontWeight: 800, outline: 'none' }}
-                  placeholder="0.00"
-                />
+                <label style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>Monto</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <select 
+                        value={formData.moneda} 
+                        onChange={e => setFormData({...formData, moneda: e.target.value})}
+                        className="glass"
+                        style={{ padding: '16px', background: 'rgba(99,102,241,0.1)', color: 'var(--accent)', fontWeight: 800, border: '1px solid var(--accent)' }}
+                    >
+                        <option value="USD">$ USD</option>
+                        <option value="Bs">Bs. DIGITAL</option>
+                    </select>
+                    <input 
+                    type="number" 
+                    step="0.01"
+                    required
+                    value={formData.monto} 
+                    onChange={e => setFormData({...formData, monto: e.target.value})}
+                    className="glass"
+                    style={{ padding: '16px', background: 'rgba(0,0,0,0.2)', color: 'white', fontWeight: 800, outline: 'none', flex: 1 }}
+                    placeholder="0.00"
+                    />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <label style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>Tasa BCV (1 USD = Bs)</label>
+                <div style={{ position: 'relative' }}>
+                    <input 
+                    type="number" 
+                    step="0.0001"
+                    required
+                    value={formData.tasa_cambio} 
+                    onChange={e => setFormData({...formData, tasa_cambio: e.target.value})}
+                    className="glass"
+                    style={{ padding: '16px', background: 'rgba(0,0,0,0.2)', color: 'var(--accent)', fontWeight: 800, outline: 'none', width: '100%' }}
+                    />
+                    {formData.monto && (
+                        <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-dim)' }}>
+                            {formData.moneda === 'USD' 
+                                ? `≈ Bs ${(formData.monto * formData.tasa_cambio).toFixed(2)}`
+                                : `≈ $ ${(formData.monto / formData.tasa_cambio).toFixed(2)}`
+                            }
+                        </div>
+                    )}
+                </div>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -265,9 +308,16 @@ const ExpensesView = () => {
                   </div>
                 </div>
                 
-                <div style={{ textAlign: 'right', minWidth: '120px' }}>
-                  <div style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--danger)', letterSpacing: '-0.05em' }}>-{formatMoney(exp.monto)}</div>
-                  <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '4px' }}>USD outflow</div>
+                <div style={{ textAlign: 'right', minWidth: '150px' }}>
+                  <div style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--danger)', letterSpacing: '-0.05em' }}>
+                      -{exp.moneda === 'Bs' ? 'Bs' : '$'} {formatMoney(exp.monto).replace('$', '')}
+                  </div>
+                  <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '4px' }}>
+                      {exp.moneda === 'Bs' 
+                        ? `(≈ $ ${(exp.monto / (exp.tasa_cambio || bcvRate)).toFixed(2)}) @ ${exp.tasa_cambio || '-'}`
+                        : `(≈ Bs ${(exp.monto * (exp.tasa_cambio || bcvRate)).toFixed(2)}) @ ${exp.tasa_cambio || '-'}`
+                      }
+                  </div>
                 </div>
               </div>
             </Motion.div>
