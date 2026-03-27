@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Plus, RefreshCw, Truck, CheckCircle2, AlertTriangle, XCircle, Search } from 'lucide-react'
+import { Plus, RefreshCw, Truck, CheckCircle2, AlertTriangle, XCircle, Search, Car } from 'lucide-react'
 import { useApi } from '../hooks/useApi'
 import FleetList from '../components/ui/FleetList'
 import StatCard from '../components/ui/StatCard'
