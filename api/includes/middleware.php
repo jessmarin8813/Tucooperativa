@@ -64,7 +64,8 @@ if (!function_exists('checkAuth')) {
                     'user_id' => $user['id'],
                     'cooperativa_id' => $user['cooperativa_id'],
                     'rol' => $user['rol'],
-                    'nombre' => $user['nombre']
+                    'nombre' => $user['nombre'],
+                    'telegram_chat_id' => $tid
                 ];
             }
 
