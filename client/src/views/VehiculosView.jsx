@@ -12,7 +12,14 @@ const VehiculosView = ({ user, config, setActiveView }) => {
   const [selectedVehicle, setSelectedVehicle] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 1024 : false)
   const { callApi, loading } = useApi()
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Use the passed user or fall back (safety)
   const [currentUser, setCurrentUser] = useState(user)
@@ -135,41 +142,42 @@ const VehiculosView = ({ user, config, setActiveView }) => {
           />
         </div>
         
-        {/* PC Version Buttons */}
-        <div className="mobile-hide p-flex" style={{ gap: '8px' }}>
-          {['all', 'activo', 'mantenimiento', 'inactivo'].map(st => (
-            <button 
-              key={st}
-              onClick={() => setFilterStatus(st)}
-              className={`p-status-pill ${filterStatus === st ? 'active-filter' : 'lite-filter'}`}
-              style={{ 
-                cursor: 'pointer', transition: 'all 0.2s', border: 'none', 
-                whiteSpace: 'nowrap', padding: '10px 20px', fontSize: '10px', fontWeight: 900
-              }}
-            >
-              {st === 'all' ? 'TODOS' : st.toUpperCase()}
-            </button>
-          ))}
-        </div>
-
-        {/* Mobile Version Select (Premium Tactile) */}
-        <div className="pc-hide" style={{ width: '100%' }}>
-            <select 
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="glass"
+        {/* FILTER NAVIGATION - Absolute Isolation */}
+        {!isMobile ? (
+          <div className="p-flex" style={{ gap: '8px' }}>
+            {['all', 'activo', 'mantenimiento', 'inactivo'].map(st => (
+              <button 
+                key={st}
+                onClick={() => setFilterStatus(st)}
+                className={`p-status-pill ${filterStatus === st ? 'active-filter' : 'lite-filter'}`}
                 style={{ 
-                    width: '100%', padding: '14px 20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)',
-                    color: 'white', background: '#0f1019', outline: 'none', fontWeight: 900, fontSize: '11px',
-                    appearance: 'none', textAlign: 'center', cursor: 'pointer', textTransform: 'uppercase'
+                  cursor: 'pointer', transition: 'all 0.2s', border: 'none', 
+                  whiteSpace: 'nowrap', padding: '10px 20px', fontSize: '10px', fontWeight: 900
                 }}
-            >
-                <option value="all">Ver Todos los Estados</option>
-                <option value="activo">Solo Activos / Operativos</option>
-                <option value="mantenimiento">En Taller / Reparación</option>
-                <option value="inactivo">Inactivos / Fuera de Servicio</option>
-            </select>
-        </div>
+              >
+                {st === 'all' ? 'TODOS' : st.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div style={{ width: '100%' }}>
+              <select 
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="glass"
+                  style={{ 
+                      width: '100%', padding: '14px 20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)',
+                      color: 'white', background: '#0f1019', outline: 'none', fontWeight: 900, fontSize: '11px',
+                      appearance: 'none', textAlign: 'center', cursor: 'pointer', textTransform: 'uppercase'
+                  }}
+              >
+                  <option value="all">Ver Todos los Estados</option>
+                  <option value="activo">Solo Activos / Operativos</option>
+                  <option value="mantenimiento">En Taller / Reparación</option>
+                  <option value="inactivo">Inactivos / Fuera de Servicio</option>
+              </select>
+          </div>
+        )}
       </div>
 
       {loading && filteredVehicles.length === 0 ? (
