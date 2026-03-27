@@ -49,7 +49,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // 1. Validar Token de Invitación (Chofer)
-        $stmt = $db->prepare("SELECT * FROM invitaciones WHERE token = ? AND usado = FALSE");
+        $stmt = $db->prepare("SELECT i.*, v.placa as vehiculo_placa, v.modelo as vehiculo_modelo 
+                             FROM invitaciones i 
+                             LEFT JOIN vehiculos v ON i.vehiculo_id = v.id
+                             WHERE i.token = ? AND i.usado = FALSE");
         $stmt->execute([$token]);
         $invitacion = $stmt->fetch();
 
@@ -82,7 +85,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'status' => 'success', 
             'message' => 'Registro de chofer completado', 
             'chofer_id' => $chofer_id,
-            'cooperativa_id' => $invitacion['cooperativa_id']
+            'cooperativa_id' => $invitacion['cooperativa_id'],
+            'vehiculo_id' => $invitacion['vehiculo_id'] ?? null,
+            'vehiculo_placa' => $invitacion['vehiculo_placa'] ?? null
         ]);
 
     } catch (Exception $e) {

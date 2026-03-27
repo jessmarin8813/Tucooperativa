@@ -233,6 +233,10 @@
                 document.getElementById('driver-status').innerText = 'Descansando';
                 document.getElementById('driver-status').style.color = 'rgba(255,255,255,0.4)';
             }
+
+            if (driverData.vehiculo_placa) {
+                document.getElementById('vehiculo-input').value = driverData.vehiculo_placa;
+            }
         }
     }
 
@@ -287,12 +291,14 @@
 
             if (data.status === 'success') {
                 log('✅ Registro exitoso en la cooperativa.');
-                driverData = { 
+                 driverData = { 
                     id: virtual_id, 
                     nombre: nombre, 
                     cedula: cedula, 
                     is_active: false,
-                    coop_id: data.cooperativa_id 
+                    coop_id: data.cooperativa_id,
+                    vehiculo_id: data.vehiculo_id,
+                    vehiculo_placa: data.vehiculo_placa
                 };
                 localStorage.setItem('sim_driver_data', JSON.stringify(driverData));
                 updateUI();
