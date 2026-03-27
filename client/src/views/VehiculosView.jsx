@@ -52,14 +52,7 @@ const VehiculosView = ({ user, config, setActiveView }) => {
         }
         init()
     
-        const interval = setInterval(() => {
-            fetchVehicles();
-        }, 10000);
-    
-        return () => { 
-            ignore = true;
-            clearInterval(interval);
-        }
+        return () => { ignore = true }
     }, [callApi, fetchVehicles, currentUser])
 
     // REALTIME SYNC (Standardized)

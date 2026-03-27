@@ -42,15 +42,8 @@ const ChoferesView = () => {
         }
         init()
     
-        // Automatic polling every 10 seconds for real-time vibe (Backup)
-        const interval = setInterval(() => {
-            fetchChoferes();
-            fetchInvitaciones();
-        }, 10000);
-    
         return () => { 
             ignore = true;
-            clearInterval(interval);
         }
     }, [fetchChoferes, fetchInvitaciones])
 

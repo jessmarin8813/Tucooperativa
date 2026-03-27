@@ -206,20 +206,27 @@
         <div id="bot-response" class="bot-msg hidden"></div>
 
         <div class="bot-menu">
-            <button onclick="showStatus()" class="btn btn-primary" style="background: #3b82f6; font-size: 0.8rem;">🗂 MI ESTADO</button>
-            <button onclick="showUnit()" class="btn btn-primary" style="background: #6366f1; font-size: 0.8rem;">🚛 MI UNIDAD</button>
+            <button onclick="showStatus()" class="btn btn-primary" style="background: #3b82f6; font-size: 0.8rem;">📊 MI DEUDA</button>
+            <button onclick="showUnit()" class="btn btn-primary" style="background: #6366f1; font-size: 0.8rem;">🚐 MI UNIDAD</button>
             <button onclick="showPaymentForm()" class="btn btn-primary" style="background: #10b981; font-size: 0.8rem;">💰 REPORTAR PAGO</button>
-            <button onclick="toggleJourneyForm()" class="btn btn-primary" style="background: #f59e0b; font-size: 0.8rem;">🛣 JORNADA</button>
-            <button onclick="showIssueForm()" class="btn btn-primary" style="background: #ef4444; font-size: 0.8rem; grid-column: span 2;">⚠️ REPORTAR FALLA UNIDAD</button>
+            <button onclick="toggleJourneyForm()" class="btn btn-primary" id="btn-journey-toggle" style="background: #f59e0b; font-size: 0.8rem;">🚛 INICIAR JORNADA</button>
+            <button onclick="showIssueForm()" class="btn btn-danger" style="font-size: 0.8rem; grid-column: span 2; margin-top: 10px;">⚠️ REPORTAR FALLA UNIDAD</button>
         </div>
+
 
         <!-- FORM: PAGO -->
         <div id="form-payment" class="hidden" style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 16px;">
-            <label>Monto Pago ($)</label>
+            <label>Método de Pago</label>
+            <select id="payment-method" style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #333;">
+                <option value="Efectivo (Bs)">Efectivo (Bs)</option>
+                <option value="Pago Móvil">Pago Móvil</option>
+            </select>
+            <label>Monto Pago (Bs)</label>
             <input type="number" id="payment-amount" placeholder="0.00">
             <button onclick="reportPayment()" class="btn btn-success" style="margin-top: 10px;">Enviar Reporte de Pago</button>
-            <button onclick="hideForms()" class="btn" style="background: transparent; font-size: 0.7rem;">Cancelar</button>
+            <button onclick="hideForms()" class="btn btn-danger" style="font-size: 0.75rem; margin-top: 8px;">❌ CANCELAR</button>
         </div>
+
 
         <!-- FORM: JORNADA -->
         <div id="form-journey" class="hidden" style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 16px;">
@@ -236,8 +243,9 @@
                 <input type="number" id="end-odo">
                 <button onclick="endJourney()" class="btn btn-danger">🏁 Finalizar Jornada</button>
             </div>
-            <button onclick="hideForms()" class="btn" style="background: transparent; font-size: 0.7rem;">Cerrar</button>
+            <button onclick="hideForms()" class="btn btn-danger" style="font-size: 0.75rem; margin-top: 15px;">❌ CANCELAR / CERRAR</button>
         </div>
+
 
         <!-- FORM: FALLA -->
         <div id="form-issue" class="hidden" style="margin-bottom: 20px; padding: 15px; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 16px;">
@@ -252,8 +260,9 @@
             <label>Descripción Detallada</label>
             <textarea id="issue-desc" style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #333; height: 80px;"></textarea>
             <button onclick="reportIssue()" class="btn btn-danger">Enviar Reporte de Emergencia</button>
-            <button onclick="hideForms()" class="btn" style="background: transparent; font-size: 0.7rem;">Cancelar</button>
+            <button onclick="hideForms()" class="btn btn-danger" style="background: rgba(255,255,255,0.05); margin-top: 10px; font-size: 0.75rem;">❌ CANCELAR</button>
         </div>
+
     </div>
 
     <div class="log" id="sim-log">
@@ -293,12 +302,17 @@
                 activeActions.classList.remove('hidden');
                 document.getElementById('driver-status').innerText = 'En Ruta';
                 document.getElementById('driver-status').style.color = '#10b981';
+                document.getElementById('btn-journey-toggle').innerText = '🏁 FINALIZAR RUTA';
+                document.getElementById('btn-journey-toggle').style.background = 'var(--danger)';
             } else {
                 idleActions.classList.remove('hidden');
                 activeActions.classList.add('hidden');
                 document.getElementById('driver-status').innerText = 'Descansando';
                 document.getElementById('driver-status').style.color = 'rgba(255,255,255,0.4)';
+                document.getElementById('btn-journey-toggle').innerText = '🚛 INICIAR JORNADA';
+                document.getElementById('btn-journey-toggle').style.background = '#f59e0b';
             }
+
 
             if (driverData.vehiculo_placa) {
                 document.getElementById('vehiculo-input').value = driverData.vehiculo_placa;
@@ -447,13 +461,14 @@
             const km = data.ultimo_km || 0;
             const bancos = data.datos_bancarios || 'Consulte al admin';
 
-            const msg = `🗂 *ESTADO DE CUENTA*\n\n` +
+            const msg = `📊 *ESTADO DE CUENTA*\n\n` +
                         `🔹 Unidad: ${placa}\n` +
                         `🔹 Deuda: Bs ${deuda}\n` +
                         `🔹 Pendiente: Bs ${pendientes}\n` +
                         `🔹 Último KM: ${km}\n\n` +
                         `💳 *Datos de Pago*:\n${bancos}`;
             showBotMsg(msg);
+
         } catch (e) { 
             log('❌ Error al obtener estado.'); 
             console.error(e);
@@ -489,7 +504,15 @@
     function toggleJourneyForm() {
         hideForms();
         document.getElementById('form-journey').classList.remove('hidden');
+        
+        // AUTO-SKIP / SINGLE UNIT LOGIC (Sync with Bot v36.0)
+        if (!driverData.is_active && driverData.vehiculo_placa) {
+            log(`🚐 Unidad detectada: ${driverData.vehiculo_placa}. Saltando selección...`);
+            document.getElementById('vehiculo-input').value = driverData.vehiculo_placa;
+            document.getElementById('start-odo').focus();
+        }
     }
+
 
     function hideForms() {
         document.getElementById('form-payment').classList.add('hidden');
@@ -559,16 +582,20 @@
 
     async function reportPayment() {
         const amount = document.getElementById('payment-amount').value;
-        if (!amount) return;
-        log(`Reportando pago de Bs ${amount}...`);
+        const method = document.getElementById('payment-method').value;
+        if (!amount) return alert('Ingresa un monto.');
+        
+        log(`Reportando pago de Bs ${amount} via ${method}...`);
+        const ef = method === 'Efectivo (Bs)' ? amount : 0;
+        const pm = method === 'Pago Móvil' ? amount : 0;
 
         try {
             const res = await fetch(`${API_BASE}chofer/reportar_pago.php`, {
                 method: 'POST',
                 body: JSON.stringify({
                     telegram_id: driverData.id,
-                    monto_efectivo: amount,
-                    monto_pagomovil: 0,
+                    monto_efectivo: ef,
+                    monto_pagomovil: pm,
                     comprobante: 'uploads/sim_pago.jpg'
                 })
             });
@@ -576,9 +603,11 @@
             if (data.success) {
                 log('💰 Pago reportado correctamente.');
                 document.getElementById('payment-amount').value = '';
+                hideForms();
             } else { log(`❌ Error: ${data.error || data.message}`); }
         } catch (e) { log('❌ Error de comunicación.'); }
     }
+
 
     async function endJourney() {
         const odo = document.getElementById('end-odo').value;

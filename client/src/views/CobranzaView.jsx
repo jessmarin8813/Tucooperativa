@@ -35,16 +35,10 @@ const CobranzaView = () => {
         }
         init()
         
-        // Automatic polling every 10 seconds for real-time backup
-        const interval = setInterval(() => {
-            fetchData()
-        }, 10000)
-
         return () => { 
             ignore = true;
-            clearInterval(interval);
         }
-    }, [fetchData, date])
+    }, [fetchData])
 
     // REALTIME SYNC (Standardized)
     useRealtime((event) => {

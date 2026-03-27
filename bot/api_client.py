@@ -131,6 +131,16 @@ class TuCooperativaAPI:
         except Exception as e:
             return {'error': str(e)}
 
+    def exonerate_route(self, ruta_id):
+        try:
+            response = self.session.post(f"{self.base_url}/admin/rutas_admin.php", json={
+                'action': 'exonerate',
+                'ruta_id': ruta_id
+            })
+            return response.json()
+        except Exception as e:
+            return {'error': str(e)}
+
     def reactivate_vehicle(self, telegram_id, foto=''):
         try:
             response = self.session.post(f"{self.base_url}/fleet/reactivar_vehiculo.php", json={

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 /**
  * useRealtime Hook
@@ -6,11 +6,18 @@ import { useEffect } from 'react';
  * listening for broadcast events to trigger UI refreshes.
  */
 export const useRealtime = (onUpdate) => {
+    const callbackRef = useRef(onUpdate);
+
+    // Keep the ref updated with the latest callback
     useEffect(() => {
-        // Use the same host as the web app (supports LAN access)
+        callbackRef.current = onUpdate;
+    }, [onUpdate]);
+
+    useEffect(() => {
         const host = window.location.hostname;
         const socketUrl = `ws://${host}:8000/ws`;
         let socket;
+        let reconnectTimeout;
 
         const connect = () => {
             console.log('🔌 Conectando a Realtime Hub...');
@@ -25,9 +32,9 @@ export const useRealtime = (onUpdate) => {
                     const data = JSON.parse(event.data);
                     console.log('📩 Evento Realtime recibido:', data);
                     
-                    // Trigger the refresh callback
-                    if (onUpdate) {
-                        onUpdate(data);
+                    // Trigger the latest refresh callback via ref
+                    if (callbackRef.current) {
+                        callbackRef.current(data);
                     }
                 } catch (err) {
                     console.error('❌ Error parseando evento realtime:', err);
@@ -36,7 +43,7 @@ export const useRealtime = (onUpdate) => {
 
             socket.onclose = () => {
                 console.log('🔌 Desconectado de Realtime Hub. Reintentando en 5s...');
-                setTimeout(connect, 5000); // Auto-reconnect
+                reconnectTimeout = setTimeout(connect, 5000);
             };
 
             socket.onerror = (err) => {
@@ -49,6 +56,7 @@ export const useRealtime = (onUpdate) => {
 
         return () => {
             if (socket) socket.close();
+            if (reconnectTimeout) clearTimeout(reconnectTimeout);
         };
     }, []); // Only once on mount
 };

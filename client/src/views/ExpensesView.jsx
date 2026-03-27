@@ -1,21 +1,46 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useApi } from '../hooks/useApi'
-import { Wrench, Plus, DollarSign, Calendar, FileText, Truck, Search, Trash2 } from 'lucide-react'
+import { useRealtime } from '../hooks/useRealtime'
+import { Wrench, Plus, DollarSign, Calendar, FileText, Truck, Search, Trash2, Settings } from 'lucide-react'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 import { formatMoney } from '../utils/DashboardConstants'
+import LoadingSpinner from '../components/ui/LoadingSpinner'
 
 const ExpensesView = () => {
   const { callApi, loading } = useApi()
   const [expenses, setExpenses] = useState([])
   const [vehicles, setVehicles] = useState([])
   const [showForm, setShowForm] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState({
     vehiculo_id: '',
+    mantenimiento_item_id: '',
     categoria: 'otros',
     monto: '',
     descripcion: '',
     fecha: new Date().toISOString().split('T')[0]
   })
+  const [maintItems, setMaintItems] = useState([])
+
+  const fetchMaintAlerts = useCallback(async (vid) => {
+    if (!vid) {
+        setMaintItems([])
+        return
+    }
+    try {
+        const res = await callApi('fleet/mantenimiento.php')
+        const vehicle = res.find(v => v.id == vid)
+        setMaintItems(vehicle?.items || [])
+    } catch { /* Handled */ }
+  }, [callApi])
+
+  useEffect(() => {
+    if (formData.vehiculo_id) {
+        fetchMaintAlerts(formData.vehiculo_id)
+    } else {
+        setMaintItems([])
+    }
+  }, [formData.vehiculo_id, fetchMaintAlerts])
 
   const fetchData = useCallback(async () => {
     try {
@@ -27,17 +52,19 @@ const ExpensesView = () => {
   }, [callApi])
 
   useEffect(() => {
-    let ignore = false
-    const init = async () => {
-      await Promise.resolve()
-      if (!ignore) fetchData()
-    }
-    init()
-    return () => { ignore = true }
+    fetchData()
   }, [fetchData])
+
+  // Realtime update
+  useRealtime((event) => {
+    if (event.type === 'EXPENSES_UPDATE') {
+      fetchData()
+    }
+  })
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setSaving(true)
     try {
       await callApi('admin/expenses.php', {
         method: 'POST',
@@ -46,13 +73,16 @@ const ExpensesView = () => {
       setShowForm(false)
       setFormData({
         vehiculo_id: '',
+        mantenimiento_item_id: '',
         categoria: 'otros',
         monto: '',
         descripcion: '',
         fecha: new Date().toISOString().split('T')[0]
       })
       fetchData()
-    } catch { /* Handled */ }
+    } catch { /* Handled */ } finally {
+      setSaving(false)
+    }
   }
 
   const categories = [
@@ -63,7 +93,7 @@ const ExpensesView = () => {
   ]
 
   return (
-    <div>
+    <div className="animate-fade">
       <header className="p-flex-responsive p-justify-between" style={{ marginBottom: '40px' }}>
         <Motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
           <h1 className="h1-premium neon-text">Gastos Operativos</h1>
@@ -77,6 +107,8 @@ const ExpensesView = () => {
           {showForm ? 'CANCELAR' : <><Plus size={20} /> REGISTRAR GASTO</>}
         </button>
       </header>
+
+
 
       <AnimatePresence>
         {showForm && (
@@ -92,7 +124,7 @@ const ExpensesView = () => {
                 <label style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>Vehículo (Opcional)</label>
                 <select 
                   value={formData.vehiculo_id} 
-                  onChange={e => setFormData({...formData, vehiculo_id: e.target.value})}
+                  onChange={e => setFormData({...formData, vehiculo_id: e.target.value, mantenimiento_item_id: ''})}
                   className="glass"
                   style={{ padding: '16px', background: 'rgba(0,0,0,0.2)', color: 'white', fontWeight: 700, outline: 'none' }}
                 >
@@ -114,6 +146,33 @@ const ExpensesView = () => {
                   {categories.map(c => <option key={c.id} value={c.id} style={{ background: '#0a0b12' }}>{c.label}</option>)}
                 </select>
               </div>
+
+              {/* Maintenance Item Link (Conditional) */}
+              {(formData.categoria === 'repuestos' || formData.categoria === 'mantenimiento') && formData.vehiculo_id && maintItems.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', gridColumn: 'span 2' }}>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--accent)', letterSpacing: '0.1em' }}>🔗 Vincular a Alerta de Mantenimiento</label>
+                    <select 
+                    value={formData.mantenimiento_item_id} 
+                    onChange={e => {
+                        const item = maintItems.find(i => i.id == e.target.value);
+                        setFormData({
+                            ...formData, 
+                            mantenimiento_item_id: e.target.value,
+                            descripcion: item ? `${item.nombre} - ${formData.descripcion}` : formData.descripcion
+                        });
+                    }}
+                    className="glass"
+                    style={{ padding: '16px', background: 'rgba(99,102,241,0.1)', border: '1px solid var(--accent)', color: 'white', fontWeight: 700, outline: 'none' }}
+                    >
+                    <option value="" style={{ background: '#0a0b12' }}>-- Seleccionar Alerta (Opcional) --</option>
+                    {maintItems.map(item => (
+                        <option key={item.id} value={item.id} style={{ background: '#0a0b12' }}>
+                            {item.nombre} ({item.estado.toUpperCase()}) - {item.km_restantes} KM restantes
+                        </option>
+                    ))}
+                    </select>
+                </div>
+              )}
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <label style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>Monto ($)</label>
@@ -154,8 +213,8 @@ const ExpensesView = () => {
               </div>
 
               <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'flex-end', paddingTop: '16px' }}>
-                <button type="submit" className="btn-primary" style={{ padding: '16px 48px', fontSize: '0.875rem', fontWeight: 800 }} disabled={loading}>
-                  {loading ? 'PROCESANDO...' : 'GUARDAR REGISTRO'}
+                <button type="submit" className="btn-primary" style={{ padding: '16px 48px', fontSize: '0.875rem', fontWeight: 800 }} disabled={saving}>
+                  {saving ? 'PROCESANDO...' : 'GUARDAR REGISTRO'}
                 </button>
               </div>
             </form>
@@ -164,7 +223,9 @@ const ExpensesView = () => {
       </AnimatePresence>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {expenses.length === 0 ? (
+        {loading && expenses.length === 0 ? (
+          <LoadingSpinner />
+        ) : expenses.length === 0 ? (
           <div style={{ padding: '80px', textAlign: 'center' }} className="glass">
             <Search size={48} style={{ opacity: 0.1, marginBottom: '24px' }} />
             <p style={{ color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.75rem' }}>No se han registrado gastos aún</p>
@@ -172,7 +233,7 @@ const ExpensesView = () => {
         ) : (
           expenses.map((exp, idx) => (
             <Motion.div 
-              key={exp.id}
+              key={exp.id || idx}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
@@ -189,8 +250,10 @@ const ExpensesView = () => {
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px', flexWrap: 'wrap' }}>
                       <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white' }}>{exp.descripcion || 'Sin descripción'}</span>
+                      {exp.item_nombre && <span style={{ padding: '4px 12px', background: 'rgba(99,102,241,0.2)', border: '1px solid var(--accent)', borderRadius: '100px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--accent)', textTransform: 'uppercase' }}>🔧 {exp.item_nombre}</span>}
                       <span style={{ padding: '4px 12px', background: 'rgba(255,255,255,0.05)', borderRadius: '100px', fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase' }}>{exp.categoria}</span>
                     </div>
+
                     <div style={{ display: 'flex', gap: '32px', fontSize: '0.75rem', fontWeight: 800, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', flexWrap: 'wrap' }}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <Calendar size={14} style={{ color: 'var(--accent)' }} /> {exp.fecha}

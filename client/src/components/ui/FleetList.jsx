@@ -1,5 +1,6 @@
 import React from 'react'
-import { MoreVertical, User, AlertTriangle, Car, History, Truck } from 'lucide-react'
+import { MoreVertical, User, AlertTriangle, Car, History, Truck, Wrench } from 'lucide-react'
+
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 
 const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onInvite }) => {
@@ -72,32 +73,63 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
               <React.Fragment key={`F_ITEM_${v?.id || i}`}>
                 {!isMobile ? (
                   /* --- DESKTOP ROW --- */
-                  <Motion.div 
+                   <Motion.div 
                     key={`PC_ROW_${v?.id || i}`}
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                    whileHover={{ scale: 1.002, background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.15)' }}
                     className="p-fleet-grid p-fleet-row-pc"
+                    style={{ 
+                        margin: '8px 12px', 
+                        padding: '24px 32px', 
+                        borderRadius: '24px', 
+                        background: 'rgba(255,255,255,0.02)',
+                        border: '1px solid rgba(255,255,255,0.05)',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        cursor: 'default'
+                    }}
                   >
-                      <div className="p-identity-col">
-                          <p className="text-white font-black" style={{ fontSize: '1.1rem', letterSpacing: '-0.01em' }}>{v.modelo || 'Unidad Activa'}</p>
-                          <div className="p-flex p-items-center p-gap-3" style={{ marginTop: '4px' }}>
-                              <span className="p-plate-badge" style={{ fontSize: '9px', color: '#06b6d4', fontWeight: 950, background: 'rgba(6, 182, 212, 0.1)', padding: '3px 10px', borderRadius: '8px', border: '1px solid rgba(6,182,212,0.2)' }}>{v.placa}</span>
-                              {v.chofer_nombre && <span className="p-driver-tag">{v.chofer_nombre}</span>}
+                      <div className="p-identity-col" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                           <div className="p-flex p-items-center p-gap-3">
+                                <p className="text-white font-black uppercase italic" style={{ fontSize: '1.25rem', letterSpacing: '-0.02em', color: 'var(--primary)' }}>{v.modelo || 'Unidad Activa'}</p>
+                                <span className="p-plate-badge" style={{ fontSize: '9px', color: '#06b6d4', fontWeight: 950, background: 'rgba(6, 182, 212, 0.1)', padding: '3px 10px', borderRadius: '8px', border: '1px solid rgba(6,182,212,0.2)' }}>{v.placa}</span>
+                                {v.maintenance_status !== 'ok' && (
+                                    <Motion.div 
+                                        animate={{ rotate: [0, 15, -15, 0] }} 
+                                        transition={{ repeat: Infinity, duration: 2 }}
+                                        onClick={(e) => { e.stopPropagation(); setActiveView && setActiveView('maintenance'); }}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        <Wrench size={16} color={v.maintenance_status === 'critico' ? 'var(--danger)' : 'var(--warning)'} />
+                                    </Motion.div>
+                                )}
+                           </div>
+                           <div className="p-flex p-items-center p-gap-3" style={{ marginTop: '8px' }}>
+                              <User size={18} className="text-white/20" />
+                              {v.chofer_nombre ? (
+                                  <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'white', letterSpacing: '-0.01em' }}>
+                                      {v.chofer_nombre}
+                                  </span>
+                              ) : (
+                                  <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'rgba(255,255,255,0.2)', fontStyle: 'italic' }}>
+                                      SIN CHOFER ASIGNADO
+                                  </span>
+                              )}
                           </div>
                       </div>
 
                       <div className="p-fee-col p-flex p-items-center p-justify-center">
-                          <div className="p-flex-col p-items-center">
-                              <p className="text-white font-black" style={{ fontSize: '1.4rem' }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
-                              <span className="p-fee-label">USD / DÍA</span>
+                          <div className="p-flex-col p-items-center" style={{ background: 'rgba(0,0,0,0.2)', padding: '12px 24px', borderRadius: '16px', minWidth: '140px' }}>
+                              <p className="text-white font-black" style={{ fontSize: '1.6rem', color: 'var(--success)' }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
+                              <span className="p-fee-label" style={{ fontSize: '8px', opacity: 0.5 }}>USD / DÍA</span>
                           </div>
                       </div>
 
                       <div className="p-status-col p-flex p-items-center p-justify-center">
                           <div className="p-flex-col p-items-center" style={{ width: '100%' }}>
-                            <div className={`p-status-pill-v2 ${status}`}>
+                            <div className={`p-status-pill-v2 ${status}`} style={{ padding: '8px 20px', fontSize: '10px' }}>
                                 {status.toUpperCase()}
                             </div>
-                            <span className="p-status-reason" style={{ width: '100%', textAlign: 'center' }}>
+                            <span className="p-status-reason" style={{ width: '100%', textAlign: 'center', marginTop: '6px' }}>
                                 {statusDescription}
                             </span>
                           </div>
@@ -109,7 +141,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                                   <button 
                                     onClick={() => onInvite && onInvite(v)}
                                     className="btn-primary invite-btn-pc" 
-                                    style={{ fontSize: '10px', height: '44px', fontWeight: 1000 }}
+                                    style={{ fontSize: '10px', height: '48px', fontWeight: 1000, padding: '0 24px', letterSpacing: '0.05em' }}
                                   >
                                       INVITAR CHOFER
                                   </button>
@@ -118,17 +150,18 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                                   <button 
                                     onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} 
                                     className="btn-secondary dropdown-trigger-pc"
-                                    style={{ width: '44px', height: '44px', borderRadius: '12px', padding: 0 }}
+                                    style={{ width: '48px', height: '48px', borderRadius: '14px', padding: 0, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
                                   >
-                                      <MoreVertical size={20} className={activeDropdown === v.id ? 'text-primary' : 'text-white/30'} />
+                                      <MoreVertical size={22} className={activeDropdown === v.id ? 'text-primary' : 'text-white/40'} />
                                   </button>
                                   <AnimatePresence>
                                       {activeDropdown === v.id && (
                                           <Motion.div 
-                                            initial={{ opacity: 0, y: isNearBottom ? -10 : 10 }} 
-                                            animate={{ opacity: 1, y: 0 }} 
-                                            exit={{ opacity: 0, y: isNearBottom ? -10 : 10 }} 
+                                            initial={{ opacity: 0, y: isNearBottom ? -10 : 10, scale: 0.95 }} 
+                                            animate={{ opacity: 1, y: 0, scale: 1 }} 
+                                            exit={{ opacity: 0, y: isNearBottom ? -10 : 10, scale: 0.95 }} 
                                             className={`p-dropdown-menu ${isNearBottom ? 'upward' : ''}`}
+                                            style={{ zIndex: 100 }}
                                           >
                                               <button onClick={() => onEdit && onEdit(v)} className="p-dropdown-item">Modificar Unidad</button>
                                               <button onClick={() => setActiveView && setActiveView('forensic')} className="p-dropdown-item">Ver Auditoría</button>
@@ -152,10 +185,20 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
                           <div className="p-flex p-gap-4">
                               {/* Icon removed per user request for absolute purity */}
-                              <div>
-                                  <p className="text-white font-black uppercase italic" style={{ fontSize: '1.2rem', lineHeight: 1.2 }}>{v.modelo || 'Unidad'}</p>
-                                  <span className="p-plate-badge" style={{ fontSize: '9px', color: '#06b6d4', fontWeight: 950, background: 'rgba(6, 182, 212, 0.1)', padding: '3px 10px', borderRadius: '8px', border: '1px solid rgba(6,182,212,0.2)', marginTop: '4px', display: 'inline-block' }}>{v.placa}</span>
-                              </div>
+                               <div>
+                                   <div className="p-flex p-items-center p-gap-2">
+                                        <p className="text-white font-black uppercase italic" style={{ fontSize: '1.2rem', lineHeight: 1.2 }}>{v.modelo || 'Unidad'}</p>
+                                        {v.maintenance_status !== 'ok' && (
+                                            <Wrench 
+                                                size={18} 
+                                                color={v.maintenance_status === 'critico' ? 'var(--danger)' : 'var(--warning)'} 
+                                                onClick={(e) => { e.stopPropagation(); setActiveView && setActiveView('maintenance'); }}
+                                            />
+                                        )}
+                                   </div>
+                                   <span className="p-plate-badge" style={{ fontSize: '9px', color: '#06b6d4', fontWeight: 950, background: 'rgba(6, 182, 212, 0.1)', padding: '3px 10px', borderRadius: '8px', border: '1px solid rgba(6,182,212,0.2)', marginTop: '4px', display: 'inline-block' }}>{v.placa}</span>
+                               </div>
+
                           </div>
                           <div className="p-flex-col p-items-center">
                             <div className={`p-status-pill-v2 pill-sm ${status}`} style={{ padding: '6px 14px', fontSize: '9px' }}>

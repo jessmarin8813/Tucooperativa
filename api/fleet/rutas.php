@@ -71,14 +71,16 @@ switch ($method) {
 
                     if ($owner_info && $owner_info['telegram_chat_id']) {
                         require_once __DIR__ . '/../includes/telegram_helper.php';
-                        $msg = "🕵️‍♂️ **GAP DETECTADO - Uso No Reportado**\n\n";
+                        $msg = "🕵️‍♂️ **DISCREPANCIA DE KILOMETRAJE - Reporte Inconsistente**\n\n";
                         $msg .= "Unidad: *{$owner_info['placa']}*\n";
-                        $msg .= "Chofer: *{$owner_info['chofer_name']}*\n";
+                        $msg .= "Chofer: *{$owner_info['chofer_name']}*\n\n";
+                        $msg .= "ℹ️ *El vehículo fue movido " . round($gap, 2) . " KM sin abrir una jornada en el sistema.*\n\n";
                         $msg .= "Inicio Actual: `{$odometro_valor} KM`\n";
                         $msg .= "Último Reporte: `{$last_odo} KM`\n";
-                        $msg .= "⚠️ **BRECHA:** " . round($gap, 2) . " KM sin reportar.";
+                        $msg .= "⚠️ **DIFERENCIA:** " . round($gap, 2) . " KM.";
                         sendTelegramNotification($owner_info['telegram_chat_id'], $msg, $coop_id);
                     }
+
                 }
 
                 // 2. Log Odometer (Start)
@@ -210,9 +212,10 @@ switch ($method) {
                     }
                 }
 
-                // 5. Mantenimiento Predictivo Granular (Phase 32)
+                // 5. Mantenimiento Predictivo Granular (Phase 8 Integrated)
                 $stmtMaint = $db->prepare("SELECT * FROM mantenimiento_items WHERE vehiculo_id = ?");
-                $stmtMaint->execute([$vid]);
+                $stmtMaint->execute([$ruta_info['vehiculo_id']]);
+
                 $items = $stmtMaint->fetchAll();
                 
                 $alertas_enviadas = [];
@@ -230,13 +233,21 @@ switch ($method) {
                         ];
 
                         if ($ruta_info['telegram_id']) {
+                            // Phase 8: Fetch associated expenses for this specific item
+                            $stmtG = $db->prepare("SELECT SUM(monto) FROM gastos WHERE mantenimiento_item_id = ?");
+                            $stmtG->execute([$item['id']]);
+                            $total_gastado = $stmtG->fetchColumn() ?: 0;
+
                             $emoji = ($km_restantes <= 0) ? "🚨" : "⚠️";
                             $msg_maint = "$emoji *ALERTA DE MANTENIMIENTO*\n\n";
                             $msg_maint .= "Unidad: *{$ruta_info['placa']}*\n";
                             $msg_maint .= "Componente: *{$item['nombre']}*\n";
                             $msg_maint .= "Estado: *$estado*\n";
                             $msg_maint .= "Kilómetros restantes: *{$km_restantes} KM*\n";
-                            $msg_maint .= "¡Favor agendar servicio!";
+                            if ($total_gastado > 0) {
+                                $msg_maint .= "💰 Gasto Registrado: *$" . number_format($total_gastado, 2) . "*\n";
+                            }
+                            $msg_maint .= "\n¡Favor agendar servicio!";
                             sendTelegramNotification($ruta_info['telegram_id'], $msg_maint, $coop_id);
                         }
                     }

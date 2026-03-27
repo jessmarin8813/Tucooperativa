@@ -98,6 +98,7 @@ function App() {
     <MainLayout 
       user={user} 
       config={config}
+      setConfig={setConfig}
       activeView={activeView} 
       setActiveView={setActiveView} 
       onLogout={handleLogout} 

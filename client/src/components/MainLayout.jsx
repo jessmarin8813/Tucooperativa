@@ -112,7 +112,7 @@ const MainLayout = ({ user, config, activeView, setActiveView, onLogout }) => {
                       {activeView === 'dashboard' && <Dashboard setActiveView={handleNavigate} />}
                       {activeView === 'choferes' && <ChoferesView />}
                       {activeView === 'ranking' && <DriverRanking />}
-                      {activeView === 'config' && <ConfiguracionView />}
+                      {activeView === 'config' && <ConfiguracionView config={config} setConfig={setConfig} />}
                       {activeView === 'bi' && <BIView />}
                       {activeView === 'gastos' && <ExpensesView />}
                       {activeView === 'cobranza' && <CobranzaView />}

@@ -16,12 +16,14 @@ switch ($method) {
         // Fetch all vehicles with their maintenance items
         $stmt = $db->prepare("SELECT v.id as vehiculo_id, v.placa, 
                              (SELECT valor FROM odometros WHERE cooperativa_id = v.cooperativa_id AND ruta_id IN (SELECT id FROM rutas WHERE vehiculo_id = v.id) ORDER BY created_at DESC LIMIT 1) as odometro_actual,
-                             m.id as item_id, m.nombre, m.frecuencia, m.ultimo_odometro
+                             m.id as item_id, m.nombre, m.frecuencia, m.ultimo_odometro,
+                             (SELECT SUM(monto) FROM gastos WHERE mantenimiento_item_id = m.id) as total_gastado
                              FROM vehiculos v
                              LEFT JOIN mantenimiento_items m ON v.id = m.vehiculo_id
                              WHERE v.cooperativa_id = :coop_id");
         $stmt->execute(['coop_id' => $coop_id]);
         $rows = $stmt->fetchAll();
+
 
         // Group items by vehicle
         $health_report = [];
@@ -55,8 +57,10 @@ switch ($method) {
                     'km_desde_servicio' => $km_since,
                     'progreso' => min(100, round($progress, 2)),
                     'estado' => $status,
-                    'km_restantes' => max(0, $freq - $km_since)
+                    'km_restantes' => max(0, $freq - $km_since),
+                    'total_gastado' => floatval($r['total_gastado'] ?? 0)
                 ];
+
             }
         }
 

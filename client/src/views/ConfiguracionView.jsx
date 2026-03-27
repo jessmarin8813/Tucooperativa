@@ -4,39 +4,17 @@ import { motion as Motion, AnimatePresence } from 'framer-motion'
 import { useApi } from '../hooks/useApi'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 
-const ConfiguracionView = () => {
+const ConfiguracionView = ({ config: globalConfig, setConfig: setGlobalConfig }) => {
     const { callApi, loading: apiLoading } = useApi()
     const [activeTab, setActiveTab] = useState('sistema')
-    const [config, setConfig] = useState({
-        cuota_diaria: 10,
-        moneda: 'USD',
-        telegram_bot_token: '',
-        telegram_bot_name: '',
-        telegram_chat_id: '',
-        banco_nombre: '',
-        banco_tipo: 'Pago Móvil',
-        banco_identidad: '',
-        banco_telefono: ''
-    })
+    const [localConfig, setLocalConfig] = useState(globalConfig)
     const [saving, setSaving] = useState(false)
     const [status, setStatus] = useState(null)
 
-    const fetchConfig = useCallback(async () => {
-        try {
-            const res = await callApi('admin/get_config.php')
-            if (res) setConfig(prev => ({ ...prev, ...res }))
-        } catch { /* Handled */ }
-    }, [callApi])
-
+    // Sync local state if global prop changes (e.g., initial load in App)
     useEffect(() => {
-        let ignore = false
-        const init = async () => {
-            await Promise.resolve()
-            if (!ignore) await fetchConfig()
-        }
-        init()
-        return () => { ignore = true }
-    }, [fetchConfig])
+        if (globalConfig) setLocalConfig(prev => ({ ...prev, ...globalConfig }));
+    }, [globalConfig])
 
     const handleSave = async () => {
         setSaving(true)
@@ -44,8 +22,10 @@ const ConfiguracionView = () => {
         try {
             await callApi('admin/save_config.php', {
                 method: 'POST',
-                body: JSON.stringify(config)
+                body: JSON.stringify(localConfig)
             })
+            // Update GLOBAL state to reflect changes in Sidebar/etc
+            if (setGlobalConfig) setGlobalConfig(localConfig);
             setStatus({ type: 'success', msg: 'Configuración guardada correctamente' })
         } catch {
             setStatus({ type: 'error', msg: 'Error al guardar configuración' })
@@ -70,9 +50,10 @@ const ConfiguracionView = () => {
             })
             const data = await res.json()
             if (data.success) {
-                setConfig({ ...config, logo_path: data.logo_path })
+                const updated = { ...localConfig, logo_path: data.logo_path };
+                setLocalConfig(updated)
+                if (setGlobalConfig) setGlobalConfig(updated);
                 setStatus({ type: 'success', msg: 'Logo actualizado correctamente' })
-                // Force reload if necessary or just let state handle it
             } else {
                 setStatus({ type: 'error', msg: data.error || 'Error al subir logo' })
             }
@@ -83,7 +64,7 @@ const ConfiguracionView = () => {
         }
     }
 
-    if (apiLoading && !config.cuota_diaria) return <LoadingSpinner />
+    if (apiLoading && !localConfig.cuota_diaria) return <LoadingSpinner />
 
     return (
         <div className="view-container animate-fade">
@@ -145,8 +126,8 @@ const ConfiguracionView = () => {
                                         <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>CUOTA DIARIA ($ USD)</label>
                                         <input 
                                             type="number"
-                                            value={config.cuota_diaria}
-                                            onChange={(e) => setConfig({...config, cuota_diaria: e.target.value})}
+                                            value={localConfig.cuota_diaria}
+                                            onChange={(e) => setLocalConfig({...localConfig, cuota_diaria: e.target.value})}
                                             className="glass p-mobile-input-premium"
                                             style={{ width: '100%', padding: '16px 24px', fontSize: '1.5rem', fontWeight: 900, color: 'white' }}
                                         />
@@ -155,8 +136,8 @@ const ConfiguracionView = () => {
                                     <div className="p-field-divider">
                                         <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>DIVISA PRINCIPAL</label>
                                         <select 
-                                            value={config.moneda}
-                                            onChange={(e) => setConfig({...config, moneda: e.target.value})}
+                                            value={localConfig.moneda}
+                                            onChange={(e) => setLocalConfig({...localConfig, moneda: e.target.value})}
                                             className="glass select-premium p-mobile-input-premium"
                                             style={{ width: '100%', padding: '16px 24px', fontWeight: 700, appearance: 'none' }}
                                         >
@@ -202,26 +183,26 @@ const ConfiguracionView = () => {
                                     </div>
                                     <button 
                                         onClick={async () => {
-                                            if (config.telegram_chat_id || config.user_telegram_chat_id) return;
+                                            if (localConfig.telegram_chat_id || localConfig.user_telegram_chat_id) return;
                                             const res = await callApi('admin/generate_link_token.php?role=owner');
                                             if(res.success && res.link) window.open(res.link, '_blank');
                                         }}
-                                        disabled={!!(config.telegram_chat_id || config.user_telegram_chat_id)}
-                                        className={`p-mobile-full-width ${(config.telegram_chat_id || config.user_telegram_chat_id) ? 'btn-secondary' : 'btn-primary'}`} 
+                                        disabled={!!(localConfig.telegram_chat_id || localConfig.user_telegram_chat_id)}
+                                        className={`p-mobile-full-width ${(localConfig.telegram_chat_id || localConfig.user_telegram_chat_id) ? 'btn-secondary' : 'btn-primary'}`} 
                                         style={{ 
                                             height: '44px', 
-                                            background: (config.telegram_chat_id || config.user_telegram_chat_id) ? 'rgba(34, 197, 94, 0.1)' : 'var(--accent)', 
-                                            color: (config.telegram_chat_id || config.user_telegram_chat_id) ? '#22c55e' : 'white',
+                                            background: (localConfig.telegram_chat_id || localConfig.user_telegram_chat_id) ? 'rgba(34, 197, 94, 0.1)' : 'var(--accent)', 
+                                            color: (localConfig.telegram_chat_id || localConfig.user_telegram_chat_id) ? '#22c55e' : 'white',
                                             fontSize: '10px',
-                                            opacity: (config.telegram_chat_id || config.user_telegram_chat_id) ? 1 : (saving ? 0.7 : 1),
-                                            border: (config.telegram_chat_id || config.user_telegram_chat_id) ? '1px solid #22c55e' : 'none'
+                                            opacity: (localConfig.telegram_chat_id || localConfig.user_telegram_chat_id) ? 1 : (saving ? 0.7 : 1),
+                                            border: (localConfig.telegram_chat_id || localConfig.user_telegram_chat_id) ? '1px solid #22c55e' : 'none'
                                         }}
                                     >
-                                        {(config.telegram_chat_id || config.user_telegram_chat_id) ? 'CUENTA VINCULADA ✓' : 'VINCULAR AHORA'}
+                                        {(localConfig.telegram_chat_id || localConfig.user_telegram_chat_id) ? 'CUENTA VINCULADA ✓' : 'VINCULAR AHORA'}
                                     </button>
 
                                 </div>
-                                {config.telegram_chat_id && (
+                                {localConfig.telegram_chat_id && (
                                     <p className="p-senior-label" style={{ marginTop: '12px', textAlign: 'center', fontStyle: 'italic' }}>
                                         Tu vínculo está consolidado por seguridad. Para reestablecerlo, contacte al SuperAdmin.
                                     </p>
@@ -265,8 +246,8 @@ const ConfiguracionView = () => {
                                     <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>BANCO DESTINO</label>
                                     <input 
                                         type="text"
-                                        value={config.banco_nombre}
-                                        onChange={(e) => setConfig({...config, banco_nombre: e.target.value})}
+                                        value={localConfig.banco_nombre}
+                                        onChange={(e) => setLocalConfig({...localConfig, banco_nombre: e.target.value})}
                                         placeholder="Ej: Banco Mercantil"
                                         className="glass p-mobile-input-premium"
                                         style={{ width: '100%', padding: '16px 24px' }}
@@ -276,8 +257,8 @@ const ConfiguracionView = () => {
                                     <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>CÉDULA / RIF</label>
                                     <input 
                                         type="text"
-                                        value={config.banco_identidad}
-                                        onChange={(e) => setConfig({...config, banco_identidad: e.target.value})}
+                                        value={localConfig.banco_identidad}
+                                        onChange={(e) => setLocalConfig({...localConfig, banco_identidad: e.target.value})}
                                         placeholder="V-12345678"
                                         className="glass p-mobile-input-premium"
                                         style={{ width: '100%', padding: '16px 24px' }}
@@ -287,8 +268,8 @@ const ConfiguracionView = () => {
                                     <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>TELÉFONO ASOCIADO</label>
                                     <input 
                                         type="text"
-                                        value={config.banco_telefono}
-                                        onChange={(e) => setConfig({...config, banco_telefono: e.target.value})}
+                                        value={localConfig.banco_telefono}
+                                        onChange={(e) => setLocalConfig({...localConfig, banco_telefono: e.target.value})}
                                         placeholder="04121234567"
                                         className="glass p-mobile-input-premium"
                                         style={{ width: '100%', padding: '16px 24px' }}
@@ -323,8 +304,8 @@ const ConfiguracionView = () => {
                                         <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>NOMBRE DE LA COOPERATIVA</label>
                                         <input 
                                             type="text"
-                                            value={config.nombre_cooperativa}
-                                            onChange={(e) => setConfig({...config, nombre_cooperativa: e.target.value})}
+                                            value={localConfig.nombre_cooperativa}
+                                            onChange={(e) => setLocalConfig({...localConfig, nombre_cooperativa: e.target.value})}
                                             placeholder="Ej: Cooperativa El Progreso"
                                             className="glass p-mobile-input-premium"
                                             style={{ width: '100%', padding: '16px 24px', fontSize: '1.2rem', fontWeight: 800 }}
@@ -334,8 +315,8 @@ const ConfiguracionView = () => {
                                         <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>RIF / IDENTIFICACIÓN FISCAL</label>
                                         <input 
                                             type="text"
-                                            value={config.rif}
-                                            onChange={(e) => setConfig({...config, rif: e.target.value})}
+                                            value={localConfig.rif}
+                                            onChange={(e) => setLocalConfig({...localConfig, rif: e.target.value})}
                                             placeholder="J-12345678-0"
                                             className="glass p-mobile-input-premium"
                                             style={{ width: '100%', padding: '16px 24px' }}
@@ -345,8 +326,8 @@ const ConfiguracionView = () => {
                                         <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>LEMA O SLOGAN</label>
                                         <input 
                                             type="text"
-                                            value={config.lema}
-                                            onChange={(e) => setConfig({...config, lema: e.target.value})}
+                                            value={localConfig.lema}
+                                            onChange={(e) => setLocalConfig({...localConfig, lema: e.target.value})}
                                             placeholder="Ej: Transportando el futuro"
                                             className="glass p-mobile-input-premium"
                                             style={{ width: '100%', padding: '16px 24px' }}
@@ -381,9 +362,9 @@ const ConfiguracionView = () => {
                                         boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
                                         position: 'relative'
                                     }} className="glass-hover">
-                                        {config.logo_path ? (
+                                        {localConfig.logo_path ? (
                                             <img 
-                                                src={config.logo_path} 
+                                                src={localConfig.logo_path} 
                                                 alt="Logo Coop" 
                                                 style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '10px' }} 
                                             />
@@ -394,7 +375,7 @@ const ConfiguracionView = () => {
 
                                     <div style={{ textAlign: 'center' }}>
                                         <p style={{ fontSize: '0.8rem', fontWeight: 700, marginBottom: '16px', color: 'rgba(255,255,255,0.6)' }}>
-                                            {config.logo_path ? '¿Deseas cambiar el logo?' : 'Personaliza tu identidad visual'}
+                                            {localConfig.logo_path ? '¿Deseas cambiar el logo?' : 'Personaliza tu identidad visual'}
                                         </p>
                                         <input 
                                             type="file" 
@@ -416,7 +397,7 @@ const ConfiguracionView = () => {
                                             }}
                                         >
                                             <Upload size={14} />
-                                            {config.logo_path ? 'SUBIR NUEVO LOGO' : 'CARGAR LOGO'}
+                                            {localConfig.logo_path ? 'SUBIR NUEVO LOGO' : 'CARGAR LOGO'}
                                         </label>
                                     </div>
                                     

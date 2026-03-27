@@ -20,32 +20,49 @@ switch ($method) {
     case 'GET':
         // New: Support for Bot lookup via driver session
         if (isset($_GET['my_unit'])) {
+            // 1. Try active route first
             $stmt = $db->prepare("SELECT v.*, u.nombre as dueno_nombre 
                                  FROM vehiculos v 
                                  JOIN usuarios u ON v.dueno_id = u.id 
                                  JOIN rutas r ON r.vehiculo_id = v.id
                                  WHERE r.chofer_id = :user_id AND r.estado = 'activa'
                                  LIMIT 1");
-            $stmt->execute(['user_id' => $user['user_id']]);
+            $stmt->execute(['user_id' => $user['chofer_id'] ?? $user['user_id']]);
             $v = $stmt->fetch();
+            
+            if (!$v) {
+                // 2. Try permanent assignment
+                $stmt = $db->prepare("SELECT v.*, u.nombre as dueno_nombre 
+                                     FROM vehiculos v 
+                                     JOIN usuarios u ON v.dueno_id = u.id 
+                                     WHERE v.chofer_id = (SELECT id FROM choferes WHERE telegram_id = :tid OR id = :uid)
+                                     LIMIT 1");
+                $stmt->execute(['tid' => $user['telegram_id'] ?? 0, 'uid' => $user['chofer_id'] ?? 0]);
+                $v = $stmt->fetch();
+            }
+
             if ($v) {
-                $v['status_label'] = 'en ruta';
+                $v['status_label'] = 'asignado';
                 sendResponse($v);
             } else {
-                sendResponse(['error' => 'No tienes una unidad asignada en ruta activa'], 404);
+                sendResponse(['error' => 'No tienes una unidad asignada permanentemente ni en ruta activa'], 404);
             }
             exit;
         }
+
 
         // List vehicles with current driver and active route status
         $sql = "SELECT v.*, u.nombre as dueno_nombre, c_perm.nombre as chofer_nombre,
                 (SELECT r.estado FROM rutas r WHERE r.vehiculo_id = v.id AND r.estado = 'activa' LIMIT 1) as current_status,
                 (SELECT r.chofer_id FROM rutas r WHERE r.vehiculo_id = v.id AND r.estado = 'activa' LIMIT 1) as active_chofer_id,
-                (SELECT c.nombre FROM rutas r JOIN choferes c ON r.chofer_id = c.id WHERE r.vehiculo_id = v.id AND r.estado = 'activa' LIMIT 1) as active_chofer_nombre
+                (SELECT c.nombre FROM rutas r JOIN choferes c ON r.chofer_id = c.id WHERE r.vehiculo_id = v.id AND r.estado = 'activa' LIMIT 1) as active_chofer_nombre,
+                (SELECT MAX((((SELECT valor FROM odometros WHERE cooperativa_id = v.cooperativa_id AND ruta_id IN (SELECT id FROM rutas WHERE vehiculo_id = v.id) ORDER BY created_at DESC LIMIT 1) - m.ultimo_odometro) / m.frecuencia) * 100) 
+                 FROM mantenimiento_items m WHERE m.vehiculo_id = v.id) as max_maint_progress
                 FROM vehiculos v 
                 LEFT JOIN usuarios u ON v.dueno_id = u.id 
                 LEFT JOIN choferes c_perm ON v.chofer_id = c_perm.id
                 WHERE v.cooperativa_id = :coop_id";
+
         
         $stmt = $db->prepare($sql);
         $stmt->execute(['coop_id' => $coop_id]);
@@ -54,7 +71,10 @@ switch ($method) {
         // Map status to readable format
         foreach ($vehicles as &$v) {
             $v['status_label'] = ($v['current_status'] ?? '') === 'activa' ? 'en ruta' : 'activo';
+            $progress = floatval($v['max_maint_progress'] ?? 0);
+            $v['maintenance_status'] = $progress >= 100 ? 'critico' : ($progress >= 85 ? 'advertencia' : 'ok');
         }
+
 
         sendResponse($vehicles);
         break;

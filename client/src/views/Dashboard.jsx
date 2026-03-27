@@ -35,36 +35,19 @@ const Dashboard = ({ setActiveView }) => {
   useRealtime((event) => {
     console.log('🔄 Sincronización Realtime gatillada por:', event.type)
     fetchDashboardData()
-    // Si fue un vinculación, refrescar también el usuario para quitar el mensaje
-    if (event.type === 'REFRESH_AUTH') {
-      window.location.reload() 
-    }
+    // Ya no usamos window.location.reload() para evitar perder el scroll.
+    // El estado se actualiza mediante fetchDashboardData() y las props globales.
   })
 
   useEffect(() => {
     let ignore = false
     const init = async () => {
       await Promise.resolve()
-      if (ignore) return
-
-      if (!currentUser) {
-        const sessionRes = await callApi('session.php')
-        setCurrentUser(sessionRes.user)
-      }
-      fetchDashboardData()
+      if (!ignore) fetchDashboardData()
     }
     init()
-    
-    // Automatic polling every 10 seconds for real-time backup
-    const interval = setInterval(() => {
-      fetchDashboardData()
-    }, 10000)
-
-    return () => { 
-      ignore = true
-      clearInterval(interval)
-    }
-  }, [callApi, fetchDashboardData, currentUser])
+    return () => { ignore = true }
+  }, [fetchDashboardData])
 
   if (loading && data.stats.total_vehiculos === 0) {
     return (
