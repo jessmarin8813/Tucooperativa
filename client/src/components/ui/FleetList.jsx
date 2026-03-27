@@ -228,18 +228,18 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                                  width: '40px', 
                                  height: '40px', 
                                  borderRadius: '12px', 
-                                 background: 'rgba(239, 68, 68, 0.15)', 
-                                 border: '1px solid rgba(239, 68, 68, 0.4)', 
+                                 background: 'rgba(239, 68, 68, 0.25)', 
+                                 border: '1px solid rgba(239, 68, 68, 0.45)', 
                                  cursor: 'pointer', 
                                  transition: 'all 0.2s',
-                                 boxShadow: '0 4px 12px rgba(239, 68, 68, 0.1)',
+                                 boxShadow: '0 4px 12px rgba(239, 68, 68, 0.15)',
                                  display: 'flex',
                                  alignItems: 'center',
                                  justifyContent: 'center'
                                }}
                                title="Desvincular Chofer"
                            >
-                               <Trash2 size={20} color="#ef4444" strokeWidth={2.5} />
+                               <Trash2 size={20} color="#ffffff" strokeWidth={2.5} />
                            </button>
                         </div>
                       ) : (
