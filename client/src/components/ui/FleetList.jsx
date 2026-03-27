@@ -142,7 +142,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                   >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
                           <div className="p-flex p-gap-4">
-                              {/* Icon removed per user request */}
+                              {/* Icon removed per user request for absolute purity */}
                               <div>
                                   <p className="text-white font-black uppercase italic" style={{ fontSize: '1.2rem', lineHeight: 1.2 }}>{v.modelo}</p>
                                   <span className="p-plate-badge" style={{ fontSize: '9px', color: '#06b6d4', fontWeight: 950, background: 'rgba(6, 182, 212, 0.1)', padding: '3px 10px', borderRadius: '8px', border: '1px solid rgba(6,182,212,0.2)', marginTop: '4px', display: 'inline-block' }}>{v.placa}</span>
@@ -152,7 +152,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                             <div className={`p-status-pill-v2 pill-sm ${status}`} style={{ padding: '6px 14px', fontSize: '9px' }}>
                                 {status.toUpperCase()}
                             </div>
-                            <span className="p-status-reason" style={{ fontSize: '8px', marginTop: '4px', width: 'auto' }}>
+                            <span className="p-status-reason" style={{ fontSize: '8px', marginTop: '4px', width: 'auto', textAlign: 'center' }}>
                                 {statusDescription}
                             </span>
                           </div>
@@ -169,21 +169,27 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                           </div>
                       </div>
 
-                      <div style={{ display: 'flex', gap: '12px' }}>
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                           {!v.chofer_id && status === 'activo' ? (
-                            <button className="btn-primary" style={{ flex: 1, height: '52px', fontSize: '11px', fontWeight: 1000 }}>INVITAR CHOFER</button>
+                            <button className="btn-primary" style={{ flex: 1, height: '54px', fontSize: '11px', fontWeight: 1000 }}>INVITAR CHOFER</button>
                           ) : (
-                            <div style={{ flex: 1, padding: '14px', background: 'rgba(255,255,255,0.03)', borderRadius: '14px', textAlign: 'center', fontSize: '10px', color: 'var(--text-dim)', fontWeight: 800 }}>
+                            <div style={{ flex: 1, height: '54px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', fontSize: '10px', color: 'var(--text-dim)', fontWeight: 800 }}>
                                 {v.chofer_id ? 'CHOFER ASIGNADO' : status.toUpperCase()}
                             </div>
                           )}
                           <div style={{ position: 'relative' }}>
+                            {/* ACTION BUTTON: Mapped to Native Menu Trigger Style */}
                             <button 
                                 onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} 
                                 className="glass-hover" 
-                                style={{ width: '52px', height: '52px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                                style={{ 
+                                    width: '54px', height: '54px', borderRadius: '16px', 
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)',
+                                    boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+                                }}
                             >
-                                <MoreVertical size={20} className="text-white/40" />
+                                <MoreVertical size={28} style={{ color: '#ffffff' }} />
                             </button>
                             <AnimatePresence>
                                 {activeDropdown === v.id && (
