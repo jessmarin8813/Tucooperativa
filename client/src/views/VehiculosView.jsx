@@ -173,7 +173,7 @@ const VehiculosView = ({ user, config, setActiveView }) => {
                       width: '100%', padding: '0 20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)',
                       color: 'white', background: '#0f1019', outline: 'none', fontWeight: 900, fontSize: '11px',
                       appearance: 'none', textAlign: 'center', cursor: 'pointer', textTransform: 'uppercase',
-                      height: '52px'
+                      height: '54px'
                   }}
               >
                   <option value="all">Ver Todos los Estados</option>
