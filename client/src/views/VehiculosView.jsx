@@ -279,8 +279,26 @@ const VehiculosView = ({ user, config, setActiveView }) => {
                 />
                 <button 
                   onClick={() => {
-                    navigator.clipboard.writeText(`https://t.me/TuCooperativaBot?start=INVITE_${inviteVehicle.id}`);
-                    alert('Enlace copiado al portapapeles');
+                    const link = `https://t.me/TuCooperativaBot?start=INVITE_${inviteVehicle.id}`;
+                    try {
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(link).then(() => alert('Enlace copiado al portapapeles'));
+                        } else {
+                            throw new Error('Clipboard API unavailable');
+                        }
+                    } catch (err) {
+                        const textArea = document.createElement("textarea");
+                        textArea.value = link;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        try {
+                            document.execCommand('copy');
+                            alert('Enlace copiado al portapapeles');
+                        } catch (copyErr) {
+                            console.error('Fallback copy failed', copyErr);
+                        }
+                        document.body.removeChild(textArea);
+                    }
                   }}
                   className="btn-primary"
                   style={{ padding: '8px 16px', fontSize: '10px', fontWeight: 1000, height: 'auto' }}
