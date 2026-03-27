@@ -10,6 +10,13 @@ from dotenv import load_dotenv
 from api_client import TuCooperativaAPI
 from ip_sync import sync_env_ip # NEW: Auto-discovery
 
+# WEB SERVER IMPORTS (Unified)
+import uvicorn
+import asyncio
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
+from pydantic import BaseModel
+from typing import List
+
 load_dotenv()
 
 # Logger Configuration
@@ -23,16 +30,53 @@ from api_client import TuCooperativaAPI
 # API
 api = TuCooperativaAPI()
 
-async def notify_realtime(type: str, message: str = "", coop_id: int = None):
-    """Broadcasts an event to the Realtime Server (WebSockets)"""
+# --- REALTIME HUB CORE (Unified) ---
+app_web = FastAPI()
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+    def disconnect(self, websocket: WebSocket):
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
+    async def broadcast(self, message: dict):
+        for connection in self.active_connections:
+            try:
+                await connection.send_json(message)
+            except:
+                pass
+
+manager = ConnectionManager()
+
+class BroadcastMessage(BaseModel):
+    type: str
+    message: str = ""
+    cooperativa_id: int = None
+
+@app_web.post("/broadcast")
+async def broadcast_endpoint(msg: BroadcastMessage):
+    logger.info(f"📡 Broadcast Request: {msg.type} | Coop: {msg.cooperativa_id}")
+    await manager.broadcast(msg.dict())
+    return {"status": "success"}
+
+@app_web.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
     try:
-        requests.post("http://localhost:8000/broadcast", json={
-            "type": type,
-            "message": message,
-            "cooperativa_id": coop_id
-        }, timeout=1)
-    except Exception as e:
-        logger.warning(f"⚠️ Realtime broadcast failed: {e}")
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+
+async def notify_realtime(type: str, message: str = "", coop_id: int = None):
+    """Internal Broadcast (No HTTP needed anymore within same process)"""
+    await manager.broadcast({
+        "type": type,
+        "message": message,
+        "cooperativa_id": coop_id
+    })
 
 async def post_init(application):
     """Auto-discovery: Report bot username to backend on startup"""
@@ -579,7 +623,28 @@ if __name__ == '__main__':
 
     app.add_error_handler(error_handler)
     
-    print("🚀 Bot Zero-Command Iniciado...")
-    app.run_polling()
+    print("🚀 Fusión Maestra: Bot + Realtime Hub Iniciados en el puerto 8000")
+    
+    # 1. Configurar Uvicorn de forma asíncrona
+    config = uvicorn.Config(app=app_web, host="0.0.0.0", port=8000, log_level="warning")
+    server = uvicorn.Server(config)
+    
+    # 2. Correr ambos loops juntos usando asyncio
+    async def main():
+        # Iniciamos el Bot
+        await app.initialize()
+        await app.start_polling()
+        
+        # Iniciamos el Servidor Web (Realtime)
+        await server.serve()
+        
+        # Al terminar (shutdown)
+        await app.stop()
+        await app.shutdown()
+
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("👋 Servicio apagado correctamente.")
 
 
