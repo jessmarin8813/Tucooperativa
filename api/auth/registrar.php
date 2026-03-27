@@ -68,14 +68,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$invitacion['cooperativa_id'], $nombre, $cedula, $telegram_id]);
         $chofer_id = $db->lastInsertId();
 
-        // 2b. La vinculación a unidad se maneja mediante el inicio de rutas
-        // Nota: Si se requiere vinculación permanente, considerar añadir chofer_id a la tabla vehiculos
+        // 2b. Vinculación automática si la invitación tenía vehiculo_id
+        if (!empty($invitacion['vehiculo_id'])) {
+            $stmt = $db->prepare("UPDATE vehiculos SET chofer_id = ? WHERE id = ?");
+            $stmt->execute([$chofer_id, $invitacion['vehiculo_id']]);
+        }
         
         // 3. Marcar Token como usado
         $stmt = $db->prepare("UPDATE invitaciones SET usado = TRUE WHERE token = ?");
         $stmt->execute([$token]);
 
-        echo json_encode(['status' => 'success', 'message' => 'Registro de chofer completado', 'chofer_id' => $chofer_id]);
+        echo json_encode([
+            'status' => 'success', 
+            'message' => 'Registro de chofer completado', 
+            'chofer_id' => $chofer_id,
+            'cooperativa_id' => $invitacion['cooperativa_id']
+        ]);
 
     } catch (Exception $e) {
         http_response_code(500);

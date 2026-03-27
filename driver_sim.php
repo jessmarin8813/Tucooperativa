@@ -147,6 +147,15 @@
             <input type="text" id="cedula-input" placeholder="Ej: 12345678">
         </div>
         <button onclick="registerDriver()" class="btn btn-primary" id="btn-reg">Vincular SIM a Cooperativa</button>
+
+        <div id="registration-preview" class="glass hidden" style="margin-top: 20px; border: 1px solid var(--accent); background: rgba(6, 182, 212, 0.05);">
+            <p class="text-dim uppercase font-black" style="font-size: 10px; margin-bottom: 8px;">Invitación Detectada</p>
+            <h3 id="preview-coop" style="margin: 0; font-size: 1.2rem;">Cooperativa</h3>
+            <div id="preview-unit-box" style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); borderRadius: 12px; display: inline-block;">
+                <span style="font-size: 0.7rem; color: var(--text-dim); display: block; text-transform: uppercase;">Unidad Asignada</span>
+                <span id="preview-unit" style="font-weight: 900; color: var(--accent);">PLACA-000</span>
+            </div>
+        </div>
     </div>
 
     <!-- PESTAÑA: PANEL DE CONTROL -->
@@ -160,6 +169,8 @@
         </div>
 
         <div id="actions-idle">
+            <label>Unidad (ID o Placa)</label>
+            <input type="text" id="vehiculo-input" placeholder="Ej. 001">
             <label>Odómetro Inicial</label>
             <input type="number" id="start-odo" value="0">
             <button onclick="startJourney()" class="btn btn-success">Iniciar Jornada</button>
@@ -238,6 +249,25 @@
             token = token.split('start=')[1];
         }
 
+        // Preview Logic
+        try {
+            const previewRes = await fetch(`${API_BASE}auth/invitaciones.php?token=${token}`);
+            if (previewRes.ok) {
+                const inv = await previewRes.json();
+                document.getElementById('preview-coop').innerText = inv.cooperativa_nombre;
+                if (inv.vehiculo_placa) {
+                    document.getElementById('preview-unit').innerText = `${inv.vehiculo_modelo} (${inv.vehiculo_placa})`;
+                    document.getElementById('preview-unit-box').classList.remove('hidden');
+                } else {
+                    document.getElementById('preview-unit-box').classList.add('hidden');
+                }
+                document.getElementById('registration-preview').classList.remove('hidden');
+                log('✨ Invitación validada correctamente.');
+            } else {
+                document.getElementById('registration-preview').classList.add('hidden');
+            }
+        } catch (e) { console.error("Preview failed", e); }
+
         btn.innerText = 'PROCESANDO...';
         log(`Intento de registro con token: ${token.substring(0,6)}...`);
 
@@ -280,7 +310,9 @@
 
     async function startJourney() {
         const odo = document.getElementById('start-odo').value;
-        const v_id = context.user_data['vehiculo_id'];
+        const v_id = document.getElementById('vehiculo-input').value;
+        
+        if (!v_id) return alert('Por favor, indica el ID o Placa del vehículo.');
         log(`Iniciando jornada para unidad ${v_id} con odómetro: ${odo}`);
 
         try {

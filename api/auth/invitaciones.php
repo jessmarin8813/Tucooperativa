@@ -5,6 +5,21 @@
 require_once '../includes/db.php';
 require_once '../includes/middleware.php';
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['token'])) {
+    $token = $_GET['token'];
+    $db = DB::getInstance();
+    $stmt = $db->prepare("SELECT i.*, c.nombre as cooperativa_nombre, v.placa as vehiculo_placa, v.modelo as vehiculo_modelo 
+                          FROM invitaciones i 
+                          JOIN cooperativas c ON i.cooperativa_id = c.id 
+                          LEFT JOIN vehiculos v ON i.vehiculo_id = v.id 
+                          WHERE i.token = ? AND i.usado = FALSE");
+    $stmt->execute([$token]);
+    $inv = $stmt->fetch();
+    if (!$inv) sendResponse(['error' => 'Invitación inválida o expirada'], 404);
+    sendResponse($inv);
+    exit;
+}
+
 $auth = checkAuth();
 $db = DB::getInstance();
 
