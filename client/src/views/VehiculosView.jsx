@@ -73,6 +73,19 @@ const VehiculosView = ({ user, config, setActiveView }) => {
     setIsModalOpen(true)
   }
 
+  const handleUnlinkDriver = async (vehicle) => {
+    if (!window.confirm(`¿Estás seguro de desvincular al chofer de la unidad ${vehicle.placa}?`)) return;
+    try {
+      await callApi('admin/save_vehicle.php', {
+        method: 'POST',
+        body: JSON.stringify({ ...vehicle, chofer_id: 0, action: 'edit' })
+      });
+      fetchVehicles();
+    } catch (err) {
+      console.error('Error unlinking driver', err);
+    }
+  }
+
   const handleOpenInviteModal = async (vehicle) => {
     setInviteVehicle(vehicle)
     setIsInviteModalOpen(true)
@@ -264,6 +277,7 @@ const VehiculosView = ({ user, config, setActiveView }) => {
             setActiveView={setActiveView} 
             onEdit={handleEditVehicle}
             onInvite={handleOpenInviteModal}
+            onUnlink={handleUnlinkDriver}
           />
         </div>
       )}

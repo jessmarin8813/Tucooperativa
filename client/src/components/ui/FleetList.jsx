@@ -1,9 +1,9 @@
 import React from 'react'
-import { MoreVertical, User, AlertTriangle, Car, History, Truck, Wrench } from 'lucide-react'
+import { MoreVertical, User, AlertTriangle, Car, History, Truck, Wrench, XCircle, UserMinus } from 'lucide-react'
 
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 
-const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onInvite }) => {
+const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onInvite, onUnlink }) => {
   const safeVehicles = Array.isArray(vehicles) ? vehicles : [];
 
   if (safeVehicles.length === 0) {
@@ -156,6 +156,9 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                               >
                                 <button onClick={() => onEdit && onEdit(v)} className="p-dropdown-item">Modificar Unidad</button>
                                 <button onClick={() => setActiveView && setActiveView('forensic')} className="p-dropdown-item">Ver Auditoría</button>
+                                {v.chofer_id && (
+                                   <button onClick={() => { setActiveDropdown(null); onUnlink && onUnlink(v); }} className="p-dropdown-item text-danger">Desvincular Chofer</button>
+                                )}
                                 <div className="p-dropdown-divider"></div>
                                 <button className="p-dropdown-item text-danger">Eliminar</button>
                               </Motion.div>
@@ -173,73 +176,82 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                     className="glass"
                     style={{ padding: '24px', borderRadius: '24px', marginBottom: '16px', border: '1px solid rgba(255,255,255,0.08)' }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-                      <div className="p-flex p-gap-4">
-                        {/* Icon removed per user request for absolute purity */}
-                        <div>
-                          <div className="p-flex p-items-center p-gap-2">
-                            <p className="text-white font-black uppercase italic" style={{ fontSize: '1.2rem', lineHeight: 1.2 }}>{v.modelo || 'Unidad'}</p>
-                            {v.maintenance_status !== 'ok' && (
-                              <Wrench
-                                size={18}
-                                color={v.maintenance_status === 'critico' ? 'var(--danger)' : 'var(--warning)'}
-                                onClick={(e) => { e.stopPropagation(); setActiveView && setActiveView('maintenance'); }}
-                              />
-                            )}
-                          </div>
-                          <span className="p-plate-badge" style={{ fontSize: '9px', color: '#06b6d4', fontWeight: 950, background: 'rgba(6, 182, 212, 0.1)', padding: '3px 10px', borderRadius: '8px', border: '1px solid rgba(6,182,212,0.2)', marginTop: '4px', display: 'inline-block' }}>{v.placa}</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                      <div>
+                        <div className="p-flex p-items-center p-gap-2">
+                          <p className="text-white font-black uppercase italic" style={{ fontSize: '1.4rem', lineHeight: 1 }}>{v.modelo || 'Unidad'}</p>
+                          {v.maintenance_status !== 'ok' && (
+                            <Wrench
+                              size={18}
+                              color={v.maintenance_status === 'critico' ? 'var(--danger)' : 'var(--warning)'}
+                              onClick={(e) => { e.stopPropagation(); setActiveView && setActiveView('maintenance'); }}
+                            />
+                          )}
                         </div>
-
+                        <span className="p-plate-badge" style={{ fontSize: '10px', color: '#06b6d4', fontWeight: 950, background: 'rgba(6, 182, 212, 0.1)', padding: '4px 12px', borderRadius: '10px', border: '1px solid rgba(6,182,212,0.2)', marginTop: '8px', display: 'inline-block' }}>{v.placa}</span>
                       </div>
-                      <div className="p-flex-col p-items-center">
-                        <div className={`p-status-pill-v2 pill-sm ${status}`} style={{ padding: '6px 14px', fontSize: '9px' }}>
+
+                      <div className="p-flex-col p-items-center" style={{ minWidth: '100px' }}>
+                        <div className={`p-status-pill-v2 pill-sm ${status}`} style={{ padding: '8px 20px', fontSize: '10px', fontWeight: 1000 }}>
                           {status.toUpperCase()}
                         </div>
-                        <span className="p-status-reason" style={{ fontSize: '8px', marginTop: '4px', width: 'auto', textAlign: 'center' }}>
+                        <span className="p-status-reason" style={{ fontSize: '10px', marginTop: '6px', fontWeight: 700, opacity: 0.75, color: 'rgba(255,255,255,0.85)', textAlign: 'center' }}>
                           {statusDescription}
                         </span>
                       </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', padding: '16px', background: 'rgba(0,0,0,0.2)', borderRadius: '16px', marginBottom: '20px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', padding: '20px', background: 'rgba(0,0,0,0.3)', borderRadius: '20px', marginBottom: '24px' }}>
                       <div>
-                        <p className="text-dim uppercase font-black" style={{ fontSize: '8px', letterSpacing: '0.05em' }}>Tarifa Diaria</p>
-                        <p className="text-white font-black" style={{ fontSize: '1.2rem', marginTop: '2px' }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
+                        <p className="text-dim uppercase font-black" style={{ fontSize: '9px', letterSpacing: '0.1em', opacity: 0.75, color: 'rgba(255,255,255,0.85)' }}>Tarifa Diaria</p>
+                        <p className="text-white font-black" style={{ fontSize: '1.4rem', marginTop: '4px' }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
                       </div>
                       <div>
-                        <p className="text-dim uppercase font-black" style={{ fontSize: '8px', letterSpacing: '0.05em' }}>Rendimiento</p>
-                        <p className="text-white font-black" style={{ fontSize: '1.2rem', marginTop: '2px' }}>{v.km_por_litro || '0'} <small style={{ fontSize: '8px' }}>KM/L</small></p>
+                        <p className="text-dim uppercase font-black" style={{ fontSize: '9px', letterSpacing: '0.1em', opacity: 0.75, color: 'rgba(255,255,255,0.85)' }}>Rendimiento</p>
+                        <p className="text-white font-black" style={{ fontSize: '1.4rem', marginTop: '4px' }}>{v.km_por_litro || '0'} <small style={{ fontSize: '10px', opacity: 0.5 }}>KM/L</small></p>
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                      {!v.chofer_id && status === 'activo' ? (
+                      {v.chofer_id ? (
+                        <div className="glass-hover" style={{ flex: 1, height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', background: 'rgba(255,255,255,0.03)', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                           <div className="p-flex p-items-center p-gap-3">
+                               <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                   <User size={18} className="text-primary" />
+                               </div>
+                               <span style={{ fontSize: '12px', fontWeight: 1000, color: 'white', letterSpacing: '-0.01em' }}>{v.chofer_nombre}</span>
+                           </div>
+                           <button 
+                               onClick={(e) => { e.stopPropagation(); onUnlink && onUnlink(v); }}
+                               className="p-flex p-items-center p-justify-center"
+                               style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239,68,68,0.2)', cursor: 'pointer', transition: 'all 0.2s' }}
+                               title="Desvincular Chofer"
+                           >
+                               <XCircle size={18} className="text-danger" style={{ opacity: 0.9 }} />
+                           </button>
+                        </div>
+                      ) : (
                         <button
                           onClick={() => onInvite && onInvite(v)}
                           className="btn-primary"
-                          style={{ flex: 1, height: '54px', fontSize: '11px', fontWeight: 1000, whiteSpace: 'nowrap' }}
+                          style={{ flex: 1, height: '56px', fontSize: '11px', fontWeight: 1000 }}
                         >
                           INVITAR CHOFER
                         </button>
-                      ) : (
-                        <div style={{ flex: 1, height: '54px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', fontSize: '10px', color: 'var(--text-dim)', fontWeight: 800 }}>
-                          {v.chofer_id ? 'CHOFER ASIGNADO' : status.toUpperCase()}
-                        </div>
                       )}
+                      
                       <div style={{ position: 'relative' }}>
-                        {/* ACTION BUTTON: High Visibility + Perfect Centering */}
                         <button
                           onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }}
                           className="glass-hover"
                           style={{
-                            width: '54px', height: '54px', borderRadius: '16px',
+                            width: '56px', height: '56px', borderRadius: '18px',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
                             padding: 0
                           }}
                         >
-                          <MoreVertical size={28} style={{ color: '#ffffff', display: 'block' }} />
+                          <MoreVertical size={24} style={{ color: '#ffffff', opacity: 0.6 }} />
                         </button>
                         <AnimatePresence>
                           {activeDropdown === v?.id && (
@@ -250,6 +262,9 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                             >
                               <button onClick={() => onEdit && onEdit(v)} className="p-dropdown-item">Modificar Unidad</button>
                               <button onClick={() => setActiveView && setActiveView('forensic')} className="p-dropdown-item">Ver Auditoría</button>
+                              {v.chofer_id && (
+                                  <button onClick={() => { setActiveDropdown(null); onUnlink && onUnlink(v); }} className="p-dropdown-item text-danger">Desvincular Chofer</button>
+                              )}
                               <div className="p-dropdown-divider"></div>
                               <button className="p-dropdown-item text-danger">Eliminar</button>
                             </Motion.div>
