@@ -128,7 +128,11 @@ const VehiculosView = ({ user, config, setActiveView }) => {
 
       {/* 2. SEARCH & FILTERS - Tactical Scalability */}
       <div className="p-flex-responsive p-justify-between p-items-center" style={{ marginBottom: '24px', gap: '16px' }}>
-        <div className="glass" style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '0 16px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="glass" style={{ 
+            flex: 1, display: 'flex', alignItems: 'center', padding: '0 16px', 
+            borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)',
+            height: isMobile ? '52px' : 'auto', width: '100%'
+        }}>
           <Search size={16} className="text-white/20" />
           <input 
             type="text" 
@@ -166,9 +170,10 @@ const VehiculosView = ({ user, config, setActiveView }) => {
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="glass"
                   style={{ 
-                      width: '100%', padding: '14px 20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)',
+                      width: '100%', padding: '0 20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)',
                       color: 'white', background: '#0f1019', outline: 'none', fontWeight: 900, fontSize: '11px',
-                      appearance: 'none', textAlign: 'center', cursor: 'pointer', textTransform: 'uppercase'
+                      appearance: 'none', textAlign: 'center', cursor: 'pointer', textTransform: 'uppercase',
+                      height: '52px'
                   }}
               >
                   <option value="all">Ver Todos los Estados</option>

@@ -62,6 +62,11 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
             const status = statusRaw === 'en ruta' ? 'activo' : statusRaw;
             const isNearBottom = i >= (safeVehicles.length - 2); 
             
+            const statusDescription = status === 'activo' 
+                ? (v.chofer_id ? 'Operación Normal' : 'Disponible / Sin Chofer')
+                : status === 'mantenimiento' ? 'En Taller / Reparación'
+                : 'Suspendido / Fuera de Servicio';
+
             return (
               <React.Fragment key={v.id}>
                 {!isMobile ? (
@@ -91,10 +96,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                                 {status.toUpperCase()}
                             </div>
                             <span className="p-status-reason" style={{ width: '100%', textAlign: 'center' }}>
-                                {status === 'activo' 
-                                  ? (v.chofer_id ? 'Operación Normal' : 'Disponible / Sin Chofer')
-                                  : status === 'mantenimiento' ? 'En Taller / Reparación'
-                                  : 'Suspendido / Fuera de Servicio'}
+                                {statusDescription}
                             </span>
                           </div>
                       </div>
@@ -140,16 +142,19 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                   >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
                           <div className="p-flex p-gap-4">
-                              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                  <Truck size={20} className="text-white/40" />
-                              </div>
+                              {/* Icon removed per user request */}
                               <div>
-                                  <p className="text-white font-black uppercase italic" style={{ fontSize: '1.1rem', lineHeight: 1.2 }}>{v.modelo}</p>
+                                  <p className="text-white font-black uppercase italic" style={{ fontSize: '1.2rem', lineHeight: 1.2 }}>{v.modelo}</p>
                                   <span className="p-plate-badge" style={{ fontSize: '9px', color: '#06b6d4', fontWeight: 950, background: 'rgba(6, 182, 212, 0.1)', padding: '3px 10px', borderRadius: '8px', border: '1px solid rgba(6,182,212,0.2)', marginTop: '4px', display: 'inline-block' }}>{v.placa}</span>
                               </div>
                           </div>
-                          <div className={`p-status-pill-v2 pill-sm ${status}`} style={{ padding: '6px 12px', fontSize: '9px' }}>
-                              {status.toUpperCase()}
+                          <div className="p-flex-col p-items-center">
+                            <div className={`p-status-pill-v2 pill-sm ${status}`} style={{ padding: '6px 14px', fontSize: '9px' }}>
+                                {status.toUpperCase()}
+                            </div>
+                            <span className="p-status-reason" style={{ fontSize: '8px', marginTop: '4px', width: 'auto' }}>
+                                {statusDescription}
+                            </span>
                           </div>
                       </div>
 
@@ -176,7 +181,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                             <button 
                                 onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} 
                                 className="glass-hover" 
-                                style={{ width: '52px', height: '52px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                style={{ width: '52px', height: '52px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
                             >
                                 <MoreVertical size={20} className="text-white/40" />
                             </button>
