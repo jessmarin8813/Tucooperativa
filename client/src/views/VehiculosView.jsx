@@ -64,28 +64,33 @@ const VehiculosView = ({ user, config, setActiveView }) => {
   }
 
   const filteredVehicles = (Array.isArray(vehicles) ? vehicles : []).filter(v => {
-    const matchesSearch = v.placa.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          v.modelo.toLowerCase().includes(searchTerm.toLowerCase());
-    const vStatus = (v.estado || v.status_label || 'inactivo').toLowerCase();
+    if (!v) return false;
+    const plaque = (v.placa || '').toString().toLowerCase();
+    const model = (v.modelo || '').toString().toLowerCase();
+    const term = (searchTerm || '').toString().toLowerCase();
+    
+    const matchesSearch = plaque.includes(term) || model.includes(term);
+    const vStatus = (v.estado || v.status_label || 'inactivo').toString().toLowerCase();
     const matchesStatus = filterStatus === 'all' || vStatus === filterStatus.toLowerCase();
     return matchesSearch && matchesStatus;
   });
 
-  // Logic for dynamic trends
+  // Logic for dynamic trends - Highly Resilient
   const now = new Date();
-  const todayVehicles = (Array.isArray(vehicles) ? vehicles : []).filter(v => {
-    if (!v.created_at) return false;
+  const safeVehiclesArray = Array.isArray(vehicles) ? vehicles : [];
+  const todayVehicles = safeVehiclesArray.filter(v => {
+    if (!v || !v.created_at) return false;
     const createdAt = new Date(v.created_at);
     return (now - createdAt) < 24 * 60 * 60 * 1000;
   }).length;
 
   const stats = {
-    total: Array.isArray(vehicles) ? vehicles.length : 0,
+    total: safeVehiclesArray.length,
     totalTrend: todayVehicles > 0 ? `+${todayVehicles}` : "+0",
-    active: (Array.isArray(vehicles) ? vehicles : []).filter(v => v.estado === 'activo' || v.status === 'activo').length,
+    active: safeVehiclesArray.filter(v => v && (v.estado === 'activo' || v.status === 'activo' || v.status_label === 'activo')).length,
     activeTrend: "+0",
-    maintenance: (Array.isArray(vehicles) ? vehicles : []).filter(v => v.estado === 'mantenimiento' || v.status === 'mantenimiento').length,
-    inactive: (Array.isArray(vehicles) ? vehicles : []).filter(v => v.estado === 'inactivo' || v.status === 'inactivo').length
+    maintenance: safeVehiclesArray.filter(v => v && (v.estado === 'mantenimiento' || v.status === 'mantenimiento')).length,
+    inactive: safeVehiclesArray.filter(v => v && (v.estado === 'inactivo' || v.status === 'inactivo')).length
   }
 
   return (
@@ -146,9 +151,9 @@ const VehiculosView = ({ user, config, setActiveView }) => {
           />
         </div>
         
-        {/* FILTER NAVIGATION - Absolute Isolation */}
+        {/* FILTER NAVIGATION - Absolute Isolation (Key-Forced Protection) */}
         {!isMobile ? (
-          <div className="p-flex" style={{ gap: '8px' }}>
+          <div key="PC_FILTERS_ROOT" className="p-flex" style={{ gap: '8px' }}>
             {['all', 'activo', 'mantenimiento', 'inactivo'].map(st => (
               <button 
                 key={st}
@@ -164,7 +169,7 @@ const VehiculosView = ({ user, config, setActiveView }) => {
             ))}
           </div>
         ) : (
-          <div style={{ width: '100%' }}>
+          <div key="MOBILE_FILTERS_ROOT" style={{ width: '100%' }}>
               <select 
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
