@@ -57,8 +57,9 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
 
         {/* 3. SENIOR ROWS (Atomic Conditional Delivery) */}
         <div className={!isMobile ? "divide-y divide-white/2" : ""} style={{ overflow: 'visible' }}>
-          {safeVehicles.map((v, i) => {
-            const statusRaw = (v.estado || v.status_label || 'inactivo').toLowerCase();
+          {(safeVehicles || []).map((v, i) => {
+            if (!v) return null;
+            const statusRaw = (v.estado || v.status_label || 'inactivo').toString().toLowerCase();
             const status = statusRaw === 'en ruta' ? 'activo' : statusRaw;
             const isNearBottom = i >= (safeVehicles.length - 2); 
             
@@ -68,11 +69,11 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                 : 'Suspendido / Fuera de Servicio';
 
             return (
-              <React.Fragment key={v.id}>
+              <React.Fragment key={`F_ITEM_${v?.id || i}`}>
                 {!isMobile ? (
                   /* --- DESKTOP ROW --- */
                   <Motion.div 
-                    key={`PC_ROW_${v.id}`}
+                    key={`PC_ROW_${v?.id || i}`}
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
                     className="p-fleet-grid p-fleet-row-pc"
                   >
@@ -143,7 +144,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                 ) : (
                   /* --- MOBILE CARD (Premium horizontal hierarchy) --- */
                   <Motion.div 
-                    key={`MOBILE_CARD_${v.id}`}
+                    key={`MOBILE_CARD_${v?.id || i}`}
                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.03 }}
                     className="glass" 
                     style={{ padding: '24px', borderRadius: '24px', marginBottom: '16px', border: '1px solid rgba(255,255,255,0.08)' }}
@@ -207,9 +208,9 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                                 <MoreVertical size={28} style={{ color: '#ffffff', display: 'block' }} />
                             </button>
                             <AnimatePresence>
-                                {activeDropdown === v.id && (
+                                {activeDropdown === v?.id && (
                                     <Motion.div 
-                                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                                        key={`DROP_${v?.id || i}`}
                                         className="p-dropdown-menu upward"
                                         style={{ right: 0, bottom: '65px' }}
                                     >

@@ -28,8 +28,10 @@ const VehiculosView = ({ user, config, setActiveView }) => {
 
   const fetchVehicles = useCallback(async () => {
     try {
-      const data = await callApi('vehiculos.php')
-      setVehicles(Array.isArray(data) ? data : [])
+      const res = await callApi('vehiculos.php')
+      // Adaptive adapter for both [Array] and {success, data}
+      const rawData = res?.data || res;
+      setVehicles(Array.isArray(rawData) ? rawData : [])
     } catch { /* Handled */ }
   }, [callApi])
 
@@ -94,12 +96,12 @@ const VehiculosView = ({ user, config, setActiveView }) => {
   }).length;
 
   const stats = {
-    total: safeVehiclesArray.length,
+    total: safeVehiclesArray?.length || 0,
     totalTrend: todayVehicles > 0 ? `+${todayVehicles}` : "+0",
-    active: safeVehiclesArray.filter(v => v && (v.estado === 'activo' || v.status === 'activo' || v.status_label === 'activo')).length,
+    active: safeVehiclesArray?.filter(v => v && (v.estado === 'activo' || v.status === 'activo' || v?.status_label === 'activo')).length || 0,
     activeTrend: "+0",
-    maintenance: safeVehiclesArray.filter(v => v && (v.estado === 'mantenimiento' || v.status === 'mantenimiento')).length,
-    inactive: safeVehiclesArray.filter(v => v && (v.estado === 'inactivo' || v.status === 'inactivo')).length
+    maintenance: safeVehiclesArray?.filter(v => v && (v.estado === 'mantenimiento' || v.status === 'mantenimiento')).length || 0,
+    inactive: safeVehiclesArray?.filter(v => v && (v.estado === 'inactivo' || v.status === 'inactivo')).length || 0
   }
 
   return (
