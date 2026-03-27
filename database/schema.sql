@@ -13,14 +13,26 @@ CREATE TABLE IF NOT EXISTS cooperativas (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 2. Users (RBAC: Admin, Owner, Driver)
+-- 2. Users (RBAC: Admin, Owner)
 CREATE TABLE IF NOT EXISTS usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     cooperativa_id INT NOT NULL,
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    rol ENUM('admin', 'dueno', 'chofer') NOT NULL,
+    rol ENUM('admin', 'dueno') NOT NULL,
+    telegram_id BIGINT UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (cooperativa_id) REFERENCES cooperativas(id) ON DELETE CASCADE,
+    INDEX (cooperativa_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 3. Drivers (Telegram-based)
+CREATE TABLE IF NOT EXISTS choferes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cooperativa_id INT NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    cedula VARCHAR(20) UNIQUE,
     telegram_id BIGINT UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (cooperativa_id) REFERENCES cooperativas(id) ON DELETE CASCADE,
@@ -59,7 +71,7 @@ CREATE TABLE IF NOT EXISTS rutas (
     ended_at TIMESTAMP NULL,
     FOREIGN KEY (cooperativa_id) REFERENCES cooperativas(id) ON DELETE CASCADE,
     FOREIGN KEY (vehiculo_id) REFERENCES vehiculos(id) ON DELETE RESTRICT,
-    FOREIGN KEY (chofer_id) REFERENCES usuarios(id) ON DELETE RESTRICT,
+    FOREIGN KEY (chofer_id) REFERENCES choferes(id) ON DELETE RESTRICT,
     INDEX (cooperativa_id),
     INDEX (vehiculo_id),
     INDEX (chofer_id)
@@ -94,7 +106,7 @@ CREATE TABLE IF NOT EXISTS pagos_diarios (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (cooperativa_id) REFERENCES cooperativas(id) ON DELETE CASCADE,
     FOREIGN KEY (vehiculo_id) REFERENCES vehiculos(id) ON DELETE RESTRICT,
-    FOREIGN KEY (chofer_id) REFERENCES usuarios(id) ON DELETE RESTRICT,
+    FOREIGN KEY (chofer_id) REFERENCES choferes(id) ON DELETE RESTRICT,
     INDEX (cooperativa_id),
     INDEX (vehiculo_id),
     INDEX (chofer_id),

@@ -50,10 +50,10 @@ switch ($method) {
                 // Logic for Gap Alert Notification
                 if ($last_odo > 0 && $gap > 1.0) { // More than 1km gap
                     // Fetch owner chat_id
-                    $stmt = $db->prepare("SELECT u.telegram_chat_id, v.placa, c.nombre as chofer_name 
+                    $stmt = $db->prepare("SELECT u.telegram_id as telegram_chat_id, v.placa, c.nombre as chofer_name 
                                          FROM vehiculos v 
                                          JOIN usuarios u ON v.dueno_id = u.id 
-                                         JOIN usuarios c ON c.id = :chofer_id
+                                         JOIN choferes c ON c.id = :chofer_id
                                          WHERE v.id = :vid");
                     $stmt->execute(['chofer_id' => $user['user_id'], 'vid' => $vehiculo_id]);
                     $owner_info = $stmt->fetch();
@@ -266,10 +266,10 @@ switch ($method) {
         }
 
         // List all active routes for this cooperative
-        $stmt = $db->prepare("SELECT r.*, v.placa, u.nombre as chofer_nombre 
+        $stmt = $db->prepare("SELECT r.*, v.placa, c.nombre as chofer_nombre 
                              FROM rutas r 
                              JOIN vehiculos v ON r.vehiculo_id = v.id 
-                             JOIN usuarios u ON r.chofer_id = u.id 
+                             JOIN choferes c ON r.chofer_id = c.id 
                              WHERE r.cooperativa_id = :coop_id AND r.estado = 'activa'");
         $stmt->execute(['coop_id' => $coop_id]);
         sendResponse($stmt->fetchAll());

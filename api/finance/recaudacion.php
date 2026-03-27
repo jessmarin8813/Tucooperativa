@@ -20,7 +20,7 @@ switch ($method) {
                              (p.monto - (p.monto_efectivo + p.monto_pagomovil)) as saldo
                              FROM pagos_diarios p
                              JOIN vehiculos v ON p.vehiculo_id = v.id
-                             JOIN usuarios u ON p.chofer_id = u.id
+                             JOIN choferes u ON p.chofer_id = u.id
                              WHERE p.cooperativa_id = :coop_id AND p.fecha = :fecha
                              ORDER BY p.estado DESC, p.created_at ASC");
         $stmt->execute(['coop_id' => $coop_id, 'fecha' => $fecha]);

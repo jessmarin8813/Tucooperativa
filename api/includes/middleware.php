@@ -54,6 +54,7 @@ if (!function_exists('checkAuth')) {
 
         if ($tid) {
             $db = DB::getInstance();
+            // 1. Check in Usuarios (Owners/Admins)
             $stmt = $db->prepare("SELECT id, cooperativa_id, rol, nombre FROM usuarios WHERE telegram_chat_id = ? OR telegram_id = ?");
             $stmt->execute([$tid, $tid]);
             $user = $stmt->fetch();
@@ -64,6 +65,20 @@ if (!function_exists('checkAuth')) {
                     'cooperativa_id' => $user['cooperativa_id'],
                     'rol' => $user['rol'],
                     'nombre' => $user['nombre']
+                ];
+            }
+
+            // 2. Check in Choferes (New driver table)
+            $stmt = $db->prepare("SELECT id, cooperativa_id, nombre FROM choferes WHERE telegram_id = ?");
+            $stmt->execute([$tid]);
+            $chofer = $stmt->fetch();
+
+            if ($chofer && $chofer['id']) {
+                return [
+                    'user_id' => $chofer['id'],
+                    'cooperativa_id' => $chofer['cooperativa_id'],
+                    'rol' => 'chofer', // Hardcoded as they are in the choferes table
+                    'nombre' => $chofer['nombre']
                 ];
             }
         }

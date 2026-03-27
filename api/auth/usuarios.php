@@ -20,19 +20,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['list_owners'])) {
     exit;
 }
 
-// Gatekeeper Check (Updated with Role)
+// Gatekeeper Check (Updated with Role and Multi-table support)
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['check_auth'])) {
     $tid = $_GET['telegram_id'] ?? '';
-    // Corregimos la consulta para traer campos vitales para el Bot
-    $stmt = $db->prepare("SELECT u.id as user_id, u.nombre, u.rol, u.status as u_status, 
-                                 c.id as cooperativa_id, c.nombre as cooperativa_nombre, c.status as c_status 
+    
+    // 1. Check in Usuarios (Admins/Owners)
+    $stmt = $db->prepare("SELECT u.id as user_id, u.nombre, u.rol,
+                                 c.id as cooperativa_id, c.nombre as cooperativa_nombre
                           FROM usuarios u 
                           JOIN cooperativas c ON u.cooperativa_id = c.id 
-                          WHERE u.telegram_id = ? OR u.telegram_chat_id = ?");
-    $stmt->execute([$tid, $tid]);
+                          WHERE u.telegram_id = ?");
+    $stmt->execute([$tid]);
     $res = $stmt->fetch();
     
-    if ($res && $res['u_status'] === 'activo' && $res['c_status'] === 'activo') {
+    if ($res) {
         sendResponse([
             'status' => 'activo',
             'user_id' => $res['user_id'],
@@ -41,9 +42,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['check_auth'])) {
             'cooperativa_id' => $res['cooperativa_id'],
             'cooperativa_nombre' => $res['cooperativa_nombre']
         ]);
-    } else {
-        sendResponse(['status' => 'suspendido']);
+        exit;
     }
+
+    // 2. Check in Choferes
+    $stmt = $db->prepare("SELECT u.id as user_id, u.nombre, 
+                                 c.id as cooperativa_id, c.nombre as cooperativa_nombre
+                          FROM choferes u 
+                          JOIN cooperativas c ON u.cooperativa_id = c.id 
+                          WHERE u.telegram_id = ?");
+    $stmt->execute([$tid]);
+    $res = $stmt->fetch();
+
+    if ($res) {
+        sendResponse([
+            'status' => 'activo',
+            'user_id' => $res['user_id'],
+            'nombre' => $res['nombre'],
+            'rol' => 'chofer',
+            'cooperativa_id' => $res['cooperativa_id'],
+            'cooperativa_nombre' => $res['cooperativa_nombre']
+        ]);
+        exit;
+    }
+
+    sendResponse(['status' => 'desconocido']);
     exit;
 }
 

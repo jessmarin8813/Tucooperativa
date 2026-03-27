@@ -21,12 +21,12 @@ try {
             SUM(IFNULL(odo_fin.valor, 0) - IFNULL(odo_ini.valor, 0)) as total_distance,
             AVG(CASE WHEN r.ended_at IS NOT NULL AND TIMESTAMPDIFF(HOUR, r.started_at, r.ended_at) <= 12 THEN 100 ELSE 0 END) as score_punctuality,
             MAX(v.km_por_litro) as target_kpl
-        FROM usuarios u
+        FROM choferes u
         LEFT JOIN rutas r ON u.id = r.chofer_id AND r.estado = 'finalizada'
         LEFT JOIN vehiculos v ON r.vehiculo_id = v.id
         LEFT JOIN odometros odo_ini ON r.id = odo_ini.ruta_id AND odo_ini.tipo = 'inicio'
         LEFT JOIN odometros odo_fin ON r.id = odo_fin.ruta_id AND odo_fin.tipo = 'fin'
-        WHERE u.rol = 'chofer' AND u.cooperativa_id = ?
+        WHERE u.cooperativa_id = ?
         GROUP BY u.id, u.nombre
     ";
 

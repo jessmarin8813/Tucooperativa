@@ -146,26 +146,9 @@ def main():
         print(f"[CRITICAL] Error durante el intercambio de carpetas: {str(e)}")
         sys.exit(1)
 
-    # 5. AUTO-DEPLOY (GIT) - Optional/Robust
     print("\n" + "="*60)
-    print("   ¡ESTABILIDAD TOTAL CONFIRMADA! Sincronizando Git...")
+    print("   ¡ESTABILIDAD TOTAL CONFIRMADA!")
     print("="*60)
-    
-    subprocess.run("git add .", shell=True)
-    # Solo commit si hay cambios
-    status_res = subprocess.run("git status --porcelain", shell=True, capture_output=True, text=True)
-    if status_res.stdout.strip():
-        subprocess.run('git commit -m "BUILD STABLE: API Path Fix + Build Automation"', shell=True)
-        print("[GIT] Cambios registrados localmente.")
-        
-        print("[GIT] Intentando Push...")
-        push_res = subprocess.run("git push", shell=True)
-        if push_res.returncode == 0:
-            print("[DEPLOY] Pushed to Git successfully.")
-        else:
-            print("[WARNING] Push fallido. Revisa tu conexión o credenciales de Git.")
-    else:
-        print("[GIT] No hay cambios pendientes para commit.")
 
 if __name__ == "__main__":
     main()

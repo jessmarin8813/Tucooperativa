@@ -62,27 +62,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $nombre = $data['nombre'] ?? 'Chofer';
         $cedula = $data['cedula'] ?? '';
 
-        // 2. Registrar Chofer (Campos mínimos requeridos por schema.sql)
-        // Usamos telegram_id como base para el email único (requerido por NOT NULL)
-        $dummy_email = $telegram_id . "@tucooperativa.bot";
-        $dummy_pass = password_hash(bin2hex(random_bytes(8)), PASSWORD_DEFAULT);
-
-        // Solo insertamos los campos confirmados en schema.sql más los de telegram
-        $stmt = $db->prepare("INSERT INTO usuarios (cooperativa_id, nombre, email, password_hash, telegram_id, rol) VALUES (?, ?, ?, ?, ?, 'chofer')");
-        $stmt->execute([$invitacion['cooperativa_id'], $nombre, $dummy_email, $dummy_pass, $telegram_id]);
+        // 2. Registrar Chofer en la nueva tabla dedicada
+        // Ya no requerimos email ni password para conductores, se manejan vía Telegram ID
+        $stmt = $db->prepare("INSERT INTO choferes (cooperativa_id, nombre, cedula, telegram_id) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$invitacion['cooperativa_id'], $nombre, $cedula, $telegram_id]);
         $chofer_id = $db->lastInsertId();
 
-        // 2b. Auto-vincular a Unidad si aplica
-        if (!empty($invitacion['vehiculo_id'])) {
-            $stmt = $db->prepare("UPDATE vehiculos SET chofer_id = ? WHERE id = ? AND cooperativa_id = ?");
-            $stmt->execute([$chofer_id, $invitacion['vehiculo_id'], $invitacion['cooperativa_id']]);
-        }
-
+        // 2b. La vinculación a unidad se maneja mediante el inicio de rutas
+        // Nota: Si se requiere vinculación permanente, considerar añadir chofer_id a la tabla vehiculos
+        
         // 3. Marcar Token como usado
         $stmt = $db->prepare("UPDATE invitaciones SET usado = TRUE WHERE token = ?");
         $stmt->execute([$token]);
 
-        echo json_encode(['status' => 'success', 'message' => 'Registro de chofer completado']);
+        echo json_encode(['status' => 'success', 'message' => 'Registro de chofer completado', 'chofer_id' => $chofer_id]);
 
     } catch (Exception $e) {
         http_response_code(500);

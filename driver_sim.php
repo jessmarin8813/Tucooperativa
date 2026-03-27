@@ -280,25 +280,29 @@
 
     async function startJourney() {
         const odo = document.getElementById('start-odo').value;
-        log(`Iniciando jornada con odómetro: ${odo}`);
+        const v_id = context.user_data['vehiculo_id'];
+        log(`Iniciando jornada para unidad ${v_id} con odómetro: ${odo}`);
 
         try {
-            const res = await fetch(`${API_BASE}fleet/reportar_odometro.php`, {
+            const res = await fetch(`${API_BASE}fleet/rutas.php`, {
                 method: 'POST',
                 body: JSON.stringify({
+                    action: 'start_route',
                     telegram_id: driverData.id,
+                    vehiculo_id: v_id,
                     odometro_valor: odo,
-                    foto: 'MOCK_PHOTO_BASE64'
+                    foto_path: 'uploads/sim_start.jpg'
                 })
             });
             const data = await res.json();
-            if (data.status === 'success') {
-                log('🚀 Jornada iniciada. El DUEÑO debería haber recibido un mensaje en Telegram.');
+            if (data.ruta_id) {
+                log('🚀 Jornada iniciada con éxito.');
                 driverData.is_active = true;
+                driverData.active_route_id = data.ruta_id;
                 localStorage.setItem('sim_driver_data', JSON.stringify(driverData));
                 updateUI();
             } else {
-                log(`❌ Error: ${data.message}`);
+                log(`❌ Error: ${data.error || data.message}`);
             }
         } catch (e) { log('❌ Error de comunicación.'); }
     }
@@ -306,23 +310,23 @@
     async function reportPayment() {
         const amount = document.getElementById('payment-amount').value;
         if (!amount) return;
-        log(`Reportando pago de $${amount}...`);
+        log(`Reportando pago de Bs ${amount}...`);
 
         try {
-            const res = await fetch(`${API_BASE}fleet/reportar_pago.php`, {
+            const res = await fetch(`${API_BASE}chofer/reportar_pago.php`, {
                 method: 'POST',
                 body: JSON.stringify({
                     telegram_id: driverData.id,
-                    monto: amount,
-                    metodo: 'efectivo',
-                    referencia: 'SIM_DEV_001'
+                    monto_efectivo: amount,
+                    monto_pagomovil: 0,
+                    comprobante: 'uploads/sim_pago.jpg'
                 })
             });
             const data = await res.json();
-            if (data.status === 'success') {
+            if (data.success) {
                 log('💰 Pago reportado correctamente.');
                 document.getElementById('payment-amount').value = '';
-            } else { log(`❌ Error: ${data.message}`); }
+            } else { log(`❌ Error: ${data.error || data.message}`); }
         } catch (e) { log('❌ Error de comunicación.'); }
     }
 
@@ -331,21 +335,27 @@
         log(`Finalizando jornada con odómetro: ${odo}`);
 
         try {
-            const res = await fetch(`${API_BASE}fleet/reportar_odometro.php`, {
+            const res = await fetch(`${API_BASE}fleet/rutas.php`, {
                 method: 'POST',
                 body: JSON.stringify({
+                    action: 'end_route',
                     telegram_id: driverData.id,
+                    ruta_id: driverData.active_route_id,
                     odometro_valor: odo,
-                    foto: 'MOCK_PHOTO_BASE64'
+                    combustible_reportado: 10,
+                    foto_path: 'uploads/sim_end.jpg',
+                    monto_efectivo: 0,
+                    monto_pagomovil: 0
                 })
             });
             const data = await res.json();
-            if (data.status === 'success') {
+            if (data.message && !data.error) {
                 log('🏁 Jornada finalizada.');
                 driverData.is_active = false;
+                delete driverData.active_route_id;
                 localStorage.setItem('sim_driver_data', JSON.stringify(driverData));
                 updateUI();
-            } else { log(`❌ Error: ${data.message}`); }
+            } else { log(`❌ Error: ${data.error || data.message}`); }
         } catch (e) { log('❌ Error de comunicación.'); }
     }
 

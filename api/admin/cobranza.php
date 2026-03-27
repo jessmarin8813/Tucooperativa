@@ -15,7 +15,7 @@ $sql = "SELECT v.id, v.placa, v.cuota_diaria, u.nombre as chofer,
         (SELECT COUNT(DISTINCT DATE(started_at)) FROM rutas WHERE vehiculo_id = v.id) as dias_trabajados,
         (SELECT COALESCE(SUM(monto), 0) FROM pagos_reportados WHERE vehiculo_id = v.id AND estado = 'aprobado') as abonos_totales
         FROM vehiculos v
-        JOIN usuarios u ON u.cooperativa_id = v.cooperativa_id -- Simplified driver mapping
+        JOIN choferes u ON u.cooperativa_id = v.cooperativa_id -- Simplified driver mapping
         WHERE v.cooperativa_id = :coop_id";
 
 $stmt = $db->prepare($sql);
@@ -31,7 +31,7 @@ foreach ($fleet as &$f) {
 // 2. Get Pending Payments to approve
 $stmt = $db->prepare("SELECT p.*, u.nombre as chofer, v.placa 
                      FROM pagos_reportados p
-                     JOIN usuarios u ON u.id = p.chofer_id
+                     JOIN choferes u ON u.id = p.chofer_id
                      JOIN vehiculos v ON v.id = p.vehiculo_id
                      WHERE p.cooperativa_id = :coop_id AND p.estado = 'pendiente'
                      ORDER BY p.fecha_reportado DESC");

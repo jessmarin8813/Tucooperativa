@@ -19,7 +19,7 @@ def update_docs():
                 
         with open(docs_path, 'w', encoding='utf-8') as f:
             f.writelines(content)
-        print(f"✅ Documentación actualizada en {docs_path}")
+        print(f"[OK] Documentación actualizada en {docs_path}")
 
     # 2. Update AI_MEMORY.md (Assistant-facing context)
     if os.path.exists(ai_memory_path):
@@ -33,7 +33,7 @@ def update_docs():
         
         with open(ai_memory_path, 'w', encoding='utf-8') as f:
             f.writelines(lines)
-        print(f"✅ Memoria AI actualizada en {ai_memory_path}")
+        print(f"[OK] Memoria AI actualizada en {ai_memory_path}")
 
 if __name__ == '__main__':
     update_docs()

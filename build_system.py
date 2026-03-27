@@ -48,8 +48,23 @@ def main():
     # 6. Realtime & Documentation Auto-Update
     run_step("Actualizando Memoria del Proyecto (docs/)", "python .agent/skills/stability-protocol/scripts/update_docs.py", allow_fail=True)
 
+    # 7. Git Sync (Added as per user request)
+    print("\n" + "="*40)
+    print("   SINCRONIZACIÓN FINAL CON GIT")
+    print("="*40)
+    run_step("Git Add", "git add .")
+    
+    # Solo commit si hay cambios
+    status_res = subprocess.run("git status --porcelain", shell=True, capture_output=True, text=True)
+    if status_res.stdout.strip():
+        commit_msg = "BUILD STABLE: Decoupled Driver Entity + Automated Sync"
+        run_step("Git Commit", f'git commit -m "{commit_msg}"')
+        run_step("Git Push", "git push")
+    else:
+        print("[GIT] No hay cambios para subir.")
+
     print("\n[INFO] El Servidor Realtime y el Bot deben estar corriendo en segundo plano.")
-    print("\n[SUCCESS] Sistema estable y verificado. Proceso completado con éxito.")
+    print("\n[SUCCESS] Sistema estable, verificado y sincronizado con Git.")
     sys.exit(0)
 
 if __name__ == '__main__':

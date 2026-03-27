@@ -15,7 +15,7 @@ if ($method === 'GET') {
     $stmt = $db->prepare("SELECT p.*, v.placa, u.nombre as chofer_nombre 
                          FROM pagos_diarios p
                          JOIN vehiculos v ON p.vehiculo_id = v.id
-                         JOIN usuarios u ON p.chofer_id = u.id
+                         JOIN choferes u ON p.chofer_id = u.id
                          WHERE p.cooperativa_id = :coop_id 
                          ORDER BY p.fecha DESC");
     $stmt->execute(['coop_id' => $coop_id]);
@@ -58,7 +58,7 @@ if ($method === 'GET') {
         }
 
         // Generate SQL Backup (Basic PHP logic to avoid mysqldump dependency issues in XAMPP)
-        $tables = ['cooperativas', 'usuarios', 'vehiculos', 'rutas', 'odometros', 'pagos_diarios', 'invitaciones'];
+        $tables = ['cooperativas', 'usuarios', 'choferes', 'vehiculos', 'rutas', 'odometros', 'pagos_diarios', 'invitaciones'];
         $sql = "-- TuCooperativa DB Backup\n-- Generated: " . date('Y-m-d H:i:s') . "\n\n";
 
         foreach ($tables as $table) {
