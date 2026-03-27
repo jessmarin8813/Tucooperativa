@@ -225,8 +225,26 @@ async def handle_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not status:
             await update.message.reply_text("❌ No se pudo obtener tu estado. Intenta más tarde.")
             return
-        deuda = status.get('deuda') if status.get('deuda') is not None else 0.0
-        await update.message.reply_text(f"📊 **Estado de Cuenta**\n\nTu deuda actual es: *${deuda}*", parse_mode='Markdown')
+        
+        deuda_usd = float(status.get('deuda', 0))
+        pendientes_usd = float(status.get('pendientes', 0))
+        bcv_rate = float(status.get('bcv_rate', 1.0))
+        
+        deuda_bs = deuda_usd * bcv_rate
+        
+        msg = (
+            f"📊 **Estado de Cuenta**\n\n"
+            f"🚛 Unidad: `{status.get('placa', 'N/A')}`\n"
+            f"💵 Deuda (USD): **${deuda_usd:.2f}**\n"
+            f"🏦 Tasa BCV: **{bcv_rate:.2f} Bs/$**\n"
+            f"🇻🇪 **Total en Bs: {deuda_bs:.2f}**\n\n"
+            f"⏳ En Revisión: *${pendientes_usd:.2f}*\n"
+            f"📍 Último KM: `{status.get('ultimo_km', '0')}`\n\n"
+            f"📌 **Datos para Pago Móvil:**\n"
+            f"{status.get('datos_bancarios', 'Consulte Admin')}"
+        )
+        await update.message.reply_text(msg, parse_mode='Markdown', reply_markup=await get_dynamic_menu(update))
+
     elif text == '🚐 MI UNIDAD':
         res = api.get_my_vehicle()
         if 'error' in res:
@@ -238,17 +256,6 @@ async def handle_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
             msg += f"Año: *{res['anio']}*\n"
             msg += f"Cuota Diaria: *${res['cuota_diaria']}*"
             await update.message.reply_text(msg, parse_mode='Markdown')
-
-        
-        msg = (
-            f"📊 **Estado de Cuenta**\n\n"
-            f"🚛 Unidad: `{status.get('placa', 'N/A')}`\n"
-            f"💰 Deuda Acumulada: **${float(deuda):.2f}**\n"
-            f"⏳ Pagos en Revisión: **${float(pendientes):.2f}**\n\n"
-            f"📍 Último KM reportado: `{status.get('ultimo_km', '0')}`\n"
-            f"🏦 Datos de Pago: {status.get('datos_bancarios', 'Consulte Admin')}"
-        )
-        await update.message.reply_text(msg, parse_mode='Markdown', reply_markup=await get_dynamic_menu(update))
 
     elif text == '🔧 AYUDA':
         await update.message.reply_text("📱 Contacte al administrador central para soporte técnico.")
@@ -393,10 +400,24 @@ async def fuel_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     # Instead of ending, ask for payment
     status = api.get_my_status() or {}
+    deuda_usd = float(status.get('deuda', 0))
+    bcv_rate = float(status.get('bcv_rate', 1.0))
+    deuda_bs = deuda_usd * bcv_rate
+    
+    telf = status.get('banco_telefono', 'N/A')
+    rif = status.get('banco_identidad', 'N/A')
+    
+    bank_msg = (
+        f"🏁 **Jornada Finalizada.**\n"
+        f"🏦 **PAGO MÓVIL:**\n"
+        f"📱 Telf: `{telf}`\n"
+        f"🆔 RIF/CI: `{rif}`\n"
+        f"🇻🇪 **Pagar en Bs: {deuda_bs:.2f}**\n"
+    )
+
     keyboard = [['Efectivo (Bs)', 'Pago Móvil', 'Mixto']]
     await update.message.reply_text(
-        f"🏁 **Jornada Finalizada.**\n🏦 **Pagos al Dueño:**\n`{status.get('datos_bancarios', 'Consulte Admin')}`\n\n"
-        "💰 Reporta el abono de hoy:",
+        bank_msg + "\n💰 Reporta el abono de hoy:",
         parse_mode='Markdown',
         reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
     )

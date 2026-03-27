@@ -75,6 +75,27 @@ const Sidebar = ({ onLogout, activeView, setActiveView, config }) => {
                 {config?.nombre_cooperativa || 'SIN NOMBRE'}
             </span>
         </div>
+
+        {/* BCV RATE BADGE */}
+        {config?.bcv_rate && (
+            <div style={{ 
+                marginTop: '16px',
+                padding: '6px 12px',
+                background: 'rgba(99, 102, 241, 0.1)',
+                border: '1px solid rgba(99, 102, 241, 0.2)',
+                borderRadius: '100px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '0.75rem',
+                fontWeight: 800,
+                color: 'var(--primary)',
+                letterSpacing: '0.02em'
+            }}>
+                <div style={{ width: '6px', height: '6px', background: 'var(--primary)', borderRadius: '100px' }} className="animate-pulse" />
+                <span>BCV: Bs {config.bcv_rate.toFixed(2)}</span>
+            </div>
+        )}
       </div>
 
       <nav style={{ flex: 1, padding: '0 16px', overflowY: 'auto', marginTop: '10px' }}>

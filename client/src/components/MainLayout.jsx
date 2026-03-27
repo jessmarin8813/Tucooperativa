@@ -85,14 +85,29 @@ const MainLayout = ({ user, config, setConfig, activeView, setActiveView, onLogo
             >
               {config?.nombre_cooperativa || 'TuCooperativa'}
             </h1>
-            <button 
-              onClick={toggleMobileMenu}
-              className="mobile-menu-trigger"
-            >
-              <div className="hamburger-box">
-                <div className={`hamburger-inner ${isMobileMenuOpen ? 'active' : ''}`} />
-              </div>
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {config?.bcv_rate && (
+                <div style={{ 
+                  padding: '4px 10px',
+                  background: 'rgba(99, 102, 241, 0.1)',
+                  borderRadius: '100px',
+                  fontSize: '0.7rem',
+                  fontWeight: 900,
+                  color: 'var(--primary)',
+                  border: '1px solid rgba(99, 102, 241, 0.2)'
+                }}>
+                  Bs {config.bcv_rate.toFixed(2)}
+                </div>
+              )}
+              <button 
+                onClick={toggleMobileMenu}
+                className="mobile-menu-trigger"
+              >
+                <div className="hamburger-box">
+                  <div className={`hamburger-inner ${isMobileMenuOpen ? 'active' : ''}`} />
+                </div>
+              </button>
+            </div>
           </header>
 
           <div className="view-container">

@@ -80,8 +80,9 @@ if (!empty($data['banco_nombre'])) {
 
 sendResponse([
     'placa' => $data['placa'] ?? 'N/A',
-    'deuda' => $data['deuda_bs'] ?? 0,
-    'pendientes' => $data['pendientes'] ?? 0,
+    'deuda' => floatval($data['deuda_bs'] ?? 0),
+    'bcv_rate' => $bcv_rate,
+    'pendientes' => floatval($data['pendientes'] ?? 0),
     'ultimo_km' => $data['ultimo_km'] ?? 0,
     'datos_bancarios' => $pago_info,
     'ruta_activa' => ($data['ruta_activa'] ?? false)
