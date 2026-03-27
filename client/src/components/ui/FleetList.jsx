@@ -47,7 +47,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                     <Car size={32} className="text-primary" />
                 </div>
                 <div style={{ overflow: 'hidden' }}>
-                    <h3 className="text-white font-black uppercase italic" style={{ fontSize: '1.8rem', letterSpacing: '0.04em', lineHeight: 1 }}>Módulo de Flota</h3>
+                    <h3 className="text-white font-black uppercase italic" style={{ fontSize: '1.8rem', letterSpacing: '0.04em', lineHeight: 1 }}>Módulo de Flota <span style={{ color: 'var(--accent)', fontSize: '10px', verticalAlign: 'middle', marginLeft: '10px', opacity: 0.5 }}>(v22.3-FIX)</span></h3>
                     <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '8px' }}>Gestión Operativa Senior</p>
                 </div>
             </div>
@@ -58,8 +58,8 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
         </div>
       )}
 
-      <div className="p-fleet-container" style={{ marginTop: minimal ? '0' : '40px', paddingBottom: '260px' }}>
-        {/* 2. PC GRID HEADER - Strict Mirror Alignment (v22.2) */}
+      <div className="p-fleet-container" style={{ marginTop: minimal ? '0' : '40px', paddingBottom: '120px' }}>
+        {/* 2. PC GRID HEADER - Strict Mirror Alignment (v22.3-ULTIMATUM) */}
         {!isMobile && (
           <div className="p-fleet-grid p-fleet-header-pc">
             <div className="p-identity-col">
@@ -67,12 +67,12 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
             </div>
             <div className="p-fee-col p-flex p-items-center p-justify-center">CUOTA DIARIA</div>
             <div className="p-status-col p-flex p-items-center p-justify-center">
-                <div className="p-flex-col p-items-center" style={{ width: '100%' }}>
+                <div className="p-flex-col p-items-center" style={{ width: '100%', textAlign: 'center' }}>
                     ESTADO
                 </div>
             </div>
             <div className="p-actions-col">
-               <div className="p-flex p-items-center p-justify-end" style={{ width: '100%' }}>ACCIONES</div>
+               <div className="p-flex p-items-center p-justify-end" style={{ width: '100%', whiteSpace: 'nowrap' }}>ACCIONES</div>
             </div>
           </div>
         )}
@@ -82,6 +82,8 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
           {safeVehicles.map((v, i) => {
             const statusRaw = (v.estado || v.status_label || 'inactivo').toLowerCase();
             const status = statusRaw === 'en ruta' ? 'activo' : statusRaw;
+            // Smart Gravity: Last row or rows near bottom open UPWARDS
+            const isNearBottom = i >= (safeVehicles.length - 1); 
             
             return (
               <React.Fragment key={v.id}>
@@ -131,7 +133,12 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                               </button>
                               <AnimatePresence>
                                   {activeDropdown === v.id && (
-                                      <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="p-dropdown-menu">
+                                      <Motion.div 
+                                        initial={{ opacity: 0, y: isNearBottom ? -10 : 10 }} 
+                                        animate={{ opacity: 1, y: 0 }} 
+                                        exit={{ opacity: 0, y: isNearBottom ? -10 : 10 }} 
+                                        className={`p-dropdown-menu ${isNearBottom ? 'upward' : ''}`}
+                                      >
                                           <button onClick={() => onEdit && onEdit(v)} className="p-dropdown-item">Modificar Unidad</button>
                                           <button onClick={() => setActiveView && setActiveView('forensic')} className="p-dropdown-item">Ver Auditoría</button>
                                           <div className="p-dropdown-divider"></div>
