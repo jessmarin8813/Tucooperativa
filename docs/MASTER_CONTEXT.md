@@ -41,4 +41,4 @@
 ---
 
 ## ✅ Estado Actual
-El sistema está en **Versión v5.2.2 (Maturín Edition)**. Se ha completado la estabilización del frontend (cero loops infinitos), la restauración del pipeline de construcción (`omni_guard.py`) y la localización total al español (eliminando anglicismos como "Gaps"). El bot está 100% sincronizado con la lógica de brechas de kilometraje.
+El sistema está en **Versión v36.2-Stable (Fleet Mastery Edition)**. Se ha completado el **Desacoplamiento Total de Choferes** (Tabla `choferes`), la reconstrucción de la Flota (PC/Móvil) con unlinking directo, y la estabilización del Middleware para Telegram. El sistema es 100% responsivo y posee una auditoría de integridad activa (`omni_guard.py`).

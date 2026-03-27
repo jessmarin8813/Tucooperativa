@@ -8,9 +8,9 @@ Este manual detalla las funcionalidades de cada módulo para administradores y c
 Ubicación: `/client/src/components` (Frontend) y `/api/admin` (Backend)
 
 ### 📊 Dashboard Central (`Dashboard.jsx`)
-- **Resumen Ejecutivo**: Muestra el total de unidades activas, ingresos brutos del mes y alertas de mantenimiento pendientes.
-- **Flota en Tiempo Real**: Lista de vehículos con su estado (En Ruta / Disponible) y último odómetro.
-- **Alertas Rápidas**: Notificaciones de **"Brechas"** (saltos de km no reportados) detectadas por el sistema forense.
+- **Resumen Táctico**: Muestra exclusivamente el total de unidades activas, ingresos brutos y alertas críticas.
+- **Centro de Mando**: Sincronización en tiempo real con vinculación directa de Telegram para Dueños.
+- **Alertas Rápidas**: Notificaciones de **"Brechas"** (saltos de km no reportados) y salud financiera.
 
 ### 👑 Panel Maestro (`SuperAdminDashboard.jsx`)
 - **Modo Dios**: Gestión multi-tenant. Permite crear nuevas cooperativas, ver la recaudación global de la red y supervisar fraudes a gran escala.
@@ -38,7 +38,7 @@ Ubicación: `/client/src/components` (Frontend) y `/api/admin` (Backend)
 Ubicación: `/bot`
 
 ### 🚛 Gestión de Jornada (Zero-Command)
-- **Botón INICIAR**: El chofer selecciona su unidad e ingresa el odómetro. El sistema valida automáticamente si hay kilómetros "fantasma".
+- **Botón INICIAR**: El chofer selecciona su unidad (vinculada a la tabla `choferes`) e ingresa el odómetro.
 - **Botón FINALIZAR**: Cierre de ruta con reporte de combustible.
 
 ### 💸 Reporte de Pagos

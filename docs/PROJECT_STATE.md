@@ -1,28 +1,27 @@
-# 🛡️ TuCooperativa - PROJECT STATE (v17.6-STABLE)
+# 🛡️ TuCooperativa - PROJECT STATE (v36.2-STABLE / FLEET MASTERY)
 
 ## 📊 Resumen Ejecutivo
-- **Versión**: 17.6.0-Final (Recovery & Optimization Complete).
+- **Versión**: 36.2.1-Final (Driver Decoupling & Fleet UI Refined).
 - **Estado**: **ESTABLE / PRODUCCIÓN-READY**.
-- **Última Auditoría**: OMNI-GUARD v5.0 (Passed).
-- **Branding**: Restaurado (TuCooperativa Neon Brand).
+- **Última Auditoría**: OMNI-GUARD v5.0 + Python-Medic (Passed).
+- **Branding**: TuCooperativa Neon Brand (Active).
 
 ## 🛠️ Componentes Críticos
-- **Sidebar.jsx**: Branded con logo de texto y estatus de cooperativa. Vertical flow optimizado.
-- **Dashboard.jsx**: Limpio. Solo métricas (`StatCards`). Sin redundancia de listados.
-- **FleetList.jsx**: Sistema Dual (Minimal/Full). Grid Sync PC (35/20/20/25%).
-- **index.css**: Arquitectura de 813+ líneas. Glassmorphism activo. Zero-collision mobile cards.
+- **Choferes Entity**: Desacoplado de `usuarios`. Tabla dedicada `choferes` activa.
+- **FleetList.jsx**: Sistema Dual. PC Grid (35/20/20/25%) y Mobile Card (SVG/X native unlink button).
+- **api/admin/save_vehicle.php**: Controlador maestro para desvinculación y edición de flota.
+- **api/includes/middleware.php**: Session sync reforzado para Telegram ID (Owner/Driver).
+- **Dashboard.jsx**: Vinculado al prop `user` global (No más falsas alarmas de Telegram).
 
 ## 📌 Mapa de Ruta Inmediato
-1.  **Fase 7 (Configuración Corporativa)**:
-    - Crear modal de edición en pestaña "Empresa".
-    - Endpoints para persistir Logo (base64) y RIF/Slogan.
-2.  **Fase 8 (Gastos Operativos)**:
-    - Módulo de carga masiva de facturas.
-    - Sincronización con Inteligencia BI.
+1.  **Fase de Gestión VIP**: 
+    *   Optimizar el modal de "Empresa" para persistir el RIF y Logo dinámico.
+2.  **Reportes Avanzados**:
+    *   Integrar los datos de la tabla `choferes` en el Ranking de Inteligencia BI.
 
 ## ⚠️ Puntos de Atención
-- El ancho del Sidebar en Desktop está fijado a 280px vía CSS para evitar desbordamientos.
-- Las consultas `@media` en `index.css` después de la línea 600 controlan el comportamiento de la flota. No mover los puntos de ruptura (1024px).
+- El unlinking en móvil usa un SVG nativo + "X" blanca para máxima visibilidad (evitar caché de librerías).
+- El middleware ahora inyecta `telegram_chat_id` en la respuesta de `checkAuth()`.
 
 ---
-*Documento sellado tras restauración v17.6-Stable (2026-03-26 09:20:00)*
+*Documento sellado tras refinamiento v36.2-Stable (2026-03-27 18:10:00)*
