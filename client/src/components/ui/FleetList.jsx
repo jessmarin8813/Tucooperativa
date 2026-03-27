@@ -79,15 +79,17 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                     whileHover={{ scale: 1.001, background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.12)' }}
                     className="p-fleet-grid p-fleet-row-pc"
                     style={{ 
+                        width: 'calc(100% - 24px)', 
                         margin: '6px 12px', 
-                        padding: '14px 28px', 
-                        borderRadius: '20px', 
+                        padding: '12px 24px', 
+                        borderRadius: '16px', 
                         background: 'rgba(255,255,255,0.02)',
-                        border: '1px solid rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.06)',
                         transition: 'all 0.2s ease-out',
                         display: 'grid',
+                        gridTemplateColumns: 'minmax(250px, 1.2fr) 140px 160px 140px',
                         alignItems: 'center',
-                        gap: '24px'
+                        gap: '16px'
                     }}
                   >
                       <div className="p-identity-col" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '4px' }}>
