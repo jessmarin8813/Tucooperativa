@@ -223,11 +223,11 @@ const VehiculosView = ({ user, config, setActiveView }) => {
         )}
       </div>
 
-      {loading && filteredVehicles.length === 0 ? (
+      {loading && (filteredVehicles || []).length === 0 ? (
         <div className="flex items-center justify-center p-24">
             <RefreshCw size={48} className="animate-spin text-accent" />
         </div>
-      ) : filteredVehicles.length === 0 ? (
+      ) : (filteredVehicles || []).length === 0 ? (
         <div className="glass empty-state-card" style={{ padding: '80px 40px', textAlign: 'center', borderRadius: '32px', border: '2px dashed var(--glass-border)' }}>
           <div style={{ width: '80px', height: '80px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
             <Truck size={40} style={{ color: 'var(--primary)' }} />
