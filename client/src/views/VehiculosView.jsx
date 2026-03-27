@@ -84,9 +84,19 @@ const VehiculosView = ({ user, config, setActiveView }) => {
   return (
     <div>
       <div className="p-flex-responsive p-justify-between" style={{ marginBottom: '32px' }}>
-        <div className="mobile-center">
-          <h1 className="h1-premium neon-text" style={{ fontSize: 'clamp(1.8rem, 5vw, 2.5rem)' }}>Flota</h1>
-          <p className="p-subtitle mobile-hide">Monitorización de unidades y salud de activos</p>
+        <div className="mobile-center p-flex p-items-center" style={{ gap: '20px' }}>
+            <div style={{ 
+                width: '56px', height: '56px', borderRadius: '18px', 
+                background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99,102,241,0.2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0
+            }}>
+                <Car size={28} className="text-primary" />
+            </div>
+            <div style={{ overflow: 'hidden' }}>
+                <h1 className="h1-premium neon-text" style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', lineHeight: 1 }}>Módulo de Flota</h1>
+                <p className="p-subtitle mobile-hide" style={{ margin: 0, marginTop: '4px' }}>Gestión Operativa Senior</p>
+            </div>
         </div>
         <div className="p-flex p-gap-4">
           <button className="btn-primary" onClick={() => setIsModalOpen(true)} style={{ padding: '0 24px', height: '48px' }}>
@@ -109,7 +119,7 @@ const VehiculosView = ({ user, config, setActiveView }) => {
         <StatCard title="Fuera" value={stats.inactive} trend="+0" icon={XCircle} color="var(--danger)" compact />
       </div>
 
-      {/* 2. SEARCH & FILTERS - Optimized for Mobile Space */}
+      {/* 2. SEARCH & FILTERS - Tactical Scalability */}
       <div className="p-flex-responsive p-justify-between p-items-center" style={{ marginBottom: '24px', gap: '16px' }}>
         <div className="glass" style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '0 16px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)' }}>
           <Search size={16} className="text-white/20" />
@@ -124,7 +134,9 @@ const VehiculosView = ({ user, config, setActiveView }) => {
             }}
           />
         </div>
-        <div className="p-mobile-scroll-x" style={{ padding: '4px 0' }}>
+        
+        {/* PC Version Buttons */}
+        <div className="mobile-hide p-flex" style={{ gap: '8px' }}>
           {['all', 'activo', 'mantenimiento', 'inactivo'].map(st => (
             <button 
               key={st}
@@ -138,6 +150,25 @@ const VehiculosView = ({ user, config, setActiveView }) => {
               {st === 'all' ? 'TODOS' : st.toUpperCase()}
             </button>
           ))}
+        </div>
+
+        {/* Mobile Version Select (Premium Tactile) */}
+        <div className="pc-hide" style={{ width: '100%' }}>
+            <select 
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="glass"
+                style={{ 
+                    width: '100%', padding: '14px 20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)',
+                    color: 'white', background: '#0f1019', outline: 'none', fontWeight: 900, fontSize: '11px',
+                    appearance: 'none', textAlign: 'center', cursor: 'pointer', textTransform: 'uppercase'
+                }}
+            >
+                <option value="all">Ver Todos los Estados</option>
+                <option value="activo">Solo Activos / Operativos</option>
+                <option value="mantenimiento">En Taller / Reparación</option>
+                <option value="inactivo">Inactivos / Fuera de Servicio</option>
+            </select>
         </div>
       </div>
 

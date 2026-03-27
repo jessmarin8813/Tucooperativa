@@ -34,32 +34,9 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
 
   return (
     <div className="p-fleet-card-root" style={{ width: '100%' }}>
-      {/* 1. HEADER - Optimized for Mobile context */}
-      {!minimal && (
-        <div className="p-flex-responsive p-justify-between p-items-center" style={{ padding: isMobile ? '0 16px 24px 16px' : '0 32px 40px 32px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-            <div className="p-flex p-items-center" style={{ minWidth: 0, gap: '20px' }}>
-                <div className="mobile-hide" style={{ 
-                    width: '64px', height: '64px', borderRadius: '20px', 
-                    background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99,102,241,0.2)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    flexShrink: 0
-                }}>
-                    <Car size={32} className="text-primary" />
-                </div>
-                <div style={{ overflow: 'hidden' }}>
-                    <div className="p-flex p-items-center" style={{ gap: '12px' }}>
-                        <div className="pc-hide" style={{ padding: '8px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '10px' }}>
-                             <Car size={18} className="text-primary" />
-                        </div>
-                        <h3 className="text-white font-black uppercase italic" style={{ fontSize: isMobile ? '1.3rem' : '1.8rem', letterSpacing: '0.04em', lineHeight: 1 }}>Módulo de Flota</h3>
-                    </div>
-                    <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '6px' }}>Gestión Operativa Senior</p>
-                </div>
-            </div>
-        </div>
-      )}
+      {/* 1. HEADER REMOVED (Moved to View level per user request) */}
 
-      <div className="p-fleet-container" style={{ marginTop: minimal ? '0' : (isMobile ? '24px' : '40px'), paddingBottom: '120px' }}>
+      <div className="p-fleet-container" style={{ marginTop: minimal ? '0' : (isMobile ? '24px' : '0px'), paddingBottom: '120px', paddingTop: minimal ? '0' : '20px' }}>
         {/* 2. PC GRID HEADER */}
         {!isMobile && (
           <div className="p-fleet-grid p-fleet-header-pc" style={{ marginBottom: '20px' }}>
@@ -96,7 +73,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                       <div className="p-identity-col">
                           <p className="text-white font-black" style={{ fontSize: '1.1rem', letterSpacing: '-0.01em' }}>{v.modelo || 'Unidad Activa'}</p>
                           <div className="p-flex p-items-center p-gap-3" style={{ marginTop: '4px' }}>
-                              <span className="p-plate-badge">{v.placa}</span>
+                              <span className="p-plate-badge" style={{ fontSize: '9px', color: '#06b6d4', fontWeight: 950, background: 'rgba(6, 182, 212, 0.1)', padding: '3px 10px', borderRadius: '8px', border: '1px solid rgba(6,182,212,0.2)' }}>{v.placa}</span>
                               {v.chofer_nombre && <span className="p-driver-tag">{v.chofer_nombre}</span>}
                           </div>
                       </div>
@@ -168,7 +145,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                               </div>
                               <div>
                                   <p className="text-white font-black uppercase italic" style={{ fontSize: '1.1rem', lineHeight: 1.2 }}>{v.modelo}</p>
-                                  <span className="p-plate-badge" style={{ marginTop: '4px', display: 'inline-block' }}>{v.placa}</span>
+                                  <span className="p-plate-badge" style={{ fontSize: '9px', color: '#06b6d4', fontWeight: 950, background: 'rgba(6, 182, 212, 0.1)', padding: '3px 10px', borderRadius: '8px', border: '1px solid rgba(6,182,212,0.2)', marginTop: '4px', display: 'inline-block' }}>{v.placa}</span>
                               </div>
                           </div>
                           <div className={`p-status-pill-v2 pill-sm ${status}`} style={{ padding: '6px 12px', fontSize: '9px' }}>
