@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useApi } from '../hooks/useApi'
+import { useRealtime } from '../hooks/useRealtime'
 import { DollarSign, Clock, CheckCircle, XCircle, AlertCircle, User, Car, ShieldCheck, CreditCard } from 'lucide-react'
 import { motion as Motion } from 'framer-motion'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
@@ -33,8 +34,24 @@ const CobranzaView = () => {
             if (!ignore) await fetchData()
         }
         init()
-        return () => { ignore = true }
+        
+        // Automatic polling every 10 seconds for real-time backup
+        const interval = setInterval(() => {
+            fetchData()
+        }, 10000)
+
+        return () => { 
+            ignore = true;
+            clearInterval(interval);
+        }
     }, [fetchData, date])
+
+    // REALTIME SYNC (Standardized)
+    useRealtime((event) => {
+        if (event.type === 'UPDATE_COBRANZA') {
+            fetchData();
+        }
+    });
 
     const handleProcesar = async (id, accion) => {
         if (!window.confirm(`¿Seguro que deseas ${accion} este pago?`)) return

@@ -4,6 +4,7 @@
  * Path: api/admin/procesar_pago.php
  */
 require_once __DIR__ . '/../includes/middleware.php';
+require_once __DIR__ . '/../includes/realtime.php';
 
 $user = checkAuth(); // Owner auth
 $db = DB::getInstance();
@@ -30,5 +31,8 @@ $stmt->execute([
 
 // OPTIONAL: Notify Driver back via Telegram
 // (Future work: bot callback)
+
+// Broadcast Update to UI
+broadcastRealtime('UPDATE_COBRANZA', ['message' => "Pago $accion", 'cooperativa_id' => $user['cooperativa_id']]);
 
 sendResponse(['success' => true, 'message' => "Pago $accion correctamente"]);

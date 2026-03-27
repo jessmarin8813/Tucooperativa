@@ -54,7 +54,16 @@ const Dashboard = ({ setActiveView }) => {
       fetchDashboardData()
     }
     init()
-    return () => { ignore = true }
+    
+    // Automatic polling every 10 seconds for real-time backup
+    const interval = setInterval(() => {
+      fetchDashboardData()
+    }, 10000)
+
+    return () => { 
+      ignore = true
+      clearInterval(interval)
+    }
   }, [callApi, fetchDashboardData, currentUser])
 
   if (loading && data.stats.total_vehiculos === 0) {

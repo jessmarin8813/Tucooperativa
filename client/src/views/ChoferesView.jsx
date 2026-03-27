@@ -31,36 +31,36 @@ const ChoferesView = () => {
     setInvitaciones(Array.isArray(d) ? d : [])
   }, [])
 
-  useEffect(() => {
-    let ignore = false
-    const init = async () => {
-      await Promise.resolve()
-      if (!ignore) {
-        fetchChoferes()
-        fetchInvitaciones()
-      }
-    }
-    init()
+    useEffect(() => {
+        let ignore = false
+        const init = async () => {
+          await Promise.resolve()
+          if (!ignore) {
+            fetchChoferes()
+            fetchInvitaciones()
+          }
+        }
+        init()
+    
+        // Automatic polling every 10 seconds for real-time vibe (Backup)
+        const interval = setInterval(() => {
+            fetchChoferes();
+            fetchInvitaciones();
+        }, 10000);
+    
+        return () => { 
+            ignore = true;
+            clearInterval(interval);
+        }
+    }, [fetchChoferes, fetchInvitaciones])
 
-    // REALTIME SYNC
+    // REALTIME SYNC (Standardized)
     useRealtime((event) => {
         if (event.type === 'UPDATE_FLEET') {
             fetchChoferes();
             fetchInvitaciones();
         }
     });
-
-    // Automatic polling every 10 seconds for real-time vibe (Backup)
-    const interval = setInterval(() => {
-        fetchChoferes();
-        fetchInvitaciones();
-    }, 10000);
-
-    return () => { 
-        ignore = true;
-        clearInterval(interval);
-    }
-  }, [fetchChoferes, fetchInvitaciones])
 
   const handleDelete = async (id) => {
     if (!confirm("¿Seguro que deseas eliminar a este chofer? Perderá acceso inmediato al Bot.")) return

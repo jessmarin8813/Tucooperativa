@@ -38,36 +38,36 @@ const VehiculosView = ({ user, config, setActiveView }) => {
     } catch { /* Handled */ }
   }, [callApi])
 
-  useEffect(() => {
-    let ignore = false
-    const init = async () => {
-      await Promise.resolve()
-      if (ignore) return
+    useEffect(() => {
+        let ignore = false
+        const init = async () => {
+          await Promise.resolve()
+          if (ignore) return
+    
+          if (!currentUser) {
+            const sessionRes = await callApi('session.php')
+            setCurrentUser(sessionRes.user)
+          }
+          fetchVehicles()
+        }
+        init()
+    
+        const interval = setInterval(() => {
+            fetchVehicles();
+        }, 10000);
+    
+        return () => { 
+            ignore = true;
+            clearInterval(interval);
+        }
+    }, [callApi, fetchVehicles, currentUser])
 
-      if (!currentUser) {
-        const sessionRes = await callApi('session.php')
-        setCurrentUser(sessionRes.user)
-      }
-      fetchVehicles()
-    }
-    init()
-
-    // REALTIME SYNC
+    // REALTIME SYNC (Standardized)
     useRealtime((event) => {
         if (event.type === 'UPDATE_FLEET') {
             fetchVehicles();
         }
     });
-
-    const interval = setInterval(() => {
-        fetchVehicles();
-    }, 10000);
-
-    return () => { 
-        ignore = true;
-        clearInterval(interval);
-    }
-  }, [callApi, fetchVehicles, currentUser])
 
   const handleRegistrationSuccess = () => {
     setIsModalOpen(false)

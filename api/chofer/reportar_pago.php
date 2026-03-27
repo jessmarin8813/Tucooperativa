@@ -4,6 +4,7 @@
  * Path: api/chofer/reportar_pago.php
  */
 require_once __DIR__ . '/../includes/middleware.php';
+require_once __DIR__ . '/../includes/realtime.php';
 
 $user = checkAuth();
 $db = DB::getInstance();
@@ -61,5 +62,8 @@ if ($v['admin_chat_id']) {
     
     sendTelegramNotification($v['admin_chat_id'], $msg, $coop_id);
 }
+
+// Broadcast Update to UI
+broadcastRealtime('UPDATE_COBRANZA', ['message' => 'Nuevo pago reportado', 'cooperativa_id' => $coop_id]);
 
 sendResponse(['success' => true, 'id' => $pago_id, 'message' => 'Pago reportado. El administrador lo revisará pronto.']);
