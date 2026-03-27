@@ -10,7 +10,7 @@ const VehicleForm = ({ onSuccess, currentUser, initialData }) => {
     modelo: initialData?.modelo || '',
     anio: initialData?.anio || new Date().getFullYear(),
     cuota_diaria: initialData?.cuota_diaria || '',
-    km_por_litro: initialData?.km_por_litro || 0,
+    km_por_litro: initialData?.km_por_litro || '',
     dueno_id: initialData?.dueno_id || (currentUser?.rol === 'dueno' ? currentUser.user_id : '')
   })
 
@@ -166,6 +166,7 @@ const VehicleForm = ({ onSuccess, currentUser, initialData }) => {
           type="number" 
           name="km_por_litro"
           step="0.1"
+          placeholder="Ej: 8.5"
           value={formData.km_por_litro}
           onChange={handleChange}
           style={inputStyle}
