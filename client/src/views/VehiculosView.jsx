@@ -12,6 +12,8 @@ const VehiculosView = ({ user, config, setActiveView }) => {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
   const [selectedVehicle, setSelectedVehicle] = useState(null)
   const [inviteVehicle, setInviteVehicle] = useState(null)
+  const [inviteToken, setInviteToken] = useState(null)
+  const [inviteLoading, setInviteLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 1024 : false)
@@ -62,9 +64,24 @@ const VehiculosView = ({ user, config, setActiveView }) => {
     setIsModalOpen(true)
   }
 
-  const handleOpenInviteModal = (vehicle) => {
+  const handleOpenInviteModal = async (vehicle) => {
     setInviteVehicle(vehicle)
     setIsInviteModalOpen(true)
+    setInviteLoading(true)
+    setInviteToken(null)
+    
+    try {
+      const res = await callApi('auth/invitaciones.php', 'POST', { vehiculo_id: vehicle.id })
+      if (res?.token) {
+        setInviteToken(res.token)
+      } else if (res?.status === 'success' && res.token) {
+         setInviteToken(res.token)
+      }
+    } catch (err) {
+      console.error('Failed to generate invite token', err)
+    } finally {
+      setInviteLoading(false)
+    }
   }
 
   const handleCloseModal = () => {
@@ -257,14 +274,20 @@ const VehiculosView = ({ user, config, setActiveView }) => {
             </div>
 
             <div style={{ marginBottom: '32px' }}>
-              <div style={{ margin: '0 auto 16px', padding: '16px', background: 'white', borderRadius: '24px', width: '200px', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=168x168&data=${encodeURIComponent(`https://t.me/TuCooperativaBot?start=INVITE_${inviteVehicle.id}`)}`} 
-                  alt="QR Invitation"
-                  style={{ maxWidth: '100%', maxHeight: '100%', display: 'block' }}
-                />
+              <div style={{ margin: '0 auto 16px', padding: '16px', background: 'white', borderRadius: '24px', width: '200px', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                {inviteLoading ? (
+                  <RefreshCw size={40} className="animate-spin text-primary" />
+                ) : (
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=168x168&data=${encodeURIComponent(`https://t.me/TuCooperativaBot?start=${inviteToken || 'GENERANDO'}`)}`} 
+                    alt="QR Invitation"
+                    style={{ maxWidth: '100%', maxHeight: '100%', display: 'block' }}
+                  />
+                )}
               </div>
-              <p className="text-dim font-bold" style={{ fontSize: '11px' }}>Muestra este QR al chofer para vincularlo</p>
+              <p className="text-dim font-bold" style={{ fontSize: '11px' }}>
+                {inviteLoading ? 'Generando código seguro...' : 'Muestra este QR al chofer para vincularlo'}
+              </p>
             </div>
 
             <div className="p-dropdown-divider" style={{ marginBottom: '32px' }}></div>
@@ -274,12 +297,13 @@ const VehiculosView = ({ user, config, setActiveView }) => {
               <div className="glass" style={{ display: 'flex', gap: '8px', padding: '12px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', alignItems: 'center' }}>
                 <input 
                   readOnly 
-                  value={`https://t.me/TuCooperativaBot?start=INVITE_${inviteVehicle.id}`}
+                  value={inviteLoading ? 'Generando...' : `https://t.me/TuCooperativaBot?start=${inviteToken || 'ERR'}`}
                   style={{ background: 'transparent', border: 'none', color: 'white', fontWeight: 600, fontSize: '10px', flex: 1, outline: 'none', fontFamily: 'monospace' }}
                 />
                 <button 
+                  disabled={inviteLoading || !inviteToken}
                   onClick={() => {
-                    const link = `https://t.me/TuCooperativaBot?start=INVITE_${inviteVehicle.id}`;
+                    const link = `https://t.me/TuCooperativaBot?start=${inviteToken}`;
                     try {
                         if (navigator.clipboard && navigator.clipboard.writeText) {
                             navigator.clipboard.writeText(link).then(() => alert('Enlace copiado al portapapeles'));
@@ -301,7 +325,7 @@ const VehiculosView = ({ user, config, setActiveView }) => {
                     }
                   }}
                   className="btn-primary"
-                  style={{ padding: '8px 16px', fontSize: '10px', fontWeight: 1000, height: 'auto' }}
+                  style={{ padding: '8px 16px', fontSize: '10px', fontWeight: 1000, height: 'auto', opacity: (inviteLoading || !inviteToken) ? 0.5 : 1 }}
                 >
                   COPIAR
                 </button>

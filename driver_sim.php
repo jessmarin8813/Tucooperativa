@@ -226,12 +226,17 @@
     }
 
     async function registerDriver() {
-        const token = document.getElementById('token-input').value;
+        let token = document.getElementById('token-input').value;
         const nombre = document.getElementById('name-input').value;
         const cedula = document.getElementById('cedula-input').value;
         const btn = document.getElementById('btn-reg');
 
         if (!token || !nombre || !cedula) return alert('Por favor, llena todos los datos.');
+
+        // Smart Extraction: Si pegan el link entero, sacar solo el token
+        if (token.includes('start=')) {
+            token = token.split('start=')[1];
+        }
 
         btn.innerText = 'PROCESANDO...';
         log(`Intento de registro con token: ${token.substring(0,6)}...`);
@@ -240,6 +245,7 @@
             const virtual_id = 'SIM_' + Math.random().toString(36).substring(2, 9);
             const res = await fetch(`${API_BASE}auth/registrar.php`, {
                 method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     token: token,
                     telegram_id: virtual_id,
@@ -261,8 +267,9 @@
                 localStorage.setItem('sim_driver_data', JSON.stringify(driverData));
                 updateUI();
             } else {
-                log(`❌ Error: ${data.message}`);
-                alert(data.message);
+                const errorMsg = data.error || data.message || 'Token inválido o error desconocido';
+                log(`❌ Error: ${errorMsg}`);
+                alert(errorMsg);
             }
         } catch (e) {
             log('❌ Error de conexión con el API.');

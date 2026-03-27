@@ -24,9 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch();
 
         if (!$user) {
-            http_response_code(404);
-            echo json_encode(['error' => 'Token de vínculo inválido o expirado']);
-            exit;
+        http_response_code(404);
+        echo json_encode(['error' => 'Token de vínculo inválido o expirado', 'message' => 'Token de vínculo inválido']);
+        exit;
         }
 
         // 2. Vincular Telegram en Usuario (Unificamos telegram_chat_id y telegram_id)
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$invitacion) {
         http_response_code(404);
-        echo json_encode(['error' => 'Token de invitación inválido o ya usado']);
+        echo json_encode(['error' => 'Token de invitación inválido o ya usado', 'message' => 'Token inválido']);
         exit;
     }
 
