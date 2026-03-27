@@ -130,12 +130,13 @@ const VehiculosView = ({ user, config, setActiveView }) => {
         <StatCard title="Taller" value={stats.maintenance} trend="+0" icon={AlertTriangle} color="var(--warning)" compact />
         <StatCard title="Fuera" value={stats.inactive} trend="+0" icon={XCircle} color="var(--danger)" compact />
       </div>
-      {/* 2. SEARCH & FILTERS - Pure Symmetry Lock (50px) */}
+      {/* 2. SEARCH & FILTERS - Pure Symmetry Lock (Standardized to Dropdown) */}
       <div className="p-flex-responsive p-justify-between p-items-center" style={{ marginBottom: '24px', gap: '16px' }}>
         <div className="glass" style={{ 
             flex: 1, display: 'flex', alignItems: 'center', padding: '0 16px', 
-            borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)',
-            height: isMobile ? '50px' : 'auto', width: '100%'
+            borderRadius: '16px', border: '1px solid var(--glass-border)',
+            height: isMobile ? '50px' : '48px', width: '100%',
+            background: 'var(--glass-bg)'
         }}>
           <Search size={16} className="text-white/20" style={{ flexShrink: 0 }} />
           <input 
@@ -176,15 +177,15 @@ const VehiculosView = ({ user, config, setActiveView }) => {
                   className="glass"
                   style={{ 
                       width: '100%', padding: '0 16px', borderRadius: '16px', border: '1px solid var(--glass-border)',
-                      color: 'white', background: 'var(--glass-bg)', outline: 'none', fontWeight: 1000, fontSize: '11px',
+                      color: 'white', background: 'var(--bg-dark)', outline: 'none', fontWeight: 1000, fontSize: '11px',
                       appearance: 'none', textAlign: 'center', cursor: 'pointer', textTransform: 'uppercase',
                       height: '50px', lineHeight: 'normal'
                   }}
               >
-                  <option value="all">TODOS LOS ESTADOS</option>
-                  <option value="activo">SOLO ACTIVOS / OPERATIVOS</option>
-                  <option value="mantenimiento">EN TALLER / REPARACIÓN</option>
-                  <option value="inactivo">INACTIVOS / FUERA</option>
+                  <option value="all" style={{ background: '#1a1b26', color: 'white' }}>TODOS LOS ESTADOS</option>
+                  <option value="activo" style={{ background: '#1a1b26', color: 'white' }}>SOLO ACTIVOS / OPERATIVOS</option>
+                  <option value="mantenimiento" style={{ background: '#1a1b26', color: 'white' }}>EN TALLER / REPARACIÓN</option>
+                  <option value="inactivo" style={{ background: '#1a1b26', color: 'white' }}>INACTIVOS / FUERA</option>
               </select>
           </div>
         )}

@@ -801,13 +801,15 @@ button {
   padding: 12px 20px !important; 
   font-size: 13px !important; 
   border-radius: 12px !important; 
-  color: #fff !important; 
+  color: #fff; 
   background: transparent !important;
   transition: all 0.2s ease; 
   font-weight: 700 !important; 
   border: none !important;
 }
 
-.p-dropdown-item:hover { background: rgba(255,255,255,0.08) !important; color: var(--primary) !important; }
+.p-dropdown-item:hover { background: rgba(255,255,255,0.08) !important; color: var(--primary); }
+.p-dropdown-item.text-danger { color: var(--danger) !important; }
+.p-dropdown-item.text-danger:hover { color: #ff6b6b !important; }
 .p-dropdown-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 8px 0; }
 .minimal-grid { grid-template-columns: 60% 40% !important; } 
