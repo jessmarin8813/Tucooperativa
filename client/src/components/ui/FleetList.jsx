@@ -2,7 +2,7 @@ import React from 'react'
 import { MoreVertical, User, AlertTriangle, Car, History, Truck } from 'lucide-react'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 
-const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) => {
+const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onInvite }) => {
   const safeVehicles = Array.isArray(vehicles) ? vehicles : [];
   
   if (safeVehicles.length === 0) {
