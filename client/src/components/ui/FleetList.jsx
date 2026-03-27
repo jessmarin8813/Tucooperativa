@@ -58,8 +58,8 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
         </div>
       )}
 
-      <div className="p-fleet-container" style={{ marginTop: minimal ? '0' : '40px', paddingBottom: '120px' }}>
-        {/* 2. PC GRID HEADER - Strict Mirror Alignment (v22.1) */}
+      <div className="p-fleet-container" style={{ marginTop: minimal ? '0' : '40px', paddingBottom: '260px' }}>
+        {/* 2. PC GRID HEADER - Strict Mirror Alignment (v22.2) */}
         {!isMobile && (
           <div className="p-fleet-grid p-fleet-header-pc">
             <div className="p-identity-col">
@@ -71,12 +71,14 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                     ESTADO
                 </div>
             </div>
-            <div className="p-actions-col p-flex p-items-center p-justify-end">ACCIONES</div>
+            <div className="p-actions-col">
+               <div className="p-flex p-items-center p-justify-end" style={{ width: '100%' }}>ACCIONES</div>
+            </div>
           </div>
         )}
 
         {/* 3. SENIOR ROWS (Atomic Conditional Delivery) */}
-        <div className={!isMobile ? "divide-y divide-white/2" : ""}>
+        <div className={!isMobile ? "divide-y divide-white/2" : ""} style={{ overflow: 'visible' }}>
           {safeVehicles.map((v, i) => {
             const statusRaw = (v.estado || v.status_label || 'inactivo').toLowerCase();
             const status = statusRaw === 'en ruta' ? 'activo' : statusRaw;
@@ -115,7 +117,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                           </div>
                       </div>
 
-                      <div className="p-actions-col p-flex p-justify-end p-items-center p-gap-4">
+                      <div className="p-actions-col">
                           {!v.chofer_id && (
                               <button className="btn-primary invite-btn-pc" style={{ fontSize: '10px', height: '44px', fontWeight: 1000 }}>INVITAR</button>
                           )}

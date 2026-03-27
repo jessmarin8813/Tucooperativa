@@ -619,7 +619,7 @@ button {
    ========================================================================== 
 */
 
-.p-fleet-card-root { margin-top: 40px; width: 100%; }
+.p-fleet-card-root { margin-top: 40px; width: 100%; overflow: visible !important; }
 
 .p-fleet-card-root { margin-top: 40px; width: 100%; }
 
@@ -658,6 +658,16 @@ button {
   padding-left: 32px; /* Perfect match with card header */
   padding-right: 32px;
   box-sizing: border-box;
+  overflow: visible !important;
+}
+
+.p-actions-col {
+  width: 160px;
+  min-width: 160px;
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 16px; /* Matching p-gap-4 */
 }
 
 .p-fleet-header-pc {
