@@ -72,6 +72,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                 {!isMobile ? (
                   /* --- DESKTOP ROW --- */
                   <Motion.div 
+                    key={`PC_ROW_${v.id}`}
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
                     className="p-fleet-grid p-fleet-row-pc"
                   >
@@ -85,7 +86,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
 
                       <div className="p-fee-col p-flex p-items-center p-justify-center">
                           <div className="p-flex-col p-items-center">
-                              <p className="text-white font-black" style={{ fontSize: '1.4rem' }}>${parseFloat(v.cuota_diaria).toFixed(2)}</p>
+                              <p className="text-white font-black" style={{ fontSize: '1.4rem' }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
                               <span className="p-fee-label">USD / DÍA</span>
                           </div>
                       </div>
@@ -104,7 +105,13 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                       <div className="p-actions-col">
                           <div className="p-flex p-items-center p-justify-center p-gap-4" style={{ width: '100%' }}>
                               {!v.chofer_id && status === 'activo' && (
-                                  <button className="btn-primary invite-btn-pc" style={{ fontSize: '10px', height: '44px', fontWeight: 1000 }}>INVITAR</button>
+                                  <button 
+                                    onClick={() => onInvite && onInvite(v)}
+                                    className="btn-primary invite-btn-pc" 
+                                    style={{ fontSize: '10px', height: '44px', fontWeight: 1000 }}
+                                  >
+                                      INVITAR CHOFER
+                                  </button>
                               )}
                               <div style={{ position: 'relative' }}>
                                   <button 
@@ -136,6 +143,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                 ) : (
                   /* --- MOBILE CARD (Premium horizontal hierarchy) --- */
                   <Motion.div 
+                    key={`MOBILE_CARD_${v.id}`}
                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.03 }}
                     className="glass" 
                     style={{ padding: '24px', borderRadius: '24px', marginBottom: '16px', border: '1px solid rgba(255,255,255,0.08)' }}
@@ -144,7 +152,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                           <div className="p-flex p-gap-4">
                               {/* Icon removed per user request for absolute purity */}
                               <div>
-                                  <p className="text-white font-black uppercase italic" style={{ fontSize: '1.2rem', lineHeight: 1.2 }}>{v.modelo}</p>
+                                  <p className="text-white font-black uppercase italic" style={{ fontSize: '1.2rem', lineHeight: 1.2 }}>{v.modelo || 'Unidad'}</p>
                                   <span className="p-plate-badge" style={{ fontSize: '9px', color: '#06b6d4', fontWeight: 950, background: 'rgba(6, 182, 212, 0.1)', padding: '3px 10px', borderRadius: '8px', border: '1px solid rgba(6,182,212,0.2)', marginTop: '4px', display: 'inline-block' }}>{v.placa}</span>
                               </div>
                           </div>
@@ -161,7 +169,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', padding: '16px', background: 'rgba(0,0,0,0.2)', borderRadius: '16px', marginBottom: '20px' }}>
                           <div>
                               <p className="text-dim uppercase font-black" style={{ fontSize: '8px', letterSpacing: '0.05em' }}>Tarifa Diaria</p>
-                              <p className="text-white font-black" style={{ fontSize: '1.2rem', marginTop: '2px' }}>${parseFloat(v.cuota_diaria).toFixed(2)}</p>
+                              <p className="text-white font-black" style={{ fontSize: '1.2rem', marginTop: '2px' }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
                           </div>
                           <div>
                               <p className="text-dim uppercase font-black" style={{ fontSize: '8px', letterSpacing: '0.05em' }}>Rendimiento</p>
@@ -171,7 +179,13 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
 
                       <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                           {!v.chofer_id && status === 'activo' ? (
-                            <button className="btn-primary" style={{ flex: 1, height: '54px', fontSize: '11px', fontWeight: 1000, whiteSpace: 'nowrap' }}>INVITAR CHOFER</button>
+                            <button 
+                                onClick={() => onInvite && onInvite(v)}
+                                className="btn-primary" 
+                                style={{ flex: 1, height: '54px', fontSize: '11px', fontWeight: 1000, whiteSpace: 'nowrap' }}
+                            >
+                                INVITAR CHOFER
+                            </button>
                           ) : (
                             <div style={{ flex: 1, height: '54px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', fontSize: '10px', color: 'var(--text-dim)', fontWeight: 800 }}>
                                 {v.chofer_id ? 'CHOFER ASIGNADO' : status.toUpperCase()}

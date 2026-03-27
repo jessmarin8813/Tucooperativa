@@ -9,7 +9,9 @@ import VehicleForm from '../components/ui/VehicleForm'
 const VehiculosView = ({ user, config, setActiveView }) => {
   const [vehicles, setVehicles] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
   const [selectedVehicle, setSelectedVehicle] = useState(null)
+  const [inviteVehicle, setInviteVehicle] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 1024 : false)
@@ -58,9 +60,16 @@ const VehiculosView = ({ user, config, setActiveView }) => {
     setIsModalOpen(true)
   }
 
+  const handleOpenInviteModal = (vehicle) => {
+    setInviteVehicle(vehicle)
+    setIsInviteModalOpen(true)
+  }
+
   const handleCloseModal = () => {
     setIsModalOpen(false)
+    setIsInviteModalOpen(false)
     setSelectedVehicle(null)
+    setInviteVehicle(null)
   }
 
   const filteredVehicles = (Array.isArray(vehicles) ? vehicles : []).filter(v => {
@@ -218,6 +227,7 @@ const VehiculosView = ({ user, config, setActiveView }) => {
             user={user} 
             setActiveView={setActiveView} 
             onEdit={handleEditVehicle}
+            onInvite={handleOpenInviteModal}
           />
         </div>
       )}
@@ -228,6 +238,57 @@ const VehiculosView = ({ user, config, setActiveView }) => {
           onSuccess={handleRegistrationSuccess} 
           initialData={selectedVehicle}
         />
+      </Modal>
+
+      {/* DRIVER INVITATION MODAL v31.0 */}
+      <Modal isOpen={isInviteModalOpen} onClose={handleCloseModal} title="Invitar Chofer">
+        {inviteVehicle && (
+          <div style={{ padding: '0 10px', textAlign: 'center' }}>
+            <div className="glass-premium" style={{ marginBottom: '24px', padding: '24px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.02)' }}>
+              <p className="text-dim uppercase font-black" style={{ fontSize: '10px', letterSpacing: '0.1em', marginBottom: '8px' }}>Unidad Seleccionada</p>
+              <h3 className="text-white font-black uppercase italic" style={{ fontSize: '1.5rem', margin: 0 }}>{inviteVehicle.modelo || 'Unidad'}</h3>
+              <span className="p-plate-badge" style={{ fontSize: '10px', padding: '4px 12px', marginTop: '8px', display: 'inline-block' }}>{inviteVehicle.placa}</span>
+            </div>
+
+            <div style={{ marginBottom: '32px' }}>
+              <div style={{ margin: '0 auto 16px', padding: '16px', background: 'white', borderRadius: '24px', width: '200px', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <img 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=168x168&data=${encodeURIComponent(`https://t.me/TuCooperativaBot?start=INVITE_${inviteVehicle.id}`)}`} 
+                  alt="QR Invitation"
+                  style={{ maxWidth: '100%', maxHeight: '100%', display: 'block' }}
+                />
+              </div>
+              <p className="text-dim font-bold" style={{ fontSize: '11px' }}>Muestra este QR al chofer para vincularlo</p>
+            </div>
+
+            <div className="p-dropdown-divider" style={{ marginBottom: '32px' }}></div>
+
+            <div style={{ textAlign: 'left', marginBottom: '24px' }}>
+              <p className="text-white font-bold" style={{ fontSize: '11px', opacity: 0.6, marginBottom: '12px' }}>O envía este enlace directo:</p>
+              <div className="glass" style={{ display: 'flex', gap: '8px', padding: '12px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', alignItems: 'center' }}>
+                <input 
+                  readOnly 
+                  value={`https://t.me/TuCooperativaBot?start=INVITE_${inviteVehicle.id}`}
+                  style={{ background: 'transparent', border: 'none', color: 'white', fontWeight: 600, fontSize: '10px', flex: 1, outline: 'none', fontFamily: 'monospace' }}
+                />
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(`https://t.me/TuCooperativaBot?start=INVITE_${inviteVehicle.id}`);
+                    alert('Enlace copiado al portapapeles');
+                  }}
+                  className="btn-primary"
+                  style={{ padding: '8px 16px', fontSize: '10px', fontWeight: 1000, height: 'auto' }}
+                >
+                  COPIAR
+                </button>
+              </div>
+            </div>
+
+            <button onClick={handleCloseModal} className="glass-hover" style={{ width: '100%', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', color: 'white', fontWeight: 900, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              Cerrar
+            </button>
+          </div>
+        )}
       </Modal>
     </div>
   )
