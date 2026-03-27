@@ -26,6 +26,17 @@ switch ($method) {
                 sendResponse(['error' => 'Vehiculo and odometer value are required'], 400);
             }
 
+            // [FIX] Resolve plate string to ID if not numeric
+            if (!is_numeric($vehiculo_id)) {
+                $stmt_v = $db->prepare("SELECT id FROM vehiculos WHERE placa = ? AND cooperativa_id = ?");
+                $stmt_v->execute([$vehiculo_id, $coop_id]);
+                $v_id_resolved = $stmt_v->fetchColumn();
+                if (!$v_id_resolved) {
+                    sendResponse(['error' => "No se encontró el vehículo con placa: $vehiculo_id"], 404);
+                }
+                $vehiculo_id = $v_id_resolved;
+            }
+
             try {
                 $db->beginTransaction();
 
