@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { User, Trash2, ShieldCheck, ShieldAlert, RefreshCw, Send, Link2, Copy, Check, Clock, Users } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
+import { useApi } from '../hooks/useApi'
+import { useRealtime } from '../hooks/useRealtime'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 
 const ChoferesView = () => {
@@ -40,7 +42,15 @@ const ChoferesView = () => {
     }
     init()
 
-    // Automatic polling every 10 seconds for real-time vibe
+    // REALTIME SYNC
+    useRealtime((event) => {
+        if (event.type === 'UPDATE_FLEET') {
+            fetchChoferes();
+            fetchInvitaciones();
+        }
+    });
+
+    // Automatic polling every 10 seconds for real-time vibe (Backup)
     const interval = setInterval(() => {
         fetchChoferes();
         fetchInvitaciones();

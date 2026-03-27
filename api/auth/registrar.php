@@ -1,6 +1,7 @@
 <?php
-require_once '../includes/db.php';
-
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/middleware.php';
+require_once __DIR__ . '/../includes/realtime.php';
 // Registro vía Deep Link
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
@@ -85,6 +86,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $db->commit();
         
+        // Broadcast Realtime Update to UI
+        broadcastRealtime('UPDATE_FLEET', ['message' => 'Nuevo chofer vinculado', 'cooperativa_id' => $invitacion['cooperativa_id']]);
+        broadcastRealtime('REFRESH_AUTH'); // Trigger auth refresh if needed
+
         echo json_encode([
             'status' => 'success', 
             'message' => 'Registro de chofer completado', 

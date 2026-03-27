@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Plus, RefreshCw, Truck, CheckCircle2, AlertTriangle, XCircle, Search, Car, ChevronDown } from 'lucide-react'
 import { useApi } from '../hooks/useApi'
+import { useRealtime } from '../hooks/useRealtime'
 import FleetList from '../components/ui/FleetList'
 import StatCard from '../components/ui/StatCard'
 import Modal from '../components/ui/Modal'
@@ -50,6 +51,13 @@ const VehiculosView = ({ user, config, setActiveView }) => {
       fetchVehicles()
     }
     init()
+
+    // REALTIME SYNC
+    useRealtime((event) => {
+        if (event.type === 'UPDATE_FLEET') {
+            fetchVehicles();
+        }
+    });
 
     const interval = setInterval(() => {
         fetchVehicles();
