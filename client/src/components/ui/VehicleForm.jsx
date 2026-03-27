@@ -10,7 +10,7 @@ const VehicleForm = ({ onSuccess, currentUser, initialData }) => {
     modelo: initialData?.modelo || '',
     anio: initialData?.anio || new Date().getFullYear(),
     cuota_diaria: initialData?.cuota_diaria || '',
-    km_por_litro: initialData?.km_por_litro || '8.0',
+    km_por_litro: initialData?.km_por_litro || 0,
     dueno_id: initialData?.dueno_id || (currentUser?.rol === 'dueno' ? currentUser.user_id : '')
   })
 
