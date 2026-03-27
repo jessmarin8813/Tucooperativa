@@ -152,7 +152,7 @@ switch ($method) {
                 // 3. Trigger Daily Fee (Note: We use recommended amount but reported payment)
                 // This is audit only, the 'dias' count in mi_estado handles the actual debt.
                 // We just log what was paid here for the record.
-                $stmt = $db->prepare("INSERT INTO pagos_reportados (cooperativa_id, vehiculo_id, chofer_id, monto_total, monto_efectivo, monto_pagomovil, estado) 
+                $stmt = $db->prepare("INSERT INTO pagos_reportados (cooperativa_id, vehiculo_id, chofer_id, monto, monto_efectivo, monto_pagomovil, estado) 
                                      VALUES (?, ?, ?, ?, ?, ?, 'aprobado')");
                 $stmt->execute([
                     $coop_id, $r_data['vehiculo_id'], $user['user_id'],
