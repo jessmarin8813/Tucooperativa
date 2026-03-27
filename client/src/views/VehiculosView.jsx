@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Plus, RefreshCw, Truck, CheckCircle2, AlertTriangle, XCircle, Search, Car } from 'lucide-react'
+import { Plus, RefreshCw, Truck, CheckCircle2, AlertTriangle, XCircle, Search, Car, ChevronDown } from 'lucide-react'
 import { useApi } from '../hooks/useApi'
 import FleetList from '../components/ui/FleetList'
 import StatCard from '../components/ui/StatCard'
@@ -179,21 +179,25 @@ const VehiculosView = ({ user, config, setActiveView }) => {
             ))}
           </div>
         ) : (
-          <div key="MOBILE_FILTERS_ROOT" className="glass" style={{ width: '100%', height: '50px', display: 'flex', alignItems: 'center', padding: '0 16px', borderRadius: '16px', border: '1px solid var(--glass-border)' }}>
+          <div key="MOBILE_FILTERS_ROOT" className="glass" style={{ width: '100%', height: '50px', position: 'relative', display: 'flex', alignItems: 'center', padding: '0 16px', borderRadius: '16px', border: '1px solid var(--glass-border)' }}>
+              <RefreshCw size={16} className="text-white/20" style={{ flexShrink: 0 }} />
+              <div style={{ flex: 1, textAlign: 'center', color: 'white', fontSize: '12px', fontWeight: 1000, textTransform: 'uppercase' }}>
+                  {filterStatus === 'all' ? 'TODOS LOS ESTADOS' : filterStatus.toUpperCase()}
+              </div>
+              <ChevronDown size={16} className="text-white/20" style={{ flexShrink: 0 }} />
+              
               <select 
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
                   style={{ 
-                      width: '100%', border: 'none', color: 'white', background: 'transparent', 
-                      outline: 'none', fontWeight: 1000, fontSize: '13px',
-                      appearance: 'none', textAlign: 'center', cursor: 'pointer', textTransform: 'uppercase',
-                      height: '100%'
+                      position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', 
+                      opacity: 0, cursor: 'pointer', appearance: 'none'
                   }}
               >
-                  <option value="all" style={{ background: '#1a1b26', color: 'white' }}>TODOS LOS ESTADOS</option>
-                  <option value="activo" style={{ background: '#1a1b26', color: 'white' }}>SOLO ACTIVOS / OPERATIVOS</option>
-                  <option value="mantenimiento" style={{ background: '#1a1b26', color: 'white' }}>EN TALLER / REPARACIÓN</option>
-                  <option value="inactivo" style={{ background: '#1a1b26', color: 'white' }}>INACTIVOS / FUERA</option>
+                  <option value="all">TODOS LOS ESTADOS</option>
+                  <option value="activo">ACTIVOS / OPERATIVOS</option>
+                  <option value="mantenimiento">EN TALLER</option>
+                  <option value="inactivo">INACTIVOS</option>
               </select>
           </div>
         )}
