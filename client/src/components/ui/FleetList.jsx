@@ -232,11 +232,14 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                                  border: '1px solid rgba(239, 68, 68, 0.35)', 
                                  cursor: 'pointer', 
                                  transition: 'all 0.2s',
-                                 boxShadow: '0 4px 12px rgba(239, 68, 68, 0.1)'
+                                 boxShadow: '0 4px 12px rgba(239, 68, 68, 0.1)',
+                                 display: 'flex',
+                                 alignItems: 'center',
+                                 justifyContent: 'center'
                                }}
                                title="Desvincular Chofer"
                            >
-                               <XCircle size={20} style={{ color: '#ef4444' }} />
+                               <UserMinus size={22} color="#ef4444" strokeWidth={2.5} />
                            </button>
                         </div>
                       ) : (
