@@ -655,8 +655,8 @@ button {
   grid-template-columns: 1fr 160px 220px 160px; 
   align-items: center;
   width: 100%;
-  padding-left: 4%;
-  padding-right: 4%;
+  padding-left: 32px; /* Perfect match with card header */
+  padding-right: 32px;
   box-sizing: border-box;
 }
 

@@ -58,14 +58,14 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
         </div>
       )}
 
-      <div className="p-fleet-container custom-scrollbar" style={{ marginTop: minimal ? '0' : '40px', paddingBottom: '240px' }}>
+      <div className="p-fleet-container custom-scrollbar" style={{ marginTop: minimal ? '0' : '40px', paddingBottom: '320px' }}>
         {/* 2. PC GRID HEADER - Strict Alignment (Only in Desktop) */}
         {!isMobile && (
           <div className="p-fleet-grid p-fleet-header-pc">
-            <div className="p-flex p-items-center">UNIDAD / OPERADOR</div>
-            <div className="p-flex p-items-center p-justify-center">CUOTA DIARIA</div>
-            <div className="p-flex p-items-center p-justify-center">ESTADO</div>
-            <div className="p-flex p-items-center p-justify-end">ACCIONES</div>
+            <div className="p-identity-col p-flex p-items-center">UNIDAD / OPERADOR</div>
+            <div className="p-fee-col p-flex p-items-center p-justify-center">CUOTA DIARIA</div>
+            <div className="p-status-col p-flex p-items-center p-justify-center">ESTADO</div>
+            <div className="p-actions-col p-flex p-items-center p-justify-end">ACCIONES</div>
           </div>
         )}
 
