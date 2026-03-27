@@ -16,7 +16,7 @@ const VehiculosView = lazy(() => import('../views/VehiculosView'))
 const MaintenanceCenter = lazy(() => import('../views/MaintenanceCenter'))
 const ForensicView = lazy(() => import('../views/ForensicView'))
 
-const MainLayout = ({ user, config, activeView, setActiveView, onLogout }) => {
+const MainLayout = ({ user, config, setConfig, activeView, setActiveView, onLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
   const [showHeader, setShowHeader] = useState(true)
