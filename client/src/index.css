@@ -675,9 +675,11 @@ button {
 /* 💻 DESKTOP MATRIX (Mathematical Alignment) */
 .p-fleet-grid {
   display: grid;
-  grid-template-columns: 1.2fr 160px 180px 160px; 
+  grid-template-columns: minmax(250px, 1.2fr) 140px 160px 140px; 
   align-items: center;
-  width: auto; /* Allow margins to dictate width */
+  width: calc(100% - 24px); 
+  margin-left: 12px;
+  margin-right: 12px;
   box-sizing: border-box;
   overflow: visible !important;
 }
