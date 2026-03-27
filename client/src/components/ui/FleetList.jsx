@@ -47,7 +47,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                     <Car size={32} className="text-primary" />
                 </div>
                 <div style={{ overflow: 'hidden' }}>
-                    <h3 className="text-white font-black uppercase italic" style={{ fontSize: '1.8rem', letterSpacing: '0.04em', lineHeight: 1 }}>Módulo de Flota <span style={{ color: 'var(--accent)', fontSize: '12px' }}>(v22.0-Mirror)</span></h3>
+                    <h3 className="text-white font-black uppercase italic" style={{ fontSize: '1.8rem', letterSpacing: '0.04em', lineHeight: 1 }}>Módulo de Flota</h3>
                     <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '8px' }}>Gestión Operativa Senior</p>
                 </div>
             </div>
@@ -58,13 +58,19 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
         </div>
       )}
 
-      <div className="p-fleet-container custom-scrollbar" style={{ marginTop: minimal ? '0' : '40px', paddingBottom: '320px' }}>
-        {/* 2. PC GRID HEADER - Strict Alignment (Only in Desktop) */}
+      <div className="p-fleet-container" style={{ marginTop: minimal ? '0' : '40px', paddingBottom: '120px' }}>
+        {/* 2. PC GRID HEADER - Strict Mirror Alignment (v22.1) */}
         {!isMobile && (
           <div className="p-fleet-grid p-fleet-header-pc">
-            <div className="p-identity-col p-flex p-items-center">UNIDAD / OPERADOR</div>
+            <div className="p-identity-col">
+                <div className="p-flex p-items-center">UNIDAD / CHOFER</div>
+            </div>
             <div className="p-fee-col p-flex p-items-center p-justify-center">CUOTA DIARIA</div>
-            <div className="p-status-col p-flex p-items-center p-justify-center">ESTADO</div>
+            <div className="p-status-col p-flex p-items-center p-justify-center">
+                <div className="p-flex-col p-items-center" style={{ width: '100%' }}>
+                    ESTADO
+                </div>
+            </div>
             <div className="p-actions-col p-flex p-items-center p-justify-end">ACCIONES</div>
           </div>
         )}
