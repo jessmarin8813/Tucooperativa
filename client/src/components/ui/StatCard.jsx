@@ -1,21 +1,25 @@
 import React, { memo } from 'react'
 import { motion as Motion } from 'framer-motion'
 
-const StatCard = ({ title, label, value, icon: Icon, color = 'var(--primary)', trend }) => {
+const StatCard = ({ title, label, value, icon: Icon, color = 'var(--primary)', trend, compact }) => {
   return (
     <Motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -5 }}
       className="glass group"
-      style={{ padding: '32px', position: 'relative', overflow: 'hidden' }}
+      style={{ 
+        padding: compact ? '20px' : '32px', 
+        position: 'relative', 
+        overflow: 'hidden' 
+      }}
     >
       <div style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <div className="text-label" style={{ marginBottom: '8px' }}>
+          <div className="text-label" style={{ marginBottom: compact ? '4px' : '8px', fontSize: compact ? '10px' : 'inherit' }}>
             {title || label}
           </div>
-          <div className="text-value neon-text">
+          <div className="text-value neon-text" style={{ fontSize: compact ? '1.5rem' : 'inherit' }}>
             {value}
           </div>
           {trend && (
