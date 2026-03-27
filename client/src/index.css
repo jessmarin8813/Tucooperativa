@@ -93,6 +93,9 @@ button {
 }
 .p-items-center { align-items: center; }
 .p-justify-between { justify-content: space-between; }
+.p-justify-center { justify-content: center !important; }
+.p-justify-start { justify-content: flex-start !important; }
+.p-justify-end { justify-content: flex-end !important; }
 .p-gap-2 { gap: 8px; }
 .p-gap-4 { gap: 16px; }
 .p-flex-responsive {

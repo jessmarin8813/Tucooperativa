@@ -47,7 +47,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                     <Car size={32} className="text-primary" />
                 </div>
                 <div style={{ overflow: 'hidden' }}>
-                    <h3 className="text-white font-black uppercase italic" style={{ fontSize: '1.8rem', letterSpacing: '0.04em', lineHeight: 1 }}>Módulo de Flota <span style={{ color: 'var(--accent)', fontSize: '10px', verticalAlign: 'middle', marginLeft: '10px', opacity: 0.5 }}>(v22.3-FIX)</span></h3>
+                    <h3 className="text-white font-black uppercase italic" style={{ fontSize: '1.8rem', letterSpacing: '0.04em', lineHeight: 1 }}>Módulo de Flota <span style={{ color: 'var(--accent)', fontSize: '10px', verticalAlign: 'middle', marginLeft: '10px', opacity: 0.5 }}>(v23.0-ABS-CENTER)</span></h3>
                     <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '8px' }}>Gestión Operativa Senior</p>
                 </div>
             </div>
@@ -120,32 +120,34 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                       </div>
 
                       <div className="p-actions-col">
-                          {!v.chofer_id && (
-                              <button className="btn-primary invite-btn-pc" style={{ fontSize: '10px', height: '44px', fontWeight: 1000 }}>INVITAR</button>
-                          )}
-                          <div style={{ position: 'relative' }}>
-                              <button 
-                                onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} 
-                                className="btn-secondary dropdown-trigger-pc"
-                                style={{ width: '44px', height: '44px', borderRadius: '12px', padding: 0 }}
-                              >
-                                  <MoreVertical size={20} className={activeDropdown === v.id ? 'text-primary' : 'text-white/30'} />
-                              </button>
-                              <AnimatePresence>
-                                  {activeDropdown === v.id && (
-                                      <Motion.div 
-                                        initial={{ opacity: 0, y: isNearBottom ? -10 : 10 }} 
-                                        animate={{ opacity: 1, y: 0 }} 
-                                        exit={{ opacity: 0, y: isNearBottom ? -10 : 10 }} 
-                                        className={`p-dropdown-menu ${isNearBottom ? 'upward' : ''}`}
-                                      >
-                                          <button onClick={() => onEdit && onEdit(v)} className="p-dropdown-item">Modificar Unidad</button>
-                                          <button onClick={() => setActiveView && setActiveView('forensic')} className="p-dropdown-item">Ver Auditoría</button>
-                                          <div className="p-dropdown-divider"></div>
-                                          <button className="p-dropdown-item text-danger">Eliminar</button>
-                                      </Motion.div>
-                                  )}
-                              </AnimatePresence>
+                          <div className="p-flex p-items-center p-justify-center p-gap-4" style={{ width: '100%' }}>
+                              {!v.chofer_id && (
+                                  <button className="btn-primary invite-btn-pc" style={{ fontSize: '10px', height: '44px', fontWeight: 1000 }}>INVITAR</button>
+                              )}
+                              <div style={{ position: 'relative' }}>
+                                  <button 
+                                    onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} 
+                                    className="btn-secondary dropdown-trigger-pc"
+                                    style={{ width: '44px', height: '44px', borderRadius: '12px', padding: 0 }}
+                                  >
+                                      <MoreVertical size={20} className={activeDropdown === v.id ? 'text-primary' : 'text-white/30'} />
+                                  </button>
+                                  <AnimatePresence>
+                                      {activeDropdown === v.id && (
+                                          <Motion.div 
+                                            initial={{ opacity: 0, y: isNearBottom ? -10 : 10 }} 
+                                            animate={{ opacity: 1, y: 0 }} 
+                                            exit={{ opacity: 0, y: isNearBottom ? -10 : 10 }} 
+                                            className={`p-dropdown-menu ${isNearBottom ? 'upward' : ''}`}
+                                          >
+                                              <button onClick={() => onEdit && onEdit(v)} className="p-dropdown-item">Modificar Unidad</button>
+                                              <button onClick={() => setActiveView && setActiveView('forensic')} className="p-dropdown-item">Ver Auditoría</button>
+                                              <div className="p-dropdown-divider"></div>
+                                              <button className="p-dropdown-item text-danger">Eliminar</button>
+                                          </Motion.div>
+                                      )}
+                                  </AnimatePresence>
+                              </div>
                           </div>
                       </div>
                   </Motion.div>
