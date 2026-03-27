@@ -122,6 +122,24 @@
             color: #0f0;
             border: 1px solid #030;
         }
+
+        .bot-menu {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .bot-msg {
+            background: rgba(255,255,255,0.05);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            border-radius: 0 16px 16px 16px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+        }
     </style>
 </head>
 <body>
@@ -132,21 +150,37 @@
         <p>Emulador de Chofer Virtual v1.0</p>
     </div>
 
-    <!-- PESTAÑA: REGISTRO -->
-    <div id="view-registration" class="glass">
-        <div style="margin-bottom: 20px;">
-            <label>Token de Invitación</label>
-            <input type="text" id="token-input" placeholder="Pegar token aquí...">
+    <!-- PESTAÑA: SELECCIÓN / LOGIN -->
+    <div id="view-mode-selector" class="glass">
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button onclick="switchMode('reg')" class="btn" id="tab-reg" style="flex: 1; background: var(--primary);">NUEVO REGISTRO</button>
+            <button onclick="switchMode('login')" class="btn" id="tab-login" style="flex: 1; background: rgba(255,255,255,0.05);">LOGIN EXISTENTE</button>
         </div>
-        <div style="margin-bottom: 20px;">
-            <label>Nombre del Chofer (Virtual)</label>
-            <input type="text" id="name-input" placeholder="Ej: Chofer de Pruebas">
+
+        <div id="mode-reg" class="">
+            <div style="margin-bottom: 20px;">
+                <label>Token de Invitación</label>
+                <input type="text" id="token-input" placeholder="Pegar token aquí...">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label>Nombre del Chofer (Virtual)</label>
+                <input type="text" id="name-input" placeholder="Ej: Chofer de Pruebas">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label>Cédula</label>
+                <input type="text" id="cedula-input" placeholder="Ej: 12345678">
+            </div>
+            <button onclick="registerDriver()" class="btn btn-primary" id="btn-reg">Vincular SIM a Cooperativa</button>
         </div>
-        <div style="margin-bottom: 20px;">
-            <label>Cédula</label>
-            <input type="text" id="cedula-input" placeholder="Ej: 12345678">
+
+        <div id="mode-login" class="hidden">
+            <div style="margin-bottom: 20px;">
+                <label>Cédula del Chofer</label>
+                <input type="text" id="login-cedula" placeholder="Ej: 12345678">
+            </div>
+            <p style="text-align: left; margin: 0 0 20px; font-size: 0.8rem;">Se buscará el chofer en la base de datos para iniciar la simulación.</p>
+            <button onclick="loginExistingDriver()" class="btn btn-success" id="btn-login">Cargar Datos de Chofer</button>
         </div>
-        <button onclick="registerDriver()" class="btn btn-primary" id="btn-reg">Vincular SIM a Cooperativa</button>
 
         <div id="registration-preview" class="glass hidden" style="margin-top: 20px; border: 1px solid var(--accent); background: rgba(6, 182, 212, 0.05);">
             <p class="text-dim uppercase font-black" style="font-size: 10px; margin-bottom: 8px;">Invitación Detectada</p>
@@ -162,30 +196,63 @@
     <div id="view-panel" class="glass hidden">
         <div class="card-driver">
             <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.05); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem;">🚛</div>
-            <div>
+            <div style="flex: 1;">
                 <h2 id="driver-name" style="margin: 0; font-size: 1.4rem;">Nombre Chofer</h2>
                 <div id="driver-status" class="status-badge" style="background: rgba(255,255,255,0.1); display: inline-block; margin-top: 5px;">Offline</div>
             </div>
+            <button onclick="logout()" class="btn" style="width: auto; padding: 10px 15px; font-size: 0.7rem; background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2);">CERRAR SESIÓN</button>
         </div>
 
-        <div id="actions-idle">
-            <label>Unidad (ID o Placa)</label>
-            <input type="text" id="vehiculo-input" placeholder="Ej. 001">
-            <label>Odómetro Inicial</label>
-            <input type="number" id="start-odo" value="0">
-            <button onclick="startJourney()" class="btn btn-success">Iniciar Jornada</button>
+        <div id="bot-response" class="bot-msg hidden"></div>
+
+        <div class="bot-menu">
+            <button onclick="showStatus()" class="btn btn-primary" style="background: #3b82f6; font-size: 0.8rem;">🗂 MI ESTADO</button>
+            <button onclick="showUnit()" class="btn btn-primary" style="background: #6366f1; font-size: 0.8rem;">🚛 MI UNIDAD</button>
+            <button onclick="showPaymentForm()" class="btn btn-primary" style="background: #10b981; font-size: 0.8rem;">💰 REPORTAR PAGO</button>
+            <button onclick="toggleJourneyForm()" class="btn btn-primary" style="background: #f59e0b; font-size: 0.8rem;">🛣 JORNADA</button>
+            <button onclick="showIssueForm()" class="btn btn-primary" style="background: #ef4444; font-size: 0.8rem; grid-column: span 2;">⚠️ REPORTAR FALLA UNIDAD</button>
         </div>
 
-        <div id="actions-active" class="hidden">
-            <div style="margin-bottom: 15px;">
-                <label>Monto Pago ($)</label>
-                <input type="number" id="payment-amount" placeholder="0.00">
-                <button onclick="reportPayment()" class="btn btn-primary" style="background: var(--accent);">Reportar Pago Diario</button>
+        <!-- FORM: PAGO -->
+        <div id="form-payment" class="hidden" style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 16px;">
+            <label>Monto Pago ($)</label>
+            <input type="number" id="payment-amount" placeholder="0.00">
+            <button onclick="reportPayment()" class="btn btn-success" style="margin-top: 10px;">Enviar Reporte de Pago</button>
+            <button onclick="hideForms()" class="btn" style="background: transparent; font-size: 0.7rem;">Cancelar</button>
+        </div>
+
+        <!-- FORM: JORNADA -->
+        <div id="form-journey" class="hidden" style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 16px;">
+            <div id="actions-idle">
+                <label>Unidad (Placa)</label>
+                <input type="text" id="vehiculo-input" placeholder="Ej. PLACA-001">
+                <label>Odómetro Inicial</label>
+                <input type="number" id="start-odo" value="0">
+                <button onclick="startJourney()" class="btn btn-success">🚀 Iniciar Jornada</button>
             </div>
-            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
-            <label>Odómetro Final</label>
-            <input type="number" id="end-odo">
-            <button onclick="endJourney()" class="btn btn-danger">Finalizar Jornada</button>
+
+            <div id="actions-active" class="hidden">
+                <label>Odómetro Final</label>
+                <input type="number" id="end-odo">
+                <button onclick="endJourney()" class="btn btn-danger">🏁 Finalizar Jornada</button>
+            </div>
+            <button onclick="hideForms()" class="btn" style="background: transparent; font-size: 0.7rem;">Cerrar</button>
+        </div>
+
+        <!-- FORM: FALLA -->
+        <div id="form-issue" class="hidden" style="margin-bottom: 20px; padding: 15px; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 16px;">
+            <label style="color: var(--danger);">Tipo de Falla</label>
+            <select id="issue-type" style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #333;">
+                <option value="mecanica">Falla Mecánica</option>
+                <option value="caucho">Caucho / Neumático</option>
+                <option value="electrica">Falla Eléctrica</option>
+                <option value="choque">Accidente / Choque</option>
+                <option value="otro">Otro</option>
+            </select>
+            <label>Descripción Detallada</label>
+            <textarea id="issue-desc" style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #333; height: 80px;"></textarea>
+            <button onclick="reportIssue()" class="btn btn-danger">Enviar Reporte de Emergencia</button>
+            <button onclick="hideForms()" class="btn" style="background: transparent; font-size: 0.7rem;">Cancelar</button>
         </div>
     </div>
 
@@ -194,7 +261,6 @@
         > Esperando vinculación...
     </div>
 
-    <button onclick="logout()" class="btn" style="background: transparent; color: var(--text-dim); text-decoration: underline; font-size: 0.7rem;">Borrar Simulación y Empezar de Cero</button>
 </div>
 
 <script>
@@ -215,10 +281,10 @@
 
     function updateUI() {
         if (!driverData) {
-            viewReg.classList.remove('hidden');
+            document.getElementById('view-mode-selector').classList.remove('hidden');
             viewPanel.classList.add('hidden');
         } else {
-            viewReg.classList.add('hidden');
+            document.getElementById('view-mode-selector').classList.add('hidden');
             viewPanel.classList.remove('hidden');
             document.getElementById('driver-name').innerText = driverData.nombre;
             
@@ -312,6 +378,152 @@
         } finally {
             btn.innerText = 'Vincular SIM a Cooperativa';
         }
+    }
+
+    function switchMode(mode) {
+        if (mode === 'reg') {
+            document.getElementById('mode-reg').classList.remove('hidden');
+            document.getElementById('mode-login').classList.add('hidden');
+            document.getElementById('tab-reg').style.background = 'var(--primary)';
+            document.getElementById('tab-login').style.background = 'rgba(255,255,255,0.05)';
+        } else {
+            document.getElementById('mode-reg').classList.add('hidden');
+            document.getElementById('mode-login').classList.remove('hidden');
+            document.getElementById('tab-reg').style.background = 'rgba(255,255,255,0.05)';
+            document.getElementById('tab-login').style.background = 'var(--primary)';
+        }
+    }
+
+    async function loginExistingDriver() {
+        const cedula = document.getElementById('login-cedula').value;
+        const btn = document.getElementById('btn-login');
+        if (!cedula) return alert('Ingresa una cédula.');
+        
+        btn.innerText = 'BUSCANDO...';
+        log(`Buscando chofer con cédula: ${cedula}...`);
+
+        try {
+            const res = await fetch(`${API_BASE}auth/driver_login.php?cedula=${cedula}`);
+            const data = await res.json();
+            
+            if (data.status === 'success') {
+                const driver = data.driver;
+                log('✅ Chofer encontrado. Cargando sesión...');
+                
+                driverData = { 
+                    id: driver.telegram_id, 
+                    nombre: driver.nombre, 
+                    cedula: driver.cedula, 
+                    is_active: (driver.active_route !== null),
+                    coop_id: driver.cooperativa_id,
+                    vehiculo_id: driver.vehiculo_id,
+                    vehiculo_placa: driver.vehiculo_placa,
+                    active_route_id: driver.active_route ? driver.active_route.id : null
+                };
+                localStorage.setItem('sim_driver_data', JSON.stringify(driverData));
+                updateUI();
+            } else {
+                log(`❌ Error: ${data.error || 'Chofer no encontrado'}`);
+                alert(data.error || 'Chofer no encontrado.');
+            }
+        } catch (e) {
+            log('❌ Error al conectar con el servidor.');
+        } finally {
+            btn.innerText = 'Cargar Datos de Chofer';
+        }
+    }
+
+    async function showStatus() {
+        log('Solicitando Mi Estado...');
+        try {
+            const res = await fetch(`${API_BASE}chofer/mi_estado.php?telegram_id=${driverData.id}`);
+            const data = await res.json();
+            console.log("DEBUG Status Data:", data);
+            
+            // Garantizar valores si el objeto llegó vacío por error
+            const placa = data.placa || 'N/A';
+            const deuda = data.deuda !== undefined ? data.deuda : 0;
+            const pendientes = data.pendientes !== undefined ? data.pendientes : 0;
+            const km = data.ultimo_km || 0;
+            const bancos = data.datos_bancarios || 'Consulte al admin';
+
+            const msg = `🗂 *ESTADO DE CUENTA*\n\n` +
+                        `🔹 Unidad: ${placa}\n` +
+                        `🔹 Deuda: Bs ${deuda}\n` +
+                        `🔹 Pendiente: Bs ${pendientes}\n` +
+                        `🔹 Último KM: ${km}\n\n` +
+                        `💳 *Datos de Pago*:\n${bancos}`;
+            showBotMsg(msg);
+        } catch (e) { 
+            log('❌ Error al obtener estado.'); 
+            console.error(e);
+        }
+    }
+
+    async function showUnit() {
+        log('Solicitando info de unidad...');
+        const msg = `🚛 *TU UNIDAD ASIGNADA*\n\n` +
+                    `🔹 Placa: ${driverData.vehiculo_placa}\n` +
+                    `🔹 Estado: Operativo\n\n` +
+                    `Recuerda reportar cualquier falla mecánica al administrador.`;
+        showBotMsg(msg);
+    }
+
+    function showBotMsg(text) {
+        const el = document.getElementById('bot-response');
+        el.innerText = text;
+        el.classList.remove('hidden');
+        log('📩 Mensaje recibido del Bot.');
+    }
+
+    function showPaymentForm() {
+        hideForms();
+        document.getElementById('form-payment').classList.remove('hidden');
+    }
+
+    function showIssueForm() {
+        hideForms();
+        document.getElementById('form-issue').classList.remove('hidden');
+    }
+
+    function toggleJourneyForm() {
+        hideForms();
+        document.getElementById('form-journey').classList.remove('hidden');
+    }
+
+    function hideForms() {
+        document.getElementById('form-payment').classList.add('hidden');
+        document.getElementById('form-journey').classList.add('hidden');
+        document.getElementById('form-issue').classList.add('hidden');
+        document.getElementById('bot-response').classList.add('hidden');
+    }
+
+    async function reportIssue() {
+        const type = document.getElementById('issue-type').value;
+        const desc = document.getElementById('issue-desc').value;
+        if (!desc) return alert('Describe la falla.');
+        
+        log(`Reportando falla crítica: ${type}...`);
+        try {
+            const res = await fetch(`${API_BASE}fleet/reportar_incidencia.php`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    telegram_id: driverData.id,
+                    tipo: type,
+                    descripcion: desc,
+                    foto_path: 'uploads/sim_falla.jpg'
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                log('🚨 UNIDAD BLOQUEADA. Reporte enviado al administrador.');
+                showBotMsg(`⚠️ *REPORTE DE FALLA ENVIADO*\n\n` +
+                           `Su unidad ha sido marcada como INACTIVA hasta que se valide la reparación.\n\n` +
+                           `💰 Cuota sugerida: Bs ${data.suggested_quota}\n` +
+                           `👮 Reporte ID: ${data.ruta_id || 'N/A'}`);
+                hideForms();
+            } else { log(`❌ Error: ${data.error}`); }
+        } catch (e) { log('❌ Error de comunicación.'); }
     }
 
     async function startJourney() {

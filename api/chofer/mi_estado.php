@@ -50,10 +50,10 @@ if (!$data) {
 }
 
 sendResponse([
-    'placa' => $data['placa'],
-    'deuda' => $data['deuda_bs'],
+    'placa' => $data['placa'] ?? 'N/A',
+    'deuda' => $data['deuda_bs'] ?? 0,
     'pendientes' => $data['pendientes'] ?? 0,
     'ultimo_km' => $data['ultimo_km'] ?? 0,
-    'datos_bancarios' => $data['datos_dueno'],
-    'ruta_activa' => $data['ruta_activa']
+    'datos_bancarios' => $data['datos_dueno'] ?? 'Consulte al administrador',
+    'ruta_activa' => $data['ruta_activa'] ?? false
 ]);
