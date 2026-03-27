@@ -83,49 +83,57 @@ const VehiculosView = ({ user, config, setActiveView }) => {
 
   return (
     <div>
-      <div className="p-flex-responsive p-justify-between" style={{ marginBottom: '48px' }}>
-        <div>
-          <h1 className="h1-premium neon-text">Flota de Vehículos</h1>
-          <p className="p-subtitle">Monitorización de unidades y salud de activos en tiempo real</p>
+      <div className="p-flex-responsive p-justify-between" style={{ marginBottom: '32px' }}>
+        <div className="mobile-center">
+          <h1 className="h1-premium neon-text" style={{ fontSize: 'clamp(1.8rem, 5vw, 2.5rem)' }}>Flota</h1>
+          <p className="p-subtitle mobile-hide">Monitorización de unidades y salud de activos</p>
         </div>
         <div className="p-flex p-gap-4">
-          <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
-            <Plus size={24} />
-            <span>NUEVA UNIDAD</span>
+          <button className="btn-primary" onClick={() => setIsModalOpen(true)} style={{ padding: '0 24px', height: '48px' }}>
+            <Plus size={20} />
+            <span style={{ fontSize: '11px', fontWeight: 900 }}>NUEVA UNIDAD</span>
           </button>
         </div>
       </div>
 
-      {/* Stats Overview */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px', marginBottom: '48px' }}>
-        <StatCard title="Total Unidades" value={stats.total} trend={stats.totalTrend} icon={Truck} color="var(--primary)" />
-        <StatCard title="Operativas" value={stats.active} trend={stats.activeTrend} icon={CheckCircle2} color="var(--success)" />
-        <StatCard title="Mantenimiento" value={stats.maintenance} trend="+0" icon={AlertTriangle} color="var(--warning)" />
-        <StatCard title="Fuera de Servicio" value={stats.inactive} trend="+0" icon={XCircle} color="var(--danger)" />
+      {/* Stats Overview - Grid optimized */}
+      <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', 
+          gap: '12px', 
+          marginBottom: '32px' 
+      }}>
+        <StatCard title="Total" value={stats.total} trend={stats.totalTrend} icon={Truck} color="var(--primary)" compact />
+        <StatCard title="Activas" value={stats.active} trend={stats.activeTrend} icon={CheckCircle2} color="var(--success)" compact />
+        <StatCard title="Taller" value={stats.maintenance} trend="+0" icon={AlertTriangle} color="var(--warning)" compact />
+        <StatCard title="Fuera" value={stats.inactive} trend="+0" icon={XCircle} color="var(--danger)" compact />
       </div>
 
-      {/* 2. SEARCH & FILTERS - Tactical Scalability */}
-      <div className="p-flex-responsive p-justify-between p-items-center" style={{ marginBottom: '32px', gap: '16px' }}>
-        <div className="glass" style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '0 20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <Search size={18} className="text-white/20" />
+      {/* 2. SEARCH & FILTERS - Optimized for Mobile Space */}
+      <div className="p-flex-responsive p-justify-between p-items-center" style={{ marginBottom: '24px', gap: '16px' }}>
+        <div className="glass" style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '0 16px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <Search size={16} className="text-white/20" />
           <input 
             type="text" 
-            placeholder="Buscar por Placa o Modelo..." 
+            placeholder="Buscar unidad..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{ 
-              width: '100%', padding: '16px', background: 'transparent', border: 'none', 
-              color: 'white', outline: 'none', fontSize: '0.9rem', fontWeight: 600 
+              width: '100%', padding: '14px', background: 'transparent', border: 'none', 
+              color: 'white', outline: 'none', fontSize: '0.85rem', fontWeight: 600 
             }}
           />
         </div>
-        <div className="p-flex p-flex-wrap" style={{ gap: '12px', paddingBottom: '5px' }}>
+        <div className="p-mobile-scroll-x" style={{ padding: '4px 0' }}>
           {['all', 'activo', 'mantenimiento', 'inactivo'].map(st => (
             <button 
               key={st}
               onClick={() => setFilterStatus(st)}
               className={`p-status-pill ${filterStatus === st ? 'active-filter' : 'lite-filter'}`}
-              style={{ cursor: 'pointer', transition: 'all 0.2s', border: 'none', whiteSpace: 'nowrap', flex: '1 1 auto', minWidth: '110px' }}
+              style={{ 
+                cursor: 'pointer', transition: 'all 0.2s', border: 'none', 
+                whiteSpace: 'nowrap', padding: '10px 20px', fontSize: '10px', fontWeight: 900
+              }}
             >
               {st === 'all' ? 'TODOS' : st.toUpperCase()}
             </button>
