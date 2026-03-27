@@ -61,11 +61,11 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
       <div className="p-fleet-container custom-scrollbar" style={{ marginTop: minimal ? '0' : '40px', paddingBottom: '240px' }}>
         {/* 2. PC GRID HEADER - Strict Alignment (Only in Desktop) */}
         {!isMobile && (
-          <div className={`p-fleet-grid p-fleet-header-pc ${minimal ? 'minimal-grid' : ''}`}>
-            <div>UNIDAD / OPERADOR</div>
-            {!minimal && <div className="p-flex p-items-center p-justify-center">CUOTA DIARIA</div>}
+          <div className="p-fleet-grid p-fleet-header-pc">
+            <div className="p-flex p-items-center">UNIDAD / OPERADOR</div>
+            <div className="p-flex p-items-center p-justify-center">CUOTA DIARIA</div>
             <div className="p-flex p-items-center p-justify-center">ESTADO</div>
-            {!minimal && <div className="p-flex p-items-center p-justify-end">ACCIONES</div>}
+            <div className="p-flex p-items-center p-justify-end">ACCIONES</div>
           </div>
         )}
 
@@ -81,27 +81,25 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                   /* --- DESKTOP ROW (True Grid) --- */
                   <Motion.div 
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
-                    className={`p-fleet-grid p-fleet-row-pc ${minimal ? 'minimal-grid' : ''}`}
+                    className="p-fleet-grid p-fleet-row-pc"
                   >
                       <div className="p-identity-col">
-                          <p className="text-white font-black" style={{ fontSize: minimal ? '0.95rem' : '1.1rem', letterSpacing: '-0.01em' }}>{v.modelo || 'Unidad Activa'}</p>
+                          <p className="text-white font-black" style={{ fontSize: '1.1rem', letterSpacing: '-0.01em' }}>{v.modelo || 'Unidad Activa'}</p>
                           <div className="p-flex p-items-center p-gap-3" style={{ marginTop: '4px' }}>
                               <span className="p-plate-badge">{v.placa}</span>
-                              {v.chofer_nombre && !minimal && <span className="p-driver-tag">{v.chofer_nombre}</span>}
+                              {v.chofer_nombre && <span className="p-driver-tag">{v.chofer_nombre}</span>}
                           </div>
                       </div>
 
-                      {!minimal && (
-                        <div className="p-fee-col p-flex p-items-center p-justify-center">
-                            <div className="p-flex-col p-items-center">
-                                <p className="text-white font-black" style={{ fontSize: '1.4rem' }}>${parseFloat(v.cuota_diaria).toFixed(2)}</p>
-                                <span className="p-fee-label">USD / DÍA</span>
-                            </div>
-                        </div>
-                      )}
+                      <div className="p-fee-col p-flex p-items-center p-justify-center">
+                          <div className="p-flex-col p-items-center">
+                              <p className="text-white font-black" style={{ fontSize: '1.4rem' }}>${parseFloat(v.cuota_diaria).toFixed(2)}</p>
+                              <span className="p-fee-label">USD / DÍA</span>
+                          </div>
+                      </div>
 
                       <div className="p-status-col p-flex p-items-center p-justify-center">
-                          <div className="p-flex-col p-items-center p-justify-center" style={{ width: '100%' }}>
+                          <div className="p-flex-col p-items-center" style={{ width: '100%' }}>
                             <div className={`p-status-pill-v2 ${status}`}>
                                 {status.toUpperCase()}
                             </div>
@@ -111,32 +109,30 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                           </div>
                       </div>
 
-                      {!minimal && (
-                        <div className="p-actions-col p-flex p-justify-end p-items-center p-gap-4">
-                            {!v.chofer_id && (
-                                <button className="btn-primary invite-btn-pc" style={{ fontSize: '10px', height: '44px', fontWeight: 1000 }}>INVITAR</button>
-                            )}
-                            <div style={{ position: 'relative' }}>
-                                <button 
-                                  onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} 
-                                  className="btn-secondary dropdown-trigger-pc"
-                                  style={{ width: '44px', height: '44px', borderRadius: '12px', padding: 0 }}
-                                >
-                                    <MoreVertical size={20} className={activeDropdown === v.id ? 'text-primary' : 'text-white/30'} />
-                                </button>
-                                <AnimatePresence>
-                                    {activeDropdown === v.id && (
-                                        <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="p-dropdown-menu">
-                                            <button onClick={() => onEdit && onEdit(v)} className="p-dropdown-item">Modificar Unidad</button>
-                                            <button onClick={() => setActiveView && setActiveView('forensic')} className="p-dropdown-item">Ver Auditoría</button>
-                                            <div className="p-dropdown-divider"></div>
-                                            <button className="p-dropdown-item text-danger">Eliminar</button>
-                                        </Motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        </div>
-                      )}
+                      <div className="p-actions-col p-flex p-justify-end p-items-center p-gap-4">
+                          {!v.chofer_id && (
+                              <button className="btn-primary invite-btn-pc" style={{ fontSize: '10px', height: '44px', fontWeight: 1000 }}>INVITAR</button>
+                          )}
+                          <div style={{ position: 'relative' }}>
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} 
+                                className="btn-secondary dropdown-trigger-pc"
+                                style={{ width: '44px', height: '44px', borderRadius: '12px', padding: 0 }}
+                              >
+                                  <MoreVertical size={20} className={activeDropdown === v.id ? 'text-primary' : 'text-white/30'} />
+                              </button>
+                              <AnimatePresence>
+                                  {activeDropdown === v.id && (
+                                      <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="p-dropdown-menu">
+                                          <button onClick={() => onEdit && onEdit(v)} className="p-dropdown-item">Modificar Unidad</button>
+                                          <button onClick={() => setActiveView && setActiveView('forensic')} className="p-dropdown-item">Ver Auditoría</button>
+                                          <div className="p-dropdown-divider"></div>
+                                          <button className="p-dropdown-item text-danger">Eliminar</button>
+                                      </Motion.div>
+                                  )}
+                              </AnimatePresence>
+                          </div>
+                      </div>
                   </Motion.div>
                 ) : (
                   /* --- MOBILE CARD (Tactical Flow) --- */
