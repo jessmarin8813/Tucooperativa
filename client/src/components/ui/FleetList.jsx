@@ -193,23 +193,23 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
 
                       <div className="p-flex-col p-items-center" style={{ minWidth: '100px' }}>
                         <div className={`p-status-pill-v2 pill-sm ${status}`} style={{ padding: '8px 20px', fontSize: '10px', fontWeight: 1000 }}>
-                          {status.toUpperCase()}
+                           {status.toUpperCase()}
                         </div>
                         <span className="p-status-reason" style={{ fontSize: '10px', marginTop: '6px', fontWeight: 700, opacity: 0.75, color: 'rgba(255,255,255,0.85)', textAlign: 'center' }}>
-                          {statusDescription}
+                           {statusDescription}
                         </span>
                       </div>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', padding: '20px', background: 'rgba(0,0,0,0.3)', borderRadius: '20px', marginBottom: '24px' }}>
-                      <div>
-                        <p className="text-dim uppercase font-black" style={{ fontSize: '9px', letterSpacing: '0.1em', opacity: 0.75, color: 'rgba(255,255,255,0.85)' }}>Tarifa Diaria</p>
-                        <p className="text-white font-black" style={{ fontSize: '1.4rem', marginTop: '4px' }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
-                      </div>
-                      <div>
-                        <p className="text-dim uppercase font-black" style={{ fontSize: '9px', letterSpacing: '0.1em', opacity: 0.75, color: 'rgba(255,255,255,0.85)' }}>Rendimiento</p>
-                        <p className="text-white font-black" style={{ fontSize: '1.4rem', marginTop: '4px' }}>{v.km_por_litro || '0'} <small style={{ fontSize: '10px', opacity: 0.5 }}>KM/L</small></p>
-                      </div>
+                       <div style={{ textAlign: 'center' }}>
+                         <p className="text-dim uppercase font-black" style={{ fontSize: '9px', letterSpacing: '0.1em', opacity: 0.75, color: 'rgba(255,255,255,0.85)' }}>Tarifa Diaria</p>
+                         <p className="text-white font-black" style={{ fontSize: '1.4rem', marginTop: '4px' }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
+                       </div>
+                       <div style={{ textAlign: 'center' }}>
+                         <p className="text-dim uppercase font-black" style={{ fontSize: '9px', letterSpacing: '0.1em', opacity: 0.75, color: 'rgba(255,255,255,0.85)' }}>Rendimiento</p>
+                         <p className="text-white font-black" style={{ fontSize: '1.4rem', marginTop: '4px' }}>{v.km_por_litro || '0'} <small style={{ fontSize: '10px', opacity: 0.5 }}>KM/L</small></p>
+                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -223,11 +223,20 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                            </div>
                            <button 
                                onClick={(e) => { e.stopPropagation(); onUnlink && onUnlink(v); }}
-                               className="p-flex p-items-center p-justify-center"
-                               style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239,68,68,0.2)', cursor: 'pointer', transition: 'all 0.2s' }}
+                               className="p-flex p-items-center p-justify-center glass-hover"
+                               style={{ 
+                                 width: '40px', 
+                                 height: '40px', 
+                                 borderRadius: '12px', 
+                                 background: 'rgba(239, 68, 68, 0.15)', 
+                                 border: '1px solid rgba(239, 68, 68, 0.35)', 
+                                 cursor: 'pointer', 
+                                 transition: 'all 0.2s',
+                                 boxShadow: '0 4px 12px rgba(239, 68, 68, 0.1)'
+                               }}
                                title="Desvincular Chofer"
                            >
-                               <XCircle size={18} className="text-danger" style={{ opacity: 0.9 }} />
+                               <XCircle size={20} style={{ color: '#ef4444' }} />
                            </button>
                         </div>
                       ) : (
