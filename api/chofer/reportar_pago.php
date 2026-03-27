@@ -38,13 +38,18 @@ if (!$v) {
 }
 
 // 2. Insert Reported Payment (Approved state = 'pendiente')
-$stmt = $db->prepare("INSERT INTO pagos_reportados (cooperativa_id, vehiculo_id, chofer_id, monto, monto_efectivo, monto_pagomovil, comprobante_path, estado) 
-                     VALUES (:coop_id, :vid, :uid, :total, :efectivo, :pm, :compro, 'pendiente')");
+$moneda = $data['moneda'] ?? 'Bs'; // Default to Bs for drivers
+$tasa_cambio = get_bcv_rate();
+
+$stmt = $db->prepare("INSERT INTO pagos_reportados (cooperativa_id, vehiculo_id, chofer_id, monto, moneda, tasa_cambio, monto_efectivo, monto_pagomovil, comprobante_path, estado) 
+                     VALUES (:coop_id, :vid, :uid, :total, :moneda, :tasa, :efectivo, :pm, :compro, 'pendiente')");
 $stmt->execute([
     'coop_id' => $coop_id,
     'vid' => $v['id'],
     'uid' => $user_id,
     'total' => $monto_total,
+    'moneda' => $moneda,
+    'tasa' => $tasa_cambio,
     'efectivo' => $m_efectivo,
     'pm' => $m_pagomovil,
     'compro' => $comprobante
@@ -54,11 +59,17 @@ $pago_id = $db->lastInsertId();
 // 3. Notify Owner via Master Bot (Telegram)
 if ($v['admin_chat_id']) {
     require_once __DIR__ . '/../includes/telegram_helper.php';
-    $msg = "💰 **PAGO REPORTADO (Bs)**\n\n";
+    $monto_usd = ($moneda === 'Bs') ? ($monto_total / $tasa_cambio) : $monto_total;
+    
+    $msg = "💰 **PAGO REPORTADO ({$moneda})**\n\n";
     $msg .= "Unidad: *{$v['placa']}*\n";
-    $msg .= "Monto Total: *{$monto_total} Bs*\n";
-    if ($m_efectivo > 0) $msg .= "💵 Efectivo: *{$m_efectivo} Bs*\n";
-    if ($m_pagomovil > 0) $msg .= "📱 Pago Móvil: *{$m_pagomovil} Bs*\n";
+    $msg .= "Monto: *{$monto_total} {$moneda}*\n";
+    if ($moneda === 'Bs') {
+        $msg .= "Equivalente: *$" . number_format($monto_usd, 2) . " USD*\n";
+        $msg .= "Tasa BCV: *{$tasa_cambio}*\n";
+    }
+    if ($m_efectivo > 0) $msg .= "💵 Efectivo: *{$m_efectivo} {$moneda}*\n";
+    if ($m_pagomovil > 0) $msg .= "📱 Pago Móvil: *{$m_pagomovil} {$moneda}*\n";
     $msg .= "\n🔗 [REVISAR Y APROBAR](http://192.168.0.221/TuCooperativa/dist/?view=cobranza&pago={$pago_id})";
     
     sendTelegramNotification($v['admin_chat_id'], $msg, $coop_id);
