@@ -665,10 +665,10 @@ button {
   width: 160px;
   min-width: 160px;
   display: flex !important;
-  justify-content: flex-end !important;
+  justify-content: center !important;
   align-items: center !important;
   gap: 16px; /* Matching p-gap-4 */
-  text-align: right;
+  text-align: center;
 }
 
 .p-fleet-header-pc {

@@ -72,7 +72,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                 </div>
             </div>
             <div className="p-actions-col">
-               <div className="p-flex p-items-center p-justify-end" style={{ width: '100%', whiteSpace: 'nowrap' }}>ACCIONES</div>
+               <div className="p-flex p-items-center p-justify-center" style={{ width: '100%', whiteSpace: 'nowrap' }}>ACCIONES</div>
             </div>
           </div>
         )}
