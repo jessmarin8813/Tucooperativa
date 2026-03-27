@@ -146,7 +146,7 @@ const VehiculosView = ({ user, config, setActiveView }) => {
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{ 
               width: '100%', padding: '0 12px', background: 'transparent', border: 'none', 
-              color: 'white', outline: 'none', fontSize: '0.85rem', fontWeight: 600,
+              color: 'white', outline: 'none', fontSize: '13px', fontWeight: 600,
               height: '100%'
             }}
           />
@@ -170,16 +170,15 @@ const VehiculosView = ({ user, config, setActiveView }) => {
             ))}
           </div>
         ) : (
-          <div key="MOBILE_FILTERS_ROOT" style={{ width: '100%' }}>
+          <div key="MOBILE_FILTERS_ROOT" className="glass" style={{ width: '100%', height: '50px', display: 'flex', alignItems: 'center', padding: '0 16px', borderRadius: '16px', border: '1px solid var(--glass-border)' }}>
               <select 
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="glass"
                   style={{ 
-                      width: '100%', padding: '0 16px', borderRadius: '16px', border: '1px solid var(--glass-border)',
-                      color: 'white', background: 'var(--bg-dark)', outline: 'none', fontWeight: 1000, fontSize: '11px',
+                      width: '100%', border: 'none', color: 'white', background: 'transparent', 
+                      outline: 'none', fontWeight: 1000, fontSize: '13px',
                       appearance: 'none', textAlign: 'center', cursor: 'pointer', textTransform: 'uppercase',
-                      height: '50px', lineHeight: 'normal'
+                      height: '100%'
                   }}
               >
                   <option value="all" style={{ background: '#1a1b26', color: 'white' }}>TODOS LOS ESTADOS</option>
