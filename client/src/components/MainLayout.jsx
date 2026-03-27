@@ -131,30 +131,32 @@ const MainLayout = ({ user, config, activeView, setActiveView, onLogout }) => {
       {/* 3. Mobile Navigation Overlay & Sidebar */}
       <AnimatePresence>
         {isMobile && isMobileMenuOpen && (
-          <React.Fragment>
-            <Motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }}
-              onClick={toggleMobileMenu}
-              className="mobile-overlay"
+          <Motion.div 
+            key="mobile-overlay"
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            onClick={toggleMobileMenu}
+            className="mobile-overlay"
+          />
+        )}
+        {isMobile && isMobileMenuOpen && (
+          <Motion.div 
+            key="mobile-drawer"
+            initial={{ x: '-100%' }} 
+            animate={{ x: 0 }} 
+            exit={{ x: '-100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            className="mobile-drawer-container"
+          >
+            <Sidebar 
+              onLogout={onLogout} 
+              config={config}
+              activeView={activeView} 
+              setActiveView={handleNavigate} 
+              isMobile={true}
             />
-            <Motion.div 
-              initial={{ x: '-100%' }} 
-              animate={{ x: 0 }} 
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="mobile-drawer-container"
-            >
-              <Sidebar 
-                onLogout={onLogout} 
-                config={config}
-                activeView={activeView} 
-                setActiveView={handleNavigate} 
-                isMobile={true}
-              />
-            </Motion.div>
-          </React.Fragment>
+          </Motion.div>
         )}
       </AnimatePresence>
     </div>

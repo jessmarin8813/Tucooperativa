@@ -76,10 +76,12 @@ const VehiculosView = ({ user, config, setActiveView }) => {
   const handleUnlinkDriver = async (vehicle) => {
     if (!window.confirm(`¿Estás seguro de desvincular al chofer de la unidad ${vehicle.placa}?`)) return;
     try {
+      // Opt-out from local fetch if we trust realtime, but here we do it for immediate feedback
       await callApi('admin/save_vehicle.php', {
         method: 'POST',
         body: JSON.stringify({ ...vehicle, chofer_id: 0, action: 'edit' })
       });
+      // Delay fetch slightly to avoid race with server-side processing or just call it directly
       fetchVehicles();
     } catch (err) {
       console.error('Error unlinking driver', err);

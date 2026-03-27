@@ -148,6 +148,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                           <AnimatePresence>
                             {activeDropdown === v.id && (
                               <Motion.div
+                                key={`DESKTOP_DROP_${v.id}`}
                                 initial={{ opacity: 0, y: isNearBottom ? -10 : 10, scale: 0.95 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: isNearBottom ? -10 : 10, scale: 0.95 }}
@@ -214,7 +215,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
 
                     <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                       {v.chofer_id ? (
-                        <div className="glass-hover" style={{ flex: 1, height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', background: 'rgba(255,255,255,0.03)', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div key={`LINKED_${v.id}`} className="glass-hover" style={{ flex: 1, height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', background: 'rgba(255,255,255,0.03)', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.05)' }}>
                            <div className="p-flex p-items-center p-gap-3">
                                <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                    <User size={18} className="text-primary" />
@@ -222,6 +223,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                                <span style={{ fontSize: '12px', fontWeight: 1000, color: 'white', letterSpacing: '-0.01em' }}>{v.chofer_nombre}</span>
                            </div>
                            <button 
+                               key={`UNLINK_BTN_${v.id}`}
                                onClick={(e) => { e.stopPropagation(); onUnlink && onUnlink(v); }}
                                className="p-flex p-items-center p-justify-center glass-hover"
                                style={{ 
@@ -241,14 +243,12 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                                title="Desvincular Chofer"
                            >
                                <span style={{ color: 'white', fontWeight: 900, fontSize: '14px' }}>X</span>
-                               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
-                                 <polyline points="3 6 5 6 21 6"></polyline>
-                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                               </svg>
+                               <Trash2 size={18} color="#ffffff" strokeWidth={3} style={{ display: 'block' }} />
                            </button>
                         </div>
                       ) : (
                         <button
+                          key={`UNLINKED_${v.id}`}
                           onClick={() => onInvite && onInvite(v)}
                           className="btn-primary"
                           style={{ flex: 1, height: '56px', fontSize: '11px', fontWeight: 1000 }}
