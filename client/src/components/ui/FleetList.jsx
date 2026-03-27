@@ -47,7 +47,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                     <Car size={32} className="text-primary" />
                 </div>
                 <div style={{ overflow: 'hidden' }}>
-                    <h3 className="text-white font-black uppercase italic" style={{ fontSize: '1.8rem', letterSpacing: '0.04em', lineHeight: 1 }}>Módulo de Flota <span style={{ color: 'var(--accent)', fontSize: '10px', verticalAlign: 'middle', marginLeft: '10px', opacity: 0.5 }}>(v23.0-ABS-CENTER)</span></h3>
+                    <h3 className="text-white font-black uppercase italic" style={{ fontSize: '1.8rem', letterSpacing: '0.04em', lineHeight: 1 }}>Módulo de Flota</h3>
                     <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '8px' }}>Gestión Operativa Senior</p>
                 </div>
             </div>
@@ -111,7 +111,10 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                                 {status.toUpperCase()}
                             </div>
                             <span className="p-status-reason" style={{ width: '100%', textAlign: 'center' }}>
-                                {v.motivo_estado || 'Operación Normal'}
+                                {status === 'activo' 
+                                  ? (v.chofer_id ? 'Operación Normal' : 'Disponible / Sin Chofer')
+                                  : status === 'mantenimiento' ? 'En Taller / Reparación'
+                                  : 'Suspendido / Fuera de Servicio'}
                             </span>
                           </div>
                       </div>
