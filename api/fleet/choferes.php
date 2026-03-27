@@ -10,10 +10,11 @@ $db = DB::getInstance();
 
 // Scoped query for security - Now from 'choferes' table
 function getScopedChoferes($db, $coop_id) {
-    $stmt = $db->prepare("SELECT id, nombre, cedula, telegram_id, created_at 
-                          FROM choferes 
-                          WHERE cooperativa_id = ? 
-                          ORDER BY created_at DESC");
+    $stmt = $db->prepare("SELECT c.*, v.placa as vehiculo_placa, v.modelo as vehiculo_modelo 
+                          FROM choferes c 
+                          LEFT JOIN vehiculos v ON v.chofer_id = c.id 
+                          WHERE c.cooperativa_id = ? 
+                          ORDER BY c.created_at DESC");
     $stmt->execute([$coop_id]);
     return $stmt->fetchAll();
 }

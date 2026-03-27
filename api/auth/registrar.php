@@ -65,6 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $nombre = $data['nombre'] ?? 'Chofer';
         $cedula = $data['cedula'] ?? '';
 
+        $db->beginTransaction();
+        
         // 2. Registrar Chofer en la nueva tabla dedicada
         // Ya no requerimos email ni password para conductores, se manejan vía Telegram ID
         $stmt = $db->prepare("INSERT INTO choferes (cooperativa_id, nombre, cedula, telegram_id) VALUES (?, ?, ?, ?)");
@@ -81,6 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $db->prepare("UPDATE invitaciones SET usado = TRUE WHERE token = ?");
         $stmt->execute([$token]);
 
+        $db->commit();
+        
         echo json_encode([
             'status' => 'success', 
             'message' => 'Registro de chofer completado', 

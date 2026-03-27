@@ -38,12 +38,13 @@ switch ($method) {
         }
 
         // List vehicles with current driver and active route status
-        $sql = "SELECT v.*, u.nombre as dueno_nombre,
+        $sql = "SELECT v.*, u.nombre as dueno_nombre, c_perm.nombre as chofer_nombre,
                 (SELECT r.estado FROM rutas r WHERE r.vehiculo_id = v.id AND r.estado = 'activa' LIMIT 1) as current_status,
-                (SELECT r.chofer_id FROM rutas r WHERE r.vehiculo_id = v.id AND r.estado = 'activa' LIMIT 1) as chofer_id,
-                (SELECT c.nombre FROM rutas r JOIN choferes c ON r.chofer_id = c.id WHERE r.vehiculo_id = v.id AND r.estado = 'activa' LIMIT 1) as chofer_nombre
+                (SELECT r.chofer_id FROM rutas r WHERE r.vehiculo_id = v.id AND r.estado = 'activa' LIMIT 1) as active_chofer_id,
+                (SELECT c.nombre FROM rutas r JOIN choferes c ON r.chofer_id = c.id WHERE r.vehiculo_id = v.id AND r.estado = 'activa' LIMIT 1) as active_chofer_nombre
                 FROM vehiculos v 
                 LEFT JOIN usuarios u ON v.dueno_id = u.id 
+                LEFT JOIN choferes c_perm ON v.chofer_id = c_perm.id
                 WHERE v.cooperativa_id = :coop_id";
         
         $stmt = $db->prepare($sql);

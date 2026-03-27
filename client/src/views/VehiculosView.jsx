@@ -50,7 +50,15 @@ const VehiculosView = ({ user, config, setActiveView }) => {
       fetchVehicles()
     }
     init()
-    return () => { ignore = true }
+
+    const interval = setInterval(() => {
+        fetchVehicles();
+    }, 10000);
+
+    return () => { 
+        ignore = true;
+        clearInterval(interval);
+    }
   }, [callApi, fetchVehicles, currentUser])
 
   const handleRegistrationSuccess = () => {

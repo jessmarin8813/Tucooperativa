@@ -39,7 +39,17 @@ const ChoferesView = () => {
       }
     }
     init()
-    return () => { ignore = true }
+
+    // Automatic polling every 10 seconds for real-time vibe
+    const interval = setInterval(() => {
+        fetchChoferes();
+        fetchInvitaciones();
+    }, 10000);
+
+    return () => { 
+        ignore = true;
+        clearInterval(interval);
+    }
   }, [fetchChoferes, fetchInvitaciones])
 
   const handleDelete = async (id) => {
@@ -115,7 +125,12 @@ const ChoferesView = () => {
                   </div>
                   <div style={{ flex: 1 }}>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '2px' }}>{c.nombre}</h3>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 800, marginBottom: '8px' }}>ID: {c.cedula || '---'}</p>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 800, marginBottom: '4px' }}>ID: {c.cedula || '---'}</p>
+                    {c.vehiculo_placa && (
+                      <p style={{ fontSize: '0.75rem', color: 'var(--accent)', fontWeight: 900, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <Truck size={12} /> {c.vehiculo_modelo} ({c.vehiculo_placa})
+                      </p>
+                    )}
                     <p style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: '12px' }}>{c.email}</p>
                     
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
