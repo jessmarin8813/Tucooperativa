@@ -1,5 +1,5 @@
 import React from 'react'
-import { MoreVertical, User, AlertTriangle, Car, History } from 'lucide-react'
+import { MoreVertical, User, AlertTriangle, Car, History, Truck } from 'lucide-react'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 
 const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) => {
@@ -20,7 +20,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
     window.addEventListener('resize', handleResize);
     const handleClickOutside = (event) => {
       if (activeDropdown !== null) {
-        if (!event.target.closest('.dropdown-trigger-pc') && !event.target.closest('.dropdown-menu')) {
+        if (!event.target.closest('.dropdown-trigger-pc') && !event.target.closest('.glass-hover')) {
           setActiveDropdown(null);
         }
       }
@@ -34,11 +34,11 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
 
   return (
     <div className="p-fleet-card-root" style={{ width: '100%' }}>
-      {/* 1. HEADER - Only show if not minimal */}
+      {/* 1. HEADER - Optimized for Mobile context */}
       {!minimal && (
-        <div className="p-flex-responsive p-justify-between p-items-center" style={{ padding: '0 32px 40px 32px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-            <div className="p-flex p-items-center" style={{ minWidth: 0, gap: '24px' }}>
-                <div style={{ 
+        <div className="p-flex-responsive p-justify-between p-items-center" style={{ padding: isMobile ? '0 16px 24px 16px' : '0 32px 40px 32px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="p-flex p-items-center" style={{ minWidth: 0, gap: '20px' }}>
+                <div className="mobile-hide" style={{ 
                     width: '64px', height: '64px', borderRadius: '20px', 
                     background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99,102,241,0.2)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -47,18 +47,22 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                     <Car size={32} className="text-primary" />
                 </div>
                 <div style={{ overflow: 'hidden' }}>
-                    <h3 className="text-white font-black uppercase italic" style={{ fontSize: '1.8rem', letterSpacing: '0.04em', lineHeight: 1 }}>Módulo de Flota</h3>
-                    <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '8px' }}>Gestión Operativa Senior</p>
+                    <div className="p-flex p-items-center" style={{ gap: '12px' }}>
+                        <div className="pc-hide" style={{ padding: '8px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '10px' }}>
+                             <Car size={18} className="text-primary" />
+                        </div>
+                        <h3 className="text-white font-black uppercase italic" style={{ fontSize: isMobile ? '1.3rem' : '1.8rem', letterSpacing: '0.04em', lineHeight: 1 }}>Módulo de Flota</h3>
+                    </div>
+                    <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '6px' }}>Gestión Operativa Senior</p>
                 </div>
             </div>
-
         </div>
       )}
 
-      <div className="p-fleet-container" style={{ marginTop: minimal ? '0' : '40px', paddingBottom: '120px' }}>
-        {/* 2. PC GRID HEADER - Strict Mirror Alignment (v22.3-ULTIMATUM) */}
+      <div className="p-fleet-container" style={{ marginTop: minimal ? '0' : (isMobile ? '24px' : '40px'), paddingBottom: '120px' }}>
+        {/* 2. PC GRID HEADER */}
         {!isMobile && (
-          <div className="p-fleet-grid p-fleet-header-pc">
+          <div className="p-fleet-grid p-fleet-header-pc" style={{ marginBottom: '20px' }}>
             <div className="p-identity-col">
                 <div className="p-flex p-items-center">UNIDAD / CHOFER</div>
             </div>
@@ -79,13 +83,12 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
           {safeVehicles.map((v, i) => {
             const statusRaw = (v.estado || v.status_label || 'inactivo').toLowerCase();
             const status = statusRaw === 'en ruta' ? 'activo' : statusRaw;
-            // Smart Gravity: Last row or rows near bottom open UPWARDS
-            const isNearBottom = i >= (safeVehicles.length - 1); 
+            const isNearBottom = i >= (safeVehicles.length - 2); 
             
             return (
               <React.Fragment key={v.id}>
                 {!isMobile ? (
-                  /* --- DESKTOP ROW (True Grid) --- */
+                  /* --- DESKTOP ROW --- */
                   <Motion.div 
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
                     className="p-fleet-grid p-fleet-row-pc"
@@ -121,7 +124,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
 
                       <div className="p-actions-col">
                           <div className="p-flex p-items-center p-justify-center p-gap-4" style={{ width: '100%' }}>
-                              {!v.chofer_id && (
+                              {!v.chofer_id && status === 'activo' && (
                                   <button className="btn-primary invite-btn-pc" style={{ fontSize: '10px', height: '44px', fontWeight: 1000 }}>INVITAR</button>
                               )}
                               <div style={{ position: 'relative' }}>
@@ -152,35 +155,66 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                       </div>
                   </Motion.div>
                 ) : (
-                  /* --- MOBILE CARD (Tactical Flow) --- */
+                  /* --- MOBILE CARD (Premium horizontal hierarchy) --- */
                   <Motion.div 
                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.03 }}
-                    className="p-fleet-card-mobile"
+                    className="glass" 
+                    style={{ padding: '24px', borderRadius: '24px', marginBottom: '16px', border: '1px solid rgba(255,255,255,0.08)' }}
                   >
-                      <div className="p-flex p-justify-between p-items-start">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
                           <div className="p-flex p-gap-4">
-                              <div className="p-unit-avatar-mobile">
-                                  <Car size={20} className="text-white/30" />
+                              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <Truck size={20} className="text-white/40" />
                               </div>
                               <div>
-                                  <p className="text-white font-black">{v.modelo}</p>
-                                  <span className="p-plate-badge-mobile">{v.placa}</span>
+                                  <p className="text-white font-black uppercase italic" style={{ fontSize: '1.1rem', lineHeight: 1.2 }}>{v.modelo}</p>
+                                  <span className="p-plate-badge" style={{ marginTop: '4px', display: 'inline-block' }}>{v.placa}</span>
                               </div>
                           </div>
-                          <div className={`p-status-pill-v2 pill-sm ${status}`}>
+                          <div className={`p-status-pill-v2 pill-sm ${status}`} style={{ padding: '6px 12px', fontSize: '9px' }}>
                               {status.toUpperCase()}
                           </div>
                       </div>
-                      {v.motivo_estado && <p className="p-status-reason-mobile">{v.motivo_estado}</p>}
-                      <div className="p-card-divider"></div>
-                      <div className="p-flex p-justify-between p-items-center">
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', padding: '16px', background: 'rgba(0,0,0,0.2)', borderRadius: '16px', marginBottom: '20px' }}>
                           <div>
-                              <p className="p-fee-label-mobile">Cuota Diaria</p>
-                              <p className="text-white font-black" style={{ fontSize: '1.2rem' }}>${parseFloat(v.cuota_diaria).toFixed(2)}</p>
+                              <p className="text-dim uppercase font-black" style={{ fontSize: '8px', letterSpacing: '0.05em' }}>Tarifa Diaria</p>
+                              <p className="text-white font-black" style={{ fontSize: '1.2rem', marginTop: '2px' }}>${parseFloat(v.cuota_diaria).toFixed(2)}</p>
                           </div>
-                          <div className="p-flex p-gap-2">
-                             {!v.chofer_id && <button className="btn-primary invite-btn-mobile">INVITAR</button>}
-                             <button onClick={() => onEdit && onEdit(v)} className="btn-secondary icon-btn-mobile"><MoreVertical size={18} /></button>
+                          <div>
+                              <p className="text-dim uppercase font-black" style={{ fontSize: '8px', letterSpacing: '0.05em' }}>Rendimiento</p>
+                              <p className="text-white font-black" style={{ fontSize: '1.2rem', marginTop: '2px' }}>{v.km_por_litro || '0'} <small style={{ fontSize: '8px' }}>KM/L</small></p>
+                          </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '12px' }}>
+                          {!v.chofer_id && status === 'activo' ? (
+                            <button className="btn-primary" style={{ flex: 1, height: '52px', fontSize: '11px', fontWeight: 1000 }}>INVITAR CHOFER</button>
+                          ) : (
+                            <div style={{ flex: 1, padding: '14px', background: 'rgba(255,255,255,0.03)', borderRadius: '14px', textAlign: 'center', fontSize: '10px', color: 'var(--text-dim)', fontWeight: 800 }}>
+                                {v.chofer_id ? 'CHOFER ASIGNADO' : status.toUpperCase()}
+                            </div>
+                          )}
+                          <div style={{ position: 'relative' }}>
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} 
+                                className="glass-hover" 
+                                style={{ width: '52px', height: '52px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                                <MoreVertical size={20} className="text-white/40" />
+                            </button>
+                            <AnimatePresence>
+                                {activeDropdown === v.id && (
+                                    <Motion.div 
+                                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                                        className="p-dropdown-menu upward"
+                                        style={{ right: 0, bottom: '65px' }}
+                                    >
+                                        <button onClick={() => onEdit && onEdit(v)} className="p-dropdown-item">Modificar Unidad</button>
+                                        <button onClick={() => setActiveView && setActiveView('forensic')} className="p-dropdown-item">Ver Auditoría</button>
+                                    </Motion.div>
+                                )}
+                            </AnimatePresence>
                           </div>
                       </div>
                   </Motion.div>
