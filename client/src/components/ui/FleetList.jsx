@@ -111,7 +111,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                     <div className="p-fee-col p-flex p-items-center p-justify-center">
                       <div className="p-flex-col p-items-center" style={{ background: 'rgba(255,255,255,0.03)', padding: '12px 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', width: 'fit-content' }}>
                         <p className="text-white font-black" style={{ fontSize: '1.5rem', color: 'var(--success)', lineHeight: 1 }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
-                        <span style={{ fontSize: '10px', fontWeight: 900, opacity: 0.45, marginTop: '5px', letterSpacing: '0.08em' }}>USD / DIARIO</span>
+                        <span style={{ fontSize: '10px', fontWeight: 900, opacity: 0.75, marginTop: '5px', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.85)' }}>USD / DIARIO</span>
                       </div>
                     </div>
 
@@ -120,7 +120,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                         <div className={`p-status-pill-v2 ${status}`} style={{ padding: '8px 22px', fontSize: '11px', fontWeight: 1000 }}>
                           {status.toUpperCase()}
                         </div>
-                        <span className="p-status-reason" style={{ fontSize: '10px', opacity: 0.45, textAlign: 'center', fontWeight: 700 }}>
+                        <span className="p-status-reason" style={{ fontSize: '10px', opacity: 0.75, textAlign: 'center', fontWeight: 700, color: 'rgba(255,255,255,0.85)' }}>
                           {statusDescription}
                         </span>
                       </div>
