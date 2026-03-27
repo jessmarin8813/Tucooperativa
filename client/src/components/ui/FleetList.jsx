@@ -51,10 +51,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
                     <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '8px' }}>Gestión Operativa Senior</p>
                 </div>
             </div>
-            <button className="btn-secondary mobile-hide" style={{ height: '52px', padding: '0 28px', fontSize: '11px', fontWeight: 1000 }}>
-                <History size={18} />
-                <span style={{ marginLeft: '12px' }}>HISTORIAL CLÍNICO</span>
-            </button>
+
         </div>
       )}
 
