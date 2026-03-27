@@ -82,7 +82,7 @@ const SuperAdminDashboard = () => {
     return () => { ignore = true }
   }, [activeTab, fetchForensicData])
 
-  if (loading && data.cooperativas.length === 0) {
+  if (loading && (data?.cooperativas || []).length === 0) {
     return (
       <div style={{ background: '#0a0b12', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="neon-text animate-pulse" style={{ fontSize: '1.2rem', fontWeight: 800 }}>SISTEMA GLOBAL - ACCEDIENDO AL NÚCLEO...</div>
@@ -234,7 +234,7 @@ const SuperAdminDashboard = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {loadingForense ? (
               <div style={{ padding: '80px', textAlign: 'center', color: 'var(--accent)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em' }} className="animate-pulse">ESCANEANDO INFRAESTRUCTURA...</div>
-            ) : forensicData.incidencias.length === 0 ? (
+            ) : (forensicData?.incidencias || []).length === 0 ? (
               <div style={{ padding: '64px', textAlign: 'center' }} className="glass">
                 <ShieldAlert size={48} style={{ opacity: 0.1, marginBottom: '24px' }} />
                 <p style={{ color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.75rem' }}>No se han detectado anomalías críticas en las últimas 24 horas.</p>

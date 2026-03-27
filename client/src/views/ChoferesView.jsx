@@ -161,7 +161,7 @@ const ChoferesView = () => {
               </Motion.div>
             ))}
 
-            {choferes.length === 0 && !loading && (
+            {(choferes || []).length === 0 && !loading && (
               <div className="glass" style={{ padding: '64px', textAlign: 'center', gridColumn: '1 / -1' }}>
                 <p style={{ color: 'var(--text-dim)' }}>No hay choferes registrados en esta cooperativa.</p>
               </div>
@@ -237,7 +237,7 @@ const ChoferesView = () => {
                   )
                 })}
                 
-                {invitaciones.length === 0 && (
+                {(invitaciones || []).length === 0 && (
                   <p style={{ textAlign: 'center', color: 'var(--text-dim)', padding: '40px' }}>No hay links de invitación activos.</p>
                 )}
               </div>

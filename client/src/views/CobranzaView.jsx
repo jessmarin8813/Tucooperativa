@@ -49,8 +49,8 @@ const CobranzaView = () => {
 
     if (loading || apiLoading) return <LoadingSpinner />
 
-    const totalPendienteMonto = data.pendientes.reduce((acc, p) => acc + p.monto, 0)
-    const totalDeudaFlota = data.resumen.reduce((acc, v) => acc + Math.max(0, v.saldo_pendiente), 0)
+    const totalPendienteMonto = (data?.pendientes || []).reduce((acc, p) => acc + (p?.monto || 0), 0)
+    const totalDeudaFlota = (data?.resumen || []).reduce((acc, v) => acc + Math.max(0, v?.saldo_pendiente || 0), 0)
 
     return (
         <div>
@@ -159,12 +159,12 @@ const CobranzaView = () => {
                 </div>
                 
                 <div className="p-grid p-grid-cols-2">
-                    {data.pendientes.length === 0 ? (
+                    {(data?.pendientes || []).length === 0 ? (
                         <div style={{ gridColumn: 'span 2', padding: '64px', textAlign: 'center' }} className="glass">
                             <CheckCircle size={48} style={{ color: 'rgba(255,255,255,0.05)', marginBottom: '16px' }} />
                             <p style={{ color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.75rem' }}>No hay abonos pendientes de revisión</p>
                         </div>
-                    ) : data.pendientes.map((p, i) => (
+                    ) : (data?.pendientes || []).map((p, i) => (
                         <Motion.div key={p.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="glass glass-hover" style={{ padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
                                 <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: 'var(--primary)', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 0 20px var(--primary-glow)' }}>

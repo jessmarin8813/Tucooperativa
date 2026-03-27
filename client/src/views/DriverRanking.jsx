@@ -36,11 +36,12 @@ const DriverRanking = () => {
     )
   }
 
-  const { ranking, summary } = data || { ranking: [], summary: { avg_score: 0 } }
+  const rankingList = Array.isArray(data?.ranking) ? data.ranking : []
+  const summaryData = data?.summary || { avg_score: 0 }
 
-  const chartData = ranking.slice(0, 5).map(r => ({
-    name: r.nombre.split(' ')[0],
-    puntos: r.puntos
+  const chartData = rankingList.slice(0, 5).map(r => ({
+    name: r.nombre?.split(' ')[0] || '---',
+    puntos: r.puntos || 0
   }))
 
   return (
@@ -52,7 +53,7 @@ const DriverRanking = () => {
         </div>
         <div className="glass px-6 py-3 rounded-2xl border-neon">
           <span className="text-xs uppercase tracking-widest text-dim block">Promedio Flota</span>
-          <span className="text-2xl font-bold neon-text">{summary.avg_score.toFixed(1)} PTS</span>
+          <span className="text-2xl font-bold neon-text">{summaryData.avg_score?.toFixed(1) || 0} PTS</span>
         </div>
       </div>
 
@@ -60,25 +61,25 @@ const DriverRanking = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard 
           title="Top Eficiencia" 
-          value={`${ranking[0]?.stats.eficiencia || 0}%`} 
+          value={`${rankingList[0]?.stats?.eficiencia || 0}%`} 
           icon={Fuel} 
-          trend={ranking.length > 0 ? "+12%" : "Esperando datos"}
+          trend={rankingList.length > 0 ? "+12%" : "Esperando datos"}
         />
         <StatCard 
           title="Puntualidad Flota" 
-          value={`${ranking[0]?.stats.puntualidad || 0}%`} 
+          value={`${rankingList[0]?.stats?.puntualidad || 0}%`} 
           icon={Timer} 
-          trend={ranking.length > 0 ? "+5%" : "Sincronizando"}
+          trend={rankingList.length > 0 ? "+5%" : "Sincronizando"}
         />
         <StatCard 
           title="Incidentes Críticos" 
-          value={ranking.reduce((acc, curr) => acc + (curr.stats?.alertas || 0), 0)} 
+          value={rankingList.reduce((acc, curr) => acc + (curr.stats?.alertas || 0), 0)} 
           icon={AlertTriangle} 
           trend="0 hoy"
         />
       </div>
 
-      {ranking.length === 0 ? (
+      {rankingList.length === 0 ? (
         <Motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -110,7 +111,7 @@ const DriverRanking = () => {
                 <Trophy className="text-yellow-500" size={20} />
                 Leaderboard Mensual
               </h3>
-              <span className="text-xs text-dim">{ranking.length} Choferes Activos</span>
+              <span className="text-xs text-dim">{rankingList.length} Choferes Activos</span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -124,7 +125,7 @@ const DriverRanking = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
-                  {ranking.map((driver) => (
+                  {rankingList.map((driver) => (
                     <tr key={driver.id} className="hover:bg-white/5 transition-colors">
                       <td className="px-6 py-4 font-mono text-dim">
                         {(driver.rango || 0).toString().padStart(2, '0')}
