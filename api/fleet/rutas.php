@@ -78,7 +78,7 @@ switch ($method) {
                         $msg .= "Inicio Actual: `{$odometro_valor} KM`\n";
                         $msg .= "Último Reporte: `{$last_odo} KM`\n";
                         $msg .= "⚠️ **DIFERENCIA:** " . round($gap, 2) . " KM.";
-                        sendTelegramNotification($owner_info['telegram_chat_id'], $msg, $coop_id);
+                        sendTelegramNotification($owner_info['telegram_chat_id'], $msg);
                     }
 
                 }
@@ -152,13 +152,13 @@ switch ($method) {
                 // 3. Trigger Daily Fee (Note: We use recommended amount but reported payment)
                 // This is audit only, the 'dias' count in mi_estado handles the actual debt.
                 // We just log what was paid here for the record.
-                $stmt = $db->prepare("INSERT INTO pagos_reportados (cooperativa_id, vehiculo_id, chofer_id, monto_total, monto_efectivo, monto_pagomovil, status) 
+                $stmt = $db->prepare("INSERT INTO pagos_reportados (cooperativa_id, vehiculo_id, chofer_id, monto_total, monto_efectivo, monto_pagomovil, estado) 
                                      VALUES (?, ?, ?, ?, ?, ?, 'aprobado')");
                 $stmt->execute([
                     $coop_id, $r_data['vehiculo_id'], $user['user_id'],
-                    ($data['monto_efectivo'] ?? 0) + ($data['monto_pagomovil'] ?? 0),
-                    $data['monto_efectivo'] ?? 0,
-                    $data['monto_pagomovil'] ?? 0
+                    (floatval($data['monto_efectivo'] ?? 0)) + (floatval($data['monto_pagomovil'] ?? 0)),
+                    floatval($data['monto_efectivo'] ?? 0),
+                    floatval($data['monto_pagomovil'] ?? 0)
                 ]);
 
 
@@ -201,13 +201,13 @@ switch ($method) {
                             $msg .= "Consumo Est.: " . round($consumo_estimado, 2) . " L\n";
                             $msg .= "Reportado: " . round($consumo_reportado, 2) . " L\n";
                             $msg .= "⚠️ *DISCREPANCIA DETECTADA (>15%)*";
-                            sendTelegramNotification($ruta_info['telegram_id'], $msg, $coop_id);
+                            sendTelegramNotification($ruta_info['telegram_id'], $msg);
                         } else {
                             $msg = "✅ *Viaje Finalizado - TuCooperativa*\n\n";
                             $msg .= "Unidad: *{$ruta_info['placa']}*\n";
                             $msg .= "Recorrido: {$distancia} KM\n";
                             $msg .= "Estado: Normal.";
-                            sendTelegramNotification($ruta_info['telegram_id'], $msg, $coop_id);
+                            sendTelegramNotification($ruta_info['telegram_id'], $msg);
                         }
                     }
                 }
@@ -248,7 +248,7 @@ switch ($method) {
                                 $msg_maint .= "💰 Gasto Registrado: *$" . number_format($total_gastado, 2) . "*\n";
                             }
                             $msg_maint .= "\n¡Favor agendar servicio!";
-                            sendTelegramNotification($ruta_info['telegram_id'], $msg_maint, $coop_id);
+                            sendTelegramNotification($ruta_info['telegram_id'], $msg_maint);
                         }
                     }
                 }

@@ -17,19 +17,20 @@ function get_bcv_rate() {
     $stmt->execute();
     $last_entry = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    // 2. DETERMINAR SI NECESITAMOS ESCANEAR (SOLO EN VENTANA 4:00 PM - 5:30 PM MON-FRI)
+    // 2. DETERMINAR SI NECESITAMOS ESCANEAR
     $needs_scan = false;
     
-    // Si es fin de semana (Sábado o Domingo), NO ESCANEAMOS. Usamos lo que hay.
-    if ($dayOfWeek == 0 || $dayOfWeek == 6) {
-        $needs_scan = false;
+    // CASO CRÍTICO: Si no hay NADA en BD, ES OBLIGATORIO ESCANEAR PARA TENER BASELINE
+    if (!$last_entry) {
+        $needs_scan = true;
     } else {
-        // Es día de semana. ¿Estamos en la ventana de publicación del BCV?
-        $is_update_window = ($hour == 16 || ($hour == 17 && $minute <= 30));
-        
-        if ($is_update_window) {
-            // Verificar si ya actualizamos en esta ventana hoy
-            if ($last_entry) {
+        // Si hay datos, aplicamos la lógica de ventana quirúrgica
+        if ($dayOfWeek == 0 || $dayOfWeek == 6) {
+            $needs_scan = false; // Fin de semana: Cero escaneos
+        } else {
+            $is_update_window = ($hour == 16 || ($hour == 17 && $minute <= 30));
+            
+            if ($is_update_window) {
                 $last_update_date = date('Y-m-d', strtotime($last_entry['created_at']));
                 $last_update_hour = (int)date('H', strtotime($last_entry['created_at']));
                 
@@ -37,8 +38,16 @@ function get_bcv_rate() {
                 if ($last_update_date != $today || $last_update_hour < 16) {
                     $needs_scan = true;
                 }
-            } else {
-                $needs_scan = true; // No hay nada en BD, escanear
+            }
+            
+            // Caso especial: Es día de semana pero no tenemos la tasa de HOY en absoluto
+            // (Ej: encendimos el servidor por primera vez un martes a las 10 AM)
+            $last_update_date = date('Y-m-d', strtotime($last_entry['created_at']));
+            if ($last_update_date != $today && $hour >= 8 && !$is_update_window) {
+                // Solo escaneamos una vez si ha pasado más de 12h desde el último registro
+                if ((time() - strtotime($last_entry['created_at'])) > (12 * 3600)) {
+                    $needs_scan = true;
+                }
             }
         }
     }
