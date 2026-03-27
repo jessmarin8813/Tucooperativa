@@ -14,7 +14,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $db = DB::getInstance();
+    // Forzar salida JSON y silenciar advertencias para evitar romper el parser JS
+    header('Content-Type: application/json');
+    error_reporting(0);
+
+    try {
+        $db = DB::getInstance();
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]);
+        exit;
+    }
     $action = $data['action'] ?? 'register_driver';
 
     if ($action === 'link_owner') {

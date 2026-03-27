@@ -242,7 +242,8 @@
         log(`Intento de registro con token: ${token.substring(0,6)}...`);
 
         try {
-            const virtual_id = 'SIM_' + Math.random().toString(36).substring(2, 9);
+            // Generar ID numérico para compatibilidad con BIGINT
+            const virtual_id = Math.floor(1000000000 + Math.random() * 9000000000); 
             const res = await fetch(`${API_BASE}auth/registrar.php`, {
                 method: 'POST',
                 body: JSON.stringify({
