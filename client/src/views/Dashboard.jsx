@@ -6,10 +6,10 @@ import { useApi } from '../hooks/useApi'
 import { useRealtime } from '../hooks/useRealtime'
 import { motion as Motion } from 'framer-motion'
 
-const Dashboard = ({ setActiveView }) => {
+const Dashboard = ({ user, setActiveView }) => {
   const { callApi, loading } = useApi()
   // ... (existing state)
-  const [currentUser, setCurrentUser] = useState(null)
+  // ... (existing state)
   const [data, setData] = useState({
     stats: {
       total_vehiculos: 0,
@@ -95,7 +95,7 @@ const Dashboard = ({ setActiveView }) => {
       </header>
 
       {/* CONNECTION HUB */}
-      {!currentUser?.telegram_chat_id && (
+      {!user?.telegram_chat_id && (
         <Motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="p-glass-premium" style={{ padding: 'clamp(24px, 5vw, 40px)', marginBottom: '48px', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', top: 0, right: 0, width: '200px', height: '200px', background: 'var(--primary)', filter: 'blur(100px)', opacity: 0.1 }} />
           <div className="p-flex-responsive p-justify-between" style={{ position: 'relative', zIndex: 10, gap: '24px' }}>
