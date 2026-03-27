@@ -171,25 +171,26 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit }) =>
 
                       <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                           {!v.chofer_id && status === 'activo' ? (
-                            <button className="btn-primary" style={{ flex: 1, height: '54px', fontSize: '11px', fontWeight: 1000 }}>INVITAR CHOFER</button>
+                            <button className="btn-primary" style={{ flex: 1, height: '54px', fontSize: '11px', fontWeight: 1000, whiteSpace: 'nowrap' }}>INVITAR CHOFER</button>
                           ) : (
                             <div style={{ flex: 1, height: '54px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', fontSize: '10px', color: 'var(--text-dim)', fontWeight: 800 }}>
                                 {v.chofer_id ? 'CHOFER ASIGNADO' : status.toUpperCase()}
                             </div>
                           )}
                           <div style={{ position: 'relative' }}>
-                            {/* ACTION BUTTON: Mapped to Native Menu Trigger Style */}
+                            {/* ACTION BUTTON: High Visibility + Perfect Centering */}
                             <button 
                                 onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} 
                                 className="glass-hover" 
                                 style={{ 
                                     width: '54px', height: '54px', borderRadius: '16px', 
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)',
-                                    boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+                                    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                                    boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+                                    padding: 0
                                 }}
                             >
-                                <MoreVertical size={28} style={{ color: '#ffffff' }} />
+                                <MoreVertical size={28} style={{ color: '#ffffff', display: 'block' }} />
                             </button>
                             <AnimatePresence>
                                 {activeDropdown === v.id && (

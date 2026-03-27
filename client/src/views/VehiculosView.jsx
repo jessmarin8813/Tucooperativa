@@ -130,23 +130,23 @@ const VehiculosView = ({ user, config, setActiveView }) => {
         <StatCard title="Taller" value={stats.maintenance} trend="+0" icon={AlertTriangle} color="var(--warning)" compact />
         <StatCard title="Fuera" value={stats.inactive} trend="+0" icon={XCircle} color="var(--danger)" compact />
       </div>
-
-      {/* 2. SEARCH & FILTERS - Tactical Scalability */}
+      {/* 2. SEARCH & FILTERS - Pure Symmetry Lock (50px) */}
       <div className="p-flex-responsive p-justify-between p-items-center" style={{ marginBottom: '24px', gap: '16px' }}>
         <div className="glass" style={{ 
             flex: 1, display: 'flex', alignItems: 'center', padding: '0 16px', 
             borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)',
-            height: isMobile ? '52px' : 'auto', width: '100%'
+            height: isMobile ? '50px' : 'auto', width: '100%'
         }}>
-          <Search size={16} className="text-white/20" />
+          <Search size={16} className="text-white/20" style={{ flexShrink: 0 }} />
           <input 
             type="text" 
             placeholder="Buscar unidad..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{ 
-              width: '100%', padding: '14px', background: 'transparent', border: 'none', 
-              color: 'white', outline: 'none', fontSize: '0.85rem', fontWeight: 600 
+              width: '100%', padding: '0 12px', background: 'transparent', border: 'none', 
+              color: 'white', outline: 'none', fontSize: '0.85rem', fontWeight: 600,
+              height: '100%'
             }}
           />
         </div>
@@ -175,16 +175,16 @@ const VehiculosView = ({ user, config, setActiveView }) => {
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="glass"
                   style={{ 
-                      width: '100%', padding: '0 20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)',
-                      color: 'white', background: '#0f1019', outline: 'none', fontWeight: 900, fontSize: '11px',
+                      width: '100%', padding: '0 16px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)',
+                      color: 'white', background: '#0f1019', outline: 'none', fontWeight: 1000, fontSize: '11px',
                       appearance: 'none', textAlign: 'center', cursor: 'pointer', textTransform: 'uppercase',
-                      height: '54px'
+                      height: '50px', lineHeight: 'normal'
                   }}
               >
-                  <option value="all">Ver Todos los Estados</option>
-                  <option value="activo">Solo Activos / Operativos</option>
-                  <option value="mantenimiento">En Taller / Reparación</option>
-                  <option value="inactivo">Inactivos / Fuera de Servicio</option>
+                  <option value="all">TODOS LOS ESTADOS</option>
+                  <option value="activo">SOLO ACTIVOS / OPERATIVOS</option>
+                  <option value="mantenimiento">EN TALLER / REPARACIÓN</option>
+                  <option value="inactivo">INACTIVOS / FUERA</option>
               </select>
           </div>
         )}
