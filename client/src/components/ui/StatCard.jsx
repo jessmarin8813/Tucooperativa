@@ -38,12 +38,16 @@ const StatCard = ({ title, label, value, icon: Icon, color = 'var(--primary)', t
         {Icon && (
           <div 
               style={{ 
-                  width: '56px', height: '56px', borderRadius: '18px', background: color, color: 'white',
+                  width: compact ? '40px' : '56px', 
+                  height: compact ? '40px' : '56px', 
+                  borderRadius: compact ? '12px' : '18px', 
+                  background: color, color: 'white',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: `0 8px 16px ${color}33`
+                  boxShadow: `0 8px 16px ${color}33`,
+                  flexShrink: 0
               }}
           >
-            <Icon size={24} />
+            <Icon size={compact ? 18 : 24} />
           </div>
         )}
       </div>

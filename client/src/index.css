@@ -605,7 +605,27 @@ button {
   .p-mobile-full-width {
     width: 100% !important;
   }
+  .p-fleet-card-root {
+    padding: 0 !important;
+  }
 }
+
+/* Mobile UI Premium Utilities */
+.p-mobile-scroll-x {
+    display: flex !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    gap: 12px;
+    padding: 10px 4px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.p-mobile-scroll-x::-webkit-scrollbar {
+    display: none;
+}
+
 
 .p-config-content {
   padding-left: 32px;
