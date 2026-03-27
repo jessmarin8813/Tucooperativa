@@ -245,7 +245,6 @@
             const virtual_id = 'SIM_' + Math.random().toString(36).substring(2, 9);
             const res = await fetch(`${API_BASE}auth/registrar.php`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     token: token,
                     telegram_id: virtual_id,
@@ -272,7 +271,7 @@
                 alert(errorMsg);
             }
         } catch (e) {
-            log('❌ Error de conexión con el API.');
+            log(`❌ Error de conexión: ${e.message}`);
         } finally {
             btn.innerText = 'Vincular SIM a Cooperativa';
         }
