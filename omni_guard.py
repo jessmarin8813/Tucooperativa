@@ -143,8 +143,18 @@ def main():
         print(f"[DEPLOY] Cache-Busting inyectado (v={ts}).")
 
     except Exception as e:
-        print(f"[CRITICAL] Error durante el intercambio de carpetas: {str(e)}")
-        sys.exit(1)
+        import time
+        print(f"[RETRY] Error inicial: {str(e)}. Reintentando en 2 segundos...")
+        time.sleep(2)
+        try:
+            if os.path.exists("client/dist"):
+                subprocess.run("rmdir /s /q client\\dist", shell=True)
+                time.sleep(1)
+            os.rename("client/dist_temp", "client/dist")
+            print("[PASS] Build publicado tras reintento.")
+        except Exception as retry_e:
+            print(f"[CRITICAL] Fallo fatal después de reintento: {str(retry_e)}")
+            sys.exit(1)
 
     print("\n" + "="*60)
     print("   ¡ESTABILIDAD TOTAL CONFIRMADA!")

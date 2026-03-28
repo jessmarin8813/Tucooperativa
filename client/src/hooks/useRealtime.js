@@ -48,7 +48,9 @@ export const useRealtime = (onUpdate) => {
 
             socket.onerror = (err) => {
                 console.error('❌ Error en WebSocket:', err);
-                socket.close();
+                if (socket.readyState === WebSocket.OPEN) {
+                    socket.close();
+                }
             };
         };
 

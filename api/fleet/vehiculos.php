@@ -3,6 +3,7 @@
  * Vehicles Management (Multi-tenant + Real-time Status)
  */
 require_once __DIR__ . '/../includes/middleware.php';
+require_once __DIR__ . '/../includes/realtime.php';
 
 $user = checkAuth();
 $db = DB::getInstance();
@@ -107,6 +108,52 @@ switch ($method) {
             sendResponse(['message' => 'Vehículo registrado exitosamente', 'id' => $db->lastInsertId()]);
         } catch (PDOException $e) {
             sendResponse(['error' => 'Error al registrar: ' . $e->getMessage()], 500);
+        }
+        break;
+
+    case 'PUT':
+        if ($user['rol'] !== 'admin' && $user['rol'] !== 'dueno') {
+            sendResponse(['error' => 'Permission denied'], 403);
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        $v_id = $data['id'] ?? null;
+        if (!$v_id) sendResponse(['error' => 'Vehicle ID missing'], 400);
+
+        try {
+            // Validate Ownership unless admin
+            if ($user['rol'] === 'dueno') {
+                $stmtCheck = $db->prepare("SELECT id FROM vehiculos WHERE id = ? AND dueno_id = ?");
+                $stmtCheck->execute([$v_id, $user['user_id']]);
+                if (!$stmtCheck->fetch()) sendResponse(['error' => 'Unauthorized upgrade'], 403);
+            }
+
+            $stmt = $db->prepare("UPDATE vehiculos SET 
+                                 placa = :placa, 
+                                 modelo = :modelo, 
+                                 anio = :anio, 
+                                 cuota_diaria = :cuota, 
+                                 km_por_litro = :km_l, 
+                                 dueno_id = :dueno_id 
+                                 WHERE id = :id AND cooperativa_id = :coop_id");
+            
+            $stmt->execute([
+                'id' => $v_id,
+                'coop_id' => $coop_id,
+                'placa' => strtoupper($data['placa'] ?? ''),
+                'modelo' => $data['modelo'] ?? '',
+                'anio' => $data['anio'] ?? date('Y'),
+                'cuota' => $data['cuota_diaria'] ?? 0,
+                'km_l' => $data['km_por_litro'] ?? 8.00,
+                'dueno_id' => $data['dueno_id'] ?? $user['user_id']
+            ]);
+
+            // Real-time broadcast
+            broadcastRealtime('UPDATE_FLEET', ['cooperativa_id' => $coop_id]);
+
+            sendResponse(['message' => 'Vehículo actualizado exitosamente']);
+        } catch (PDOException $e) {
+            sendResponse(['error' => 'Error al actualizar: ' . $e->getMessage()], 500);
         }
         break;
 

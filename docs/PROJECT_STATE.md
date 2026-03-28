@@ -1,27 +1,26 @@
-# 🛡️ TuCooperativa - PROJECT STATE (v36.2-STABLE / FLEET MASTERY)
+# 🛡️ TuCooperativa - PROJECT STATE (v36.5.2-STABLE / POST-AUDIT)
 
 ## 📊 Resumen Ejecutivo
-- **Versión**: 36.2.1-Final (Driver Decoupling & Fleet UI Refined).
-- **Estado**: **ESTABLE / PRODUCCIÓN-READY**.
-- **Última Auditoría**: OMNI-GUARD v5.0 + Python-Medic (Passed).
+- **Versión**: 36.5.2-Stable (Global Synchronization & Forensic Refinement).
+- **Estado**: **ESTABILIDAD TOTAL CONFIRMADA**.
+- **Última Auditoría**: OMNI-GUARD v5.0 (Passed 2026-03-27 19:50).
 - **Branding**: TuCooperativa Neon Brand (Active).
 
 ## 🛠️ Componentes Críticos
-- **Choferes Entity**: Desacoplado de `usuarios`. Tabla dedicada `choferes` activa.
-- **FleetList.jsx**: Sistema Dual. PC Grid (35/20/20/25%) y Mobile Card (SVG/X native unlink button).
-- **api/admin/save_vehicle.php**: Controlador maestro para desvinculación y edición de flota.
-- **api/includes/middleware.php**: Session sync reforzado para Telegram ID (Owner/Driver).
-- **Dashboard.jsx**: Vinculado al prop `user` global (No más falsas alarmas de Telegram).
+- **Fusión Maestra (Realtime Hub)**: El servidor WebSocket está integrado directamente en `bot/bot.py` (Puerto 8000). Eliminar cualquier servidor `realtime_hub.py` externo.
+- **Rutas Atómicas**: `api/fleet/rutas.php` refactorizado para usar transacciones atómicas y resolución inteligente de Placa -> ID.
+- **Frontend Anti-Crash**: Todas las vistas de administración (`Cobranza`, `Choferes`, `Gastos`) tienen protecciones `?.` y `|| []` contra datos nulos.
+- **Bot Simulator**: Sincronización 1:1 con las APIs de rutas y pagos.
 
 ## 📌 Mapa de Ruta Inmediato
-1.  **Fase de Gestión VIP**: 
-    *   Optimizar el modal de "Empresa" para persistir el RIF y Logo dinámico.
-2.  **Reportes Avanzados**:
-    *   Integrar los datos de la tabla `choferes` en el Ranking de Inteligencia BI.
+1.  **Visibilidad Financiera**: 
+    *   Integrar el Badge de Tasa BCV en el Panel de Dueño (manteniendo el Grid clínico).
+2.  **Copiar Datos de Pago BDV**:
+    *   Optimizar el Bot para permitir copia rápida de datos de Pago Móvil para la App del BDV.
 
 ## ⚠️ Puntos de Atención
-- El unlinking en móvil usa un SVG nativo + "X" blanca para máxima visibilidad (evitar caché de librerías).
-- El middleware ahora inyecta `telegram_chat_id` en la respuesta de `checkAuth()`.
+- Usar siempre `python omni_guard.py` para desplegar el build de producción.
+- El sistema es 100% Multi-Tenant SaaS (Aislamiento por `cooperativa_id`).
 
 ---
-*Documento sellado tras refinamiento v36.2-Stable (2026-03-27 18:10:00)*
+*Documento sellado tras Auditoría Global v36.5.2-Stable (2026-03-27 19:55:00)*

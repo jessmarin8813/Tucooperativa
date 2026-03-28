@@ -5,8 +5,6 @@
  */
 require_once __DIR__ . '/../includes/middleware.php';
 
-// El Bot se autentica vía Middleware (o por token si se prefiere, aquí usamos el estándar)
-// NOTA: Para el Bot se suele simular la sesión o pasar el telegram_id
 $db = DB::getInstance();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -17,72 +15,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $desc = $data['descripcion'] ?? '';
     $foto = $data['foto_path'] ?? '';
 
-    // 1. Identificar Usuario por Telegram ID
-    $stmt = $db->prepare("SELECT id, cooperativa_id FROM usuarios WHERE telegram_id = ?");
+    // 1. Identificar Chofer por Telegram ID (Arquitectura Desacoplada)
+    $stmt = $db->prepare("SELECT id, cooperativa_id FROM choferes WHERE telegram_id = ?");
     $stmt->execute([$tid]);
-    $user = $stmt->fetch();
+    $chofer = $stmt->fetch();
 
-    if (!$user) {
-        sendResponse(['error' => 'Usuario no vinculado'], 401);
+    if (!$chofer) {
+        sendResponse(['error' => 'Chofer no vinculado o registrado'], 401);
     }
 
-    // 2. Identificar Vehículo Activo del Chofer (usamos el último asignado o la ruta activa)
-    $stmt = $db->prepare("SELECT id FROM vehiculos WHERE chofer_id = ? LIMIT 1");
-    $stmt->execute([$user['id']]);
+    // 2. Identificar Vehículo Asignado
+    $stmt = $db->prepare("SELECT id, placa FROM vehiculos WHERE chofer_id = ? LIMIT 1");
+    $stmt->execute([$chofer['id']]);
     $vehicle = $stmt->fetch();
 
     if (!$vehicle) {
-        sendResponse(['error' => 'No tienes vehículo asignado'], 400);
+        sendResponse(['error' => 'No tienes vehículo asignado permanentemente'], 400);
     }
 
     // 3. Registrar Incidencia
     $stmt = $db->prepare("INSERT INTO incidencias (cooperativa_id, vehiculo_id, chofer_id, tipo, descripcion, foto_path) 
                           VALUES (?, ?, ?, ?, ?, ?)");
     $stmt->execute([
-        $user['cooperativa_id'],
+        $chofer['cooperativa_id'],
         $vehicle['id'],
-        $user['id'],
+        $chofer['id'],
         $tipo,
         $desc,
         $foto
     ]);
 
     // 4. BLOQUEO DE UNIDAD: La unidad queda inactiva hasta reparación
-    $stmt = $db->prepare("UPDATE vehiculos SET estado = 'inactivo' WHERE id = ?");
+    $stmt = $db->prepare("UPDATE vehiculos SET estado = 'mantenimiento' WHERE id = ?");
     $stmt->execute([$vehicle['id']]);
 
-    // 5. DILEMA: ¿Qué pasa si estaba en ruta?
-    // Buscamos si hay una ruta abierta para este chofer
-    $stmt = $db->prepare("SELECT id FROM rutas WHERE chofer_id = ? AND status = 'abierta' LIMIT 1");
-    $stmt->execute([$user['id']]);
+    // 5. Gestión de Ruta Activa
+    $stmt = $db->prepare("SELECT id, started_at, (SELECT cuota_diaria FROM vehiculos WHERE id = rutas.vehiculo_id) as cuota 
+                          FROM rutas WHERE chofer_id = ? AND estado = 'activa' LIMIT 1");
+    $stmt->execute([$chofer['id']]);
     $active_route = $stmt->fetch();
 
     $suggested_quota = 0;
     if ($active_route) {
-        // Marcamos la ruta como interrumpida por falla
-        $stmt = $db->prepare("SELECT started_at, (SELECT cuota_diaria FROM vehiculos WHERE id = rutas.vehiculo_id) as cuota FROM rutas WHERE id = ?");
-        $stmt->execute([$active_route['id']]);
-        $r_data = $stmt->fetch();
-        
-        $start = strtotime($r_data['started_at']);
+        $start = strtotime($active_route['started_at']);
         $diff_hours = (time() - $start) / 3600;
-        $suggested_quota = ($diff_hours < 4) ? $r_data['cuota'] * 0.5 : $r_data['cuota'];
+        $suggested_quota = ($diff_hours < 4) ? $active_route['cuota'] * 0.5 : $active_route['cuota'];
 
-        $stmt = $db->prepare("UPDATE rutas SET status = 'interrumpida', observacion = ? WHERE id = ?");
-        $stmt->execute(["Interrumpida por falla: " . $desc, $active_route['id']]);
+        $stmtU = $db->prepare("UPDATE rutas SET estado = 'finalizada', observacion = ? WHERE id = ?");
+        $stmtU->execute(["Interrumpida por falla: " . $desc, $active_route['id']]);
     }
 
-    // 3. Obtener Chat ID del dueño para notificación inmediata
-    $stmt = $db->prepare("SELECT u.telegram_chat_id FROM vehiculos v JOIN usuarios u ON v.dueno_id = u.id WHERE v.id = ?");
-    $stmt->execute([$vehicle['id']]);
-    $owner_chat_id = $stmt->fetchColumn();
+    // 6. Notificar al dueño
+    $stmtO = $db->prepare("SELECT u.telegram_chat_id FROM vehiculos v JOIN usuarios u ON v.dueno_id = u.id WHERE v.id = ?");
+    $stmtO->execute([$vehicle['id']]);
+    $owner_chat_id = $stmtO->fetchColumn();
 
     sendResponse([
         'success' => true, 
-        'message' => 'Falla reportada. Unidad BLOQUEADA.',
+        'message' => 'Falla reportada. Unidad BLOQUEADA en taller.',
         'suggested_quota' => $suggested_quota,
         'ruta_id' => $active_route ? $active_route['id'] : null,
-        'owner_chat_id' => $owner_chat_id,
         'vehiculo_placa' => $vehicle['placa']
     ]);
 }

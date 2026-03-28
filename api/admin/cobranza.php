@@ -15,7 +15,7 @@ $sql = "SELECT v.id, v.placa, v.cuota_diaria, u.nombre as chofer,
         (SELECT COUNT(DISTINCT DATE(started_at)) FROM rutas WHERE vehiculo_id = v.id) as dias_trabajados,
         (SELECT COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN monto / NULLIF(tasa_cambio, 0) ELSE monto END), 0) FROM pagos_reportados WHERE vehiculo_id = v.id AND estado = 'aprobado') as abonos_totales
         FROM vehiculos v
-        JOIN choferes u ON u.cooperativa_id = v.cooperativa_id -- Simplified driver mapping
+        JOIN choferes u ON v.chofer_id = u.id
         WHERE v.cooperativa_id = :coop_id";
 
 $stmt = $db->prepare($sql);

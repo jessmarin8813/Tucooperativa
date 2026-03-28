@@ -157,7 +157,7 @@ const ExpensesView = () => {
               </div>
 
               {/* Maintenance Item Link (Conditional) */}
-              {(formData.categoria === 'repuestos' || formData.categoria === 'mantenimiento') && formData.vehiculo_id && maintItems.length > 0 && (
+              {(formData.categoria === 'repuestos' || formData.categoria === 'mantenimiento') && formData.vehiculo_id && (maintItems || []).length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', gridColumn: 'span 2' }}>
                     <label style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--accent)', letterSpacing: '0.1em' }}>🔗 Vincular a Alerta de Mantenimiento</label>
                     <select 
@@ -266,15 +266,15 @@ const ExpensesView = () => {
       </AnimatePresence>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {loading && expenses.length === 0 ? (
+        {loading && (expenses || []).length === 0 ? (
           <LoadingSpinner />
-        ) : expenses.length === 0 ? (
+        ) : (expenses || []).length === 0 ? (
           <div style={{ padding: '80px', textAlign: 'center' }} className="glass">
             <Search size={48} style={{ opacity: 0.1, marginBottom: '24px' }} />
             <p style={{ color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.75rem' }}>No se han registrado gastos aún</p>
           </div>
         ) : (
-          expenses.map((exp, idx) => (
+          (expenses || []).map((exp, idx) => (
             <Motion.div 
               key={exp.id || idx}
               initial={{ opacity: 0, y: 20 }}

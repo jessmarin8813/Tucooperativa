@@ -142,7 +142,7 @@ const CobranzaView = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                                {data.cola_validacion.map((p) => (
+                                {(data?.cola_validacion || []).map((p) => (
                                     <tr key={p.id} className="glass-hover">
                                         <td style={{ padding: '16px 24px' }}>
                                             <p style={{ fontWeight: 800, fontSize: '0.9rem' }}>{p.chofer}</p>
@@ -234,7 +234,7 @@ const CobranzaView = () => {
 
                 {isMobile ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        {data.resumen.map((v) => (
+                        {(data?.resumen || []).map((v) => (
                             <Motion.div 
                                 key={v.id} 
                                 initial={{ opacity: 0, scale: 0.95 }} 
@@ -290,7 +290,7 @@ const CobranzaView = () => {
                                     </tr>
                             </thead>
                             <tbody>
-                                {data.resumen.map((v) => (
+                                {(data?.resumen || []).map((v) => (
                                     <tr key={v.id} className="glass-hover" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                                         <td style={{ padding: '32px 40px' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>

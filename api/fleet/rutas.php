@@ -1,8 +1,11 @@
 <?php
 /**
- * Routes & Odometer Tracking
+ * TuCooperativa - Routes & Odometer Management
+ * Focus: Total Stability & Forensic Auditing
  */
 require_once __DIR__ . '/../includes/middleware.php';
+require_once __DIR__ . '/../includes/realtime.php';
+require_once __DIR__ . '/../includes/telegram_helper.php';
 
 $user = checkAuth();
 $db = DB::getInstance();
@@ -12,293 +15,194 @@ header('Content-Type: application/json');
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-switch ($method) {
-    case 'POST':
-        $data = json_decode(file_get_contents('php://input'), true);
-        $action = $data['action'] ?? ''; // start_route, end_route
-
-        if ($action === 'start_route') {
-            $vehiculo_id = $data['vehiculo_id'] ?? null;
-            $odometro_valor = $data['odometro_valor'] ?? null;
-            $foto_path = $data['foto_path'] ?? '';
-
-            if (!$vehiculo_id || !$odometro_valor) {
-                sendResponse(['error' => 'Vehiculo and odometer value are required'], 400);
+if ($method !== 'POST') {
+    // Basic GET logic for Listing
+    if ($method === 'GET') {
+        try {
+            if (isset($_GET['active_for_me'])) {
+                $stmt = $db->prepare("SELECT r.*, v.placa FROM rutas r JOIN vehiculos v ON r.vehiculo_id = v.id WHERE r.chofer_id = ? AND r.estado = 'activa' LIMIT 1");
+                $stmt->execute([$user['user_id']]);
+                $res = $stmt->fetch();
+                sendResponse($res ?: ['error' => 'No active route found']);
             }
+            $stmt = $db->prepare("SELECT r.*, v.placa, c.nombre as chofer_nombre FROM rutas r JOIN vehiculos v ON r.vehiculo_id = v.id JOIN choferes c ON r.chofer_id = c.id WHERE r.cooperativa_id = ? AND r.estado = 'activa'");
+            $stmt->execute([$coop_id]);
+            sendResponse($stmt->fetchAll());
+        } catch (Exception $e) {
+            sendResponse(['error' => $e->getMessage()], 500);
+        }
+    }
+    sendResponse(['error' => 'Method not allowed'], 405);
+}
 
-            // [FIX] Resolve plate string to ID if not numeric
-            if (!is_numeric($vehiculo_id)) {
-                $stmt_v = $db->prepare("SELECT id FROM vehiculos WHERE placa = ? AND cooperativa_id = ?");
-                $stmt_v->execute([$vehiculo_id, $coop_id]);
-                $v_id_resolved = $stmt_v->fetchColumn();
-                if (!$v_id_resolved) {
-                    sendResponse(['error' => "No se encontró el vehículo con placa: $vehiculo_id"], 404);
-                }
-                $vehiculo_id = $v_id_resolved;
-            }
+$data = json_decode(file_get_contents('php://input'), true);
+$action = $data['action'] ?? '';
 
-            try {
-                $db->beginTransaction();
+try {
+    if ($action === 'start_route') {
+        $vehiculo_identifer = $data['vehiculo_id'] ?? null; // ID or Placa
+        $odo_val = $data['odometro_valor'] ?? null;
+        $foto = $data['foto_path'] ?? '';
 
-                // 0. GAP DETECTION (FORENSIC)
-                $stmt = $db->prepare("SELECT valor FROM odometros WHERE cooperativa_id = :coop_id AND ruta_id IN (SELECT id FROM rutas WHERE vehiculo_id = :vid) ORDER BY id DESC LIMIT 1");
-                $stmt->execute(['coop_id' => $coop_id, 'vid' => $vehiculo_id]);
-                $last_odo_row = $stmt->fetch();
-                $last_odo = $last_odo_row ? floatval($last_odo_row['valor']) : 0;
-                $gap = floatval($odometro_valor) - $last_odo;
+        if (!$vehiculo_identifer || $odo_val === null) {
+            throw new Exception("Vehículo y odómetro son requeridos.");
+        }
 
-                // 1. Create Route (WITHOUT payment info at start)
-                $stmt = $db->prepare("INSERT INTO rutas (cooperativa_id, vehiculo_id, chofer_id, estado) 
-                                     VALUES (:coop_id, :vehiculo_id, :chofer_id, 'activa')");
-                $stmt->execute([
-                    'coop_id' => $coop_id,
-                    'vehiculo_id' => $vehiculo_id,
-                    'chofer_id' => $user['user_id']
-                ]);
+        $db->beginTransaction();
 
-                $ruta_id = $db->lastInsertId();
-
-                // Logic for Gap Alert Notification
-                if ($last_odo > 0 && $gap > 1.0) { // More than 1km gap
-                    // Fetch owner chat_id
-                    $stmt = $db->prepare("SELECT u.telegram_id as telegram_chat_id, v.placa, c.nombre as chofer_name 
-                                         FROM vehiculos v 
-                                         JOIN usuarios u ON v.dueno_id = u.id 
-                                         JOIN choferes c ON c.id = :chofer_id
-                                         WHERE v.id = :vid");
-                    $stmt->execute(['chofer_id' => $user['user_id'], 'vid' => $vehiculo_id]);
-                    $owner_info = $stmt->fetch();
-
-                    if ($owner_info && $owner_info['telegram_chat_id']) {
-                        require_once __DIR__ . '/../includes/telegram_helper.php';
-                        $msg = "🕵️‍♂️ **DISCREPANCIA DE KILOMETRAJE - Reporte Inconsistente**\n\n";
-                        $msg .= "Unidad: *{$owner_info['placa']}*\n";
-                        $msg .= "Chofer: *{$owner_info['chofer_name']}*\n\n";
-                        $msg .= "ℹ️ *El vehículo fue movido " . round($gap, 2) . " KM sin abrir una jornada en el sistema.*\n\n";
-                        $msg .= "Inicio Actual: `{$odometro_valor} KM`\n";
-                        $msg .= "Último Reporte: `{$last_odo} KM`\n";
-                        $msg .= "⚠️ **DIFERENCIA:** " . round($gap, 2) . " KM.";
-                        sendTelegramNotification($owner_info['telegram_chat_id'], $msg);
-                    }
-
-                }
-
-                // 2. Log Odometer (Start)
-                $stmt = $db->prepare("INSERT INTO odometros (cooperativa_id, ruta_id, tipo, valor, foto_path) 
-                                     VALUES (:coop_id, :ruta_id, 'inicio', :valor, :foto)");
-                $stmt->execute([
-                    'coop_id' => $coop_id,
-                    'ruta_id' => $ruta_id,
-                    'valor' => $odometro_valor,
-                    'foto' => $foto_path
-                ]);
-
-                $db->commit();
-                sendResponse(['message' => 'Route started', 'ruta_id' => $ruta_id]);
-            } catch (Exception $e) {
-                $db->rollBack();
-                sendResponse(['error' => 'Failed to start route: ' . $e->getMessage()], 500);
-            }
-
-        } elseif ($action === 'end_route') {
-            $ruta_id = $data['ruta_id'] ?? null;
-            $odometro_valor = $data['odometro_valor'] ?? null;
-            $foto_path = $data['foto_path'] ?? '';
-
-            if (!$ruta_id || !$odometro_valor) {
-                sendResponse(['error' => 'Ruta ID and odometer value are required'], 400);
-            }
-
-            try {
-                $db->beginTransaction();
-
-                // 0. FETCH START ODOMETER FOR VALIDATION
-                $stmt = $db->prepare("SELECT valor FROM odometros WHERE ruta_id = :ruta_id AND tipo = 'inicio'");
-                $stmt->execute(['ruta_id' => $ruta_id]);
-                $start_odo_row = $stmt->fetch();
-                $start_odo = $start_odo_row ? floatval($start_odo_row['valor']) : 0;
-
-                if (floatval($odometro_valor) <= $start_odo) {
-                    throw new Exception("El odómetro final ($odometro_valor) debe ser mayor al inicial ($start_odo).");
-                }
-
-                // 0. CALCULATE SUGGESTED QUOTA BASED ON TIME
-                $stmt = $db->prepare("SELECT started_at, vehiculo_id FROM rutas WHERE id = ?");
-                $stmt->execute([$ruta_id]);
-                $r_data = $stmt->fetch();
-                
-                $start = strtotime($r_data['started_at']);
-                $diff_hours = (time() - $start) / 3600;
-                
-                $stmt = $db->prepare("SELECT cuota_diaria FROM vehiculos WHERE id = ?");
-                $stmt->execute([$r_data['vehiculo_id']]);
-                $full_cuota = $stmt->fetchColumn();
-                
-                $suggested_quota = ($diff_hours < 4) ? $full_cuota * 0.5 : $full_cuota;
-
-                // 1. Update Route (WITH payment info now)
-                $stmt = $db->prepare("UPDATE rutas SET estado = 'finalizada', ended_at = CURRENT_TIMESTAMP,
-                                     monto_efectivo = :efectivo, monto_pagomovil = :pagomovil
-                                     WHERE id = :ruta_id AND cooperativa_id = :coop_id");
-                $stmt->execute([
-                    'efectivo' => $data['monto_efectivo'] ?? 0,
-                    'pagomovil' => $data['monto_pagomovil'] ?? 0,
-                    'ruta_id' => $ruta_id,
-                    'coop_id' => $coop_id
-                ]);
-
-                // 2. Log Odometer (End) - Already existing below
-                
-                // 3. Trigger Daily Fee (Note: We use recommended amount but reported payment)
-                // This is audit only, the 'dias' count in mi_estado handles the actual debt.
-                // We just log what was paid here for the record.
-                $stmt = $db->prepare("INSERT INTO pagos_reportados (cooperativa_id, vehiculo_id, chofer_id, monto, monto_efectivo, monto_pagomovil, estado) 
-                                     VALUES (?, ?, ?, ?, ?, ?, 'aprobado')");
-                $stmt->execute([
-                    $coop_id, $r_data['vehiculo_id'], $user['user_id'],
-                    (floatval($data['monto_efectivo'] ?? 0)) + (floatval($data['monto_pagomovil'] ?? 0)),
-                    floatval($data['monto_efectivo'] ?? 0),
-                    floatval($data['monto_pagomovil'] ?? 0)
-                ]);
-
-
-                // 4. Fuel Audit Logic (Operational Intelligence) - Get route info again for full details
-                $stmt = $db->prepare("SELECT r.*, v.placa, v.km_por_litro, v.odometro_mantenimiento, v.frecuencia_mantenimiento, u.telegram_id, u.nombre as dueno_nombre,
-                                     (SELECT valor FROM odometros WHERE ruta_id = r.id AND tipo = 'inicio') as odometro_inicio
-                                     FROM rutas r 
-                                     JOIN vehiculos v ON r.vehiculo_id = v.id 
-                                     JOIN usuarios u ON v.dueno_id = u.id
-                                     WHERE r.id = :ruta_id");
-                $stmt->execute(['ruta_id' => $ruta_id]);
-                $ruta_info = $stmt->fetch();
-
-                if ($ruta_info) {
-                    $distancia = $odometro_valor - $ruta_info['odometro_inicio'];
-                    $km_litro = $ruta_info['km_por_litro'] ?: 8.0;
-                    $consumo_reportado = $data['combustible_reportado'] ?? 0;
-                    
-                    // Fuel Discrepancy Engine
-                    $consumo_estimado = $distancia / $km_litro;
-                    $alerta = 0;
-                    
-                    if ($consumo_estimado > 0) {
-                        $diferencia_proc = abs($consumo_estimado - $consumo_reportado) / $consumo_estimado;
-                        if ($diferencia_proc > 0.15) { // 15% threshold
-                            $alerta = 1;
-                        }
-                    }
-
-                    // Update Route with fuel data and alert
-                    $stmt = $db->prepare("UPDATE rutas SET combustible_reportado = :fuel, alerta_combustible = :alerta WHERE id = :ruta_id");
-                    $stmt->execute(['fuel' => $consumo_reportado, 'alerta' => $alerta, 'ruta_id' => $ruta_id]);
-
-                    if ($ruta_info['telegram_id']) {
-                        require_once __DIR__ . '/../includes/telegram_helper.php';
-                        if ($alerta) {
-                            $msg = "🚨 *ALERTA DE COMBUSTIBLE - TuCooperativa*\n\n";
-                            $msg .= "Unidad: *{$ruta_info['placa']}*\n";
-                            $msg .= "Recorrido: {$distancia} KM\n";
-                            $msg .= "Consumo Est.: " . round($consumo_estimado, 2) . " L\n";
-                            $msg .= "Reportado: " . round($consumo_reportado, 2) . " L\n";
-                            $msg .= "⚠️ *DISCREPANCIA DETECTADA (>15%)*";
-                            sendTelegramNotification($ruta_info['telegram_id'], $msg);
-                        } else {
-                            $msg = "✅ *Viaje Finalizado - TuCooperativa*\n\n";
-                            $msg .= "Unidad: *{$ruta_info['placa']}*\n";
-                            $msg .= "Recorrido: {$distancia} KM\n";
-                            $msg .= "Estado: Normal.";
-                            sendTelegramNotification($ruta_info['telegram_id'], $msg);
-                        }
-                    }
-                }
-
-                // 5. Mantenimiento Predictivo Granular (Phase 8 Integrated)
-                $stmtMaint = $db->prepare("SELECT * FROM mantenimiento_items WHERE vehiculo_id = ?");
-                $stmtMaint->execute([$ruta_info['vehiculo_id']]);
-
-                $items = $stmtMaint->fetchAll();
-                
-                $alertas_enviadas = [];
-                $km_restantes = 99999; // Default value if no items
-                foreach ($items as $item) {
-                    $km_since_last = $odometro_valor - floatval($item['ultimo_odometro']);
-                    $freq = intval($item['frecuencia']);
-                    $km_restantes = $freq - $km_since_last;
-                    
-                    if ($km_restantes < 500) {
-                        $estado = ($km_restantes <= 0) ? "VENCIDO" : "PRÓXIMO";
-                        $alertas_enviadas[] = [
-                            'item' => $item['nombre'],
-                            'restantes' => max(0, $km_restantes),
-                            'estado' => $estado
-                        ];
-
-                        if ($ruta_info['telegram_id']) {
-                            // Phase 8: Fetch associated expenses for this specific item
-                            $stmtG = $db->prepare("SELECT SUM(monto) FROM gastos WHERE mantenimiento_item_id = ?");
-                            $stmtG->execute([$item['id']]);
-                            $total_gastado = $stmtG->fetchColumn() ?: 0;
-
-                            $emoji = ($km_restantes <= 0) ? "🚨" : "⚠️";
-                            $msg_maint = "$emoji *ALERTA DE MANTENIMIENTO*\n\n";
-                            $msg_maint .= "Unidad: *{$ruta_info['placa']}*\n";
-                            $msg_maint .= "Componente: *{$item['nombre']}*\n";
-                            $msg_maint .= "Estado: *$estado*\n";
-                            $msg_maint .= "Kilómetros restantes: *{$km_restantes} KM*\n";
-                            if ($total_gastado > 0) {
-                                $msg_maint .= "💰 Gasto Registrado: *$" . number_format($total_gastado, 2) . "*\n";
-                            }
-                            $msg_maint .= "\n¡Favor agendar servicio!";
-                            sendTelegramNotification($ruta_info['telegram_id'], $msg_maint);
-                        }
-                    }
-                }
-
-                $db->commit();
-                sendResponse([
-                    'message' => 'Ruta finalizada con éxito',
-                    'alerta_fuel' => $alerta,
-                    'distancia' => $distancia,
-                    'mantenimiento' => [
-                        'requerido' => ($km_restantes <= 0),
-                        'km_restantes' => max(0, $km_restantes)
-                    ]
-                ]);
-            } catch (Exception $e) {
-                $db->rollBack();
-                sendResponse(['error' => 'Failed to end route: ' . $e->getMessage()], 500);
-            }
-
+        // 1. Resolve Vehicle ID
+        $v_id = null;
+        if (is_numeric($vehiculo_identifer)) {
+            $v_id = intval($vehiculo_identifer);
         } else {
-            sendResponse(['error' => 'Invalid action'], 400);
-        }
-        break;
-
-    case 'GET':
-        $active_for_me = $_GET['active_for_me'] ?? false;
-        if ($active_for_me) {
-            $stmt = $db->prepare("SELECT r.*, v.placa, 
-                                 (SELECT valor FROM odometros WHERE ruta_id = r.id AND tipo = 'inicio') as odometro_inicio
-                                 FROM rutas r 
-                                 JOIN vehiculos v ON r.vehiculo_id = v.id 
-                                 WHERE r.chofer_id = :chofer_id AND r.estado = 'activa' 
-                                 LIMIT 1");
-            $stmt->execute(['chofer_id' => $user['user_id']]);
-            $res = $stmt->fetch();
-            sendResponse($res ?: ['error' => 'No tienes una ruta activa actualmente']);
+            $stmtV = $db->prepare("SELECT id FROM vehiculos WHERE placa = ? AND cooperativa_id = ?");
+            $stmtV->execute([$vehiculo_identifer, $coop_id]);
+            $v_id = $stmtV->fetchColumn();
         }
 
-        // List all active routes for this cooperative
-        $stmt = $db->prepare("SELECT r.*, v.placa, c.nombre as chofer_nombre 
-                             FROM rutas r 
-                             JOIN vehiculos v ON r.vehiculo_id = v.id 
-                             JOIN choferes c ON r.chofer_id = c.id 
-                             WHERE r.cooperativa_id = :coop_id AND r.estado = 'activa'");
-        $stmt->execute(['coop_id' => $coop_id]);
-        sendResponse($stmt->fetchAll());
-        break;
+        if (!$v_id) {
+            throw new Exception("Unidad no encontrada o placa inválida ($vehiculo_identifer).");
+        }
 
-    default:
-        sendResponse(['error' => 'Method not allowed'], 405);
-        break;
+        // 2. Check for existing active route
+        $stmtCheck = $db->prepare("SELECT id FROM rutas WHERE vehiculo_id = ? AND estado = 'activa'");
+        $stmtCheck->execute([$v_id]);
+        if ($stmtCheck->fetch()) {
+            throw new Exception("Esta unidad ya tiene una jornada activa.");
+        }
+
+        // 3. Create Route
+        $sqlRuta = "INSERT INTO rutas (cooperativa_id, vehiculo_id, chofer_id, estado, started_at) VALUES (?, ?, ?, 'activa', CURRENT_TIMESTAMP)";
+        $stmtR = $db->prepare($sqlRuta);
+        $stmtR->execute([$coop_id, $v_id, $user['user_id']]);
+        $ruta_id = $db->lastInsertId();
+
+        // 4. Log Odometer
+        $sqlOdo = "INSERT INTO odometros (cooperativa_id, ruta_id, valor, tipo, foto_path) VALUES (?, ?, ?, 'inicio', ?)";
+        $stmtO = $db->prepare($sqlOdo);
+        $stmtO->execute([$coop_id, $ruta_id, $odo_val, $foto]);
+
+        $db->commit();
+
+        // --- NOTIFICACIONES ---
+        try {
+            $stmtOwner = $db->prepare("SELECT v.placa, u.telegram_chat_id FROM vehiculos v JOIN usuarios u ON v.dueno_id = u.id WHERE v.id = ?");
+            $stmtOwner->execute([$v_id]);
+            $owner = $stmtOwner->fetch();
+
+            if ($owner && $owner['telegram_chat_id']) {
+                $msg = "🚛 *INICIO DE JORNADA*\n\n" .
+                       "📍 Unidad: `{$owner['placa']}`\n" .
+                       "👤 Chofer: `{$user['nombre']}`\n" .
+                       "🛣️ Odómetro: `{$odo_val}` km";
+                sendTelegramNotification($owner['telegram_chat_id'], $msg);
+            }
+            broadcastRealtime('REFRESH_FLEET', ['cooperativa_id' => $coop_id]);
+        } catch (Exception $e) {
+            error_log("TuCooperativa Non-fatal: Notif failed. " . $e->getMessage());
+        }
+
+        sendResponse(['message' => 'Ruta iniciada', 'ruta_id' => $ruta_id]);
+
+    } elseif ($action === 'end_route') {
+        $ruta_id = $data['ruta_id'] ?? null;
+        $odo_val = $data['odometro_valor'] ?? null;
+        $foto = $data['foto_path'] ?? '';
+
+        if (!$ruta_id || $odo_val === null) {
+            throw new Exception("Parámetros incompletos para finalizar jornada.");
+        }
+
+        $db->beginTransaction();
+
+        // 1. Fetch Route Metadata + Owner Info
+        $stmtMeta = $db->prepare("
+            SELECT r.*, v.placa, v.km_por_litro, v.cuota_diaria, u.telegram_chat_id as owner_tid 
+            FROM rutas r 
+            JOIN vehiculos v ON r.vehiculo_id = v.id 
+            JOIN usuarios u ON v.dueno_id = u.id
+            WHERE r.id = ? AND r.cooperativa_id = ?
+        ");
+        $stmtMeta->execute([$ruta_id, $coop_id]);
+        $ruta_info = $stmtMeta->fetch();
+
+        if (!$ruta_info) {
+            throw new Exception("La ruta no existe o no pertenece a tu cooperativa.");
+        }
+
+        if ($ruta_info['estado'] === 'finalizada') {
+            throw new Exception("Esta jornada ya fue finalizada anteriormente.");
+        }
+
+        // 2. Fetch Start Odometer
+        $stmtOdoIn = $db->prepare("SELECT valor FROM odometros WHERE ruta_id = ? AND tipo = 'inicio'");
+        $stmtOdoIn->execute([$ruta_id]);
+        $start_odo = floatval($stmtOdoIn->fetchColumn() ?: 0);
+
+        if (floatval($odo_val) < $start_odo) {
+            throw new Exception("Odómetro actual ($odo_val) no puede ser menor al inicial ($start_odo).");
+        }
+
+        // 3. Update Route State & Financials
+        $efectivo = floatval($data['monto_efectivo'] ?? 0);
+        $pagomovil = floatval($data['monto_pagomovil'] ?? 0);
+        $total_pago = $efectivo + $pagomovil;
+
+        $sqlFin = "UPDATE rutas SET estado = 'finalizada', ended_at = CURRENT_TIMESTAMP, monto_efectivo = ?, monto_pagomovil = ? WHERE id = ?";
+        $stmtF = $db->prepare($sqlFin);
+        $stmtF->execute([$efectivo, $pagomovil, $ruta_id]);
+
+        // 4. Log End Odometer
+        $sqlOdoFin = "INSERT INTO odometros (cooperativa_id, ruta_id, valor, tipo, foto_path) VALUES (?, ?, ?, 'fin', ?)";
+        $stmtO = $db->prepare($sqlOdoFin);
+        $stmtO->execute([$coop_id, $ruta_id, $odo_val, $foto]);
+
+        // 5. Create Payment Record (for Forensic Audit)
+        $sqlPago = "INSERT INTO pagos_reportados (cooperativa_id, vehiculo_id, chofer_id, id_ruta, monto, monto_efectivo, monto_pagomovil, estado) VALUES (?, ?, ?, ?, ?, ?, ?, 'aprobado')";
+        $stmtP = $db->prepare($sqlPago);
+        $stmtP->execute([$coop_id, $ruta_info['vehiculo_id'], $user['user_id'], $ruta_id, $total_pago, $efectivo, $pagomovil]);
+
+        // 6. Optional: Maintenance Audit (Surgical safety)
+        try {
+            // Maintenance check
+            $stmtM = $db->prepare("SELECT * FROM mantenimiento_items WHERE vehiculo_id = ?");
+            $stmtM->execute([$ruta_info['vehiculo_id']]);
+            foreach ($stmtM->fetchAll() as $item) {
+                if ($odo_val >= (floatval($item['ultimo_odometro']) + floatval($item['frecuencia']))) {
+                    error_log("TuCooperativa INFO: Mantenimiento vencido para " . $item['nombre']);
+                }
+            }
+        } catch (Exception $fuelEx) {
+            error_log("TuCooperativa NON-FATAL ERROR (Maint): " . $fuelEx->getMessage());
+        }
+
+        $db->commit();
+
+        // --- NOTIFICACIONES ---
+        try {
+            $distancia = floatval($odo_val) - $start_odo;
+            if ($ruta_info['owner_tid']) {
+                $msg = "🏁 *JORNADA FINALIZADA*\n\n" .
+                       "📍 Unidad: `{$ruta_info['placa']}`\n" .
+                       "👤 Chofer: `{$user['nombre']}`\n" .
+                       "📟 Odómetro Final: `{$odo_val}` km\n" .
+                       "🛣️ Recorrido: `{$distancia}` km\n" .
+                       "💰 Abono: `Bs " . ($efectivo + $pagomovil) . "`";
+                sendTelegramNotification($ruta_info['owner_tid'], $msg);
+            }
+            broadcastRealtime('REFRESH_FLEET', ['cooperativa_id' => $coop_id]);
+            broadcastRealtime('REFRESH_PAYMENTS', ['cooperativa_id' => $coop_id]);
+        } catch (Exception $e) {
+            error_log("TuCooperativa Non-fatal: Notif failed. " . $e->getMessage());
+        }
+
+        sendResponse(['message' => 'Jornada finalizada exitosamente', 'distancia' => ($odo_val - $start_odo)]);
+
+    } else {
+        throw new Exception("Acción inválida: $action");
+    }
+} catch (Exception $e) {
+    if ($db->inTransaction()) $db->rollBack();
+    error_log("TuCooperativa STABILITY ERROR: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
+    sendResponse(['error' => $e->getMessage()], 500);
 }

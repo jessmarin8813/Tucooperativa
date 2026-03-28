@@ -112,7 +112,7 @@ const ChoferesView = () => {
             exit={{ opacity: 0, x: 10 }}
             className="p-grid p-grid-cols-2"
           >
-            {choferes.map((c) => (
+            {(choferes || []).map((c) => (
               <Motion.div 
                 key={c.id}
                 className="glass" 
@@ -217,7 +217,7 @@ const ChoferesView = () => {
               </h3>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {invitaciones.map((inv) => {
+                {(invitaciones || []).map((inv) => {
                   const link = `https://t.me/TuCooperativaBot?start=${inv.token}`
                   return (
                     <div 

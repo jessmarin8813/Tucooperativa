@@ -27,7 +27,7 @@ const ForensicView = () => {
         return () => { ignore = true }
     }, [fetchAudit])
 
-    if (loading && auditLog.length === 0) return <LoadingSpinner />
+    if (loading && (auditLog.incidencias || []).length === 0) return <LoadingSpinner />
 
     return (
         <div className="view-container animate-fade">

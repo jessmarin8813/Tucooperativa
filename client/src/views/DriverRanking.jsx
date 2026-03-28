@@ -63,13 +63,13 @@ const DriverRanking = () => {
           title="Top Eficiencia" 
           value={`${rankingList[0]?.stats?.eficiencia || 0}%`} 
           icon={Fuel} 
-          trend={rankingList.length > 0 ? "+12%" : "Esperando datos"}
+          trend={(rankingList || []).length > 0 ? "+12%" : "Esperando datos"}
         />
         <StatCard 
           title="Puntualidad Flota" 
           value={`${rankingList[0]?.stats?.puntualidad || 0}%`} 
           icon={Timer} 
-          trend={rankingList.length > 0 ? "+5%" : "Sincronizando"}
+          trend={(rankingList || []).length > 0 ? "+5%" : "Sincronizando"}
         />
         <StatCard 
           title="Incidentes Críticos" 
@@ -79,7 +79,7 @@ const DriverRanking = () => {
         />
       </div>
 
-      {rankingList.length === 0 ? (
+      {(rankingList || []).length === 0 ? (
         <Motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -111,7 +111,7 @@ const DriverRanking = () => {
                 <Trophy className="text-yellow-500" size={20} />
                 Leaderboard Mensual
               </h3>
-              <span className="text-xs text-dim">{rankingList.length} Choferes Activos</span>
+              <span className="text-xs text-dim">{(rankingList || []).length} Choferes Activos</span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -125,7 +125,7 @@ const DriverRanking = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
-                  {rankingList.map((driver) => (
+                  {(rankingList || []).map((driver) => (
                     <tr key={driver.id} className="hover:bg-white/5 transition-colors">
                       <td className="px-6 py-4 font-mono text-dim">
                         {(driver.rango || 0).toString().padStart(2, '0')}

@@ -621,7 +621,6 @@
                     telegram_id: driverData.id,
                     ruta_id: driverData.active_route_id,
                     odometro_valor: odo,
-                    combustible_reportado: 10,
                     foto_path: 'uploads/sim_end.jpg',
                     monto_efectivo: 0,
                     monto_pagomovil: 0

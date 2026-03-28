@@ -65,7 +65,8 @@ const Dashboard = ({ user, setActiveView }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <p className="p-subtitle">Gestión de Operaciones en Tiempo Real</p>
             <div 
-              className="p-glass-premium" 
+              onClick={() => data.stats.alertas_criticas > 0 && setActiveView('forensic')}
+              className="p-glass-premium clickable-hover" 
               style={{ 
                 padding: '4px 12px', 
                 borderRadius: '100px', 
@@ -74,6 +75,7 @@ const Dashboard = ({ user, setActiveView }) => {
                 display: 'flex', 
                 alignItems: 'center', 
                 gap: '6px',
+                cursor: data.stats.alertas_criticas > 0 ? 'pointer' : 'default',
                 border: `1px solid ${data.stats.alertas_criticas > 0 ? 'rgba(239, 68, 68, 0.3)' : 'rgba(34, 197, 94, 0.3)'}`,
                 color: data.stats.alertas_criticas > 0 ? 'var(--danger)' : '#22c55e'
               }}
@@ -86,7 +88,20 @@ const Dashboard = ({ user, setActiveView }) => {
         
         <div className="p-flex p-gap-4 p-items-center">
           {data.stats.alertas_criticas > 0 && (
-            <div className="p-glass-premium mobile-hide" style={{ border: '1px solid rgba(239, 68, 68, 0.4)', padding: '12px 24px', borderRadius: '100px', display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--danger)' }}>
+            <div 
+              onClick={() => setActiveView('forensic')}
+              className="p-glass-premium mobile-hide clickable-hover" 
+              style={{ 
+                border: '1px solid rgba(239, 68, 68, 0.4)', 
+                padding: '12px 24px', 
+                borderRadius: '100px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '12px', 
+                color: 'var(--danger)',
+                cursor: 'pointer'
+              }}
+            >
               <AlertCircle size={18} />
               <span style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{data.stats.alertas_criticas} ALERTS</span>
             </div>

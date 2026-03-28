@@ -240,7 +240,7 @@ const SuperAdminDashboard = () => {
                 <p style={{ color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.75rem' }}>No se han detectado anomalías críticas en las últimas 24 horas.</p>
               </div>
             ) : (
-              forensicData.incidencias.map((item, idx) => (
+              (forensicData?.incidencias || []).map((item, idx) => (
                 <div key={idx} className="glass glass-hover" style={{ 
                     padding: '32px', 
                     display: 'flex', 
