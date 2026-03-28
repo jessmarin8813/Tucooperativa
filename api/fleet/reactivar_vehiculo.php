@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // 3. Reactivar: Pasar a Activo
-    $stmt = $db->prepare("UPDATE vehiculos SET estado = 'activo' WHERE id = ?");
+    $stmt = $db->prepare("UPDATE vehiculos SET estado = 'activo', status_changed_at = NOW() WHERE id = ?");
     $stmt->execute([$vehicle['id']]);
 
     // 4. Registrar en historial de incidencias (opcional, aquí solo logueamos la reparación)

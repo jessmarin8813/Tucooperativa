@@ -30,7 +30,7 @@ const VehiculosView = ({ user, config, setActiveView }) => {
 
   const fetchVehicles = useCallback(async () => {
     try {
-      const res = await callApi('vehiculos.php')
+      const res = await callApi('fleet/vehiculos.php')
       const rawData = res?.data || res;
       setVehicles(Array.isArray(rawData) ? rawData : [])
     } catch { /* Handled */ }
@@ -40,8 +40,8 @@ const VehiculosView = ({ user, config, setActiveView }) => {
     let ignore = false
     const init = async () => {
       if (!currentUser) {
-        const sessionRes = await callApi('session.php')
-        setCurrentUser(sessionRes.user)
+        const sessionRes = await callApi('system/session.php')
+        setCurrentUser(sessionRes.user || sessionRes)
       }
       if (!ignore) fetchVehicles()
     }
@@ -79,7 +79,7 @@ const VehiculosView = ({ user, config, setActiveView }) => {
       })
       const rawData = res?.data || res;
       setInviteToken(rawData?.token || res?.token);
-    } catch { /* Handled */ } finally { setInviteLoading(false); }
+    } catch (err) { console.error(err); } finally { setInviteLoading(false); }
   }
 
   const handleCloseModal = () => {
@@ -93,6 +93,7 @@ const VehiculosView = ({ user, config, setActiveView }) => {
     const model = (v.modelo || '').toString().toLowerCase();
     const term = (searchTerm || '').toString().toLowerCase();
     const matchesSearch = plaque.includes(term) || model.includes(term);
+    
     const vStatus = (v.estado || v.status_label || 'inactivo').toString().toLowerCase();
     const normalizedStatus = vStatus === 'en ruta' ? 'activo' : vStatus;
     
@@ -100,31 +101,43 @@ const VehiculosView = ({ user, config, setActiveView }) => {
     if (filterStatus === 'sin_chofer') {
         matchesStatus = !v.chofer_id || v.chofer_id === 0;
     }
-    
     return matchesSearch && matchesStatus;
   });
 
+  // TREND LOGIC (Dynamic Memory)
   const now = new Date();
   const safeVehiclesArray = Array.isArray(vehicles) ? vehicles : [];
-  const todayVehicles = safeVehiclesArray.filter(v => {
+  
+  const todayCreated = safeVehiclesArray.filter(v => {
     if (!v || !v.created_at) return false;
-    const createdAt = new Date(v.created_at);
-    return (now - createdAt) < 24 * 60 * 60 * 1000;
+    return (now - new Date(v.created_at)) < 24 * 60 * 60 * 1000;
+  }).length;
+
+  const todayActive = safeVehiclesArray.filter(v => {
+    if (!v || !v.status_changed_at) return false;
+    const s = (v.estado || v.status_label || '').toString().toLowerCase();
+    return (s === 'activo' || s === 'en ruta') && (now - new Date(v.status_changed_at)) < 24 * 60 * 60 * 1000;
+  }).length;
+
+  const todayMaintenance = safeVehiclesArray.filter(v => {
+    if (!v || !v.status_changed_at) return false;
+    const s = (v.estado || v.status_label || '').toString().toLowerCase();
+    return (s === 'mantenimiento' || s === 'en taller') && (now - new Date(v.status_changed_at)) < 24 * 60 * 60 * 1000;
   }).length;
 
   const stats = {
     total: safeVehiclesArray?.length || 0,
-    totalTrend: todayVehicles > 0 ? `+${todayVehicles}` : "+0",
+    totalTrend: todayCreated > 0 ? `+${todayCreated}` : "+0",
     activeCount: safeVehiclesArray?.filter(v => {
-      if (!v) return false;
       const s = (v.estado || v.status_label || 'inactivo').toString().toLowerCase();
       return (s === 'activo' || s === 'en ruta');
     }).length || 0,
+    activeTrend: todayActive > 0 ? `+${todayActive}` : "+0",
     maintenanceCount: safeVehiclesArray?.filter(v => {
-      if (!v) return false;
       const s = (v.estado || v.status_label || '').toString().toLowerCase();
       return (s === 'mantenimiento' || s === 'en taller');
-    }).length || 0
+    }).length || 0,
+    maintenanceTrend: todayMaintenance > 0 ? `+${todayMaintenance}` : "+0"
   }
 
   return (
@@ -147,8 +160,8 @@ const VehiculosView = ({ user, config, setActiveView }) => {
       {/* Stats Overview */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '32px' }}>
         <StatCard title="Total" value={stats.total} trend={stats.totalTrend} icon={Truck} color="var(--primary)" compact />
-        <StatCard title="Activas" value={stats.activeCount} trend="+0" icon={CheckCircle2} color="var(--success)" compact />
-        <StatCard title="Taller" value={stats.maintenanceCount} trend="+0" icon={AlertTriangle} color="var(--warning)" compact />
+        <StatCard title="Activas" value={stats.activeCount} trend={stats.activeTrend} icon={CheckCircle2} color="var(--success)" compact />
+        <StatCard title="Taller" value={stats.maintenanceCount} trend={stats.maintenanceTrend} icon={AlertTriangle} color="var(--warning)" compact />
       </div>
 
       {/* Search & Filters */}

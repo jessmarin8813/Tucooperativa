@@ -79,7 +79,12 @@ switch ($method) {
 
             $stmt = $db->prepare("UPDATE mantenimiento_items SET ultimo_odometro = :odo 
                                  WHERE id = :id");
-            $stmt->execute(['odo' => $odometro, 'id' => $item_id]);
+            $stmt->execute(['odo' => $odo, 'id' => $item_id]);
+
+            // Si el ítem es crítico, el sistema a nivel de DB o trigger suele manejar el estado,
+            // pero nos aseguramos de marcar el cambio de estado si corresponde.
+            $stmtVeh = $db->prepare("UPDATE vehiculos SET estado = 'mantenimiento', status_changed_at = NOW() WHERE id = (SELECT vehiculo_id FROM mantenimiento_items WHERE id = ?)");
+            $stmtVeh->execute([$item_id]);
             
             sendResponse(['message' => 'Servicio registrado correctamente']);
         } elseif ($action === 'add_item') {

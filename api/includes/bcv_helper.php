@@ -24,31 +24,12 @@ function get_bcv_rate() {
     if (!$last_entry) {
         $needs_scan = true;
     } else {
-        // Si hay datos, aplicamos la lógica de ventana quirúrgica
-        if ($dayOfWeek == 0 || $dayOfWeek == 6) {
-            $needs_scan = false; // Fin de semana: Cero escaneos
-        } else {
-            $is_update_window = ($hour == 16 || ($hour == 17 && $minute <= 30));
-            
-            if ($is_update_window) {
-                $last_update_date = date('Y-m-d', strtotime($last_entry['created_at']));
-                $last_update_hour = (int)date('H', strtotime($last_entry['created_at']));
-                
-                // Si la última actualización NO fue hoy en la ventana de la tarde, necesitamos escanear
-                if ($last_update_date != $today || $last_update_hour < 16) {
-                    $needs_scan = true;
-                }
-            }
-            
-            // Caso especial: Es día de semana pero no tenemos la tasa de HOY en absoluto
-            // (Ej: encendimos el servidor por primera vez un martes a las 10 AM)
-            $last_update_date = date('Y-m-d', strtotime($last_entry['created_at']));
-            if ($last_update_date != $today && $hour >= 8 && !$is_update_window) {
-                // Solo escaneamos una vez si ha pasado más de 12h desde el último registro
-                if ((time() - strtotime($last_entry['created_at'])) > (12 * 3600)) {
-                    $needs_scan = true;
-                }
-            }
+        // LÓGICA INTELIGENTE: Escanear en ventana de actualización o si el dato es viejo (> 6h)
+        $is_update_window = ($hour >= 16 && $hour <= 18); // Tasa del día siguiente se publica a las 4pm
+        $last_update_ts = strtotime($last_entry['created_at']);
+        
+        if ($is_update_window || ($now - $last_update_ts) > (6 * 3600)) {
+            $needs_scan = true;
         }
     }
 
@@ -77,7 +58,6 @@ function get_bcv_rate() {
                 // Guardar solo si es diferente a la última o si es un nuevo día
                 try {
                     if (!$last_entry || $rate != floatval($last_entry['tasa'])) {
-                        // Usar ON DUPLICATE por seguridad, aunque la lógica ya filtra
                         $stmt = $db->prepare("INSERT INTO tasas_cambio (moneda, tasa, fecha, fuente) VALUES ('USD', ?, ?, 'BCV') ON DUPLICATE KEY UPDATE tasa = ?, created_at = CURRENT_TIMESTAMP");
                         $stmt->execute([$rate, $today, $rate]);
                     }
