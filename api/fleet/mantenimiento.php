@@ -14,7 +14,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 switch ($method) {
     case 'GET':
         // Fetch all vehicles with their maintenance items
-        $stmt = $db->prepare("SELECT v.id as vehiculo_id, v.placa, 
+        $stmt = $db->prepare("SELECT v.id as vehiculo_id, v.placa, v.estado,
                              (SELECT valor FROM odometros WHERE cooperativa_id = v.cooperativa_id AND ruta_id IN (SELECT id FROM rutas WHERE vehiculo_id = v.id) ORDER BY created_at DESC LIMIT 1) as odometro_actual,
                              m.id as item_id, m.nombre, m.frecuencia, m.ultimo_odometro,
                              (SELECT SUM(monto) FROM gastos WHERE mantenimiento_item_id = m.id) as total_gastado
@@ -33,6 +33,7 @@ switch ($method) {
                 $health_report[$vid] = [
                     'id' => $vid,
                     'placa' => $r['placa'],
+                    'estado' => $r['estado'],
                     'odometro_actual' => floatval($r['odometro_actual'] ?? 0),
                     'items' => []
                 ];
