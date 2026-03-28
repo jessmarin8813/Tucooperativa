@@ -5,7 +5,8 @@ Este documento contiene las "Reglas de Oro" que deben seguirse para cualquier de
 ## 🛡️ La Regla #1: Omni-Guard
 **NUNCA** consideres un cambio como terminado si no pasa el `build.bat`.
 - El build audita: Sintaxis PHP, Sintaxis Python (Bot), Integridad de DB, y Sincronización de Variables.
-- Si el build falla, el sistema NO es apto para producción.
+5.  **Build Protocol**: NUNCA des por terminada una tarea sin ejecutar `python build_system.py`. Si el build falla, la tarea NO está terminada.
+6.  **Skill-First Approach**: Para diagnósticos de Base de Datos, Backend o UI, consulta SIEMPRE las instrucciones en `.agent/skills/`. Usa herramientas como `Database-Schema-Doctor` antes de proponer cambios estructurales.
 
 ## 🎨 Estética Premium (UI/UX)
 - Mantener el estilo **Glassmorphism**: Fondos radiales oscuros (`#1e1b4b` a `#0a0b12`), bordes neon (`--accent`) y efectos de desenfoque (`backdrop-filter: blur`).
@@ -24,6 +25,7 @@ Este documento contiene las "Reglas de Oro" que deben seguirse para cualquier de
 - **Login**: La autenticación administrativa es por **Nombre de Usuario** (no email).
 
 ## 🛠️ Procedimiento de Troubleshooting
-1. Ejecutar `.\build.bat`.
-2. Revisar `error_log` en el servidor PHP si hay fallos 500.
-3. Usar `c:\xampp\php\php.exe debug_login.php` si hay problemas de acceso.
+1. Usar proactivamente las **Skills Premium** en `.agent/skills` (ej: `Database-Schema-Doctor`, `API-Detective-PHP`, `Security-Guard-PHP`).
+2. Ejecutar `python build_system.py`.
+3. Revisar `error_log` en el servidor PHP si hay fallos 500.
+4. Usar `c:\xampp\php\php.exe debug_login.php` si hay problemas de acceso.
