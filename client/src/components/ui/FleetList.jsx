@@ -111,7 +111,15 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                        <button onClick={() => onInvite && onInvite(v)} className="btn-primary" style={{ fontSize: '10px', height: '42px', padding: '0 18px' }}>INVITAR</button>
                      )}
                      <div style={{ position: 'relative' }}>
-                       <button onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} className="btn-secondary dropdown-trigger-pc" style={{ width: '42px', height: '42px', borderRadius: '12px' }}>
+                       <button 
+                         onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} 
+                         className="btn-secondary dropdown-trigger-pc" 
+                         style={{ 
+                            width: '42px', height: '42px', borderRadius: '12px', 
+                            padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' 
+                         }}
+                       >
                          <MoreVertical size={20} className={activeDropdown === v.id ? 'text-primary' : 'text-white/40'} />
                        </button>
                        <AnimatePresence>
