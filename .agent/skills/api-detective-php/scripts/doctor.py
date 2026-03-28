@@ -39,7 +39,7 @@ def run_diagnostics():
         print("[FAIL] Puerto 80 Cerrado (Revise XAMPP)")
     sock.close()
 
-    print("\n[VERIFICANDO ENDPOINTS CRÃTICOS]")
+    print("\n[VERIFICANDO ENDPOINTS CRITICOS]")
     
     # We test locally in TuCooperativa by default.
     endpoints = [

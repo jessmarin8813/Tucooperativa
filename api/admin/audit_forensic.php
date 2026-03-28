@@ -33,12 +33,13 @@ try {
         JOIN odometros odo_ini ON r.id = odo_ini.ruta_id AND odo_ini.tipo = 'inicio'
         JOIN odometros odo_fin ON r.id = odo_fin.ruta_id AND odo_fin.tipo = 'fin'
         WHERE r.estado = 'finalizada'
-        " . ($coop_id ? "AND r.cooperativa_id = $coop_id" : "") . "
+        " . ($coop_id ? "AND r.cooperativa_id = :coop_id" : "") . "
         ORDER BY v.id, r.ended_at DESC
         LIMIT 200
     ";
 
-    $stmt = $db->query($query);
+    $stmt = $db->prepare($query);
+    $stmt->execute($coop_id ? ['coop_id' => $coop_id] : []);
     $routes = $stmt->fetchAll();
 
     $last_route_per_vehicle = [];
@@ -78,11 +79,12 @@ try {
         WHERE r.estado = 'finalizada'
         AND r.ended_at < (NOW() - INTERVAL 12 HOUR)
         AND p.id IS NULL
-        " . ($coop_id ? "AND r.cooperativa_id = $coop_id" : "") . "
+        " . ($coop_id ? "AND r.cooperativa_id = :coop_id" : "") . "
         LIMIT 50
     ";
     
-    $stmtCaja = $db->query($query_caja);
+    $stmtCaja = $db->prepare($query_caja);
+    $stmtCaja->execute($coop_id ? ['coop_id' => $coop_id] : []);
     foreach ($stmtCaja->fetchAll() as $caja) {
         $incidencias[] = [
             'tipo' => 'Brecha de Auditoría',
@@ -104,11 +106,12 @@ try {
         JOIN vehiculos v ON r.vehiculo_id = v.id
         WHERE r.estado = 'activa'
         AND DATE(r.started_at) < CURDATE()
-        " . ($coop_id ? "AND r.cooperativa_id = $coop_id" : "") . "
+        " . ($coop_id ? "AND r.cooperativa_id = :coop_id" : "") . "
         LIMIT 50
     ";
     
-    $stmtStale = $db->query($query_stale);
+    $stmtStale = $db->prepare($query_stale);
+    $stmtStale->execute($coop_id ? ['coop_id' => $coop_id] : []);
     foreach ($stmtStale->fetchAll() as $stale) {
         $incidencias[] = [
             'tipo' => 'Integridad de Turno',
@@ -132,8 +135,11 @@ try {
     if (!empty($critical_alerts)) {
         require_once __DIR__ . '/../system/notificaciones.php';
         foreach ($critical_alerts as $alert) {
-            $stmtOwner = $db->prepare("SELECT telegram_chat_id, cooperativa_id FROM usuarios WHERE rol = 'owner' AND telegram_chat_id IS NOT NULL" . ($coop_id ? " AND cooperativa_id = $coop_id" : ""));
-            $stmtOwner->execute();
+            $sqlOwner = "SELECT telegram_chat_id, cooperativa_id FROM usuarios WHERE rol = 'owner' AND telegram_chat_id IS NOT NULL";
+            if ($coop_id) $sqlOwner .= " AND cooperativa_id = :coop_id";
+            
+            $stmtOwner = $db->prepare($sqlOwner);
+            $stmtOwner->execute($coop_id ? ['coop_id' => $coop_id] : []);
             $owners = $stmtOwner->fetchAll(PDO::FETCH_ASSOC);
             foreach ($owners as $owner) {
                 $msg = "🚨 *ALERTA FORENSE:* {$alert['tipo']}\n"

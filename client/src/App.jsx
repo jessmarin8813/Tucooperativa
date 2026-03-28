@@ -3,6 +3,7 @@ import './index.css'
 import LoginView from './views/LoginView'
 import MainLayout from './components/MainLayout'
 import { useApi } from './hooks/useApi'
+import { formatDate } from './utils/DashboardConstants'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -17,7 +18,7 @@ function App() {
   const { callApi } = useApi()
 
   useEffect(() => {
-    const buildDate = new Date().toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const buildDate = formatDate(new Date());
     console.log(`%c TuCooperativa v5.0.7-FIXED [Build: ${buildDate}] %c`, "background: #6366f1; color: white; font-weight: bold; padding: 4px; border-radius: 4px;", "");
   }, [])
   

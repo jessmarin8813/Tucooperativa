@@ -6,16 +6,17 @@
 header('Content-Type: application/json');
 
 // Requerir la conexión real del proyecto para que sea 100% adaptable
-$root_path = dirname(__DIR__, 4); // Sube 4 niveles desde .agent/skills/database/scripts
-if (file_exists($root_path . '/api/db.php')) {
-    require_once $root_path . '/api/db.php';
+// Requerir la conexión real del proyecto para que sea 100% adaptable
+$root_path = dirname(__DIR__, 4); // Sube 4 niveles desde .agent/skills/database-schema-doctor/scripts
+if (file_exists($root_path . '/api/includes/db.php')) {
+    require_once $root_path . '/api/includes/db.php';
 } else {
     // Fallback if running from a different directory
-    require_once '../../../api/db.php'; 
+    require_once '../../../api/includes/db.php'; 
 }
 
 try {
-    $pdo = getDBConnection();
+    $pdo = DB::getInstance();
     
     // Obtener nombre de la DB para el reporte
     $dbName = $pdo->query('select database()')->fetchColumn();
