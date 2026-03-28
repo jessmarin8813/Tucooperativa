@@ -72,7 +72,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                 <div className="p-identity-col" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                    <div className="p-flex p-items-center p-gap-2">
                      <p className="text-white font-black uppercase italic" style={{ fontSize: '1.15rem', color: 'var(--primary)', lineHeight: 1 }}>{v.modelo || 'Unidad'}</p>
-                     <span className="p-plate-badge" style={{ fontSize: '8px', color: '#06b6d4', fontWeight: 950, background: 'rgba(6, 182, 212, 0.1)', padding: '2px 8px', borderRadius: '6px', border: '1px solid rgba(6,182,212,0.2)' }}>{v.placa}</span>
+                     <span className="p-plate-badge">{v.placa}</span>
                      {v.maintenance_status !== 'ok' && (
                        <Wrench size={14} color={v.maintenance_status === 'critico' ? 'var(--danger)' : 'var(--warning)'} />
                      )}
