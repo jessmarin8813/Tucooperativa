@@ -151,91 +151,89 @@ const MaintenanceCenter = () => {
             className="glass"
             style={{ padding: '32px', borderRadius: '32px', position: 'relative', overflow: 'hidden' }}
           >
-            {/* Workshop Badge if in maintenance */}
-            {v.estado === 'mantenimiento' && (
-                <div style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 20 }}>
-                     <button 
-                        onClick={() => handleOpenWorkshop(v)}
-                        className="btn-status-pill maintenance" 
-                        style={{ border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '14px', fontWeight: 900, fontSize: '10px' }}
-                     >
-                         <Wrench size={14} /> GESTIONAR REPARACIÓN
-                     </button>
+            {/* Header info with status buttons */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
+                <div style={{ width: '56px', height: '56px', background: 'rgba(255,255,255,0.05)', borderRadius: '16px', border: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)' }}>
+                  <Car size={28} />
                 </div>
-            )}
-
-            <div style={{ position: 'relative', zIndex: 10 }}>
-              <div className="p-flex-responsive p-justify-between" style={{ marginBottom: '32px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
-                  <div style={{ width: '56px', height: '56px', background: 'rgba(255,255,255,0.05)', borderRadius: '16px', border: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)' }}>
-                    <Car size={28} />
-                  </div>
-                  <div>
-                    <h3 className="neon-text" style={{ fontSize: '1.75rem', fontWeight: 900 }}>{v.placa}</h3>
-                    <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '4px' }}>
+                <div>
+                  <h3 className="neon-text" style={{ fontSize: '1.75rem', fontWeight: 900, marginBottom: '4px' }}>{v.placa}</h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                         Odómetro: <span style={{ color: 'white' }}>{formatNumber(v.odometro_actual)} KM</span>
                     </p>
+                    {v.estado === 'mantenimiento' && (
+                       <button 
+                          onClick={() => handleOpenWorkshop(v)}
+                          className="btn-status-pill maintenance" 
+                          style={{ border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '10px', fontWeight: 900, fontSize: '9px' }}
+                       >
+                           <Wrench size={12} /> TALLER
+                       </button>
+                    )}
                   </div>
                 </div>
-                <button 
-                  onClick={() => {
-                    setNewItem(prev => ({ ...prev, ultimo_odometro: v.odometro_actual }));
-                    setShowAddModal(v.id);
-                  }}
-                  className="btn-primary"
-                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
-                >
-                  <Plus size={18} /> <span className="text-nowrap" style={{ fontSize: '10px' }}>AÑADIR RECORDATORIO</span>
-                </button>
               </div>
 
-              {/* Items Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-                {(v?.items || []).map((item) => (
-                  <div key={item.id} className="glass-hover" style={{ padding: '24px', background: 'rgba(255,255,255,0.01)', borderRadius: '24px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                      <div>
-                        <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: 'white', marginBottom: '4px' }}>{item.nombre}</h4>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.65rem', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase' }}>
-                           <Clock size={12} /> Cada {formatNumber(item.frecuencia)} KM
-                        </div>
-                      </div>
-                      <div style={{ 
-                        padding: '4px 12px', borderRadius: '100px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase',
-                        background: item.estado === 'critico' ? 'var(--danger)' : item.estado === 'advertencia' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-                        color: item.estado === 'critico' ? 'white' : item.estado === 'advertencia' ? 'var(--warning)' : 'var(--success)'
-                      }}>
-                        {item.estado === 'critico' ? 'Vencido' : item.estado === 'advertencia' ? 'Próximo' : 'En Orden'}
+              <button 
+                onClick={() => {
+                  setNewItem(prev => ({ ...prev, ultimo_odometro: v.odometro_actual }));
+                  setShowAddModal(v.id);
+                }}
+                className="btn-primary"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', height: '42px', padding: '0 16px', borderRadius: '14px' }}
+              >
+                <Plus size={16} /> <span className="text-nowrap" style={{ fontSize: '9px', fontWeight: 900 }}>AÑADIR TAREA</span>
+              </button>
+            </div>
+
+            {/* Items Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+              {(v?.items || []).map((item) => (
+                <div key={item.id} className="glass-hover" style={{ padding: '24px', background: 'rgba(255,255,255,0.01)', borderRadius: '24px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <div>
+                      <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: 'white', marginBottom: '4px' }}>{item.nombre}</h4>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.65rem', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase' }}>
+                         <Clock size={12} /> Cada {formatNumber(item.frecuencia)} KM
                       </div>
                     </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                       <div style={{ height: '6px', width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '100px', overflow: 'hidden' }}>
-                          <Motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${item.progreso}%` }}
-                            style={{ 
-                                height: '100%', background: item.estado === 'critico' ? 'var(--danger)' : item.estado === 'advertencia' ? 'var(--warning)' : 'var(--success)',
-                                boxShadow: item.estado === 'critico' ? '0 0 10px var(--danger)' : 'none'
-                            }}
-                          />
-                       </div>
-                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.05em' }}>
-                             Remanente: <span style={{ color: item.estado === 'critico' ? 'var(--danger)' : 'white' }}>{formatNumber(item.km_restantes)} KM</span>
-                          </div>
-                          <button 
-                            onClick={() => handleReset(item.id, v.odometro_actual)}
-                            style={{ padding: '8px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                            className="glass-hover"
-                          >
-                             <Activity size={16} />
-                          </button>
-                       </div>
+                    <div style={{ 
+                      padding: '4px 12px', borderRadius: '100px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase',
+                      background: item.estado === 'critico' ? 'var(--danger)' : item.estado === 'advertencia' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                      color: item.estado === 'critico' ? 'white' : item.estado === 'advertencia' ? 'var(--warning)' : 'var(--success)'
+                    }}>
+                      {item.estado === 'critico' ? 'Vencido' : item.estado === 'advertencia' ? 'Próximo' : 'En Orden'}
                     </div>
                   </div>
-                ))}
-              </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                     <div style={{ height: '6px', width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '100px', overflow: 'hidden' }}>
+                        <Motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${item.progreso}%` }}
+                          style={{ 
+                              height: '100%', background: item.estado === 'critico' ? 'var(--danger)' : item.estado === 'advertencia' ? 'var(--warning)' : 'var(--success)',
+                              boxShadow: item.estado === 'critico' ? '0 0 10px var(--danger)' : 'none'
+                          }}
+                        />
+                     </div>
+                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.05em' }}>
+                           Remanente: <span style={{ color: item.estado === 'critico' ? 'var(--danger)' : 'white' }}>{formatNumber(item.km_restantes)} KM</span>
+                        </div>
+                        <button 
+                          onClick={() => handleReset(item.id, v.odometro_actual)}
+                          style={{ padding: '8px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          className="glass-hover"
+                        >
+                           <Activity size={16} />
+                        </button>
+                     </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </Motion.div>
         ))}
