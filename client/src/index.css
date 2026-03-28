@@ -672,10 +672,10 @@ button {
   padding: 0 !important; 
 }
 
-/* 💻 DESKTOP MATRIX (Mathematical Alignment Optimized) */
+/* 💻 DESKTOP MATRIX (Mathematical Alignment Optimized - Grouped) */
 .p-fleet-grid {
   display: grid;
-  grid-template-columns: minmax(200px, 1.2fr) 130px 150px 170px 150px; 
+  grid-template-columns: 320px 110px 140px 170px 1fr; 
   align-items: center;
   width: calc(100% - 24px); 
   margin-left: 12px;
@@ -685,13 +685,13 @@ button {
 }
 
 .p-actions-col {
-  width: 160px;
-  min-width: 160px;
+  width: 100%;
+  padding-right: 12px;
   display: flex !important;
-  justify-content: center !important;
+  justify-content: flex-end !important;
   align-items: center !important;
-  gap: 16px; /* Matching p-gap-4 */
-  text-align: center;
+  gap: 16px;
+  text-align: right;
 }
 
 .p-fleet-header-pc {
