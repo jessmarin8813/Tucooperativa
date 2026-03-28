@@ -235,7 +235,10 @@ const MaintenanceCenter = () => {
                   <Car size={28} />
                 </div>
                 <div>
-                  <h3 className="neon-text" style={{ fontSize: '1.75rem', fontWeight: 900, marginBottom: '4px' }}>{v.placa}</h3>
+                  <h3 className="neon-text" style={{ fontSize: '1.75rem', fontWeight: 900, marginBottom: '4px' }}>
+                    <span style={{ opacity: 0.6, fontSize: '0.9rem', marginRight: '8px' }}>{v.modelo}</span>
+                    {v.placa}
+                  </h3>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                         Odómetro: <span style={{ color: 'white' }}>{formatNumber(v.odometro_actual)} KM</span>
@@ -273,13 +276,14 @@ const MaintenanceCenter = () => {
                     <div>
                       <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: 'white', marginBottom: '4px' }}>{item.nombre}</h4>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.65rem', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase' }}>
-                         <Clock size={12} /> Cada {formatNumber(item.frecuencia)} KM
+                         <Clock size={12} /> Cada {formatNumber(item.frecuencia)} KM · <span style={{ color: 'var(--accent)' }}>PRÓXIMO: {formatNumber(item.ultimo_odometro + item.frecuencia)} KM</span>
                       </div>
                     </div>
                     <div style={{ 
                       padding: '4px 12px', borderRadius: '100px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase',
                       background: item.estado === 'critico' ? 'var(--danger)' : item.estado === 'advertencia' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-                      color: item.estado === 'critico' ? 'white' : item.estado === 'advertencia' ? 'var(--warning)' : 'var(--success)'
+                      color: item.estado === 'critico' ? 'white' : item.estado === 'advertencia' ? 'var(--warning)' : 'var(--success)',
+                      boxShadow: item.estado === 'critico' ? '0 0 15px rgba(239, 68, 68, 0.5)' : 'none'
                     }}>
                       {item.estado === 'critico' ? 'Vencido' : item.estado === 'advertencia' ? 'Próximo' : 'En Orden'}
                     </div>

@@ -14,7 +14,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 switch ($method) {
     case 'GET':
         // Fetch all vehicles with their maintenance items
-        $stmt = $db->prepare("SELECT v.id as vehiculo_id, v.placa, v.estado,
+        $stmt = $db->prepare("SELECT v.id as vehiculo_id, v.placa, v.modelo, v.estado,
                              (SELECT valor FROM odometros WHERE cooperativa_id = v.cooperativa_id AND ruta_id IN (SELECT id FROM rutas WHERE vehiculo_id = v.id) ORDER BY created_at DESC LIMIT 1) as odometro_actual,
                              m.id as item_id, m.nombre, m.frecuencia, m.ultimo_odometro,
                              (SELECT SUM(monto) FROM gastos WHERE mantenimiento_item_id = m.id) as total_gastado
@@ -33,6 +33,7 @@ switch ($method) {
                 $health_report[$vid] = [
                     'id' => $vid,
                     'placa' => $r['placa'],
+                    'modelo' => $r['modelo'],
                     'estado' => $r['estado'],
                     'odometro_actual' => floatval($r['odometro_actual'] ?? 0),
                     'items' => []
@@ -80,7 +81,7 @@ switch ($method) {
 
             $stmt = $db->prepare("UPDATE mantenimiento_items SET ultimo_odometro = :odo 
                                  WHERE id = :id");
-            $stmt->execute(['odo' => $odo, 'id' => $item_id]);
+            $stmt->execute(['odo' => $odometro, 'id' => $item_id]);
 
             // Si el ítem es crítico, el sistema a nivel de DB o trigger suele manejar el estado,
             // pero nos aseguramos de marcar el cambio de estado si corresponde.
