@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useApi } from '../hooks/useApi'
-import { AlertTriangle, Plus, Activity, Car, Clock, Settings, CheckCircle2, DollarSign, Pen, RefreshCw, X, Wrench } from 'lucide-react'
+import { AlertTriangle, Plus, Activity, Car, Clock, Settings, CheckCircle2, DollarSign, Pencil, RefreshCw, X, Wrench } from 'lucide-react'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 import { formatNumber } from '../utils/DashboardConstants'
 
@@ -18,7 +18,8 @@ const MaintenanceCenter = () => {
   const fetchHealth = useCallback(async () => {
     try {
       const res = await callApi('mantenimiento.php')
-      setFleetHealth(res)
+      const rawData = res?.data || res
+      setFleetHealth(Array.isArray(rawData) ? rawData : [])
     } catch { /* Handled */ }
   }, [callApi])
 
@@ -120,7 +121,8 @@ const MaintenanceCenter = () => {
     } catch { /* Handled */ }
   }
 
-  const totalCritical = fleetHealth.reduce((acc, v) => acc + v.items.filter(i => i.estado === 'critico').length, 0)
+  const safeFleet = Array.isArray(fleetHealth) ? fleetHealth : []
+  const totalCritical = safeFleet.reduce((acc, v) => acc + (v?.items || []).filter(i => i.estado === 'critico').length, 0)
 
   return (
     <div>
@@ -140,7 +142,7 @@ const MaintenanceCenter = () => {
 
       {/* Fleet Grid */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-        {fleetHealth.map((v, i) => (
+        {safeFleet.map((v, i) => (
           <Motion.div
             key={v.id}
             initial={{ opacity: 0, y: 20 }}
@@ -189,7 +191,7 @@ const MaintenanceCenter = () => {
 
               {/* Items Grid */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-                {v.items.map((item) => (
+                {(v?.items || []).map((item) => (
                   <div key={item.id} className="glass-hover" style={{ padding: '24px', background: 'rgba(255,255,255,0.01)', borderRadius: '24px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                       <div>
@@ -280,7 +282,7 @@ const MaintenanceCenter = () => {
 
                       <section>
                           <h4 style={{ color: 'var(--success)', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <Pen size={14} /> Diagnóstico Técnico (Taller)
+                              <Pencil size={14} /> Diagnóstico Técnico (Taller)
                           </h4>
                           <textarea 
                              value={diagnosis}
