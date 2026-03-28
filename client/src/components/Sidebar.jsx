@@ -18,6 +18,7 @@ const Sidebar = ({ onLogout, activeView, setActiveView, config }) => {
   const menuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Centro de Mando' },
     { id: 'flota', icon: Truck, label: 'Flota de Vehículos' },
+    { id: 'maintenance', icon: Wrench, label: 'Mantenimiento' },
     { id: 'choferes', icon: UserPlus, label: 'Gestión de Choferes' },
     { id: 'cobranza', icon: CreditCard, label: 'Cobranza & Pagos' },
     { id: 'gastos', icon: Toolbox, label: 'Gastos Operativos' },

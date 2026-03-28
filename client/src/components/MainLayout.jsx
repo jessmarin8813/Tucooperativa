@@ -132,7 +132,7 @@ const MainLayout = ({ user, config, setConfig, activeView, setActiveView, onLogo
                       {activeView === 'gastos' && <ExpensesView />}
                       {activeView === 'cobranza' && <CobranzaView />}
                       {activeView === 'flota' && <VehiculosView user={user} config={config} setActiveView={handleNavigate} />}
-                      {activeView === 'mantenimiento' && <MaintenanceCenter />}
+                      {activeView === 'maintenance' && <MaintenanceCenter />}
                       {activeView === 'forensic' && <ForensicView />}
                     </React.Fragment>
                   )}
