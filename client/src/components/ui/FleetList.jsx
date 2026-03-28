@@ -107,13 +107,12 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
 
                     <div className="p-performance-col">
                       <p className="text-white font-black" style={{ fontSize: '1.2rem', lineHeight: 1 }}>{v.km_por_litro || '0'} <small style={{ fontSize: '10px', opacity: 0.5 }}>KM/L</small></p>
-                      <span style={{ fontSize: '10px', fontWeight: 900, opacity: 0.6, letterSpacing: '0.05em' }}>EFICIENCIA</span>
                     </div>
 
                     <div className="p-fee-col p-flex p-items-center p-justify-center">
                       <div className="p-flex-col p-items-center" style={{ background: 'rgba(255,255,255,0.03)', padding: '10px 20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', width: 'fit-content' }}>
                         <p className="text-white font-black" style={{ fontSize: '1.3rem', color: 'var(--success)', lineHeight: 1 }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
-                        <span style={{ fontSize: '9px', fontWeight: 900, opacity: 0.75, marginTop: '4px', color: 'rgba(255,255,255,0.6)' }}>
+                        <span style={{ fontSize: '10px', fontWeight: 950, opacity: 1, marginTop: '4px', color: 'var(--accent)', textShadow: '0 0 10px rgba(6, 182, 212, 0.2)' }}>
                           ≈ Bs {(v.cuota_diaria * (config?.bcv_rate || 36.5)).toFixed(2)}
                         </span>
                       </div>
