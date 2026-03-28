@@ -50,19 +50,27 @@ try {
 
         $db->beginTransaction();
 
-        // 1. Resolve Vehicle ID
-        $v_id = null;
+        // 1. Resolve Vehicle ID & Check Status
+        $v_data = null;
         if (is_numeric($vehiculo_identifer)) {
-            $v_id = intval($vehiculo_identifer);
+            $stmtV = $db->prepare("SELECT id, estado FROM vehiculos WHERE id = ? AND cooperativa_id = ?");
+            $stmtV->execute([intval($vehiculo_identifer), $coop_id]);
+            $v_data = $stmtV->fetch();
         } else {
-            $stmtV = $db->prepare("SELECT id FROM vehiculos WHERE placa = ? AND cooperativa_id = ?");
+            $stmtV = $db->prepare("SELECT id, estado FROM vehiculos WHERE placa = ? AND cooperativa_id = ?");
             $stmtV->execute([$vehiculo_identifer, $coop_id]);
-            $v_id = $stmtV->fetchColumn();
+            $v_data = $stmtV->fetch();
         }
 
-        if (!$v_id) {
+        if (!$v_data) {
             throw new Exception("Unidad no encontrada o placa inválida ($vehiculo_identifer).");
         }
+
+        if ($v_data['estado'] !== 'activo') {
+            throw new Exception("La unidad {$v_data['id']} (Placa: $vehiculo_identifer) no está operativa (Estado: {$v_data['estado']}).");
+        }
+
+        $v_id = $v_data['id'];
 
         // 2. Check for existing active route
         $stmtCheck = $db->prepare("SELECT id FROM rutas WHERE vehiculo_id = ? AND estado = 'activa'");
