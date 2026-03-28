@@ -79,7 +79,7 @@ const VehiculosView = ({ user, config, setActiveView }) => {
       })
       const rawData = res?.data || res;
       setInviteToken(rawData?.token || res?.token);
-    } catch (err) { console.error(err); } finally { setInviteLoading(false); }
+    } catch { /* Handled */ } finally { setInviteLoading(false); }
   }
 
   const handleCloseModal = () => {
@@ -95,7 +95,12 @@ const VehiculosView = ({ user, config, setActiveView }) => {
     const matchesSearch = plaque.includes(term) || model.includes(term);
     const vStatus = (v.estado || v.status_label || 'inactivo').toString().toLowerCase();
     const normalizedStatus = vStatus === 'en ruta' ? 'activo' : vStatus;
-    const matchesStatus = filterStatus === 'all' || normalizedStatus === filterStatus.toLowerCase();
+    
+    let matchesStatus = filterStatus === 'all' || normalizedStatus === filterStatus.toLowerCase();
+    if (filterStatus === 'sin_chofer') {
+        matchesStatus = !v.chofer_id || v.chofer_id === 0;
+    }
+    
     return matchesSearch && matchesStatus;
   });
 
@@ -155,20 +160,21 @@ const VehiculosView = ({ user, config, setActiveView }) => {
         
         {!isMobile ? (
           <div className="p-flex" style={{ gap: '8px' }}>
-            {['all', 'activo', 'mantenimiento'].map(st => (
+            {['all', 'activo', 'mantenimiento', 'sin_chofer'].map(st => (
               <button key={st} onClick={() => setFilterStatus(st)} className={`p-status-pill ${filterStatus === st ? 'active-filter' : 'lite-filter'}`} style={{ padding: '10px 20px', fontSize: '10px', fontWeight: 900 }}>
-                {st === 'all' ? 'TODOS' : st.toUpperCase()}
+                {st === 'all' ? 'TODOS' : st === 'sin_chofer' ? 'SIN CHOFER' : st.toUpperCase()}
               </button>
             ))}
           </div>
         ) : (
           <div className="glass" style={{ width: '100%', height: '50px', position: 'relative', display: 'flex', alignItems: 'center', padding: '0 16px', borderRadius: '16px' }}>
-              <div style={{ flex: 1, textAlign: 'center', color: 'white', fontSize: '12px', fontWeight: 1000 }}>{filterStatus === 'all' ? 'TODOS LOS ESTADOS' : filterStatus.toUpperCase()}</div>
+              <div style={{ flex: 1, textAlign: 'center', color: 'white', fontSize: '12px', fontWeight: 1000 }}>{filterStatus === 'all' ? 'TODOS LOS ESTADOS' : filterStatus === 'sin_chofer' ? 'SIN CHOFER' : filterStatus.toUpperCase()}</div>
               <ChevronDown size={16} className="text-white/20" />
               <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0 }}>
                   <option value="all">TODOS LOS ESTADOS</option>
                   <option value="activo">ACTIVOS</option>
                   <option value="mantenimiento">EN TALLER</option>
+                  <option value="sin_chofer">SIN CHOFER</option>
               </select>
           </div>
         )}

@@ -74,7 +74,12 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                      <p className="text-white font-black uppercase italic" style={{ fontSize: '1.15rem', color: 'var(--primary)', lineHeight: 1 }}>{v.modelo || 'Unidad'}</p>
                      <span className="p-plate-badge">{v.placa}</span>
                      {v.maintenance_status !== 'ok' && (
-                       <Wrench size={14} color={v.maintenance_status === 'critico' ? 'var(--danger)' : 'var(--warning)'} />
+                       <Wrench 
+                         size={14} 
+                         color={v.maintenance_status === 'critico' ? 'var(--danger)' : 'var(--warning)'} 
+                         style={{ cursor: 'pointer' }}
+                         onClick={(e) => { e.stopPropagation(); setActiveView && setActiveView('maintenance'); }}
+                       />
                      )}
                    </div>
                    <div className="p-flex p-items-center p-gap-2" style={{ opacity: 0.9 }}>
@@ -92,7 +97,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                 <div className="p-fee-col p-flex p-items-center p-justify-center">
                    <div className="p-flex-col p-items-center" style={{ background: 'rgba(255,255,255,0.03)', padding: '10px 20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
                      <p className="text-white font-black" style={{ fontSize: '1.3rem', color: 'var(--success)', lineHeight: 1 }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
-                     <span style={{ fontSize: '10px', fontWeight: 950, color: 'var(--accent)', marginTop: '4px' }}>
+                     <span style={{ fontSize: '12px', fontWeight: 800, color: 'white', marginTop: '4px' }}>
                        ≈ Bs {(v.cuota_diaria * (config?.bcv_rate || 36.5)).toFixed(2)}
                      </span>
                    </div>
@@ -129,9 +134,11 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                              className={`p-dropdown-menu ${isNearBottom ? 'upward' : ''}`}
                            >
-                              <button onClick={() => { onEdit && onEdit(v); setActiveDropdown(null); }} className="p-dropdown-item">Modificar</button>
+                              <button onClick={() => { onEdit && onEdit(v); setActiveDropdown(null); }} className="p-dropdown-item">Modificar Unidad</button>
                               <button onClick={() => { setActiveView && setActiveView('forensic'); setActiveDropdown(null); }} className="p-dropdown-item">Auditoría</button>
-                              {v.chofer_id && <button onClick={() => { onUnlink && onUnlink(v); setActiveDropdown(null); }} className="p-dropdown-item text-danger">Desvincular</button>}
+                              {v.chofer_id && <button onClick={() => { onUnlink && onUnlink(v); setActiveDropdown(null); }} className="p-dropdown-item text-danger">Desvincular Chofer</button>}
+                              <div className="p-dropdown-divider"></div>
+                              <button className="p-dropdown-item text-danger" onClick={() => { if(window.confirm('¿Eliminar unidad?')) setActiveDropdown(null); }}>Eliminar</button>
                            </Motion.div>
                          )}
                        </AnimatePresence>
@@ -157,6 +164,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                    <div style={{ textAlign: 'center' }}>
                      <p className="text-dim uppercase font-black" style={{ fontSize: '9px' }}>Tarifa</p>
                      <p className="text-white font-black" style={{ fontSize: '1.4rem' }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
+                     <p className="font-bold" style={{ fontSize: '12px', color: 'white', marginTop: '2px' }}>≈ Bs {(v.cuota_diaria * (config?.bcv_rate || 36.5)).toFixed(2)}</p>
                    </div>
                    <div style={{ textAlign: 'center' }}>
                      <p className="text-dim uppercase font-black" style={{ fontSize: '9px' }}>Rendimiento</p>
@@ -164,9 +172,25 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                    </div>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
-                   <button onClick={() => v.chofer_id ? onUnlink(v) : onInvite(v)} className="btn-primary" style={{ flex: 1, height: '56px' }}>
+                   <button onClick={() => v.chofer_id ? onUnlink(v) : onInvite(v)} className="btn-primary" style={{ flex: 3, height: '56px' }}>
                      {v.chofer_id ? `CHOFER: ${v.chofer_nombre}` : 'INVITAR CHOFER'}
                    </button>
+                   <div style={{ position: 'relative', flex: 1 }}>
+                     <button onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} className="btn-secondary" style={{ width: '100%', height: '56px', borderRadius: '18px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                       <MoreVertical size={24} className={activeDropdown === v.id ? 'text-primary' : 'text-white/40'} />
+                     </button>
+                     <AnimatePresence>
+                        {activeDropdown === v.id && (
+                          <Motion.div key={`DROP_MOB_${v.id}`} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="p-dropdown-menu upward" style={{ right: 0, bottom: '65px' }}>
+                             <button onClick={() => { onEdit && onEdit(v); setActiveDropdown(null); }} className="p-dropdown-item">Modificar Unidad</button>
+                             <button onClick={() => { setActiveView && setActiveView('forensic'); setActiveDropdown(null); }} className="p-dropdown-item">Auditoría</button>
+                             {v.chofer_id && <button onClick={() => { onUnlink && onUnlink(v); setActiveDropdown(null); }} className="p-dropdown-item text-danger">Desvincular Chofer</button>}
+                             <div className="p-dropdown-divider"></div>
+                             <button className="p-dropdown-item text-danger" onClick={() => { if(window.confirm('¿Eliminar unidad?')) setActiveDropdown(null); }}>Eliminar</button>
+                          </Motion.div>
+                        )}
+                     </AnimatePresence>
+                   </div>
                 </div>
               </Motion.div>
             )
