@@ -19,8 +19,39 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
-        // Get the active (most recent) incident for a specific vehicle in maintenance
         $vehiculo_id = $_GET['vehiculo_id'] ?? null;
+        $history = isset($_GET['history']);
+
+        if ($history) {
+            // Retrieve all incidents for a vehicle or the entire coop, including their aggregate costs
+            $sql = "SELECT i.*, v.placa, 
+                    (SELECT SUM(monto) FROM gastos WHERE incidencia_id = i.id) as total_gasto
+                    FROM incidencias i
+                    JOIN vehiculos v ON i.vehiculo_id = v.id
+                    WHERE v.cooperativa_id = :coop_id";
+            
+            if ($vehiculo_id) $sql .= " AND i.vehiculo_id = :vid";
+            $sql .= " ORDER BY i.created_at DESC";
+
+            $stmt = $db->prepare($sql);
+            $params = ['coop_id' => $coop_id];
+            if ($vehiculo_id) $params['vid'] = $vehiculo_id;
+            
+            $stmt->execute($params);
+            $all = $stmt->fetchAll();
+
+            // Fetch expenses for each incident in the history
+            foreach ($all as &$inc) {
+                $stmtE = $db->prepare("SELECT * FROM gastos WHERE incidencia_id = ?");
+                $stmtE->execute([$inc['id']]);
+                $inc['expenses'] = $stmtE->fetchAll();
+            }
+
+            sendResponse($all);
+            break;
+        }
+
+        // Default: Get the active (most recent) incident for a specific vehicle in maintenance
         if (!$vehiculo_id) sendResponse(['error' => 'Missing vehicle ID'], 400);
 
         $stmt = $db->prepare("SELECT i.*, v.placa, v.modelo, v.estado as vehiculo_estado
@@ -101,8 +132,8 @@ switch ($method) {
 
             // 3. Notify Driver (Telegram)
             $stmtD = $db->prepare("SELECT c.telegram_id, v.placa FROM vehiculos v JOIN choferes c ON v.chofer_id = c.id WHERE v.id = ?");
-            $stmtD.execute([$vid]);
-            $driver = $stmtD.fetch();
+            $stmtD->execute([$vid]);
+            $driver = $stmtD->fetch();
 
             if ($driver && $driver['telegram_id']) {
                 $msg = "✅ *UNIDAD LISTA PARA RUTA*\n\n" .

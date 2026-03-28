@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useApi } from '../hooks/useApi'
-import { AlertTriangle, Plus, Activity, Car, Clock, Settings, CheckCircle2, DollarSign, Pencil, RefreshCw, X, Wrench } from 'lucide-react'
+import { AlertTriangle, Plus, Activity, Car, Clock, Settings, CheckCircle2, DollarSign, Pencil, RefreshCw, X, Wrench, History } from 'lucide-react'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 import { formatNumber } from '../utils/DashboardConstants'
 
@@ -14,6 +14,8 @@ const MaintenanceCenter = () => {
   const [diagnosis, setDiagnosis] = useState('')
   const [solution, setSolution] = useState('')
   const [newItem, setNewItem] = useState({ nombre: '', frecuencia: 5000, ultimo_odometro: 0 })
+  const [showHistory, setShowHistory] = useState(false)
+  const [repairHistory, setRepairHistory] = useState([])
 
   const fetchHealth = useCallback(async () => {
     try {
@@ -23,14 +25,35 @@ const MaintenanceCenter = () => {
     } catch { /* Handled */ }
   }, [callApi])
 
+  const fetchHistory = useCallback(async () => {
+    try {
+      const res = await callApi('fleet/workshop.php?history=1')
+      setRepairHistory(Array.isArray(res) ? res : [])
+    } catch { /* Handled */ }
+  }, [callApi])
+
   useEffect(() => {
     let ignore = false
     const init = async () => {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('history') === '1') setShowHistory(true)
+      
       if (!ignore) await fetchHealth()
     }
     init()
     return () => { ignore = true }
   }, [fetchHealth])
+
+  useEffect(() => {
+    const url = new URL(window.location)
+    if (showHistory) {
+        url.searchParams.set('history', '1')
+        fetchHistory()
+    } else {
+        url.searchParams.delete('history')
+    }
+    window.history.replaceState({}, '', url)
+  }, [showHistory, fetchHistory])
 
   const fetchWorkshopIncident = async (vId) => {
     try {
@@ -132,16 +155,70 @@ const MaintenanceCenter = () => {
           <h1 className="h1-premium neon-text">Centro de Mantenimiento</h1>
           <p className="p-subtitle">Control detallado de componentes por telemetría</p>
         </div>
-        {totalCritical > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '10px 20px', borderRadius: '16px', border: '1px solid rgba(239, 68, 68, 0.1)' }} className="animate-pulse">
-            <AlertTriangle size={16} />
-            <span style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{totalCritical} ALERTAS</span>
-          </div>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <button 
+            onClick={() => setShowHistory(!showHistory)}
+            className="btn-secondary"
+            style={{ height: '42px', padding: '0 20px', fontSize: '10px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '10px', border: showHistory ? '1px solid var(--accent)' : '1px solid rgba(255,255,255,0.1)' }}
+          >
+            <History size={16} /> {showHistory ? 'VOLVER A FLOTA' : 'VER HISTORIAL'}
+          </button>
+          {totalCritical > 0 && !showHistory && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '10px 20px', borderRadius: '16px', border: '1px solid rgba(239, 68, 68, 0.1)' }} className="animate-pulse">
+              <AlertTriangle size={16} />
+              <span style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{totalCritical} ALERTAS</span>
+            </div>
+          )}
+        </div>
       </header>
 
-      {/* Fleet Grid */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+      {showHistory ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} className="animate-fade">
+            {repairHistory.length === 0 ? (
+                <div className="glass" style={{ padding: '80px', textAlign: 'center' }}>
+                    <History size={48} style={{ opacity: 0.1, marginBottom: '24px' }} />
+                    <p style={{ color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase' }}>No hay registros de reparaciones finalizadas</p>
+                </div>
+            ) : (
+                repairHistory.map((h, idx) => (
+                    <Motion.div 
+                        key={h.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="glass glass-hover"
+                        style={{ padding: '32px', display: 'grid', gridTemplateColumns: '1fr 1.5fr 1fr', gap: '32px', alignItems: 'center' }}
+                    >
+                        <div>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Vehículo</span>
+                            <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'white', marginTop: '4px' }}>{h.placa}</h3>
+                            <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 700 }}>{new Date(h.created_at).toLocaleDateString()}</p>
+                        </div>
+                        
+                        <div>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Diagnóstico & Solución</span>
+                            <p style={{ fontSize: '0.85rem', color: 'white', fontWeight: 500, marginTop: '8px', lineHeight: 1.5 }}>
+                                <span style={{ color: 'var(--warning)', fontWeight: 800 }}>D:</span> {h.diagnostico || 'Sin diagnóstico detallado'}<br/>
+                                <span style={{ color: 'var(--success)', fontWeight: 800 }}>S:</span> {h.solucion || 'Finalizado'}
+                            </p>
+                        </div>
+
+                        <div style={{ textAlign: 'right' }}>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Inversión Total</span>
+                            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: 'white', marginTop: '4px' }}>
+                                ${formatNumber(h.total_gasto || 0)}
+                            </div>
+                            <div style={{ fontSize: '0.6rem', color: 'var(--success)', fontWeight: 900, textTransform: 'uppercase' }}>
+                                {h.expenses?.length || 0} Repuestos vinculados
+                            </div>
+                        </div>
+                    </Motion.div>
+                ))
+            )}
+        </div>
+      ) : (
+        /* Fleet Grid */
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
         {safeFleet.map((v, i) => (
           <Motion.div
             key={v.id}
@@ -238,6 +315,7 @@ const MaintenanceCenter = () => {
           </Motion.div>
         ))}
       </div>
+      )}
 
       {/* Workshop Control Modal */}
       <AnimatePresence>
