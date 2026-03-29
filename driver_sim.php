@@ -296,6 +296,8 @@
 
         <!-- FORM: REPARACIÓN -->
         <div id="form-repair" class="hidden" style="margin-bottom: 20px; padding: 15px; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 16px;">
+            <label style="color: var(--success);">Odómetro Actual (KM)</label>
+            <input type="number" id="repair-odo" placeholder="Ej: 100505" style="margin-bottom: 10px;">
             <label style="color: var(--success);">Reporte de Solución</label>
             <textarea id="repair-desc" placeholder="¿Cómo se solucionó la falla?" style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #333; height: 80px;"></textarea>
             <button onclick="reportRepair()" class="btn btn-success">✅ Confirmar Unidad Operativa</button>
@@ -659,14 +661,16 @@
 
     async function reportRepair() {
         const desc = document.getElementById('repair-desc').value;
-        if (!desc) return alert('Describe cómo se solucionó.');
+        const odo = document.getElementById('repair-odo').value;
+        if (!desc || !odo) return alert('Describe cómo se solucionó e indica el odómetro.');
         
-        log(`Reportando reparación...`);
+        log(`Reportando reparación con auditoría: ${odo} KM...`);
         try {
             const res = await fetch(`${API_BASE}fleet/solucionar_incidencia.php`, {
                 method: 'POST',
                 body: JSON.stringify({
                     vehiculo_id: driverData.vehiculo_id,
+                    valor_odometro: odo,
                     solucion: desc,
                     diagnostico: 'Reparación en ruta'
                 })
@@ -674,6 +678,9 @@
             const data = await res.json();
             if (data.success) {
                 log('✅ UNIDAD DESBLOQUEADA. Puedes continuar tu ruta normalmente.');
+                if (data.audit_alert) {
+                    log('🚨 ALERTA: Se detectó discrepancia de KM. Notificación enviada al dueño.');
+                }
                 driverData.estado_unidad = 'activo';
                 if (graceTimerInterval) {
                    clearInterval(graceTimerInterval);

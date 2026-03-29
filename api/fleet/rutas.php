@@ -142,16 +142,20 @@ try {
             throw new Exception("Esta jornada ya fue finalizada anteriormente.");
         }
 
-        // 2. Fetch Start Odometer
+        // 3. Fetch Start Odometer & Last Incident Odometer (Auditoría Forense)
         $stmtOdoIn = $db->prepare("SELECT valor FROM odometros WHERE ruta_id = ? AND tipo = 'inicio'");
         $stmtOdoIn->execute([$ruta_id]);
         $start_odo = floatval($stmtOdoIn->fetchColumn() ?: 0);
+
+        $stmtOdoInc = $db->prepare("SELECT valor FROM odometros WHERE ruta_id = ? AND tipo = 'incidencia' ORDER BY created_at DESC LIMIT 1");
+        $stmtOdoInc->execute([$ruta_id]);
+        $inc_odo = $stmtOdoInc->fetchColumn();
 
         if (floatval($odo_val) < $start_odo) {
             throw new Exception("Odómetro actual ($odo_val) no puede ser menor al inicial ($start_odo).");
         }
 
-        // 3. Update Route State & Financials
+        // 4. Update Route State & Financials
         $efectivo = floatval($data['monto_efectivo'] ?? 0);
         $pagomovil = floatval($data['monto_pagomovil'] ?? 0);
         $total_pago = $efectivo + $pagomovil;
@@ -160,28 +164,19 @@ try {
         $stmtF = $db->prepare($sqlFin);
         $stmtF->execute([$efectivo, $pagomovil, $ruta_id]);
 
-        // 4. Log End Odometer
+        // 5. Log End Odometer
         $sqlOdoFin = "INSERT INTO odometros (cooperativa_id, ruta_id, valor, tipo, foto_path) VALUES (?, ?, ?, 'fin', ?)";
         $stmtO = $db->prepare($sqlOdoFin);
         $stmtO->execute([$coop_id, $ruta_id, $odo_val, $foto]);
 
-        // 5. Create Payment Record (for Forensic Audit)
-        $sqlPago = "INSERT INTO pagos_reportados (cooperativa_id, vehiculo_id, chofer_id, id_ruta, monto, monto_efectivo, monto_pagomovil, estado) VALUES (?, ?, ?, ?, ?, ?, ?, 'aprobado')";
-        $stmtP = $db->prepare($sqlPago);
-        $stmtP->execute([$coop_id, $ruta_info['vehiculo_id'], $user['user_id'], $ruta_id, $total_pago, $efectivo, $pagomovil]);
-
-        // 6. Optional: Maintenance Audit (Surgical safety)
-        try {
-            // Maintenance check
-            $stmtM = $db->prepare("SELECT * FROM mantenimiento_items WHERE vehiculo_id = ?");
-            $stmtM->execute([$ruta_info['vehiculo_id']]);
-            foreach ($stmtM->fetchAll() as $item) {
-                if ($odo_val >= (floatval($item['ultimo_odometro']) + floatval($item['frecuencia']))) {
-                    error_log("TuCooperativa INFO: Mantenimiento vencido para " . $item['nombre']);
-                }
+        // 6. Auditoría de Desplazamiento No Autorizado
+        $alerta_incumplimiento = false;
+        $km_limbo = 0;
+        if ($inc_odo !== false) {
+            $km_limbo = floatval($odo_val) - floatval($inc_odo);
+            if ($km_limbo > 5) { // Tolerancia de 5km al finalizar ruta (ej: ir a taller + garage)
+                $alerta_incumplimiento = true;
             }
-        } catch (Exception $fuelEx) {
-            error_log("TuCooperativa NON-FATAL ERROR (Maint): " . $fuelEx->getMessage());
         }
 
         $db->commit();
@@ -194,9 +189,17 @@ try {
                        "📍 Unidad: `{$ruta_info['placa']}`\n" .
                        "👤 Chofer: `{$user['nombre']}`\n" .
                        "📟 Odómetro Final: `{$odo_val}` km\n" .
-                       "🛣️ Recorrido: `{$distancia}` km\n" .
+                       "🛣️ Recorrido Total: `{$distancia}` km\n" .
                        "💰 Abono: `Bs " . ($efectivo + $pagomovil) . "`";
                 sendTelegramNotification($ruta_info['owner_tid'], $msg);
+
+                if ($alerta_incumplimiento) {
+                   $audit_msg = "🚨 *INCUMPLIMIENTO OPERATIVO DETECTADO*\n\n" .
+                                "📍 Unidad: `{$ruta_info['placa']}`\n" .
+                                "⚠️ Detalles: Se detectó un uso de *{$km_limbo} km* después de reportar una falla sin haber reportado reparación.\n" .
+                                "🔍 Este kilometraje no fue auditado durante la suspensión operativa.";
+                   sendTelegramNotification($ruta_info['owner_tid'], $audit_msg);
+                }
             }
             broadcastRealtime('REFRESH_FLEET', ['cooperativa_id' => $coop_id]);
             broadcastRealtime('REFRESH_PAYMENTS', ['cooperativa_id' => $coop_id]);
@@ -204,7 +207,7 @@ try {
             error_log("TuCooperativa Non-fatal: Notif failed. " . $e->getMessage());
         }
 
-        sendResponse(['message' => 'Jornada finalizada exitosamente', 'distancia' => ($odo_val - $start_odo)]);
+        sendResponse(['message' => 'Jornada finalizada exitosamente', 'distancia' => ($odo_val - $start_odo), 'audit_alert' => $alerta_incumplimiento]);
 
     } else {
         throw new Exception("Acción inválida: $action");
