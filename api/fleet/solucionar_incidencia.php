@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $diff_km = 0;
     if ($vehicle['odo_incidencia'] !== null) {
         $diff_km = floatval($odo_val) - floatval($vehicle['odo_incidencia']);
-        if ($diff_km > 2) { // Tolerancia de 2km para movimiento al taller
+        if ($diff_km > 20) { // Tolerancia de 20km (Ej: Tipuro -> Av. Orinoco + Prueba de manejo)
             $alerta_auditoria = true;
         }
     }

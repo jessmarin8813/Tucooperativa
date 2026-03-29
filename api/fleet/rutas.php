@@ -174,7 +174,7 @@ try {
         $km_limbo = 0;
         if ($inc_odo !== false) {
             $km_limbo = floatval($odo_val) - floatval($inc_odo);
-            if ($km_limbo > 5) { // Tolerancia de 5km al finalizar ruta (ej: ir a taller + garage)
+            if ($km_limbo > 25) { // Tolerancia de 25km (Ej: Tipuro -> Taller -> Garaje/Casa)
                 $alerta_incumplimiento = true;
             }
         }
