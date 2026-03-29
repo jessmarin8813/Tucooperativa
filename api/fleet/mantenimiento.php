@@ -26,10 +26,11 @@ switch ($method) {
         $stmt->execute(['coop_id' => $coop_id]);
         $rows = $stmt->fetchAll();
 
-        // 2. Fetch Active Incidents (Emergency/Corrective)
-        $stmtInc = $db->prepare("SELECT id, vehiculo_id, tipo, descripcion, created_at, foto_path 
-                                 FROM incidencias 
-                                 WHERE cooperativa_id = :cid AND solucion IS NULL");
+        // 2. Fetch Active Incidents (Emergency/Corrective) WITH REPORTER NAME
+        $stmtInc = $db->prepare("SELECT i.id, i.vehiculo_id, i.tipo, i.descripcion, i.created_at, i.foto_path, c.nombre as reportero_nombre 
+                                 FROM incidencias i
+                                 LEFT JOIN choferes c ON i.chofer_id = c.id
+                                 WHERE i.cooperativa_id = :cid AND i.solucion IS NULL");
         $stmtInc->execute(['cid' => $coop_id]);
         $incidents_rows = $stmtInc->fetchAll();
         

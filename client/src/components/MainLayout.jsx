@@ -10,7 +10,6 @@ const ChoferesView = lazy(() => import('../views/ChoferesView'))
 const ConfiguracionView = lazy(() => import('../views/ConfiguracionView'))
 const DriverRanking = lazy(() => import('../views/DriverRanking'))
 const BIView = lazy(() => import('../views/BIView'))
-const ExpensesView = lazy(() => import('../views/ExpensesView'))
 const CobranzaView = lazy(() => import('../views/CobranzaView'))
 const VehiculosView = lazy(() => import('../views/VehiculosView'))
 const MaintenanceCenter = lazy(() => import('../views/MaintenanceCenter'))
@@ -129,7 +128,6 @@ const MainLayout = ({ user, config, setConfig, activeView, setActiveView, onLogo
                       {activeView === 'ranking' && <DriverRanking />}
                       {activeView === 'config' && <ConfiguracionView config={config} setConfig={setConfig} />}
                       {activeView === 'bi' && <BIView />}
-                      {activeView === 'gastos' && <ExpensesView />}
                       {activeView === 'cobranza' && <CobranzaView />}
                       {activeView === 'flota' && <VehiculosView user={user} config={config} setActiveView={handleNavigate} />}
                       {activeView === 'maintenance' && <MaintenanceCenter />}

@@ -121,7 +121,14 @@ switch ($method) {
         if (!$v_id) sendResponse(['error' => 'Vehicle ID missing'], 400);
 
         try {
-            // Validate Ownership unless admin
+            // 1. Exclusivity Guard: Clear this driver from any other vehicle before assigning them
+            $new_chofer = $data['chofer_id'] ?? null;
+            if ($new_chofer) {
+                $stmtClear = $db->prepare("UPDATE vehiculos SET chofer_id = NULL WHERE chofer_id = ? AND id != ?");
+                $stmtClear->execute([$new_chofer, $v_id]);
+            }
+
+            // 2. Validate Ownership unless admin
             if ($user['rol'] === 'dueno') {
                 $stmtCheck = $db->prepare("SELECT id FROM vehiculos WHERE id = ? AND dueno_id = ?");
                 $stmtCheck->execute([$v_id, $user['user_id']]);
@@ -134,7 +141,8 @@ switch ($method) {
                                  anio = :anio, 
                                  cuota_diaria = :cuota, 
                                  km_por_litro = :km_l, 
-                                 dueno_id = :dueno_id 
+                                 dueno_id = :dueno_id,
+                                 chofer_id = :chofer_id
                                  WHERE id = :id AND cooperativa_id = :coop_id");
             
             $stmt->execute([
@@ -145,7 +153,8 @@ switch ($method) {
                 'anio' => $data['anio'] ?? date('Y'),
                 'cuota' => $data['cuota_diaria'] ?? 0,
                 'km_l' => $data['km_por_litro'] ?? 8.00,
-                'dueno_id' => $data['dueno_id'] ?? $user['user_id']
+                'dueno_id' => $data['dueno_id'] ?? $user['user_id'],
+                'chofer_id' => $new_chofer
             ]);
 
             // Real-time broadcast

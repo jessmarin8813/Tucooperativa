@@ -22,7 +22,6 @@ const Sidebar = ({ onLogout, activeView, setActiveView, config }) => {
     { id: 'maintenance', icon: Wrench, label: 'Mantenimiento' },
     { id: 'choferes', icon: UserPlus, label: 'Gestión de Choferes' },
     { id: 'cobranza', icon: CreditCard, label: 'Cobranza & Pagos' },
-    { id: 'gastos', icon: Toolbox, label: 'Gastos Operativos' },
     { id: 'bi', icon: BarChart3, label: 'Inteligencia BI' },
     { id: 'forensic', icon: ShieldAlert, label: 'Hub Forense' },
     { id: 'config', icon: Settings, label: 'Configuración' },

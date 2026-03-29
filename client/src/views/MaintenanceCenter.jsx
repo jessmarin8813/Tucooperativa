@@ -354,7 +354,7 @@ const MaintenanceCenter = () => {
             // Status Logic
             let statusColor = 'var(--success)'
             let statusLabel = 'Operativo'
-            if (hasIncidents || isAtWorkshop) { statusColor = 'var(--danger)'; statusLabel = 'Falla / Taller'; }
+            if (hasIncidents || isAtWorkshop) { statusColor = 'var(--danger)'; statusLabel = 'Falla / Auditoría'; }
             else if (hasExpired) { statusColor = 'var(--warning)'; statusLabel = 'Mantenimiento'; }
 
             return (
@@ -456,17 +456,22 @@ const MaintenanceCenter = () => {
                                      <p style={{ color: 'var(--danger)', fontWeight: 950, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '8px' }}>
                                         ACCIÓN REQUERIDA — {v.active_incidents.length} REPORTE(S) ACTIVO(S)
                                      </p>
-                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                         {v.active_incidents.map((inc, idx) => (
-                                          <p key={inc.id || idx} style={{ color: 'white', fontWeight: 600, fontSize: '0.9rem', opacity: 0.9 }}>
-                                            • {inc.descripcion}
-                                          </p>
+                                          <div key={inc.id || idx}>
+                                              <p style={{ color: 'white', fontWeight: 600, fontSize: '0.9rem', opacity: 0.9 }}>
+                                                • {inc.descripcion}
+                                              </p>
+                                              <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 800, marginLeft: '12px', marginTop: '2px' }}>
+                                                REPORTADO POR: <span style={{ color: 'var(--accent)' }}>{inc.reportero_nombre || 'SISTEMA'}</span>
+                                              </p>
+                                          </div>
                                         ))}
                                      </div>
                                   </div>
                                 </div>
                                 <button onClick={() => handleOpenWorkshop(v)} className="btn-primary" style={{ height: '56px', background: 'var(--danger)', borderRadius: '14px', fontSize: '12px', fontWeight: 950, letterSpacing: '0.05em', boxShadow: '0 15px 30px -5px rgba(239, 68, 68, 0.4)' }}>
-                                  <Wrench size={18} /> GESTIONAR REPARACIÓN INTEGRAL
+                                  <Activity size={18} /> AUDITAR Y GESTIONAR GASTOS
                                 </button>
                               </div>
                           </div>
@@ -553,7 +558,7 @@ const MaintenanceCenter = () => {
               {/* MODAL HEADER */}
               <div style={{ padding: '32px 40px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(to bottom, rgba(99, 102, 241, 0.05), transparent)' }}>
                   <div>
-                    <h2 className="neon-text" style={{ fontSize: '1.75rem', fontWeight: 950, marginBottom: '4px', letterSpacing: '-0.03em' }}>Gestión de Taller</h2>
+                    <h2 className="neon-text" style={{ fontSize: '1.75rem', fontWeight: 950, marginBottom: '4px', letterSpacing: '-0.03em' }}>Auditoría y Control</h2>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <div style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', fontSize: '10px', fontWeight: 900, color: 'var(--accent)' }}>{showWorkshopModal?.placa || '---'}</div>
                         <p style={{ color: 'var(--text-dim)', fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{showWorkshopModal?.modelo || ''}</p>
