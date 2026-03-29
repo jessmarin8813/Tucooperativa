@@ -250,11 +250,15 @@ async def handle_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if 'error' in res:
             await update.message.reply_text(f"❌ {res['error']}")
         else:
+            status_val = res.get('estado', 'activo')
+            status_label = "✅ OPERATIVO" if status_val == 'activo' else "🛠️ MANTENIMIENTO"
+            
             msg = f"🚐 **Tu Unidad Asignada**\n\n"
-            msg += f"Placa: *{res['placa']}*\n"
-            msg += f"Modelo: *{res['modelo']}*\n"
-            msg += f"Año: *{res['anio']}*\n"
-            msg += f"Cuota Diaria: *${res['cuota_diaria']}*"
+            msg += f"🔹 Placa: *{res['placa']}*\n"
+            msg += f"🔹 Estado: *{status_label}*\n"
+            msg += f"🔹 Modelo: *{res['modelo']}*\n"
+            msg += f"🔹 Año: *{res['anio']}*\n"
+            msg += f"💰 Cuota Diaria: *${res['cuota_diaria']}*"
             await update.message.reply_text(msg, parse_mode='Markdown')
 
     elif text == '🔧 AYUDA':

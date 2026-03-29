@@ -568,9 +568,14 @@
 
     async function showUnit() {
         log('Solicitando info de unidad...');
+        
+        // Formateo dinámico del estado
+        const st = driverData.estado_unidad || 'activo';
+        const stLabel = st === 'mantenimiento' ? '🛠️ MANTENIMIENTO' : '✅ OPERATIVO';
+
         const msg = `🚛 *TU UNIDAD ASIGNADA*\n\n` +
-                    `🔹 Placa: ${driverData.vehiculo_placa}\n` +
-                    `🔹 Estado: Operativo\n\n` +
+                    `🔹 Placa: ${driverData.vehiculo_placa || 'N/A'}\n` +
+                    `🔹 Estado: ${stLabel}\n\n` +
                     `Recuerda reportar cualquier falla mecánica al administrador.`;
         showBotMsg(msg);
     }

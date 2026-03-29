@@ -78,10 +78,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $db->commit();
 
     // 6. NOTIFICACIONES
-    // Notificación Estándar
+    $stLabel = ($vehicle['estado'] ?? 'activo') === 'mantenimiento' ? 'MANTENIMIENTO' : 'OPERATIVO';
     $msg = "🔧 *REPARACIÓN COMPLETADA*\n\n" .
            "📍 Unidad: `{$vehicle['placa']}`\n" .
-           "✅ Estado: *OPERATIVO*\n" .
+           "✅ Estado: *{$stLabel}*\n" .
            "📟 KM Reportado: `{$odo_val}`\n" .
            "📝 Solución: `{$solucion}`";
 
