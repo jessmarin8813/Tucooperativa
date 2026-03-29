@@ -88,13 +88,17 @@ const MaintenanceCenter = () => {
   }
 
   const handleAddSparePart = async () => {
-    if (!workshopIncident || !newExpense.monto) return
+    // We link expenses to the LATEST incident for tracking, 
+    // but in Option 1 they are all 'merged' in the owner's view.
+    const latestIncId = workshopIncident?.incidents?.[0]?.id || workshopIncident?.latest?.id
+    if (!latestIncId || !newExpense.monto) return
+    
     try {
       await callApi('fleet/workshop.php', {
         method: 'POST',
         body: JSON.stringify({ 
           action: 'add_expense', 
-          incidencia_id: workshopIncident.id,
+          incidencia_id: latestIncId,
           vehiculo_id: showWorkshopModal.id,
           monto: newExpense.monto,
           descripcion: newExpense.descripcion || 'Repuesto/Servicio'
@@ -105,17 +109,31 @@ const MaintenanceCenter = () => {
     } catch { /* Handled */ }
   }
 
+  const handleAddObservation = async (desc) => {
+    if (!desc) return
+    try {
+      await callApi('fleet/workshop.php', {
+        method: 'POST',
+        body: JSON.stringify({ 
+          action: 'add_incident_from_workshop', 
+          vehiculo_id: showWorkshopModal.id,
+          descripcion: desc
+        })
+      })
+      fetchWorkshopIncident(showWorkshopModal.id)
+    } catch { /* Handled */ }
+  }
+
   const handleFinalizeRepair = async () => {
-    if (!workshopIncident) return
+    if (!showWorkshopModal) return
     if (!window.confirm('¿Confirmas que la unidad está 100% operativa para volver a ruta?')) return
     try {
       await callApi('fleet/workshop.php', {
         method: 'POST',
         body: JSON.stringify({ 
           action: 'finalize_repair', 
-          incidencia_id: workshopIncident.id,
           vehiculo_id: showWorkshopModal.id,
-          solucion: solution || 'Reparación completada'
+          solucion: solution || 'Reparación integral completada'
         })
       })
       setShowWorkshopModal(null)
@@ -425,27 +443,32 @@ const MaintenanceCenter = () => {
                             </button>
                         </div>
 
-                        {/* 2. EMERGENCY INCIDENTS */}
+                        {/* 2. CONSOLIDATED INCIDENT CARD (Option 1) */}
                         {v.active_incidents?.length > 0 && (
                           <div style={{ marginBottom: '24px' }}>
-                            {(v.active_incidents || []).map((inc, iIdx) => (
                               <div 
-                                key={inc?.id || `inc-${v.id}-${iIdx}`} 
                                 className="glass"
-                                style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '20px', borderRadius: '20px', display: 'flex', flexDirection: 'column', gap: '16px', isolation: 'isolate' }}
+                                style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '24px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '20px', isolation: 'isolate' }}
                               >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                  <AlertTriangle size={24} color="var(--danger)" />
-                                  <div>
-                                     <p style={{ color: 'var(--danger)', fontWeight: 900, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Acción Requerida - {inc.tipo}</p>
-                                     <p style={{ color: 'white', fontWeight: 600, fontSize: '0.85rem' }}>{inc.descripcion}</p>
+                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                                  <AlertTriangle size={28} color="var(--danger)" style={{ flexShrink: 0, marginTop: '2px' }} />
+                                  <div style={{ flex: 1 }}>
+                                     <p style={{ color: 'var(--danger)', fontWeight: 950, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '8px' }}>
+                                        ACCIÓN REQUERIDA — {v.active_incidents.length} REPORTE(S) ACTIVO(S)
+                                     </p>
+                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        {v.active_incidents.map((inc, idx) => (
+                                          <p key={inc.id || idx} style={{ color: 'white', fontWeight: 600, fontSize: '0.9rem', opacity: 0.9 }}>
+                                            • {inc.descripcion}
+                                          </p>
+                                        ))}
+                                     </div>
                                   </div>
                                 </div>
-                                <button onClick={() => handleOpenWorkshop(v)} className="btn-primary" style={{ height: '48px', background: 'var(--danger)', borderRadius: '12px', fontSize: '11px', fontWeight: 900 }}>
-                                  <Wrench size={16} /> GESTIONAR EN TALLER
+                                <button onClick={() => handleOpenWorkshop(v)} className="btn-primary" style={{ height: '56px', background: 'var(--danger)', borderRadius: '14px', fontSize: '12px', fontWeight: 950, letterSpacing: '0.05em', boxShadow: '0 15px 30px -5px rgba(239, 68, 68, 0.4)' }}>
+                                  <Wrench size={18} /> GESTIONAR REPARACIÓN INTEGRAL
                                 </button>
                               </div>
-                            ))}
                           </div>
                         )}
 
@@ -536,8 +559,41 @@ const MaintenanceCenter = () => {
                         <p style={{ color: 'var(--text-dim)', fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{showWorkshopModal?.modelo || ''}</p>
                     </div>
                   </div>
-                  <button onClick={() => setShowWorkshopModal(null)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white' }}>
-                    <X size={20} />
+                  <button 
+                    onClick={() => setShowWorkshopModal(null)} 
+                    style={{ 
+                        background: 'rgba(255,255,255,0.15)', 
+                        border: '2px solid rgba(255,255,255,0.3)', 
+                        width: '42px', 
+                        height: '42px', 
+                        borderRadius: '12px', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        cursor: 'pointer', 
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        boxShadow: '0 8px 16px rgba(0,0,0,0.4)',
+                        zIndex: 10
+                    }}
+                    onMouseEnter={(e) => { 
+                        e.currentTarget.style.background = '#ef4444'; 
+                        e.currentTarget.style.transform = 'rotate(90deg) scale(1.1)';
+                        e.currentTarget.style.borderColor = '#ef4444';
+                    }}
+                    onMouseLeave={(e) => { 
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; 
+                        e.currentTarget.style.transform = 'rotate(0deg) scale(1)';
+                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
+                    }}
+                  >
+                    <span style={{ 
+                        color: 'white', 
+                        fontSize: '24px', 
+                        fontWeight: '900', 
+                        lineHeight: 1, 
+                        display: 'block',
+                        fontFamily: 'Arial, sans-serif'
+                    }}>✕</span>
                   </button>
               </div>
 
@@ -547,15 +603,34 @@ const MaintenanceCenter = () => {
                       
                       <section>
                           <h4 style={{ color: '#6366f1', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px', letterSpacing: '0.1em' }}>
-                              <AlertTriangle size={14} /> REPORTE ORIGINAL
+                              <AlertTriangle size={14} /> REPORTES ACTIVOS ({workshopIncident?.incidents?.length || 0})
                           </h4>
-                          <div className="glass" style={{ padding: '24px', borderRadius: '20px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.03)' }}>
-                              <p style={{ color: 'white', fontSize: '0.95rem', lineHeight: 1.6, fontWeight: 500 }}>{workshopIncident?.descripcion || 'No hay descripción detallada del reporte.'}</p>
-                              {workshopIncident?.foto_path && workshopIncident.foto_path !== 'uploads/no-photo.jpg' && (
-                                  <div style={{ marginTop: '20px', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
-                                      <img src={workshopIncident.foto_path} alt="Evidencia" style={{ width: '100%', height: '160px', objectFit: 'cover' }} />
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                              {(workshopIncident?.incidents || []).map((inc, incIdx) => (
+                                  <div key={inc.id || incIdx} className="glass" style={{ padding: '20px', borderRadius: '16px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.03)' }}>
+                                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                          <span style={{ fontSize: '9px', fontWeight: 950, color: 'var(--accent)', textTransform: 'uppercase' }}>{inc.tipo}</span>
+                                          <span style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)' }}>{inc.created_at ? new Date(inc.created_at).toLocaleDateString() : 'Pendiente'}</span>
+                                      </div>
+                                      <p style={{ color: 'white', fontSize: '0.9rem', lineHeight: 1.5, fontWeight: 500 }}>{inc.descripcion}</p>
+                                      {inc.foto_path && inc.foto_path !== 'uploads/no-photo.jpg' && (
+                                          <div style={{ marginTop: '12px', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                              <img src={inc.foto_path} alt="Evidencia" style={{ width: '100%', height: '100px', objectFit: 'cover' }} />
+                                          </div>
+                                      )}
                                   </div>
-                              )}
+                              ))}
+                              
+                              {/* Botón para que el dueño agregue observaciones */}
+                              <button 
+                                onClick={() => {
+                                    const val = window.prompt('Escriba el hallazgo técnico encontrado (ej: Fuga en manguera de retorno):');
+                                    if (val) handleAddObservation(val);
+                                }}
+                                style={{ padding: '12px', background: 'rgba(99, 102, 241, 0.05)', border: '1px dashed rgba(99, 102, 241, 0.3)', borderRadius: '12px', color: 'var(--primary)', fontSize: '10px', fontWeight: 950, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                              >
+                                  <Plus size={14} /> AÑADIR HALLAZGO ADICIONAL
+                              </button>
                           </div>
                       </section>
 

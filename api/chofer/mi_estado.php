@@ -12,62 +12,50 @@ $user_id = $user['user_id'];
 $coop_id = $user['cooperativa_id'];
 $bcv_rate = get_bcv_rate();
 
-// 1. INTENTO DE BUSCAR RUTA ACTIVA (Y DATOS DE FLOTA)
-$sql = "SELECT 
-    v.id as vehiculo_id, v.placa, v.cuota_diaria, v.estado as estado_unidad,
-    (SELECT COUNT(DISTINCT DATE(started_at)) FROM rutas WHERE vehiculo_id = v.id AND chofer_id = :uid1 AND estado != 'exonerada') as dias,
-    (SELECT COALESCE(SUM(monto), 0) FROM pagos_reportados WHERE chofer_id = :uid2 AND estado = 'aprobado') as abonos,
-    (SELECT COALESCE(SUM(monto), 0) FROM pagos_reportados WHERE chofer_id = :uid3 AND estado = 'pendiente') as pendientes,
-    (SELECT o.valor FROM odometros o JOIN rutas r2 ON o.ruta_id = r2.id WHERE r2.vehiculo_id = v.id ORDER BY o.created_at DESC LIMIT 1) as ultimo_km,
-    c.banco_nombre, c.banco_tipo, c.banco_identidad, c.banco_telefono
-    FROM vehiculos v
-    JOIN cooperativas c ON v.cooperativa_id = c.id
-    JOIN rutas r ON r.vehiculo_id = v.id
-    WHERE r.chofer_id = :uid4 AND r.estado = 'activa'
-    LIMIT 1";
+// 1. OBTENER DATOS BÁSICOS DEL VEHÍCULO Y COOPERATIVA (SIEMPRE DISPONIBLES)
+$sql_base = "SELECT v.id as vehiculo_id, v.placa, v.cuota_diaria, v.estado as estado_unidad,
+            c.banco_nombre, c.banco_tipo, c.banco_identidad, c.banco_telefono, c.id as coop_id
+            FROM vehiculos v
+            JOIN cooperativas c ON v.cooperativa_id = c.id
+            WHERE v.chofer_id = :uid_base 
+            LIMIT 1";
+$stmt = $db->prepare($sql_base);
+$stmt->execute(['uid_base' => $user_id]);
+$base_data = $stmt->fetch();
 
-$stmt = $db->prepare($sql);
-$stmt->execute(['uid1' => $user_id, 'uid2' => $user_id, 'uid3' => $user_id, 'uid4' => $user_id]);
-$data = $stmt->fetch();
+// 2. BUSCAR RUTA ACTIVA PARA DATOS DINÁMICOS (DEUDA, KM)
+$data = $base_data ?: ['placa' => 'N/A', 'estado_unidad' => 'activo'];
+$data['ruta_activa'] = false;
 
-if (!$data) {
-    // 2. FALLBACK: BUSCAR VEHÍCULO ASIGNADO DIRECTAMENTE (PARA CHOFERES SIN RUTAS)
-    $sql_fallback = "SELECT v.placa, v.estado as estado_unidad, c.banco_nombre, c.banco_tipo, c.banco_identidad, c.banco_telefono 
-                    FROM vehiculos v 
-                    JOIN cooperativas c ON v.cooperativa_id = c.id
-                    WHERE v.chofer_id = :uid_fb 
-                    LIMIT 1";
-    $stmt = $db->prepare($sql_fallback);
-    $stmt->execute(['uid_fb' => $user_id]);
-    $data = $stmt->fetch();
-    
-    // Si aún no hay nada (chofer no asignado a unidad), buscar su última ruta conocida
-    if (!$data) {
-        $sql_last_route = "SELECT v.placa, v.estado as estado_unidad, c.banco_nombre, c.banco_tipo, c.banco_identidad, c.banco_telefono 
-                          FROM rutas r 
-                          JOIN vehiculos v ON r.vehiculo_id = v.id 
-                          JOIN cooperativas c ON v.cooperativa_id = c.id
-                          WHERE r.chofer_id = :uid_lr 
-                          ORDER BY r.started_at DESC LIMIT 1";
-        $stmt = $db->prepare($sql_last_route);
-        $stmt->execute(['uid_lr' => $user_id]);
-        $data = $stmt->fetch();
+if ($base_data) {
+    $sql_route = "SELECT id, started_at FROM rutas WHERE chofer_id = :uid_r AND vehiculo_id = :vid AND estado = 'activa' LIMIT 1";
+    $stmtR = $db->prepare($sql_route);
+    $stmtR->execute(['uid_r' => $user_id, 'vid' => $base_data['vehiculo_id']]);
+    $active_route = $stmtR->fetch();
+
+    if ($active_route) {
+        $data['ruta_activa'] = true;
+        // Calcular datos de deuda solo si hay ruta o historial
+        $stmtStats = $db->prepare("SELECT 
+            (SELECT COUNT(DISTINCT DATE(started_at)) FROM rutas WHERE vehiculo_id = :v1 AND chofer_id = :u1 AND estado != 'exonerada') as dias,
+            (SELECT COALESCE(SUM(monto), 0) FROM pagos_reportados WHERE chofer_id = :u2 AND estado = 'aprobado') as abonos,
+            (SELECT COALESCE(SUM(monto), 0) FROM pagos_reportados WHERE chofer_id = :u3 AND estado = 'pendiente') as pendientes,
+            (SELECT o.valor FROM odometros o WHERE o.ruta_id = :rid ORDER BY o.created_at DESC LIMIT 1) as ultimo_km
+            ");
+        $stmtStats->execute(['v1' => $base_data['vehiculo_id'], 'u1' => $user_id, 'u2' => $user_id, 'u3' => $user_id, 'rid' => $active_route['id']]);
+        $stats = $stmtStats->fetch();
+        
+        $data = array_merge($data, $stats);
     }
-    
-    // Si después de todo, no hay nada:
-    if (!$data) {
-        $data = ['placa' => 'N/A'];
-        // Obtener datos banca de la cooperativa del chofer directamente si falló lo demás
-        $stmt_c = $db->prepare("SELECT banco_nombre, banco_tipo, banco_identidad, banco_telefono FROM cooperativas WHERE id = ?");
-        $stmt_c->execute([$coop_id]);
-        $coop_data = $stmt_c->fetch();
-        if ($coop_data) {
-            $data = array_merge($data, $coop_data);
-        }
-    }
-    
-    $data['ruta_activa'] = false;
-    $data['deuda_bs'] = 0;
+}
+
+if (!$base_data && !$data['ruta_activa']) {
+    // Si no tiene vehículo asignado, buscar última ruta para al menos mostrar la placa anterior
+    $sql_last = "SELECT v.placa, v.estado as estado_unidad FROM rutas r JOIN vehiculos v ON r.vehiculo_id = v.id WHERE r.chofer_id = ? ORDER BY r.started_at DESC LIMIT 1";
+    $stmtL = $db->prepare($sql_last);
+    $stmtL->execute([$user_id]);
+    $last = $stmtL->fetch();
+    if ($last) $data = array_merge($data, $last);
 } else {
     $deuda = ($data['dias'] * $data['cuota_diaria']) - $data['abonos'];
     $data['deuda_bs'] = max(0, $deuda);

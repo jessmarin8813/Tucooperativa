@@ -345,8 +345,8 @@
             const graceBox = document.getElementById('grace-period-box');
 
             if (driverData.estado_unidad === 'mantenimiento') {
-                stBadge.innerText = 'UNIDAD CON FALLA';
-                stBadge.style.color = '#f59e0b';
+                stBadge.innerText = '🛠️ MANTENIMIENTO';
+                stBadge.style.color = '#ef4444'; // Red-600 for attention
                 btnIssue.classList.add('hidden');
                 btnRepair.classList.remove('hidden');
                 graceBox.classList.remove('hidden');

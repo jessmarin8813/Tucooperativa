@@ -21,8 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         sendResponse(['error' => 'Usuario no vinculado'], 401);
     }
 
-    // 2. Identificar su vehículo Inactivo
-    $stmt = $db->prepare("SELECT id FROM vehiculos WHERE chofer_id = ? AND estado = 'inactivo' LIMIT 1");
+    // 2. Identificar su vehículo en Mantenimiento
+    $stmt = $db->prepare("SELECT id FROM vehiculos WHERE chofer_id = ? AND estado = 'mantenimiento' LIMIT 1");
     $stmt->execute([$user['id']]);
     $vehicle = $stmt->fetch();
 

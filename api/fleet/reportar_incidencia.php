@@ -40,8 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         throw new Exception("El kilometraje (odómetro) es obligatorio para reportar una falla.");
     }
 
-    // 3. ACTUALIZAR ESTADO DEL VEHÍCULO (A mantenimiento pero NO cerrar ruta)
-    // Buscamos el vehículo (por chofer si no hay ruta activa, aunque lo ideal es que esté en ruta)
+    // 3. IDENTIFICAR Y CARGAR VEHÍCULO (PARA NOTIFICACIÓN Y AUDITORÍA)
     if (!$v_id) {
        $stmtV = $db->prepare("SELECT id FROM vehiculos WHERE chofer_id = ? LIMIT 1");
        $stmtV->execute([$chofer['id']]);
@@ -50,17 +49,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$v_id) throw new Exception("No se encontró vehículo asignado para este reporte.");
 
+    // Cargar datos extendidos del vehículo para la notificación al dueño
+    $stmtVData = $db->prepare("SELECT v.*, u.telegram_chat_id as owner_tid 
+                              FROM vehiculos v 
+                              LEFT JOIN usuarios u ON v.dueno_id = u.id 
+                              WHERE v.id = ?");
+    $stmtVData->execute([$v_id]);
+    $vehicle = $stmtVData->fetch();
+
+    if (!$vehicle) throw new Exception("Error al cargar datos del vehículo.");
+
     $db->beginTransaction();
 
-    $stmtUpd = $db->prepare("UPDATE vehiculos SET estado = 'mantenimiento' WHERE id = ?");
-    $stmtUpd->execute([$v_id]);
+    // 4. ACTUALIZAR ESTADO DEL VEHÍCULO
+    if ($vehicle['estado'] !== 'mantenimiento') {
+        $stmtUpd = $db->prepare("UPDATE vehiculos SET estado = 'mantenimiento', status_changed_at = NOW() WHERE id = ?");
+        $stmtUpd->execute([$v_id]);
+    }
 
-    // 4. LOG ODOMETRO DE INCIDENCIA (Auditoría Forense)
+    // 5. LOG ODOMETRO DE INCIDENCIA (Auditoría Forense)
     $sqlOdo = "INSERT INTO odometros (cooperativa_id, ruta_id, valor, tipo, foto_path) VALUES (?, ?, ?, 'incidencia', ?)";
     $stmtO = $db->prepare($sqlOdo);
-    $stmtO->execute([$chofer['cooperativa_id'], $ruta_id, $odo_val, $data['foto_path'] ?? '']);
+    $stmtO->execute([$chofer['cooperativa_id'], $ruta_id, $odo_val, $foto]);
 
-    // 5. Registrar Incidencia
+    // 6. Registrar Incidencia
     $stmt = $db->prepare("INSERT INTO incidencias (cooperativa_id, vehiculo_id, chofer_id, tipo, descripcion, foto_path) 
                           VALUES (?, ?, ?, ?, ?, ?)");
     $stmt->execute([
@@ -72,13 +84,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $foto
     ]);
 
-    // 4. BLOQUEO DE UNIDAD: Estado Inactivo por Mantenimiento
-    $stmt = $db->prepare("UPDATE vehiculos SET estado = 'mantenimiento' WHERE id = ?");
-    $stmt->execute([$vehicle['id']]);
+    $db->commit();
 
-    // 5. NOTIFICAR AL DUEÑO (Telegram)
-    // Se notifica la falla pero se indica que la jornada SIGUE ACTIVA (Grace Period)
-    if ($vehicle['owner_tid']) {
+    // 7. NOTIFICAR AL DUEÑO (Telegram)
+    if (!empty($vehicle['owner_tid'])) {
         $msg = "📢 *REPORTE DE INCIDENCIA*\n\n" .
                "📍 Unidad: `{$vehicle['placa']}`\n" .
                "👤 Chofer: `{$chofer['nombre']}`\n" .
@@ -89,10 +98,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         sendTelegramNotification($vehicle['owner_tid'], $msg);
     }
 
-    // 6. BROADCAST REALTIME (Hub)
+    // 8. BROADCAST REALTIME (Hub)
     broadcastRealtime('REFRESH_FLEET', ['cooperativa_id' => $chofer['cooperativa_id']]);
     broadcastRealtime('UPDATE_VEHICLE_STATUS', [
-        'vehiculo_id' => $vehicle['id'],
+        'vehiculo_id' => $v_id,
         'placa' => $vehicle['placa'],
         'estado' => 'mantenimiento'
     ]);

@@ -120,7 +120,7 @@ async def get_dynamic_menu(update: Update):
     # Chofer Logic
     status = api.get_my_status()
     # Verificamos si la unidad está bloqueada por falla
-    if status.get('estado_unidad') == 'inactivo':
+    if status.get('estado_unidad') == 'mantenimiento':
         keyboard = [['✅ REPARACIÓN FINALIZADA'], ['📊 MI ESTADO / DEUDA'], ['🔧 AYUDA']]
         return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
