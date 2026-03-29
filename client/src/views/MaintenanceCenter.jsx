@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useApi } from '../hooks/useApi'
-import { AlertTriangle, Plus, Activity, Car, Clock, Settings, CheckCircle2, DollarSign, Pencil, RefreshCw, X, Wrench, History } from 'lucide-react'
+import { AlertTriangle, Plus, Activity, Car, Clock, Settings, CheckCircle2, DollarSign, Pencil, RefreshCw, X, Wrench, History, ChevronRight } from 'lucide-react'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 import { formatNumber } from '../utils/DashboardConstants'
 
