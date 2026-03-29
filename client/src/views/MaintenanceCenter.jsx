@@ -7,6 +7,7 @@ import { formatNumber } from '../utils/DashboardConstants'
 const MaintenanceCenter = () => {
   const { callApi } = useApi()
   const [fleetHealth, setFleetHealth] = useState([])
+  const [serviceCatalog, setServiceCatalog] = useState([])
   const [showAddModal, setShowAddModal] = useState(null)
   const [showWorkshopModal, setShowWorkshopModal] = useState(null) // holds vehicle object
   const [workshopIncident, setWorkshopIncident] = useState(null)
@@ -20,8 +21,9 @@ const MaintenanceCenter = () => {
   const fetchHealth = useCallback(async () => {
     try {
       const res = await callApi('mantenimiento.php')
-      const rawData = res?.data || res
-      setFleetHealth(Array.isArray(rawData) ? rawData : [])
+      const data = res?.data || res
+      setFleetHealth(data.health_report || [])
+      setServiceCatalog(data.catalog || [])
     } catch { /* Handled */ }
   }, [callApi])
 
@@ -132,7 +134,7 @@ const MaintenanceCenter = () => {
   const handleAddItem = async () => {
     if (!newItem.nombre) return
     try {
-      await callApi('mantenimiento.php', {
+      const res = await callApi('mantenimiento.php', {
         method: 'POST',
         body: JSON.stringify({ 
           action: 'add_item', 
@@ -140,10 +142,18 @@ const MaintenanceCenter = () => {
           ...newItem
         })
       })
+      
+      if (res?.error) {
+        alert(res.error)
+        return
+      }
+
       setShowAddModal(null)
       setNewItem({ nombre: '', frecuencia: 5000, ultimo_odometro: 0 })
       fetchHealth()
-    } catch { /* Handled */ }
+    } catch (err) {
+      if (err.data?.error) alert(err.data.error)
+    }
   }
 
   const safeFleet = Array.isArray(fleetHealth) ? fleetHealth : []
@@ -295,17 +305,29 @@ const MaintenanceCenter = () => {
                     <Motion.div initial={{ width: 0 }} animate={{ width: `${item.progreso}%` }} style={{ height: '100%', background: item.estado === 'critico' ? 'var(--danger)' : item.estado === 'advertencia' ? 'var(--warning)' : 'var(--success)' }} />
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', fontSize: '11px' }}>
-                    <span style={{ color: 'var(--text-dim)', fontWeight: 800 }}>Remanente</span>
-                    <span style={{ color: item.estado === 'critico' ? 'var(--danger)' : 'white', fontWeight: 900 }}>{formatNumber(item.km_restantes)} KM</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>REMANENTE</span>
+                      <span style={{ 
+                        fontSize: '1.5rem', 
+                        fontWeight: 950, 
+                        color: item.estado === 'critico' ? '#ff4d4d' : '#00f2ff',
+                        textShadow: item.estado === 'critico' ? '0 0 15px rgba(255, 77, 77, 0.4)' : '0 0 15px rgba(0, 242, 255, 0.4)',
+                        letterSpacing: '-0.02em',
+                        lineHeight: 1.1,
+                        marginTop: '4px'
+                      }}>
+                        {formatNumber(item.km_restantes)} <small style={{ fontSize: '0.7rem', opacity: 0.7 }}>KM</small>
+                      </span>
+                    </div>
                   </div>
 
                   <button 
                     onClick={() => handleReset(item.id, v.odometro_actual)}
                     className={item.estado === 'critico' ? 'btn-primary' : 'btn-secondary'}
-                    style={{ width: '100%', height: '52px', borderRadius: '16px', fontSize: '11px', fontWeight: 950, textTransform: 'uppercase', background: item.estado === 'critico' ? '#fff' : 'rgba(255,255,255,0.05)', color: item.estado === 'critico' ? '#000' : '#fff', border: item.estado === 'critico' ? 'none' : '1px solid rgba(255,255,255,0.1)' }}
+                    style={{ width: '100%', height: '56px', borderRadius: '18px', fontSize: '12px', fontWeight: 950, textTransform: 'uppercase', background: item.estado === 'critico' ? '#fff' : 'rgba(255,255,255,0.05)', color: item.estado === 'critico' ? '#000' : '#fff', border: item.estado === 'critico' ? 'none' : '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                   >
-                    <Activity size={16} /> REGISTRAR SERVICIO
+                    <Activity size={18} /> REGISTRAR SERVICIO
                   </button>
                 </div>
               ))}
@@ -447,13 +469,17 @@ const MaintenanceCenter = () => {
                 <div>
                   <label style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '8px' }}>Nombre del Servicio</label>
                   <input 
+                    list="services-list"
                     type="text" 
-                    placeholder="Ej: Cambio de Aceite, Frenos..."
+                    placeholder="Seleccione o escriba un servicio..."
                     value={newItem.nombre}
                     onChange={(e) => setNewItem({...newItem, nombre: e.target.value})}
                     className="glass"
-                    style={{ padding: '16px', background: 'rgba(0,0,0,0.2)', color: 'white', width: '100%', fontWeight: 800, outline: 'none' }}
+                    style={{ padding: '16px', background: 'rgba(0,0,0,0.5)', color: 'white', width: '100%', fontWeight: 800, outline: 'none', border: '1px solid rgba(255,255,255,0.1)' }}
                   />
+                  <datalist id="services-list">
+                    {serviceCatalog.map(s => <option key={s} value={s} />)}
+                  </datalist>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                   <div>
@@ -463,7 +489,7 @@ const MaintenanceCenter = () => {
                       value={newItem.frecuencia}
                       onChange={(e) => setNewItem({...newItem, frecuencia: e.target.value})}
                       className="glass"
-                      style={{ padding: '16px', background: 'rgba(0,0,0,0.2)', color: 'white', width: '100%', fontWeight: 800, outline: 'none' }}
+                      style={{ padding: '16px', background: 'rgba(0,0,0,0.5)', color: 'white', width: '100%', fontWeight: 800, outline: 'none', border: '1px solid rgba(255,255,255,0.1)' }}
                     />
                   </div>
                   <div>
@@ -473,7 +499,7 @@ const MaintenanceCenter = () => {
                       value={newItem.ultimo_odometro}
                       onChange={(e) => setNewItem({...newItem, ultimo_odometro: e.target.value})}
                       className="glass"
-                      style={{ padding: '16px', background: 'rgba(0,0,0,0.2)', color: 'white', width: '100%', fontWeight: 800, outline: 'none' }}
+                      style={{ padding: '16px', background: 'rgba(0,0,0,0.5)', color: 'white', width: '100%', fontWeight: 800, outline: 'none', border: '1px solid rgba(255,255,255,0.1)' }}
                     />
                   </div>
                 </div>

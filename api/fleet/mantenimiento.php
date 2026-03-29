@@ -38,7 +38,12 @@ switch ($method) {
             $incidents_by_vehicle[$inc['vehiculo_id']][] = $inc;
         }
 
-        // 3. Group and Calculate Health Report
+        // 3. Fetch Global Catalog for the cooperative
+        $stmtCat = $db->prepare("SELECT nombre FROM mantenimiento_catalogo WHERE cooperativa_id = ? ORDER BY nombre ASC");
+        $stmtCat->execute([$coop_id]);
+        $catalog = $stmtCat->fetchAll(PDO::FETCH_COLUMN);
+
+        // 4. Group and Calculate Health Report
         $health_report = [];
         foreach ($rows as $r) {
             $vid = $r['vehiculo_id'];
@@ -79,7 +84,10 @@ switch ($method) {
             }
         }
 
-        sendResponse(array_values($health_report));
+        sendResponse([
+            'health_report' => array_values($health_report),
+            'catalog' => $catalog
+        ]);
         break;
 
     case 'POST':
@@ -104,12 +112,24 @@ switch ($method) {
             sendResponse(['message' => 'Servicio registrado correctamente']);
         } elseif ($action === 'add_item') {
             $vid = $data['vehiculo_id'] ?? null;
-            $nombre = $data['nombre'] ?? '';
+            $nombre = trim($data['nombre'] ?? '');
             $frecuencia = $data['frecuencia'] ?? 5000;
             $ultimo_odo = $data['ultimo_odometro'] ?? 0;
 
             if (!$vid || !$nombre) sendResponse(['error' => 'Faltan campos'], 400);
 
+            // 1. Sync with Global Catalog
+            $stmtCat = $db->prepare("INSERT IGNORE INTO mantenimiento_catalogo (cooperativa_id, nombre) VALUES (?, ?)");
+            $stmtCat->execute([$coop_id, $nombre]);
+
+            // 2. Check for item duplication in THIS unit
+            $stmtCheck = $db->prepare("SELECT id FROM mantenimiento_items WHERE vehiculo_id = ? AND LOWER(nombre) = LOWER(?)");
+            $stmtCheck->execute([$vid, $nombre]);
+            if ($stmtCheck->fetch()) {
+                sendResponse(['error' => "Ya existe un recordatorio de '{$nombre}' para esta unidad."], 409);
+            }
+
+            // 3. Create Item
             $stmt = $db->prepare("INSERT INTO mantenimiento_items (vehiculo_id, nombre, frecuencia, ultimo_odometro) 
                                  VALUES (:vid, :nombre, :frec, :odo)");
             $stmt->execute(['vid' => $vid, 'nombre' => $nombre, 'frec' => $frecuencia, 'odo' => $ultimo_odo]);
