@@ -13,19 +13,32 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
-        // Fetch all vehicles with their maintenance items
-        $stmt = $db->prepare("SELECT v.id as vehiculo_id, v.placa, v.modelo, v.estado,
-                             (SELECT valor FROM odometros WHERE cooperativa_id = v.cooperativa_id AND ruta_id IN (SELECT id FROM rutas WHERE vehiculo_id = v.id) ORDER BY created_at DESC LIMIT 1) as odometro_actual,
-                             m.id as item_id, m.nombre, m.frecuencia, m.ultimo_odometro,
-                             (SELECT SUM(monto) FROM gastos WHERE mantenimiento_item_id = m.id) as total_gastado
-                             FROM vehiculos v
-                             LEFT JOIN mantenimiento_items m ON v.id = m.vehiculo_id
-                             WHERE v.cooperativa_id = :coop_id");
+        // 1. Fetch all vehicles with their calculated progress & incident status
+        $sql = "SELECT v.id as vehiculo_id, v.placa, v.modelo, v.estado,
+                     (SELECT valor FROM odometros WHERE cooperativa_id = v.cooperativa_id AND ruta_id IN (SELECT id FROM rutas WHERE vehiculo_id = v.id) ORDER BY created_at DESC LIMIT 1) as odometro_actual,
+                     m.id as item_id, m.nombre, m.frecuencia, m.ultimo_odometro,
+                     (SELECT SUM(monto) FROM gastos WHERE mantenimiento_item_id = m.id) as total_gastado
+                FROM vehiculos v
+                LEFT JOIN mantenimiento_items m ON v.id = m.vehiculo_id
+                WHERE v.cooperativa_id = :coop_id";
+        
+        $stmt = $db->prepare($sql);
         $stmt->execute(['coop_id' => $coop_id]);
         $rows = $stmt->fetchAll();
 
+        // 2. Fetch Active Incidents (Emergency/Corrective)
+        $stmtInc = $db->prepare("SELECT id, vehiculo_id, tipo, descripcion, created_at, foto_path 
+                                 FROM incidencias 
+                                 WHERE cooperativa_id = ? AND solucion IS NULL");
+        $stmtInc->execute([$coop_id]);
+        $incidents_rows = $stmtInc->fetchAll();
+        
+        $incidents_by_vehicle = [];
+        foreach ($incidents_rows as $inc) {
+            $incidents_by_vehicle[$inc['vehiculo_id']][] = $inc;
+        }
 
-        // Group items by vehicle
+        // 3. Group and Calculate Health Report
         $health_report = [];
         foreach ($rows as $r) {
             $vid = $r['vehiculo_id'];
@@ -36,7 +49,8 @@ switch ($method) {
                     'modelo' => $r['modelo'],
                     'estado' => $r['estado'],
                     'odometro_actual' => floatval($r['odometro_actual'] ?? 0),
-                    'items' => []
+                    'items' => [],
+                    'active_incidents' => $incidents_by_vehicle[$vid] ?? []
                 ];
             }
 
@@ -62,7 +76,6 @@ switch ($method) {
                     'km_restantes' => max(0, $freq - $km_since),
                     'total_gastado' => floatval($r['total_gastado'] ?? 0)
                 ];
-
             }
         }
 
