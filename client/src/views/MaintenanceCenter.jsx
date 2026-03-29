@@ -227,7 +227,7 @@ const MaintenanceCenter = () => {
             style={{ padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', outline: 'none', border: filterMode === 'all' ? '1px solid var(--success)' : '1px solid rgba(255,255,255,0.05)', background: filterMode === 'all' ? 'rgba(16, 185, 129, 0.05)' : 'rgba(255,255,255,0.02)' }}
           >
             <CheckCircle2 size={20} color={stats.ok > 0 ? 'var(--success)' : 'var(--text-dim)'} />
-            <span style={{ fontSize: '10px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase' }}>Sanos</span>
+            <span style={{ fontSize: '10px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase' }}>Al día</span>
             <span style={{ fontSize: '1.5rem', fontWeight: 950, color: 'white' }}>{stats.ok}</span>
           </button>
         </div>
