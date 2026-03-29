@@ -29,8 +29,8 @@ switch ($method) {
         // 2. Fetch Active Incidents (Emergency/Corrective)
         $stmtInc = $db->prepare("SELECT id, vehiculo_id, tipo, descripcion, created_at, foto_path 
                                  FROM incidencias 
-                                 WHERE cooperativa_id = ? AND solucion IS NULL");
-        $stmtInc->execute([$coop_id]);
+                                 WHERE cooperativa_id = :cid AND solucion IS NULL");
+        $stmtInc->execute(['cid' => $coop_id]);
         $incidents_rows = $stmtInc->fetchAll();
         
         $incidents_by_vehicle = [];
@@ -39,8 +39,8 @@ switch ($method) {
         }
 
         // 3. Fetch Global Catalog for the cooperative
-        $stmtCat = $db->prepare("SELECT nombre FROM mantenimiento_catalogo WHERE cooperativa_id = ? ORDER BY nombre ASC");
-        $stmtCat->execute([$coop_id]);
+        $stmtCat = $db->prepare("SELECT nombre FROM mantenimiento_catalogo WHERE cooperativa_id = :cid ORDER BY nombre ASC");
+        $stmtCat->execute(['cid' => $coop_id]);
         $catalog = $stmtCat->fetchAll(PDO::FETCH_COLUMN);
 
         // 4. Group and Calculate Health Report
@@ -119,12 +119,12 @@ switch ($method) {
             if (!$vid || !$nombre) sendResponse(['error' => 'Faltan campos'], 400);
 
             // 1. Sync with Global Catalog
-            $stmtCat = $db->prepare("INSERT IGNORE INTO mantenimiento_catalogo (cooperativa_id, nombre) VALUES (?, ?)");
-            $stmtCat->execute([$coop_id, $nombre]);
+            $stmtCat = $db->prepare("INSERT IGNORE INTO mantenimiento_catalogo (cooperativa_id, nombre) VALUES (:cid, :name)");
+            $stmtCat->execute(['cid' => $coop_id, 'name' => $nombre]);
 
             // 2. Check for item duplication in THIS unit
-            $stmtCheck = $db->prepare("SELECT id FROM mantenimiento_items WHERE vehiculo_id = ? AND LOWER(nombre) = LOWER(?)");
-            $stmtCheck->execute([$vid, $nombre]);
+            $stmtCheck = $db->prepare("SELECT id FROM mantenimiento_items WHERE vehiculo_id = :vid AND LOWER(nombre) = LOWER(:name)");
+            $stmtCheck->execute(['vid' => $vid, 'name' => $nombre]);
             if ($stmtCheck->fetch()) {
                 sendResponse(['error' => "Ya existe un recordatorio de '{$nombre}' para esta unidad."], 409);
             }
