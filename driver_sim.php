@@ -620,6 +620,7 @@
 
     async function checkCurrentStatus() {
         if (!driverData) return;
+        try {
             const res = await fetch(`${API_BASE}chofer/mi_estado.php?telegram_id=${driverData.id}`);
             const data = await res.json();
             
