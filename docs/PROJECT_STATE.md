@@ -1,29 +1,32 @@
-# 🛡️ TuCooperativa - PROJECT STATE (v36.5.20-STABLE / MAINTENANCE-ADVANCED)
+# 🛡️ TuCooperativa - PROJECT STATE (v36.5.31-TRIAGE / EXCEPTION-HUB)
 
 ## 📊 Resumen Ejecutivo
-- **Versión**: 36.5.20-Stable (Advanced Telemetry & Visual Precision).
-- **Estado**: **CERTIFICACIÓN TOTAL DE INTEGRIDAD**.
-- **Última Auditoría**: Master Build v5.1 (Passed 2026-03-28 09:20).
-- **Branding**: TuCooperativa Neon Brand + Clinical Mastery Grid (Active).
+- **Versión**: 36.5.31-Triage (Exception-Based Fleet Management).
+- **Estado**: **CONSOLA DE TRIAGE OPERATIVA**.
+- **Última Auditoría**: OMNI-GUARD v5.0 (Passed 2026-03-29 11:15).
+- **Branding**: Triage Dashboard + Telemetría Neón (Al día / Vencidos / Fallas).
 
 ## 🛠️ Componentes Críticos
-- **Centro de Mantenimiento (v2.0)**: 
-    - Telemetría dinámica: Cálculo de **Próximo Servicio** por odómetro absoluto.
-    - Identidad Visual: Encabezados premium `{Modelo} · {Placa}`.
-    - UI: Sombras y resplandores (glow) en estados críticos.
-- **API Mantenimiento**: 
-    - Bug corregido en el reseteo de odómetros (v36.5.20).
-    - Mapeo de modelos de vehículos integrado en el reporte de salud.
-- **Seguridad**: Saneamiento SQL en Auditoría Forense certificado.
+- **Consola de Triage (v3.0)**: 
+    - Gestión por Excepción: Oculta unidades "Al día" por defecto para priorizar urgencias.
+    - Filtros Exclusivos: Fallas (Incidencias/Taller) y Vencidos (Preventivos).
+    - Terminología: Unidades operativas marcadas como **"Al día"**.
+- **Catálogo Global (`mantenimiento_catalogo`)**: 
+    - Estandarización de nombres de servicios compartida por toda la flota.
+- **Auditoría Forense de Odómetros**: 
+    - Bloqueo de rutas y desbloqueo de taller validados contra odómetro físico (Tolerancia 20-25km).
+- **API Mantenimiento & Workshop**: 
+    - Repositorio centralizado en `mantenimiento.php` y `fleet/workshop.php`.
 
 ## 📌 Mapa de Ruta Inmediato
-1.  **Bot Simulator**:
-    *   Verificar comportamiento del simulador cuando una unidad es reactivada desde el taller.
-2.  **Dashboard Finance**:
-    *   Añadir métrica de "Costo Promedio por Incidencia" en la vista de Business Intelligence.
+1.  **Dashboard Finance**:
+    *   Integrar los gastos de taller (expenses) en el flujo de caja global.
+2.  **Mobile Triage UX**:
+    *   Añadir gestos táctiles (swipe) para archivar mantenimientos rápidos.
 
 ## ⚠️ Puntos de Atención
 - El ID de vista para el centro de mantenimiento es **`maintenance`**.
+- La carpeta `.gemini/antigravity` tiene un respaldo en Documents por seguridad de sistema.
 
 ---
-*Documento sellado tras Integración de Telemetría Avanzada v36.5.20-Stable (2026-03-28 09:22:00)*
+*Documento sellado tras Integración de Triage Inteligente v36.5.31-Triage (2026-03-29 11:28:00)*

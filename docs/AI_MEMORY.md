@@ -2,37 +2,38 @@
 
 Este archivo es el **Cerebro Central** del proyecto. El siguiente agente DEBE leer esto antes de tocar una sola línea de código.
 
-## 📌 Contexto de la Misión (v36.5.20-Stable)
-SaaS para gestión de cooperativas de transporte. El sistema ha alcanzado una **Certificación de Integridad Sistémica** tras una auditoría profunda.
+## 📌 Contexto de la Misión (v36.5.31-TRIAGE)
+SaaS para gestión de cooperativas de transporte. El sistema ha evolucionado de un listado pasivo a una **Consola de Triage Activa** basada en el principio de Gestión por Excepción.
 
 ## 🏗️ Reglas de Oro (Innegociables)
-1.  **Identidad de Marca**: El logo es el texto **"TuCooperativa"** con estilo `neon-text brand`.
-2.  **Clinical Grid Architecture**: El módulo de flota para PC usa una rejilla matemática de **35% 20% 20% 25%**. 
-3.  **Workshop Logic**: El ID oficial de la vista de mantenimiento es **`maintenance`**. Soporta sub-vistas persistentes (`?history=1`).
-4.  **Zero-Collision UI**: En `MaintenanceCenter.jsx`, cabeceras premium `{Modelo} · {Placa}`.
-5.  **Build Protocol**: NUNCA des por terminada una tarea sin ejecutar `python build_system.py`.
-6.  **Advanced Skill Usage**: Consulta siempre `.agent/skills/`. Específicamente `Security-Guard-PHP` para backend y `standard-ui-guard` para frontend.
+1.  **Triage First**: La vista por defecto de Mantenimiento oculta unidades operativas para priorizar Fallas y Vencidos.
+2.  **Branding Neón**: El logo es el texto **"TuCooperativa"** con estilo `neon-text brand`.
+3.  **Terminology**: Las unidades saludables se etiquetan profesionalmente como **"Al día"**.
+4.  **Workshop IDs**: El ID oficial de la vista de mantenimiento es **`maintenance`**. Sub-vistas persistentes (`?history=1`).
+5.  **Exclusive Filtering**: Los filtros del dashboard (Fallas, Vencidos, Al día) son estrictamente excluyentes.
+6.  **Build Protocol**: NUNCA des por terminada una tarea sin ejecutar `python build_system.py`. (OMNI-GUARD v5.0).
+7.  **Defensive UI**: Todo acceso a arreglos en `MaintenanceCenter.jsx` debe usar `?.length` y `|| []`.
 
 ## 🛠️ Arsenal de Skills Premium (.agent/skills/)
-El sistema cuenta con un ecosistema de herramientas automatizadas corregidas y configuradas para este repositorio (v36.5.20):
-- **Backend & Seguridad**: `API-Detective-PHP`, `Security-Guard-PHP`.
+El sistema cuenta con un ecosistema de herramientas automatizadas corregidas y configuradas para este repositorio (v36.5.31):
+- **Backend & Seguridad**: `API-Detective-PHP`, `Security-Guard-PHP` (Audit Forense v2.0).
 - **Base de Datos**: `Database-Schema-Doctor` (Fix: Path Singleton).
-- **Frontend & UI**: `standard-ui-guard` (Cumplimiento Regla #2).
+- **Frontend & UI**: `standard-ui-guard` (Cumplimiento de Reglas Pro).
 - **Bots**: `Bot-Python-Medic` (Diagnóstico de Telegram OK).
 
-## 🚀 Estado Exacto del Desarrollo (Handover v36.5.20+)
-- **Hito (Marzo 2026)**: **Telemetría Avanzada**. Cálculo de "Próximo Servicio" por odómetro absoluto y visualización de Modelo de vehículo integrada.
-- **Hito (Marzo 2026)**: **Hardening de Seguridad**. Saneamiento total de `audit_forensic.php` con PDO Prepared Statements tras detectar SQLi en auditoría.
-- **Hito (Marzo 2026)**: **Auditoría de Reparaciones**. Historial de incidencias con desglose de costos agregado por ID de incidencia.
-- **Hito (Marzo 2026)**: **Persistencia de Navegación**. Whitelist sincronizada en `App.jsx` que mantiene estados entre sesiones.
+## 🚀 Hitos de la Versión v36.5.31 (Cierre de Marzo 2026)
+- **Hito: Consola de Triage**. Rediseño Mobile-First con contadores neonatales y filtros por excepción.
+- **Hito: Catálogo Global**. Estandarización de servicios de mantenimiento para evitar duplicados.
+- **Hito: Odómetro Forense**. Validación obligatoria de odómetros en cierre de rutas y salida de taller (Tolerancia 20-25km).
+- **Hito: Estabilidad Crítica**. Corrección de errores de renderizado en React y "removeChild" crashes mediante defensiva total.
 
 ## 🛠️ Herramientas de Ejecución
-- **Build System**: `python build_system.py` (Vite Build + Integrity Audit + Master Sync).
+- **Build System**: `python build_system.py` (OMNI-GUARD Certified).
 - **Workshop API**: `api/fleet/workshop.php`.
 - **Maintenance API**: `api/fleet/mantenimiento.php`.
 
 ---
 > [!IMPORTANT]
 > **ORDEN PARA EL SIGUIENTE AGENTE**:
-> El sistema está en un estado de **Estabilidad Máxima**. Si se reinicia la sesión, lee `docs/PROJECT_STATE.md` y `docs/AI_MEMORY.md` para retomar el "hilo" v36.5.20 sin pérdida de contexto.
+> El sistema está en un estado de **Alta Disponibilidad Operativa (v36.5.31)**. Lee `docs/PROJECT_STATE.md` para el mapa de ruta y `docs/AI_MEMORY.md` para no romper la lógica de Triage.
 
