@@ -160,8 +160,9 @@ const MaintenanceCenter = () => {
   const safeFleet = Array.isArray(fleetHealth) ? fleetHealth : []
   
   const stats = safeFleet.reduce((acc, v) => {
-      const hasIncidents = v.active_incidents?.length > 0
-      const hasExpired = (v.items || []).some(i => i.estado === 'critico')
+      if (!v) return acc
+      const hasIncidents = (v.active_incidents || []).length > 0
+      const hasExpired = (v.items || []).some(i => i?.estado === 'critico')
       const isAtWorkshop = v.estado === 'mantenimiento'
       
       if (hasIncidents) acc.incidents++
@@ -172,9 +173,10 @@ const MaintenanceCenter = () => {
   }, { incidents: 0, expired: 0, ok: 0 })
 
   const filteredFleet = safeFleet.filter(v => {
+      if (!v) return false
       if (filterMode === 'all') return true
-      const hasIncidents = v.active_incidents?.length > 0
-      const hasExpired = (v.items || []).some(i => i.estado === 'critico')
+      const hasIncidents = (v.active_incidents || []).length > 0
+      const hasExpired = (v.items || []).some(i => i?.estado === 'critico')
       const isAtWorkshop = v.estado === 'mantenimiento'
       
       if (filterMode === 'fallas') return hasIncidents || isAtWorkshop
@@ -240,15 +242,15 @@ const MaintenanceCenter = () => {
       {showHistory ? (
         /* History Case... unchanged logic */
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} className="animate-fade">
-            {repairHistory.length === 0 ? (
+            {(repairHistory || []).length === 0 ? (
                 <div className="glass" style={{ padding: '80px', textAlign: 'center' }}>
                     <History size={48} style={{ opacity: 0.1, marginBottom: '24px' }} />
                     <p style={{ color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase' }}>No hay registros de reparaciones finalizadas</p>
                 </div>
             ) : (
-                repairHistory.map((h, idx) => (
+                (repairHistory || []).map((h, idx) => (
                     <Motion.div 
-                        key={h.id}
+                        key={h?.id || `hist-${idx}`}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: idx * 0.05 }}
@@ -297,7 +299,8 @@ const MaintenanceCenter = () => {
              </div>
           )}
           {filteredFleet.map((v, i) => {
-            const hasIssues = v.active_incidents?.length > 0 || (v.items || []).some(i => i.estado === 'critico') || v.estado === 'mantenimiento'
+            if (!v) return null
+            const hasIssues = (v.active_incidents || []).length > 0 || (v.items || []).some(i => i?.estado === 'critico') || v.estado === 'mantenimiento'
             
             if (!hasIssues && filterMode !== 'all') return null
 
@@ -338,9 +341,9 @@ const MaintenanceCenter = () => {
             {/* 2. EMERGENCY INCIDENTS (High Visibility) */}
             {v.active_incidents?.length > 0 && (
               <div style={{ marginBottom: '24px' }}>
-                {v.active_incidents.map(inc => (
+                {(v.active_incidents || []).map((inc, iIdx) => (
                   <Motion.div 
-                    key={inc.id} 
+                    key={inc?.id || `inc-${v.id}-${iIdx}`} 
                     animate={{ scale: [1, 1.02, 1] }} 
                     transition={{ repeat: Infinity, duration: 2 }}
                     className="glass"
@@ -364,8 +367,8 @@ const MaintenanceCenter = () => {
             {/* 3. PREVENTIVE TASKS (Only show in 'issues' or if unit has alerts) */}
             {(hasIssues || filterMode === 'all') && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
-              {(v?.items || []).map((item) => (
-                <div key={item.id} className="glass" style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px' }}>
+              {(v?.items || []).map((item, itIdx) => (
+                <div key={item?.id || `item-${v.id}-${itIdx}`} className="glass" style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                     <div>
                       <h4 style={{ fontSize: '1rem', fontWeight: 950, color: 'white' }}>{item.nombre}</h4>
@@ -498,10 +501,10 @@ const MaintenanceCenter = () => {
 
                               {/* Expense List */}
                               <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                 {workshopIncident?.expenses?.map(exp => (
-                                     <div key={exp.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 16px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', fontSize: '0.8rem' }}>
-                                         <span style={{ color: 'var(--text-dim)', fontWeight: 700 }}>{exp.descripcion}</span>
-                                         <span style={{ color: 'white', fontWeight: 900 }}>${formatNumber(exp.monto)}</span>
+                                 {(workshopIncident?.expenses || []).map((exp, eIdx) => (
+                                     <div key={exp?.id || `exp-${eIdx}`} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 16px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', fontSize: '0.8rem' }}>
+                                         <span style={{ color: 'var(--text-dim)', fontWeight: 700 }}>{exp?.descripcion}</span>
+                                         <span style={{ color: 'white', fontWeight: 900 }}>${formatNumber(exp?.monto || 0)}</span>
                                      </div>
                                  ))}
                                  {(!workshopIncident?.expenses || workshopIncident.expenses.length === 0) && (
