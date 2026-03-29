@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                "👤 Chofer: `{$chofer['nombre']}`\n" .
                "⚠️ Falla: *{$tipo}*\n" .
                "📝 Detalle: `{$desc}`\n" .
-               "⏳ *PERIODO DE GRACIA (60 MIN)*\n" .
+               "⏳ *PERIODO DE GRACIA (90 MIN)*\n" .
                "La jornada sigue activa. El chofer debe reportar la reparación o cerrar la ruta manualmente.";
         sendTelegramNotification($vehicle['owner_tid'], $msg);
     }
@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'success' => true, 
         'message' => 'Falla reportada. Periodo de gracia iniciado.',
         'vehiculo_placa' => $vehicle['placa'],
-        'grace_period_minutes' => 60
+        'grace_period_minutes' => 90
     ]);
 }
 ?>

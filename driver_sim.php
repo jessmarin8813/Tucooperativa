@@ -161,6 +161,12 @@
             padding: 4px 10px;
             border-radius: 8px;
         }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
     </style>
 </head>
 <body>
@@ -228,9 +234,9 @@
 
         <!-- ALERTA DE GRACIA -->
         <div id="grace-period-box" class="grace-alert hidden">
-            <div class="timer-box" id="grace-timer">60:00</div>
-            <div>
-                <strong>PERIODO DE GRACIA</strong><br>
+            <div class="timer-box" id="grace-timer">90:00</div>
+            <div id="grace-msg">
+                <strong>PERIODO DE GRACIA (90 MIN)</strong><br>
                 Reporta la reparación antes de que expire el tiempo.
             </div>
         </div>
@@ -371,18 +377,32 @@
     let graceTimerInterval = null;
     function startGraceTimer() {
         if (graceTimerInterval) return;
-        let sec = 3600; // 60 min
+        let sec = 5400; // 90 min
         const timerEl = document.getElementById('grace-timer');
-        
+        const graceBox = document.getElementById('grace-period-box');
+        const graceMsg = document.getElementById('grace-msg');
+        const endBtn = document.getElementById('btn-journey-toggle');
+
         graceTimerInterval = setInterval(() => {
             sec--;
             let mins = Math.floor(sec / 60);
             let s = sec % 60;
             timerEl.innerText = `${mins}:${s < 10 ? '0' : ''}${s}`;
+            
+            if (sec <= 300) { // Last 5 mins warning
+                timerEl.style.color = "var(--danger)";
+            }
+
             if (sec <= 0) {
                 clearInterval(graceTimerInterval);
                 timerEl.innerText = "EXPIRÓ";
-                timerEl.style.color = "var(--danger)";
+                graceBox.style.background = "rgba(239, 68, 68, 0.1)";
+                graceBox.style.borderColor = "var(--danger)";
+                graceMsg.innerHTML = "<strong>TIEMPO AGOTADO</strong><br>La unidad sigue fallando. Debes finalizar la jornada.";
+                
+                // Highlight end journey button
+                endBtn.style.animation = "pulse 1s infinite";
+                log("⚠️ Tiempo de gracia agotado. Se requiere finalizar jornada.");
             }
         }, 1000);
     }
@@ -623,10 +643,10 @@
             });
             const data = await res.json();
             if (data.success) {
-                log('📢 Reporte enviado. Iniciado periodo de gracia de 60 min.');
+                log('📢 Reporte enviado. Iniciado periodo de gracia de 90 min.');
                 driverData.estado_unidad = 'mantenimiento';
                 showBotMsg(`⚠️ *FALLA REPORTADA*\n\n` +
-                           `Su jornada SIGUE ACTIVA. Tiene 60 minutos para reportar la solución del problema.\n\n` +
+                           `Su jornada SIGUE ACTIVA. Tiene 90 minutos para reportar la solución del problema.\n\n` +
                            `Si no reporta la solución, la unidad quedará bloqueada al finalizar la ruta.`);
                 hideForms();
                 updateUI();
