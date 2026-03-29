@@ -176,6 +176,10 @@ const MaintenanceCenter = () => {
       const hasIncidents = v.active_incidents?.length > 0
       const hasExpired = (v.items || []).some(i => i.estado === 'critico')
       const isAtWorkshop = v.estado === 'mantenimiento'
+      
+      if (filterMode === 'fallas') return hasIncidents || isAtWorkshop
+      if (filterMode === 'vencidos') return hasExpired
+      
       return hasIncidents || hasExpired || isAtWorkshop
   })
 
@@ -202,9 +206,9 @@ const MaintenanceCenter = () => {
       {!showHistory && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '32px' }}>
           <button 
-            onClick={() => setFilterMode('issues')}
-            className={`glass ${filterMode === 'issues' ? 'border-primary' : ''}`}
-            style={{ padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', outline: 'none', border: filterMode === 'issues' ? '1px solid var(--danger)' : '1px solid rgba(255,255,255,0.05)', background: filterMode === 'issues' ? 'rgba(239, 68, 68, 0.05)' : 'rgba(255,255,255,0.02)' }}
+            onClick={() => setFilterMode('fallas')}
+            className={`glass ${filterMode === 'fallas' ? 'border-primary' : ''}`}
+            style={{ padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', outline: 'none', border: filterMode === 'fallas' ? '1px solid var(--danger)' : '1px solid rgba(255,255,255,0.05)', background: filterMode === 'fallas' ? 'rgba(239, 68, 68, 0.05)' : 'rgba(255,255,255,0.02)' }}
           >
             <AlertTriangle size={20} color={stats.incidents > 0 ? 'var(--danger)' : 'var(--text-dim)'} />
             <span style={{ fontSize: '10px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase' }}>Fallas</span>
@@ -212,9 +216,9 @@ const MaintenanceCenter = () => {
           </button>
           
           <button 
-            onClick={() => setFilterMode('issues')}
-            className="glass"
-            style={{ padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', outline: 'none', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}
+            onClick={() => setFilterMode('vencidos')}
+            className={`glass ${filterMode === 'vencidos' ? 'border-primary' : ''}`}
+            style={{ padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', outline: 'none', border: filterMode === 'vencidos' ? '1px solid var(--warning)' : '1px solid rgba(255,255,255,0.05)', background: filterMode === 'vencidos' ? 'rgba(245, 158, 11, 0.05)' : 'rgba(255,255,255,0.02)' }}
           >
             <Wrench size={20} color={stats.expired > 0 ? 'var(--warning)' : 'var(--text-dim)'} />
             <span style={{ fontSize: '10px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase' }}>Vencidos</span>
