@@ -174,13 +174,15 @@ const MaintenanceCenter = () => {
 
   const filteredFleet = safeFleet.filter(v => {
       if (!v) return false
-      if (filterMode === 'all') return true
       const hasIncidents = (v.active_incidents || []).length > 0
       const hasExpired = (v.items || []).some(i => i?.estado === 'critico')
       const isAtWorkshop = v.estado === 'mantenimiento'
       
+      const isHealthy = !(hasIncidents || hasExpired || isAtWorkshop)
+
       if (filterMode === 'fallas') return hasIncidents || isAtWorkshop
       if (filterMode === 'vencidos') return hasExpired
+      if (filterMode === 'all') return isHealthy // "Al día" means ONLY healthy/operational
       
       return hasIncidents || hasExpired || isAtWorkshop
   })
