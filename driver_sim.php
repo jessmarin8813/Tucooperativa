@@ -140,6 +140,27 @@
             margin-bottom: 20px;
             white-space: pre-wrap;
         }
+
+        .grace-alert {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px dashed #f59e0b;
+            padding: 15px;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            color: #f59e0b;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .timer-box {
+            font-weight: 900;
+            font-size: 1.2rem;
+            background: rgba(245, 158, 11, 0.2);
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
@@ -205,12 +226,22 @@
 
         <div id="bot-response" class="bot-msg hidden"></div>
 
+        <!-- ALERTA DE GRACIA -->
+        <div id="grace-period-box" class="grace-alert hidden">
+            <div class="timer-box" id="grace-timer">60:00</div>
+            <div>
+                <strong>PERIODO DE GRACIA</strong><br>
+                Reporta la reparación antes de que expire el tiempo.
+            </div>
+        </div>
+
         <div class="bot-menu">
             <button onclick="showStatus()" class="btn btn-primary" style="background: #3b82f6; font-size: 0.8rem;">📊 MI DEUDA</button>
             <button onclick="showUnit()" class="btn btn-primary" style="background: #6366f1; font-size: 0.8rem;">🚐 MI UNIDAD</button>
             <button onclick="showPaymentForm()" class="btn btn-primary" style="background: #10b981; font-size: 0.8rem;">💰 REPORTAR PAGO</button>
             <button onclick="toggleJourneyForm()" class="btn btn-primary" id="btn-journey-toggle" style="background: #f59e0b; font-size: 0.8rem;">🚛 INICIAR JORNADA</button>
-            <button onclick="showIssueForm()" class="btn btn-danger" style="font-size: 0.8rem; grid-column: span 2; margin-top: 10px;">⚠️ REPORTAR FALLA UNIDAD</button>
+            <button onclick="showIssueForm()" class="btn btn-danger" id="btn-report-issue" style="font-size: 0.8rem; grid-column: span 2; margin-top: 10px;">⚠️ REPORTAR FALLA UNIDAD</button>
+            <button onclick="showRepairForm()" class="btn btn-success hidden" id="btn-report-repair" style="font-size: 0.8rem; grid-column: span 2; margin-top: 10px;">✅ REPORTAR REPARACIÓN</button>
         </div>
 
 
@@ -250,16 +281,16 @@
         <!-- FORM: FALLA -->
         <div id="form-issue" class="hidden" style="margin-bottom: 20px; padding: 15px; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 16px;">
             <label style="color: var(--danger);">Tipo de Falla</label>
-            <select id="issue-type" style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #333;">
-                <option value="mecanica">Falla Mecánica</option>
-                <option value="caucho">Caucho / Neumático</option>
-                <option value="electrica">Falla Eléctrica</option>
-                <option value="choque">Accidente / Choque</option>
-                <option value="otro">Otro</option>
-            </select>
-            <label>Descripción Detallada</label>
-            <textarea id="issue-desc" style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #333; height: 80px;"></textarea>
+            <textarea id="issue-desc" placeholder="Describe brevemente el problema..." style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #333; height: 80px;"></textarea>
             <button onclick="reportIssue()" class="btn btn-danger">Enviar Reporte de Emergencia</button>
+            <button onclick="hideForms()" class="btn btn-danger" style="background: rgba(255,255,255,0.05); margin-top: 10px; font-size: 0.75rem;">❌ CANCELAR</button>
+        </div>
+
+        <!-- FORM: REPARACIÓN -->
+        <div id="form-repair" class="hidden" style="margin-bottom: 20px; padding: 15px; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 16px;">
+            <label style="color: var(--success);">Reporte de Solución</label>
+            <textarea id="repair-desc" placeholder="¿Cómo se solucionó la falla?" style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #333; height: 80px;"></textarea>
+            <button onclick="reportRepair()" class="btn btn-success">✅ Confirmar Unidad Operativa</button>
             <button onclick="hideForms()" class="btn btn-danger" style="background: rgba(255,255,255,0.05); margin-top: 10px; font-size: 0.75rem;">❌ CANCELAR</button>
         </div>
 
@@ -297,27 +328,63 @@
             viewPanel.classList.remove('hidden');
             document.getElementById('driver-name').innerText = driverData.nombre;
             
+            // 1. Estado de la Unidad (Bloqueo/Gracia)
+            const stBadge = document.getElementById('driver-status');
+            const btnIssue = document.getElementById('btn-report-issue');
+            const btnRepair = document.getElementById('btn-report-repair');
+            const graceBox = document.getElementById('grace-period-box');
+
+            if (driverData.estado_unidad === 'mantenimiento') {
+                stBadge.innerText = 'UNIDAD CON FALLA';
+                stBadge.style.color = '#f59e0b';
+                btnIssue.classList.add('hidden');
+                btnRepair.classList.remove('hidden');
+                graceBox.classList.remove('hidden');
+                startGraceTimer();
+            } else {
+                stBadge.innerText = driverData.is_active ? 'En Ruta' : 'Descansando';
+                stBadge.style.color = driverData.is_active ? '#10b981' : 'rgba(255,255,255,0.4)';
+                btnIssue.classList.remove('hidden');
+                btnRepair.classList.add('hidden');
+                graceBox.classList.add('hidden');
+            }
+
+            // 2. Botón de Jornada
             if (driverData.is_active) {
                 idleActions.classList.add('hidden');
                 activeActions.classList.remove('hidden');
-                document.getElementById('driver-status').innerText = 'En Ruta';
-                document.getElementById('driver-status').style.color = '#10b981';
                 document.getElementById('btn-journey-toggle').innerText = '🏁 FINALIZAR RUTA';
                 document.getElementById('btn-journey-toggle').style.background = 'var(--danger)';
             } else {
                 idleActions.classList.remove('hidden');
                 activeActions.classList.add('hidden');
-                document.getElementById('driver-status').innerText = 'Descansando';
-                document.getElementById('driver-status').style.color = 'rgba(255,255,255,0.4)';
                 document.getElementById('btn-journey-toggle').innerText = '🚛 INICIAR JORNADA';
                 document.getElementById('btn-journey-toggle').style.background = '#f59e0b';
             }
-
 
             if (driverData.vehiculo_placa) {
                 document.getElementById('vehiculo-input').value = driverData.vehiculo_placa;
             }
         }
+    }
+
+    let graceTimerInterval = null;
+    function startGraceTimer() {
+        if (graceTimerInterval) return;
+        let sec = 3600; // 60 min
+        const timerEl = document.getElementById('grace-timer');
+        
+        graceTimerInterval = setInterval(() => {
+            sec--;
+            let mins = Math.floor(sec / 60);
+            let s = sec % 60;
+            timerEl.innerText = `${mins}:${s < 10 ? '0' : ''}${s}`;
+            if (sec <= 0) {
+                clearInterval(graceTimerInterval);
+                timerEl.innerText = "EXPIRÓ";
+                timerEl.style.color = "var(--danger)";
+            }
+        }, 1000);
     }
 
     async function registerDriver() {
@@ -501,6 +568,11 @@
         document.getElementById('form-issue').classList.remove('hidden');
     }
 
+    function showRepairForm() {
+        hideForms();
+        document.getElementById('form-repair').classList.remove('hidden');
+    }
+
     function toggleJourneyForm() {
         hideForms();
         document.getElementById('form-journey').classList.remove('hidden');
@@ -518,33 +590,77 @@
         document.getElementById('form-payment').classList.add('hidden');
         document.getElementById('form-journey').classList.add('hidden');
         document.getElementById('form-issue').classList.add('hidden');
+        document.getElementById('form-repair').classList.add('hidden');
         document.getElementById('bot-response').classList.add('hidden');
     }
 
+    async function checkCurrentStatus() {
+        if (!driverData) return;
+        try {
+            const res = await fetch(`${API_BASE}chofer/mi_estado.php?telegram_id=${driverData.id}`);
+            const data = await res.json();
+            
+            driverData.estado_unidad = data.estado_unidad; // Viene de mi_estado.php (agregado por middleware o query)
+            driverData.is_active = data.ruta_activa;
+            updateUI();
+        } catch (e) { console.error("Sync failed", e); }
+    }
+
     async function reportIssue() {
-        const type = document.getElementById('issue-type').value;
         const desc = document.getElementById('issue-desc').value;
         if (!desc) return alert('Describe la falla.');
         
-        log(`Reportando falla crítica: ${type}...`);
+        log(`Reportando falla única: ${desc.substring(0,15)}...`);
         try {
             const res = await fetch(`${API_BASE}fleet/reportar_incidencia.php`, {
                 method: 'POST',
                 body: JSON.stringify({
                     telegram_id: driverData.id,
-                    tipo: type,
+                    tipo: 'Mecánica', // Simplificado según usuario
                     descripcion: desc,
                     foto_path: 'uploads/sim_falla.jpg'
                 })
             });
             const data = await res.json();
             if (data.success) {
-                log('🚨 UNIDAD BLOQUEADA. Reporte enviado al administrador.');
-                showBotMsg(`⚠️ *REPORTE DE FALLA ENVIADO*\n\n` +
-                           `Su unidad ha sido marcada como INACTIVA hasta que se valide la reparación.\n\n` +
-                           `💰 Cuota sugerida: Bs ${data.suggested_quota}\n` +
-                           `👮 Reporte ID: ${data.ruta_id || 'N/A'}`);
+                log('📢 Reporte enviado. Iniciado periodo de gracia de 60 min.');
+                driverData.estado_unidad = 'mantenimiento';
+                showBotMsg(`⚠️ *FALLA REPORTADA*\n\n` +
+                           `Su jornada SIGUE ACTIVA. Tiene 60 minutos para reportar la solución del problema.\n\n` +
+                           `Si no reporta la solución, la unidad quedará bloqueada al finalizar la ruta.`);
                 hideForms();
+                updateUI();
+            } else { log(`❌ Error: ${data.error}`); }
+        } catch (e) { log('❌ Error de comunicación.'); }
+    }
+
+    async function reportRepair() {
+        const desc = document.getElementById('repair-desc').value;
+        if (!desc) return alert('Describe cómo se solucionó.');
+        
+        log(`Reportando reparación...`);
+        try {
+            const res = await fetch(`${API_BASE}fleet/solucionar_incidencia.php`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    vehiculo_id: driverData.vehiculo_id,
+                    solucion: desc,
+                    diagnostico: 'Reparación en ruta'
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                log('✅ UNIDAD DESBLOQUEADA. Puedes continuar tu ruta normalmente.');
+                driverData.estado_unidad = 'activo';
+                if (graceTimerInterval) {
+                   clearInterval(graceTimerInterval);
+                   graceTimerInterval = null;
+                }
+                showBotMsg(`🔧 *REPARACIÓN CONFIRMADA*\n\n` +
+                           `Su unidad está nuevamente OPERATIVA.\n\n` +
+                           `Gracias por reportar.`);
+                hideForms();
+                updateUI();
             } else { log(`❌ Error: ${data.error}`); }
         } catch (e) { log('❌ Error de comunicación.'); }
     }

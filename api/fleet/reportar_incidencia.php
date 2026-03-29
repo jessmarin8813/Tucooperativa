@@ -55,34 +55,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $db->prepare("UPDATE vehiculos SET estado = 'mantenimiento' WHERE id = ?");
     $stmt->execute([$vehicle['id']]);
 
-    // 5. Gestión de Ruta Activa e Interrupción
-    $stmt = $db->prepare("SELECT id, started_at, (SELECT cuota_diaria FROM vehiculos WHERE id = rutas.vehiculo_id) as cuota 
-                          FROM rutas WHERE chofer_id = ? AND estado = 'activa' LIMIT 1");
-    $stmt->execute([$chofer['id']]);
-    $active_route = $stmt->fetch();
-
-    $suggested_quota = 0;
-    if ($active_route) {
-        $start = strtotime($active_route['started_at']);
-        $diff_hours = (time() - $start) / 3600;
-        $suggested_quota = ($diff_hours < 4) ? $active_route['cuota'] * 0.5 : $active_route['cuota'];
-
-        $stmtU = $db->prepare("UPDATE rutas SET estado = 'finalizada', observacion = ? WHERE id = ?");
-        $stmtU->execute(["Interrumpida por falla ($tipo): " . $desc, $active_route['id']]);
-    }
-
-    // 6. NOTIFICAR AL DUEÑO (Telegram)
+    // 5. NOTIFICAR AL DUEÑO (Telegram)
+    // Se notifica la falla pero se indica que la jornada SIGUE ACTIVA (Grace Period)
     if ($vehicle['owner_tid']) {
         $msg = "📢 *REPORTE DE INCIDENCIA*\n\n" .
                "📍 Unidad: `{$vehicle['placa']}`\n" .
                "👤 Chofer: `{$chofer['nombre']}`\n" .
                "⚠️ Falla: *{$tipo}*\n" .
                "📝 Detalle: `{$desc}`\n" .
-               "🚫 *UNIDAD BLOQUEADA HASTA REPARACIÓN*";
+               "⏳ *PERIODO DE GRACIA (60 MIN)*\n" .
+               "La jornada sigue activa. El chofer debe reportar la reparación o cerrar la ruta manualmente.";
         sendTelegramNotification($vehicle['owner_tid'], $msg);
     }
 
-    // 7. BROADCAST REALTIME (Hub)
+    // 6. BROADCAST REALTIME (Hub)
     broadcastRealtime('REFRESH_FLEET', ['cooperativa_id' => $chofer['cooperativa_id']]);
     broadcastRealtime('UPDATE_VEHICLE_STATUS', [
         'vehiculo_id' => $vehicle['id'],
@@ -92,9 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     sendResponse([
         'success' => true, 
-        'message' => 'Falla reportada. Unidad BLOQUEADA.',
-        'suggested_quota' => $suggested_quota,
-        'vehiculo_placa' => $vehicle['placa']
+        'message' => 'Falla reportada. Periodo de gracia iniciado.',
+        'vehiculo_placa' => $vehicle['placa'],
+        'grace_period_minutes' => 60
     ]);
 }
 ?>

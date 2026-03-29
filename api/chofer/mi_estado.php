@@ -32,7 +32,7 @@ $data = $stmt->fetch();
 
 if (!$data) {
     // 2. FALLBACK: BUSCAR VEHÍCULO ASIGNADO DIRECTAMENTE (PARA CHOFERES SIN RUTAS)
-    $sql_fallback = "SELECT v.placa, c.banco_nombre, c.banco_tipo, c.banco_identidad, c.banco_telefono 
+    $sql_fallback = "SELECT v.placa, v.estado as estado_unidad, c.banco_nombre, c.banco_tipo, c.banco_identidad, c.banco_telefono 
                     FROM vehiculos v 
                     JOIN cooperativas c ON v.cooperativa_id = c.id
                     WHERE v.chofer_id = :uid_fb 
@@ -43,7 +43,7 @@ if (!$data) {
     
     // Si aún no hay nada (chofer no asignado a unidad), buscar su última ruta conocida
     if (!$data) {
-        $sql_last_route = "SELECT v.placa, c.banco_nombre, c.banco_tipo, c.banco_identidad, c.banco_telefono 
+        $sql_last_route = "SELECT v.placa, v.estado as estado_unidad, c.banco_nombre, c.banco_tipo, c.banco_identidad, c.banco_telefono 
                           FROM rutas r 
                           JOIN vehiculos v ON r.vehiculo_id = v.id 
                           JOIN cooperativas c ON v.cooperativa_id = c.id
@@ -87,5 +87,6 @@ sendResponse([
     'pendientes' => floatval($data['pendientes'] ?? 0),
     'ultimo_km' => $data['ultimo_km'] ?? 0,
     'datos_bancarios' => $pago_info,
-    'ruta_activa' => ($data['ruta_activa'] ?? false)
+    'ruta_activa' => ($data['ruta_activa'] ?? false),
+    'estado_unidad' => $data['estado_unidad'] ?? 'activo'
 ]);
