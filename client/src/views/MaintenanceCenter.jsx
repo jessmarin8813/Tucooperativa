@@ -586,27 +586,48 @@ const MaintenanceCenter = () => {
                               </div>
                           </div>
 
-                          <div className="glass" style={{ padding: '24px', borderRadius: '28px', background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                              {/* Formulario de Entrada */}
-                              <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
-                                  <div style={{ position: 'relative', width: '90px' }}>
-                                      <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)', fontWeight: 900 }}>$</span>
+                          <div className="glass" style={{ padding: '24px', borderRadius: '28px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.05)', boxSizing: 'border-box' }}>
+                              {/* Formulario de Entrada Modernizado */}
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '24px', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.03)', alignItems: 'center' }}>
+                                  <div style={{ position: 'relative', width: '85px', flexShrink: 0 }}>
+                                      <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)', fontWeight: 900 }}>$</span>
                                       <input 
                                          type="number" placeholder="0.00" 
                                          value={newExpense.monto} onChange={(e) => setNewExpense({...newExpense, monto: e.target.value})}
-                                         style={{ width: '100%', background: '#05070a', border: '1px solid rgba(255,255,255,0.1)', padding: '14px 12px 14px 26px', borderRadius: '14px', color: 'white', fontWeight: 900, outline: 'none' }}
+                                         style={{ width: '100%', background: '#05070a', border: '1px solid rgba(99, 102, 241, 0.3)', padding: '12px 10px 12px 24px', borderRadius: '10px', color: 'white', fontWeight: 900, outline: 'none', fontSize: '0.9rem' }}
                                       />
                                   </div>
-                                  <input 
-                                     type="text" placeholder="¿Qué se compró / qué labor se hizo?" 
-                                     value={newExpense.descripcion} onChange={(e) => setNewExpense({...newExpense, descripcion: e.target.value})}
-                                     style={{ flex: 1, background: '#05070a', border: '1px solid rgba(255,255,255,0.1)', padding: '14px 18px', borderRadius: '14px', color: 'white', fontWeight: 600, outline: 'none' }}
-                                  />
-                                  <button onClick={handleAddSparePart} style={{ width: '52px', height: '52px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 10px 20px -5px rgba(99, 102, 241, 0.4)' }}><Plus size={24} /></button>
+                                  <div style={{ flex: '1', minWidth: '150px' }}>
+                                      <input 
+                                         type="text" placeholder="Repuesto / Labor..." 
+                                         value={newExpense.descripcion} onChange={(e) => setNewExpense({...newExpense, descripcion: e.target.value})}
+                                         style={{ width: '100%', background: '#05070a', border: '1px solid rgba(255,255,255,0.05)', padding: '12px 14px', borderRadius: '10px', color: 'white', fontWeight: 600, outline: 'none', fontSize: '0.85rem' }}
+                                      />
+                                  </div>
+                                  <button 
+                                    onClick={handleAddSparePart} 
+                                    className="btn-primary"
+                                    style={{ 
+                                        width: '44px', 
+                                        height: '44px', 
+                                        borderRadius: '10px', 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        justifyContent: 'center', 
+                                        cursor: 'pointer',
+                                        flexShrink: 0,
+                                        padding: 0,
+                                        background: 'var(--primary)',
+                                        border: 'none',
+                                        boxShadow: '0 8px 16px -4px rgba(99, 102, 241, 0.4)'
+                                    }}
+                                  >
+                                    <Plus size={20} strokeWidth={3} />
+                                  </button>
                               </div>
 
                               {/* Lista de Gastos Acumulados */}
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '280px', overflowY: 'auto', paddingRight: '8px' }}>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '250px', overflowY: 'auto', paddingRight: '8px' }}>
                                  {(workshopIncident?.expenses || []).map((exp, eIdx) => (
                                      <Motion.div 
                                         key={exp?.id || `exp-${eIdx}`} 
