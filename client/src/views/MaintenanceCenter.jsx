@@ -501,104 +501,145 @@ const MaintenanceCenter = () => {
       {/* Workshop Control Modal */}
       <AnimatePresence>
         {showWorkshopModal && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
             <Motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowWorkshopModal(null)}
-              style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)' }}
+              style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(20px)' }}
             />
             <Motion.div 
-              initial={{ scale: 0.95, y: 30, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.95, y: 30, opacity: 0 }}
+              initial={{ scale: 0.9, y: 40, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, y: 40, opacity: 0 }}
               className="glass"
-              style={{ position: 'relative', width: '100%', maxWidth: '850px', maxHeight: '90vh', overflowY: 'auto', borderRadius: '40px', padding: '0', background: '#0a0d14' }}
+              style={{ 
+                position: 'relative', 
+                width: '100%', 
+                maxWidth: '900px', 
+                maxHeight: '92vh', 
+                overflowY: 'auto', 
+                borderRadius: '32px', 
+                padding: '0', 
+                background: '#070a0f',
+                border: '1px solid rgba(255,255,255,0.1)',
+                boxShadow: '0 50px 100px -20px rgba(0,0,0,0.5)'
+              }}
             >
-              <div style={{ padding: '40px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(99, 102, 241, 0.03)' }}>
+              {/* MODAL HEADER */}
+              <div style={{ padding: '32px 40px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(to bottom, rgba(99, 102, 241, 0.05), transparent)' }}>
                   <div>
-                    <h2 className="neon-text" style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '4px' }}>Reparación Profesional</h2>
-                    <p style={{ color: 'var(--text-dim)', fontWeight: 800, fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Gestión de Unidad: <span style={{ color: 'white' }}>{showWorkshopModal.placa}</span></p>
+                    <h2 className="neon-text" style={{ fontSize: '1.75rem', fontWeight: 950, marginBottom: '4px', letterSpacing: '-0.03em' }}>Gestión de Taller</h2>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', fontSize: '10px', fontWeight: 900, color: 'var(--accent)' }}>{showWorkshopModal.placa}</div>
+                        <p style={{ color: 'var(--text-dim)', fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{showWorkshopModal.modelo}</p>
+                    </div>
                   </div>
-                  <X size={24} onClick={() => setShowWorkshopModal(null)} style={{ cursor: 'pointer', color: 'var(--text-dim)' }} />
+                  <button onClick={() => setShowWorkshopModal(null)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white' }}>
+                    <X size={20} />
+                  </button>
               </div>
 
-              <div style={{ padding: '40px', display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '40px' }}>
-                  {/* Left Column: Report & Diagnosis */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+              <div style={{ padding: '24px 40px 40px 40px' }} className="p-flex-responsive p-gap-40">
+                  {/* COLUMNA IZQUIERDA: REPORTES Y DIAGNÓSTICO */}
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                      
                       <section>
-                          <h4 style={{ color: '#6366f1', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <AlertTriangle size={14} /> Reporte Original (Chofer)
+                          <h4 style={{ color: '#6366f1', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px', letterSpacing: '0.1em' }}>
+                              <AlertTriangle size={14} /> REPORTE ORIGINAL
                           </h4>
-                          <div className="glass" style={{ padding: '20px', borderRadius: '18px', background: 'rgba(255,255,255,0.02)' }}>
-                              <p style={{ color: 'white', fontSize: '0.9rem', lineHeight: 1.6 }}>{workshopIncident?.descripcion || 'Cargando reporte...'}</p>
+                          <div className="glass" style={{ padding: '24px', borderRadius: '20px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.03)' }}>
+                              <p style={{ color: 'white', fontSize: '0.95rem', lineHeight: 1.6, fontWeight: 500 }}>{workshopIncident?.descripcion || 'No hay descripción detallada del reporte.'}</p>
                               {workshopIncident?.foto_path && workshopIncident.foto_path !== 'uploads/no-photo.jpg' && (
-                                  <div style={{ marginTop: '16px', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
-                                      <img src={workshopIncident.foto_path} alt="Evidencia" style={{ width: '100%', height: '120px', objectFit: 'cover' }} />
+                                  <div style={{ marginTop: '20px', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
+                                      <img src={workshopIncident.foto_path} alt="Evidencia" style={{ width: '100%', height: '160px', objectFit: 'cover' }} />
                                   </div>
                               )}
                           </div>
                       </section>
 
                       <section>
-                          <h4 style={{ color: 'var(--success)', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <Pencil size={14} /> Diagnóstico Técnico (Taller)
+                          <h4 style={{ color: 'var(--success)', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px', letterSpacing: '0.1em' }}>
+                              <Pencil size={14} /> DIAGNÓSTICO TÉCNICO
                           </h4>
                           <textarea 
                              value={diagnosis}
                              onChange={(e) => setDiagnosis(e.target.value)}
-                             placeholder="Escribe el diagnóstico identificado por los mecánicos..."
-                             style={{ width: '100%', height: '120px', padding: '20px', background: '#121421', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '18px', color: 'white', outline: 'none', fontSize: '0.9rem', marginBottom: '12px' }}
+                             placeholder="Escriba aquí los hallazgos mecánicos detallados..."
+                             style={{ width: '100%', minHeight: '140px', padding: '24px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', color: 'white', outline: 'none', fontSize: '0.95rem', marginBottom: '16px', resize: 'none', transition: 'border-color 0.3s' }}
+                             onFocus={(e) => e.target.style.borderColor = 'var(--success)'}
+                             onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
                           />
-                          <button onClick={handleUpdateDiagnosis} className="btn-secondary" style={{ width: '100%', height: '48px', fontSize: '11px', fontWeight: 900 }}>
-                              GUARDAR DIAGNÓSTICO
+                          <button onClick={handleUpdateDiagnosis} className="btn-secondary" style={{ width: '100%', height: '52px', fontSize: '11px', fontWeight: 950, letterSpacing: '0.05em', borderRadius: '16px', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                              <CheckCircle2 size={16} /> GUARDAR AVANCE DEL DIAGNÓSTICO
                           </button>
                       </section>
                   </div>
 
-                  {/* Right Column: Spare Parts & Finalization */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                  {/* COLUMNA DERECHA: GASTOS Y CIERRE */}
+                  <div style={{ flex: 1.2, display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                      
                       <section>
-                          <h4 style={{ color: 'var(--warning)', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <DollarSign size={14} /> Gestión de Repuestos / Gastos
-                          </h4>
-                          <div className="glass" style={{ padding: '24px', borderRadius: '24px', background: 'rgba(255,255,255,0.02)', marginBottom: '16px' }}>
-                              <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 48px', gap: '12px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                              <h4 style={{ color: 'var(--warning)', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '10px', letterSpacing: '0.1em' }}>
+                                  <DollarSign size={14} /> LISTA DE REPUESTOS Y GASTOS
+                              </h4>
+                              <div style={{ fontSize: '0.75rem', fontWeight: 950, color: 'white', background: 'rgba(245, 158, 11, 0.1)', padding: '4px 12px', borderRadius: '100px', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                                  TOTAL: ${formatNumber((workshopIncident?.expenses || []).reduce((acc, e) => acc + parseFloat(e.monto || 0), 0))}
+                              </div>
+                          </div>
+
+                          <div className="glass" style={{ padding: '24px', borderRadius: '28px', background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                              {/* Formulario de Entrada */}
+                              <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+                                  <div style={{ position: 'relative', width: '90px' }}>
+                                      <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)', fontWeight: 900 }}>$</span>
+                                      <input 
+                                         type="number" placeholder="0.00" 
+                                         value={newExpense.monto} onChange={(e) => setNewExpense({...newExpense, monto: e.target.value})}
+                                         style={{ width: '100%', background: '#05070a', border: '1px solid rgba(255,255,255,0.1)', padding: '14px 12px 14px 26px', borderRadius: '14px', color: 'white', fontWeight: 900, outline: 'none' }}
+                                      />
+                                  </div>
                                   <input 
-                                     type="number" placeholder="USD" 
-                                     value={newExpense.monto} onChange={(e) => setNewExpense({...newExpense, monto: e.target.value})}
-                                     style={{ background: '#0a0d14', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: 'white', textAlign: 'center', fontWeight: 'bold' }}
-                                  />
-                                  <input 
-                                     type="text" placeholder="¿Qué se compró?" 
+                                     type="text" placeholder="¿Qué se compró / qué labor se hizo?" 
                                      value={newExpense.descripcion} onChange={(e) => setNewExpense({...newExpense, descripcion: e.target.value})}
-                                     style={{ background: '#0a0d14', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: 'white' }}
+                                     style={{ flex: 1, background: '#05070a', border: '1px solid rgba(255,255,255,0.1)', padding: '14px 18px', borderRadius: '14px', color: 'white', fontWeight: 600, outline: 'none' }}
                                   />
-                                  <button onClick={handleAddSparePart} className="p-flex p-items-center p-justify-center" style={{ background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '12px' }}><Plus size={20} /></button>
+                                  <button onClick={handleAddSparePart} style={{ width: '52px', height: '52px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 10px 20px -5px rgba(99, 102, 241, 0.4)' }}><Plus size={24} /></button>
                               </div>
 
-                              {/* Expense List */}
-                              <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              {/* Lista de Gastos Acumulados */}
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '280px', overflowY: 'auto', paddingRight: '8px' }}>
                                  {(workshopIncident?.expenses || []).map((exp, eIdx) => (
-                                     <div key={exp?.id || `exp-${eIdx}`} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 16px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', fontSize: '0.8rem' }}>
-                                         <span style={{ color: 'var(--text-dim)', fontWeight: 700 }}>{exp?.descripcion}</span>
-                                         <span style={{ color: 'white', fontWeight: 900 }}>${formatNumber(exp?.monto || 0)}</span>
-                                     </div>
+                                     <Motion.div 
+                                        key={exp?.id || `exp-${eIdx}`} 
+                                        initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
+                                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.03)' }}
+                                     >
+                                         <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: '0.85rem' }}>{exp?.descripcion}</span>
+                                         <span style={{ color: 'white', fontWeight: 950, fontSize: '0.9rem' }}>${formatNumber(exp?.monto || 0)}</span>
+                                     </Motion.div>
                                  ))}
                                  {(!workshopIncident?.expenses || workshopIncident.expenses.length === 0) && (
-                                     <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.1)', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>Sin gastos registrados</p>
+                                     <div style={{ textAlign: 'center', padding: '40px 0', opacity: 0.2 }}>
+                                         <DollarSign size={32} style={{ margin: '0 auto 12px' }} />
+                                         <p style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase' }}>Ingresa los gastos para totalizar</p>
+                                     </div>
                                  )}
                               </div>
                           </div>
                       </section>
 
                       <section style={{ marginTop: 'auto' }}>
-                          <h4 style={{ color: 'var(--primary)', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', marginBottom: '16px' }}>Cierre y Entrega</h4>
+                          <h4 style={{ color: 'var(--primary)', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', marginBottom: '16px', letterSpacing: '0.1em' }}>RETIRO DE UNIDAD</h4>
                           <textarea 
                              value={solution}
                              onChange={(e) => setSolution(e.target.value)}
-                             placeholder="Resumen de la solución aplicada..."
-                             style={{ width: '100%', height: '80px', padding: '20px', background: '#121421', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '18px', color: 'white', outline: 'none', fontSize: '0.9rem', marginBottom: '12px' }}
+                             placeholder="Explicación final de la solución aplicada..."
+                             style={{ width: '100%', height: '90px', padding: '20px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', color: 'white', outline: 'none', fontSize: '0.9rem', marginBottom: '16px', resize: 'none' }}
                           />
-                          <button onClick={handleFinalizeRepair} className="btn-primary" style={{ width: '100%', height: '64px', fontSize: '14px', fontWeight: 900, borderRadius: '20px', boxShadow: '0 20px 40px -10px rgba(99, 102, 241, 0.4)' }}>
-                              <CheckCircle2 size={20} /> FINALIZAR Y REACTIVAR UNIDAD
+                          <button onClick={handleFinalizeRepair} className="btn-primary" style={{ width: '100%', height: '68px', fontSize: '0.85rem', fontWeight: 950, borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(99, 102, 241, 0.5)', background: 'linear-gradient(135deg, var(--primary), #4f46e5)', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <CheckCircle2 size={20} /> FINALIZAR Y ACTIVAR UNIDAD
+                              </div>
+                              <span style={{ fontSize: '9px', opacity: 0.7, fontWeight: 700, textTransform: 'uppercase' }}>La unidad volverá a estar disponible para rutas</span>
                           </button>
                       </section>
                   </div>
