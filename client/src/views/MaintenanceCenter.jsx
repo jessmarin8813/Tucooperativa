@@ -25,8 +25,8 @@ const MaintenanceCenter = () => {
     try {
       const res = await callApi('mantenimiento.php')
       const data = res?.data || res
-      setFleetHealth(data.health_report || [])
-      setServiceCatalog(data.catalog || [])
+      setFleetHealth(data?.health_report || [])
+      setServiceCatalog(data?.catalog || [])
     } catch { /* Handled */ }
   }, [callApi])
 

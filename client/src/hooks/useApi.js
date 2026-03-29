@@ -19,17 +19,29 @@ export const useApi = () => {
         },
       })
 
-      const data = await response.json()
+      let data = {}
+      try {
+        const text = await response.text()
+        data = text ? JSON.parse(text) : {}
+      } catch (e) {
+        // Fallback for non-JSON response (e.g. PHP warnings/errors)
+        if (!response.ok) {
+          throw new Error(`Error del Servidor (${response.status})`)
+        }
+        data = {}
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error en la petición')
+        throw new Error(data?.error || data?.message || `Error en la petición: ${response.status}`)
       }
 
       return data
     } catch (err) {
       const msg = err.message || 'Error de conexión'
       setError(msg)
-      throw new Error(msg)
+      // Log for forensics but don't crash the component tree
+      console.warn('⚠️ API Call Warning:', msg)
+      throw err
     } finally {
       setLoading(false)
     }

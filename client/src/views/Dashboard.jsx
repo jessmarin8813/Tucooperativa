@@ -132,9 +132,9 @@ const Dashboard = ({ user, setActiveView }) => {
       )}
 
       <div className="p-grid p-grid-cols-3">
-        <StatCard title="FLOTA TOTAL" value={data.stats.total_vehiculos} icon={Truck} trend="+0" color="99, 102, 241" />
-        <StatCard title="EN OPERACIÓN" value={data.stats.rutas_activas} icon={Activity} color="16, 185, 129" trend="+0" />
-        <StatCard title="RECAUDACIÓN HOY" value={`$${data.stats.recaudacion_hoy}`} icon={DollarSign} color="34, 197, 94" trend="Real-time" />
+        <StatCard title="FLOTA TOTAL" value={data?.stats?.total_vehiculos || 0} icon={Truck} trend="+0" color="99, 102, 241" />
+        <StatCard title="EN OPERACIÓN" value={data?.stats?.rutas_activas || 0} icon={Activity} color="16, 185, 129" trend="+0" />
+        <StatCard title="RECAUDACIÓN HOY" value={`$${data?.stats?.recaudacion_hoy || '0.00'}`} icon={DollarSign} color="34, 197, 94" trend="Real-time" />
       </div>
 
     </div>

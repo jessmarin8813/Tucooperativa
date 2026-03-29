@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import './index.css'
 import LoginView from './views/LoginView'
 import MainLayout from './components/MainLayout'
+import MainErrorBoundary from './components/MainErrorBoundary'
 import { useApi } from './hooks/useApi'
 import { formatDate } from './utils/DashboardConstants'
 
@@ -95,17 +96,21 @@ function App() {
     )
   }
 
-  return isLoggedIn ? (
-    <MainLayout 
-      user={user} 
-      config={config}
-      setConfig={setConfig}
-      activeView={activeView} 
-      setActiveView={setActiveView} 
-      onLogout={handleLogout} 
-    />
-  ) : (
-    <LoginView onLogin={handleLogin} />
+  return (
+    <MainErrorBoundary>
+      {isLoggedIn ? (
+        <MainLayout 
+          user={user} 
+          config={config}
+          setConfig={setConfig}
+          activeView={activeView} 
+          setActiveView={setActiveView} 
+          onLogout={handleLogout} 
+        />
+      ) : (
+        <LoginView onLogin={handleLogin} />
+      )}
+    </MainErrorBoundary>
   )
 }
 
