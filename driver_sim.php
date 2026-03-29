@@ -286,7 +286,9 @@
 
         <!-- FORM: FALLA -->
         <div id="form-issue" class="hidden" style="margin-bottom: 20px; padding: 15px; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 16px;">
-            <label style="color: var(--danger);">Tipo de Falla</label>
+            <label style="color: var(--danger);">Odómetro Actual (KM)</label>
+            <input type="number" id="issue-odo" placeholder="Ej: 100500" style="margin-bottom: 10px;">
+            <label style="color: var(--danger);">Descripción de la Falla</label>
             <textarea id="issue-desc" placeholder="Describe brevemente el problema..." style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #333; height: 80px;"></textarea>
             <button onclick="reportIssue()" class="btn btn-danger">Enviar Reporte de Emergencia</button>
             <button onclick="hideForms()" class="btn btn-danger" style="background: rgba(255,255,255,0.05); margin-top: 10px; font-size: 0.75rem;">❌ CANCELAR</button>
@@ -616,7 +618,6 @@
 
     async function checkCurrentStatus() {
         if (!driverData) return;
-        try {
             const res = await fetch(`${API_BASE}chofer/mi_estado.php?telegram_id=${driverData.id}`);
             const data = await res.json();
             
@@ -628,9 +629,10 @@
 
     async function reportIssue() {
         const desc = document.getElementById('issue-desc').value;
-        if (!desc) return alert('Describe la falla.');
+        const odo = document.getElementById('issue-odo').value;
+        if (!desc || !odo) return alert('Describe la falla e indica el odómetro.');
         
-        log(`Reportando falla única: ${desc.substring(0,15)}...`);
+        log(`Reportando falla con auditoría: ${odo} KM...`);
         try {
             const res = await fetch(`${API_BASE}fleet/reportar_incidencia.php`, {
                 method: 'POST',
@@ -638,16 +640,17 @@
                     telegram_id: driverData.id,
                     tipo: 'Mecánica', // Simplificado según usuario
                     descripcion: desc,
+                    valor_odometro: odo,
                     foto_path: 'uploads/sim_falla.jpg'
                 })
             });
             const data = await res.json();
             if (data.success) {
-                log('📢 Reporte enviado. Iniciado periodo de gracia de 90 min.');
+                log('📢 Reporte enviado. ODO registrado para auditoría.');
                 driverData.estado_unidad = 'mantenimiento';
                 showBotMsg(`⚠️ *FALLA REPORTADA*\n\n` +
-                           `Su jornada SIGUE ACTIVA. Tiene 90 minutos para reportar la solución del problema.\n\n` +
-                           `Si no reporta la solución, la unidad quedará bloqueada al finalizar la ruta.`);
+                           `Su jornada SIGUE ACTIVA. Odómetro registrado: ${odo} km.\n\n` +
+                           `Tiene 90 minutos para solventar o cerrar la ruta. Se auditará cualquier movimiento no reportado.`);
                 hideForms();
                 updateUI();
             } else { log(`❌ Error: ${data.error}`); }

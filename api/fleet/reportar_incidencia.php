@@ -27,24 +27,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         sendResponse(['error' => 'Chofer no vinculado'], 401);
     }
 
-    // 2. Identificar Vehículo Asignado
-    $stmt = $db->prepare("SELECT v.id, v.placa, v.dueno_id, u.telegram_chat_id as owner_tid 
-                          FROM vehiculos v 
-                          JOIN usuarios u ON v.dueno_id = u.id
-                          WHERE v.chofer_id = ? LIMIT 1");
-    $stmt->execute([$chofer['id']]);
-    $vehicle = $stmt->fetch();
+    // 2. BUSCAR RUTA ACTIVA
+    $stmtRuta = $db->prepare("SELECT id, vehiculo_id FROM rutas WHERE chofer_id = ? AND estado = 'activa' LIMIT 1");
+    $stmtRuta->execute([$chofer['id']]);
+    $ruta = $stmtRuta->fetch();
 
-    if (!$vehicle) {
-        sendResponse(['error' => 'No tienes vehículo asignado'], 400);
+    $ruta_id = $ruta ? $ruta['id'] : null;
+    $v_id = $ruta ? $ruta['vehiculo_id'] : null;
+    $odo_val = $data['valor_odometro'] ?? null;
+
+    if ($odo_val === null) {
+        throw new Exception("El kilometraje (odómetro) es obligatorio para reportar una falla.");
     }
 
-    // 3. Registrar Incidencia
+    // 3. ACTUALIZAR ESTADO DEL VEHÍCULO (A mantenimiento pero NO cerrar ruta)
+    // Buscamos el vehículo (por chofer si no hay ruta activa, aunque lo ideal es que esté en ruta)
+    if (!$v_id) {
+       $stmtV = $db->prepare("SELECT id FROM vehiculos WHERE chofer_id = ? LIMIT 1");
+       $stmtV->execute([$chofer['id']]);
+       $v_id = $stmtV->fetchColumn();
+    }
+
+    if (!$v_id) throw new Exception("No se encontró vehículo asignado para este reporte.");
+
+    $db->beginTransaction();
+
+    $stmtUpd = $db->prepare("UPDATE vehiculos SET estado = 'mantenimiento' WHERE id = ?");
+    $stmtUpd->execute([$v_id]);
+
+    // 4. LOG ODOMETRO DE INCIDENCIA (Auditoría Forense)
+    $sqlOdo = "INSERT INTO odometros (cooperativa_id, ruta_id, valor, tipo, foto_path) VALUES (?, ?, ?, 'incidencia', ?)";
+    $stmtO = $db->prepare($sqlOdo);
+    $stmtO->execute([$chofer['cooperativa_id'], $ruta_id, $odo_val, $data['foto_path'] ?? '']);
+
+    // 5. Registrar Incidencia
     $stmt = $db->prepare("INSERT INTO incidencias (cooperativa_id, vehiculo_id, chofer_id, tipo, descripcion, foto_path) 
                           VALUES (?, ?, ?, ?, ?, ?)");
     $stmt->execute([
         $chofer['cooperativa_id'],
-        $vehicle['id'],
+        $v_id,
         $chofer['id'],
         $tipo,
         $desc,
