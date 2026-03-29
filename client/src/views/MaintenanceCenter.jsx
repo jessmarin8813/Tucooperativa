@@ -17,6 +17,7 @@ const MaintenanceCenter = () => {
   const [newItem, setNewItem] = useState({ nombre: '', frecuencia: 5000, ultimo_odometro: 0 })
   const [showHistory, setShowHistory] = useState(false)
   const [repairHistory, setRepairHistory] = useState([])
+  const [filterMode, setFilterMode] = useState('issues') // 'issues' or 'all'
 
   const fetchHealth = useCallback(async () => {
     try {
@@ -157,15 +158,34 @@ const MaintenanceCenter = () => {
   }
 
   const safeFleet = Array.isArray(fleetHealth) ? fleetHealth : []
-  const totalCritical = safeFleet.reduce((acc, v) => acc + (v?.items || []).filter(i => i.estado === 'critico').length, 0)
+  
+  const stats = safeFleet.reduce((acc, v) => {
+      const hasIncidents = v.active_incidents?.length > 0
+      const hasExpired = (v.items || []).some(i => i.estado === 'critico')
+      const isAtWorkshop = v.estado === 'mantenimiento'
+      
+      if (hasIncidents) acc.incidents++
+      if (hasExpired) acc.expired++
+      if (!hasIncidents && !hasExpired && !isAtWorkshop) acc.ok++
+      
+      return acc
+  }, { incidents: 0, expired: 0, ok: 0 })
+
+  const filteredFleet = safeFleet.filter(v => {
+      if (filterMode === 'all') return true
+      const hasIncidents = v.active_incidents?.length > 0
+      const hasExpired = (v.items || []).some(i => i.estado === 'critico')
+      const isAtWorkshop = v.estado === 'mantenimiento'
+      return hasIncidents || hasExpired || isAtWorkshop
+  })
 
   return (
     <div>
       {/* Header */}
-      <header className="p-flex-responsive p-justify-between" style={{ marginBottom: '24px' }}>
+      <header className="p-flex-responsive p-justify-between" style={{ marginBottom: '16px' }}>
         <div>
-          <h1 className="h1-premium neon-text">Centro de Mantenimiento</h1>
-          <p className="p-subtitle">Control detallado de componentes por telemetría</p>
+          <h1 className="h1-premium neon-text">Gestión de Triage</h1>
+          <p className="p-subtitle">Control por excepción de la operatividad</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <button 
@@ -175,16 +195,46 @@ const MaintenanceCenter = () => {
           >
             <History size={16} /> {showHistory ? 'VOLVER A FLOTA' : 'VER HISTORIAL'}
           </button>
-          {totalCritical > 0 && !showHistory && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '10px 20px', borderRadius: '16px', border: '1px solid rgba(239, 68, 68, 0.1)' }} className="animate-pulse">
-              <AlertTriangle size={16} />
-              <span style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{totalCritical} ALERTAS</span>
-            </div>
-          )}
         </div>
       </header>
 
+      {/* Summary Dashboard (Mobile Thumb-Friendly) */}
+      {!showHistory && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '32px' }}>
+          <button 
+            onClick={() => setFilterMode('issues')}
+            className={`glass ${filterMode === 'issues' ? 'border-primary' : ''}`}
+            style={{ padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', outline: 'none', border: filterMode === 'issues' ? '1px solid var(--danger)' : '1px solid rgba(255,255,255,0.05)', background: filterMode === 'issues' ? 'rgba(239, 68, 68, 0.05)' : 'rgba(255,255,255,0.02)' }}
+          >
+            <AlertTriangle size={20} color={stats.incidents > 0 ? 'var(--danger)' : 'var(--text-dim)'} />
+            <span style={{ fontSize: '10px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase' }}>Fallas</span>
+            <span style={{ fontSize: '1.5rem', fontWeight: 950, color: 'white' }}>{stats.incidents}</span>
+          </button>
+          
+          <button 
+            onClick={() => setFilterMode('issues')}
+            className="glass"
+            style={{ padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', outline: 'none', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}
+          >
+            <Wrench size={20} color={stats.expired > 0 ? 'var(--warning)' : 'var(--text-dim)'} />
+            <span style={{ fontSize: '10px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase' }}>Vencidos</span>
+            <span style={{ fontSize: '1.5rem', fontWeight: 950, color: 'white' }}>{stats.expired}</span>
+          </button>
+          
+          <button 
+            onClick={() => setFilterMode('all')}
+            className={`glass ${filterMode === 'all' ? 'border-primary' : ''}`}
+            style={{ padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', outline: 'none', border: filterMode === 'all' ? '1px solid var(--success)' : '1px solid rgba(255,255,255,0.05)', background: filterMode === 'all' ? 'rgba(16, 185, 129, 0.05)' : 'rgba(255,255,255,0.02)' }}
+          >
+            <CheckCircle2 size={20} color={stats.ok > 0 ? 'var(--success)' : 'var(--text-dim)'} />
+            <span style={{ fontSize: '10px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase' }}>Sanos</span>
+            <span style={{ fontSize: '1.5rem', fontWeight: 950, color: 'white' }}>{stats.ok}</span>
+          </button>
+        </div>
+      )}
+
       {showHistory ? (
+        /* History Case... unchanged logic */
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} className="animate-fade">
             {repairHistory.length === 0 ? (
                 <div className="glass" style={{ padding: '80px', textAlign: 'center' }}>
@@ -229,16 +279,40 @@ const MaintenanceCenter = () => {
             )}
         </div>
       ) : (
-        /* Fleet Grid */
+        /* Priority Grid */
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-        {safeFleet.map((v, i) => (
+          {filteredFleet.length === 0 && (
+             <div className="glass" style={{ padding: '80px', textAlign: 'center' }}>
+                <CheckCircle2 size={48} color="var(--success)" style={{ opacity: 0.1, marginBottom: '24px' }} />
+                <p style={{ color: 'white', fontWeight: 950, fontSize: '1.5rem', textTransform: 'uppercase' }}>¡Todo en orden!</p>
+                <p style={{ color: 'var(--text-dim)', fontWeight: 800, fontSize: '0.9rem', marginTop: '4px' }}>No hay unidades que requieran atención inmediata.</p>
+                <button 
+                   onClick={() => setFilterMode('all')}
+                   className="btn-secondary" style={{ marginTop: '24px', height: '48px', padding: '0 32px' }}
+                >MOSTRAR TODA LA FLOTA</button>
+             </div>
+          )}
+          {filteredFleet.map((v, i) => {
+            const hasIssues = v.active_incidents?.length > 0 || (v.items || []).some(i => i.estado === 'critico') || v.estado === 'mantenimiento'
+            
+            if (!hasIssues && filterMode !== 'all') return null
+
+            return (
           <Motion.div
             key={v.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
             className="glass"
-            style={{ padding: '24px', borderRadius: '32px', position: 'relative', overflow: 'hidden', border: v.active_incidents?.length > 0 ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(255,255,255,0.05)' }}
+            style={{ 
+                padding: hasIssues ? '24px' : '16px 24px', 
+                borderRadius: '32px', 
+                position: 'relative', 
+                overflow: 'hidden', 
+                border: v.active_incidents?.length > 0 ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(255,255,255,0.05)',
+                background: !hasIssues ? 'rgba(0,0,0,0.4)' : 'transparent',
+                opacity: !hasIssues ? 0.7 : 1
+            }}
           >
             {/* 1. VEHICLE HEADER (Mobile Optimized) */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
@@ -283,7 +357,8 @@ const MaintenanceCenter = () => {
               </div>
             )}
 
-            {/* 3. PREVENTIVE TASKS (Action-Oriented) */}
+            {/* 3. PREVENTIVE TASKS (Only show in 'issues' or if unit has alerts) */}
+            {(hasIssues || filterMode === 'all') && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
               {(v?.items || []).map((item) => (
                 <div key={item.id} className="glass" style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px' }}>
@@ -335,9 +410,10 @@ const MaintenanceCenter = () => {
                 <p style={{ textAlign: 'center', color: 'var(--text-dim)', fontSize: '11px', padding: '20px', fontWeight: 800, textTransform: 'uppercase' }}>Sin tareas preventivas configuradas</p>
               )}
             </div>
+            )}
           </Motion.div>
-        ))}
-      </div>
+          )})}
+        </div>
       )}
 
       {/* Workshop Control Modal */}
