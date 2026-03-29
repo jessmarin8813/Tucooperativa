@@ -192,7 +192,7 @@ const MaintenanceCenter = () => {
       {/* Header */}
       <header className="p-flex-responsive p-justify-between" style={{ marginBottom: '16px' }}>
         <div>
-          <h1 className="h1-premium neon-text">Gestión de Triage</h1>
+          <h1 className="h1-premium neon-text">Centro de Mantenimiento</h1>
           <p className="p-subtitle">Control por excepción de la operatividad</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>

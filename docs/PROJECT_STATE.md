@@ -1,13 +1,13 @@
-# 🛡️ TuCooperativa - PROJECT STATE (v36.5.31-TRIAGE / EXCEPTION-HUB)
+# 🛡️ TuCooperativa - PROJECT STATE (v36.5.31-MAINTENANCE / EXCEPTION-HUB)
 
 ## 📊 Resumen Ejecutivo
-- **Versión**: 36.5.31-Triage (Exception-Based Fleet Management).
-- **Estado**: **CONSOLA DE TRIAGE OPERATIVA**.
+- **Versión**: 36.5.31-Maintenance (Exception-Based Fleet Management).
+- **Estado**: **CONSOLA DE MANTENIMIENTO OPERATIVA**.
 - **Última Auditoría**: OMNI-GUARD v5.0 (Passed 2026-03-29 11:15).
-- **Branding**: Triage Dashboard + Telemetría Neón (Al día / Vencidos / Fallas).
+- **Branding**: Maintenance Dashboard + Telemetría Neón (Al día / Vencidos / Fallas).
 
 ## 🛠️ Componentes Críticos
-- **Consola de Triage (v3.0)**: 
+- **Consola de Mantenimiento (v3.0)**: 
     - Gestión por Excepción: Oculta unidades "Al día" por defecto para priorizar urgencias.
     - Filtros Exclusivos: Fallas (Incidencias/Taller) y Vencidos (Preventivos).
     - Terminología: Unidades operativas marcadas como **"Al día"**.
@@ -21,7 +21,7 @@
 ## 📌 Mapa de Ruta Inmediato
 1.  **Dashboard Finance**:
     *   Integrar los gastos de taller (expenses) en el flujo de caja global.
-2.  **Mobile Triage UX**:
+2.  **Mobile Maintenance UX**:
     *   Añadir gestos táctiles (swipe) para archivar mantenimientos rápidos.
 
 ## ⚠️ Puntos de Atención
@@ -29,4 +29,4 @@
 - La carpeta `.gemini/antigravity` tiene un respaldo en Documents por seguridad de sistema.
 
 ---
-*Documento sellado tras Integración de Triage Inteligente v36.5.31-Triage (2026-03-29 11:28:00)*
+*Documento sellado tras Integración de Consola de Mantenimiento v36.5.31-Maintenance (2026-03-29 11:28:00)*
