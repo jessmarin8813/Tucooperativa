@@ -17,7 +17,9 @@ const MaintenanceCenter = () => {
   const [newItem, setNewItem] = useState({ nombre: '', frecuencia: 5000, ultimo_odometro: 0 })
   const [showHistory, setShowHistory] = useState(false)
   const [repairHistory, setRepairHistory] = useState([])
-  const [filterMode, setFilterMode] = useState('issues') // 'issues' or 'all'
+  const [filterMode, setFilterMode] = useState('issues') // 'issues', 'fallas', 'vencidos', 'all'
+  const [searchTerm, setSearchTerm] = useState('')
+  const [expandedId, setExpandedId] = useState(null)
 
   const fetchHealth = useCallback(async () => {
     try {
@@ -174,15 +176,19 @@ const MaintenanceCenter = () => {
 
   const filteredFleet = safeFleet.filter(v => {
       if (!v) return false
+      const matchesSearch = v.placa.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            v.modelo.toLowerCase().includes(searchTerm.toLowerCase())
+      
+      if (!matchesSearch) return false
+
       const hasIncidents = (v.active_incidents || []).length > 0
       const hasExpired = (v.items || []).some(i => i?.estado === 'critico')
       const isAtWorkshop = v.estado === 'mantenimiento'
-      
       const isHealthy = !(hasIncidents || hasExpired || isAtWorkshop)
 
       if (filterMode === 'fallas') return hasIncidents || isAtWorkshop
       if (filterMode === 'vencidos') return hasExpired
-      if (filterMode === 'all') return isHealthy // "Al día" means ONLY healthy/operational
+      if (filterMode === 'all') return isHealthy
       
       return hasIncidents || hasExpired || isAtWorkshop
   })
@@ -238,6 +244,22 @@ const MaintenanceCenter = () => {
             <span style={{ fontSize: '10px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase' }}>Al día</span>
             <span style={{ fontSize: '1.5rem', fontWeight: 950, color: 'white' }}>{stats.ok}</span>
           </button>
+        </div>
+      )}
+
+      {!showHistory && (
+        <div style={{ marginBottom: '24px' }}>
+          <div className="glass" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 20px', borderRadius: '100px', border: '1px solid rgba(255,255,255,0.08)' }}>
+             <Activity size={18} className="text-primary" style={{ opacity: 0.5 }} />
+             <input 
+                type="text" 
+                placeholder="Buscar por placa o modelo..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ background: 'transparent', border: 'none', color: 'white', flex: 1, outline: 'none', fontSize: '1rem', fontWeight: 600 }}
+             />
+             {searchTerm && <X size={18} onClick={() => setSearchTerm('')} style={{ cursor: 'pointer', opacity: 0.5 }} />}
+          </div>
         </div>
       )}
 
@@ -302,126 +324,175 @@ const MaintenanceCenter = () => {
           )}
           {filteredFleet.map((v, i) => {
             if (!v) return null
-            const hasIssues = (v.active_incidents || []).length > 0 || (v.items || []).some(i => i?.estado === 'critico') || v.estado === 'mantenimiento'
+            const hasIncidents = (v.active_incidents || []).length > 0
+            const hasExpired = (v.items || []).some(i => i?.estado === 'critico')
+            const isAtWorkshop = v.estado === 'mantenimiento'
+            const isExpanded = expandedId === v.id
             
-            if (!hasIssues && filterMode !== 'all') return null
+            // Status Logic
+            let statusColor = 'var(--success)'
+            let statusLabel = 'Operativo'
+            if (hasIncidents || isAtWorkshop) { statusColor = 'var(--danger)'; statusLabel = 'Falla / Taller'; }
+            else if (hasExpired) { statusColor = 'var(--warning)'; statusLabel = 'Mantenimiento'; }
 
             return (
-          <Motion.div
-            key={v.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-            className="glass"
-            style={{ 
-                padding: hasIssues ? '24px' : '16px 24px', 
-                borderRadius: '32px', 
-                position: 'relative', 
-                overflow: 'hidden', 
-                border: v.active_incidents?.length > 0 ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(255,255,255,0.05)',
-                background: !hasIssues ? 'rgba(0,0,0,0.4)' : 'transparent',
-                opacity: !hasIssues ? 0.7 : 1
-            }}
-          >
-            {/* 1. VEHICLE HEADER (Mobile Optimized) */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ width: '42px', height: '42px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Car size={20} className="text-primary" />
-                </div>
-                <div>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 950, color: 'white', letterSpacing: '-0.02em', lineHeight: 1 }}>{v.placa}</h3>
-                  <p style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', marginTop: '4px' }}>{v.modelo} · {formatNumber(v.odometro_actual)} KM</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => { setNewItem(prev => ({ ...prev, ultimo_odometro: v.odometro_actual })); setShowAddModal(v.id); }}
-                className="btn-secondary" style={{ width: '36px', height: '36px', borderRadius: '10px', padding: 0 }}
-              ><Plus size={18} /></button>
-            </div>
-
-            {/* 2. EMERGENCY INCIDENTS (High Visibility) */}
-            {v.active_incidents?.length > 0 && (
-              <div style={{ marginBottom: '24px' }}>
-                {(v.active_incidents || []).map((inc, iIdx) => (
-                  <Motion.div 
-                    key={inc?.id || `inc-${v.id}-${iIdx}`} 
-                    animate={{ scale: [1, 1.02, 1] }} 
-                    transition={{ repeat: Infinity, duration: 2 }}
-                    className="glass"
-                    style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '20px', borderRadius: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <AlertTriangle size={24} color="var(--danger)" />
-                      <div>
-                         <p style={{ color: 'var(--danger)', fontWeight: 900, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Acción Requerida - {inc.tipo}</p>
-                         <p style={{ color: 'white', fontWeight: 600, fontSize: '0.85rem' }}>{inc.descripcion}</p>
-                      </div>
-                    </div>
-                    <button onClick={() => handleOpenWorkshop(v)} className="btn-primary" style={{ height: '48px', background: 'var(--danger)', borderRadius: '12px', fontSize: '11px', fontWeight: 900 }}>
-                      <Wrench size={16} /> GESTIONAR EN TALLER
-                    </button>
-                  </Motion.div>
-                ))}
-              </div>
-            )}
-
-            {/* 3. PREVENTIVE TASKS (Only show in 'issues' or if unit has alerts) */}
-            {(hasIssues || filterMode === 'all') && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
-              {(v?.items || []).map((item, itIdx) => (
-                <div key={item?.id || `item-${v.id}-${itIdx}`} className="glass" style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                    <div>
-                      <h4 style={{ fontSize: '1rem', fontWeight: 950, color: 'white' }}>{item.nombre}</h4>
-                      <p style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: 800 }}>Cada {formatNumber(item.frecuencia)} km</p>
-                    </div>
+              <Motion.div
+                key={v.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.03 }}
+                className="glass"
+                style={{ 
+                    padding: '0', 
+                    borderRadius: '24px', 
+                    overflow: 'hidden', 
+                    border: isExpanded ? `1px solid ${statusColor}` : '1px solid rgba(255,255,255,0.05)',
+                    background: isExpanded ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.01)',
+                    marginBottom: '12px'
+                }}
+              >
+                {/* COMPACT ROW HEADER */}
+                <div 
+                  onClick={() => setExpandedId(isExpanded ? null : v.id)}
+                  style={{ 
+                    padding: '20px 24px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    cursor: 'pointer' 
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <div style={{ 
-                      padding: '4px 12px', borderRadius: '100px', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase',
-                      background: item.estado === 'critico' ? 'var(--danger)' : item.estado === 'advertencia' ? 'var(--warning)' : 'rgba(16, 185, 129, 0.1)',
-                      color: item.estado === 'critico' || item.estado === 'advertencia' ? 'black' : 'var(--success)'
-                    }}>
-                      {item.estado === 'critico' ? 'VENCIDO' : item.estado === 'advertencia' ? 'PRÓXIMO' : 'OK'}
+                        width: '10px', 
+                        height: '10px', 
+                        borderRadius: '50%', 
+                        background: statusColor, 
+                        boxShadow: `0 0 12px ${statusColor}`,
+                        flexShrink: 0
+                    }} className="animate-pulse" />
+                    
+                    <div>
+                      <h3 style={{ fontSize: '1.2rem', fontWeight: 950, color: 'white', letterSpacing: '-0.02em', lineHeight: 1 }}>{v.placa}</h3>
+                      <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', marginTop: '4px' }}>
+                        {v.modelo} <span style={{ opacity: 0.3, margin: '0 6px' }}>|</span> {formatNumber(v.odometro_actual)} KM
+                      </p>
                     </div>
                   </div>
 
-                  <div style={{ height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden', marginBottom: '16px' }}>
-                    <Motion.div initial={{ width: 0 }} animate={{ width: `${item.progreso}%` }} style={{ height: '100%', background: item.estado === 'critico' ? 'var(--danger)' : item.estado === 'advertencia' ? 'var(--warning)' : 'var(--success)' }} />
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>REMANENTE</span>
-                      <span style={{ 
-                        fontSize: '1.5rem', 
-                        fontWeight: 950, 
-                        color: item.estado === 'critico' ? '#ff4d4d' : '#00f2ff',
-                        textShadow: item.estado === 'critico' ? '0 0 15px rgba(255, 77, 77, 0.4)' : '0 0 15px rgba(0, 242, 255, 0.4)',
-                        letterSpacing: '-0.02em',
-                        lineHeight: 1.1,
-                        marginTop: '4px'
-                      }}>
-                        {formatNumber(item.km_restantes)} <small style={{ fontSize: '0.7rem', opacity: 0.7 }}>KM</small>
-                      </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div className="mobile-hide" style={{ textAlign: 'right' }}>
+                        <span style={{ fontSize: '9px', fontWeight: 900, color: statusColor, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{statusLabel}</span>
+                        <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>
+                            {hasIncidents ? `${v.active_incidents.length} Falla(s)` : hasExpired ? 'Servicio Vencido' : 'Al día'}
+                        </p>
                     </div>
+                    <ChevronRight 
+                      size={20} 
+                      style={{ 
+                        transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', 
+                        transition: 'transform 0.3s ease',
+                        color: 'rgba(255,255,255,0.2)' 
+                      }} 
+                    />
                   </div>
-
-                  <button 
-                    onClick={() => handleReset(item.id, v.odometro_actual)}
-                    className={item.estado === 'critico' ? 'btn-primary' : 'btn-secondary'}
-                    style={{ width: '100%', height: '56px', borderRadius: '18px', fontSize: '12px', fontWeight: 950, textTransform: 'uppercase', background: item.estado === 'critico' ? '#fff' : 'rgba(255,255,255,0.05)', color: item.estado === 'critico' ? '#000' : '#fff', border: item.estado === 'critico' ? 'none' : '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                  >
-                    <Activity size={18} /> REGISTRAR SERVICIO
-                  </button>
                 </div>
-              ))}
-              {(v?.items || []).length === 0 && (
-                <p style={{ textAlign: 'center', color: 'var(--text-dim)', fontSize: '11px', padding: '20px', fontWeight: 800, textTransform: 'uppercase' }}>Sin tareas preventivas configuradas</p>
-              )}
-            </div>
-            )}
-          </Motion.div>
-          )})}
+
+                {/* EXPANDABLE BODY */}
+                <AnimatePresence>
+                  {isExpanded && (
+                    <Motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      style={{ overflow: 'hidden' }}
+                    >
+                      <div style={{ padding: '0 24px 32px 24px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px' }}>
+                        
+                        {/* Actions Bar inside expanded unit */}
+                        <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); setNewItem(prev => ({ ...prev, ultimo_odometro: v.odometro_actual })); setShowAddModal(v.id); }}
+                                className="btn-secondary" style={{ flex: 1, height: '44px', fontSize: '10px', fontWeight: 900 }}
+                            >
+                                <Plus size={16} /> AÑADIR RECORDATORIO
+                            </button>
+                        </div>
+
+                        {/* 2. EMERGENCY INCIDENTS */}
+                        {v.active_incidents?.length > 0 && (
+                          <div style={{ marginBottom: '24px' }}>
+                            {(v.active_incidents || []).map((inc, iIdx) => (
+                              <div 
+                                key={inc?.id || `inc-${v.id}-${iIdx}`} 
+                                className="glass"
+                                style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '20px', borderRadius: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                  <AlertTriangle size={24} color="var(--danger)" />
+                                  <div>
+                                     <p style={{ color: 'var(--danger)', fontWeight: 900, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Acción Requerida - {inc.tipo}</p>
+                                     <p style={{ color: 'white', fontWeight: 600, fontSize: '0.85rem' }}>{inc.descripcion}</p>
+                                  </div>
+                                </div>
+                                <button onClick={() => handleOpenWorkshop(v)} className="btn-primary" style={{ height: '48px', background: 'var(--danger)', borderRadius: '12px', fontSize: '11px', fontWeight: 900 }}>
+                                  <Wrench size={16} /> GESTIONAR EN TALLER
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* 3. PREVENTIVE TASKS */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+                          {(v?.items || []).map((item, itIdx) => (
+                            <div key={item?.id || `item-${v.id}-${itIdx}`} className="glass" style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                                <div>
+                                  <h4 style={{ fontSize: '0.95rem', fontWeight: 950, color: 'white' }}>{item.nombre}</h4>
+                                  <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: 800 }}>Cada {formatNumber(item.frecuencia)} km</p>
+                                </div>
+                                <div style={{ 
+                                  padding: '4px 10px', borderRadius: '100px', fontSize: '9px', fontWeight: 900, textTransform: 'uppercase',
+                                  background: item.estado === 'critico' ? 'var(--danger)' : item.estado === 'advertencia' ? 'var(--warning)' : 'rgba(16, 185, 129, 0.1)',
+                                  color: item.estado === 'critico' || item.estado === 'advertencia' ? 'black' : 'var(--success)'
+                                }}>
+                                  {item.estado === 'critico' ? 'VENCIDO' : item.estado === 'advertencia' ? 'PRÓXIMO' : 'OK'}
+                                </div>
+                              </div>
+
+                              <div style={{ height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden', marginBottom: '16px' }}>
+                                <Motion.div initial={{ width: 0 }} animate={{ width: `${item.progreso}%` }} style={{ height: '100%', background: item.estado === 'critico' ? 'var(--danger)' : item.estado === 'advertencia' ? 'var(--warning)' : 'var(--success)' }} />
+                              </div>
+
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                  <span style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase' }}>REMANENTE</span>
+                                  <span style={{ fontSize: '1.25rem', fontWeight: 900, color: item.estado === 'critico' ? '#ff4d4d' : '#00f2ff' }}>
+                                    {formatNumber(item.km_restantes)} <small style={{ fontSize: '0.6rem' }}>KM</small>
+                                  </span>
+                                </div>
+                                <button 
+                                  onClick={() => handleReset(item.id, v.odometro_actual)}
+                                  className="btn-secondary"
+                                  style={{ height: '36px', width: '36px', padding: 0, borderRadius: '10px' }}
+                                >
+                                  <Activity size={16} />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                          {(v?.items || []).length === 0 && !hasIncidents && (
+                            <p style={{ textAlign: 'center', color: 'var(--text-dim)', fontSize: '10px', padding: '10px', fontWeight: 800, textTransform: 'uppercase' }}>Sin tareas configuradas</p>
+                          )}
+                        </div>
+
+                      </div>
+                    </Motion.div>
+                  )}
+                </AnimatePresence>
+              </Motion.div>
+            )})}
         </div>
       )}
 
