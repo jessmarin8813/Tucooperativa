@@ -161,7 +161,7 @@ const MaintenanceCenter = () => {
 
   const safeFleet = Array.isArray(fleetHealth) ? fleetHealth : []
   
-  const stats = safeFleet.reduce((acc, v) => {
+  const stats = (safeFleet || []).reduce((acc, v) => {
       if (!v) return acc
       const hasIncidents = (v.active_incidents || []).length > 0
       const hasExpired = (v.items || []).some(i => i?.estado === 'critico')
@@ -384,7 +384,7 @@ const MaintenanceCenter = () => {
                     <div className="mobile-hide" style={{ textAlign: 'right' }}>
                         <span style={{ fontSize: '9px', fontWeight: 900, color: statusColor, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{statusLabel}</span>
                         <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>
-                            {hasIncidents ? `${v.active_incidents.length} Falla(s)` : hasExpired ? 'Servicio Vencido' : 'Al día'}
+                            {hasIncidents ? `${v?.active_incidents?.length || 0} Falla(s)` : hasExpired ? 'Servicio Vencido' : 'Al día'}
                         </p>
                     </div>
                     <ChevronRight 
@@ -399,12 +399,14 @@ const MaintenanceCenter = () => {
                 </div>
 
                 {/* EXPANDABLE BODY */}
-                <AnimatePresence>
+                <AnimatePresence initial={false}>
                   {isExpanded && (
                     <Motion.div
+                      key={`expanded-content-${v.id}`}
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: 'easeInOut' }}
                       style={{ overflow: 'hidden' }}
                     >
                       <div style={{ padding: '0 24px 32px 24px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px' }}>
