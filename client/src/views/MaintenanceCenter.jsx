@@ -61,11 +61,13 @@ const MaintenanceCenter = () => {
   }, [showHistory, fetchHistory])
 
   const fetchWorkshopIncident = async (vId) => {
+    if (!vId) return
     try {
       const res = await callApi(`fleet/workshop.php?vehiculo_id=${vId}`)
+      if (!res) return
       setWorkshopIncident(res)
-      setDiagnosis(res.diagnostico || '')
-      setSolution(res.solucion || '')
+      setDiagnosis(res?.diagnostico || '')
+      setSolution(res?.solucion || '')
     } catch { /* Handled */ }
   }
 
@@ -174,10 +176,12 @@ const MaintenanceCenter = () => {
       return acc
   }, { incidents: 0, expired: 0, ok: 0 })
 
-  const filteredFleet = safeFleet.filter(v => {
+  const filteredFleet = (safeFleet || []).filter(v => {
       if (!v) return false
-      const matchesSearch = v.placa.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                            v.modelo.toLowerCase().includes(searchTerm.toLowerCase())
+      const placa = v?.placa || ''
+      const modelo = v?.modelo || ''
+      const matchesSearch = placa.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            modelo.toLowerCase().includes(searchTerm.toLowerCase())
       
       if (!matchesSearch) return false
 
@@ -283,8 +287,8 @@ const MaintenanceCenter = () => {
                     >
                         <div>
                             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Vehículo</span>
-                            <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'white', marginTop: '4px' }}>{h.placa}</h3>
-                            <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 700 }}>{new Date(h.created_at).toLocaleDateString()}</p>
+                            <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'white', marginTop: '4px' }}>{h?.placa || '---'}</h3>
+                            <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 700 }}>{h?.created_at ? new Date(h.created_at).toLocaleDateString() : 'Fecha N/A'}</p>
                         </div>
                         
                         <div>
@@ -373,9 +377,9 @@ const MaintenanceCenter = () => {
                     }} className="animate-pulse" />
                     
                     <div>
-                      <h3 style={{ fontSize: '1.2rem', fontWeight: 950, color: 'white', letterSpacing: '-0.02em', lineHeight: 1 }}>{v.placa}</h3>
+                      <h3 style={{ fontSize: '1.2rem', fontWeight: 950, color: 'white', letterSpacing: '-0.02em', lineHeight: 1 }}>{v?.placa || '---'}</h3>
                       <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', marginTop: '4px' }}>
-                        {v.modelo} <span style={{ opacity: 0.3, margin: '0 6px' }}>|</span> {formatNumber(v.odometro_actual)} KM
+                        {v?.modelo || 'Generic'} <span style={{ opacity: 0.3, margin: '0 6px' }}>|</span> {formatNumber(v?.odometro_actual || 0)} KM
                       </p>
                     </div>
                   </div>
@@ -428,7 +432,7 @@ const MaintenanceCenter = () => {
                               <div 
                                 key={inc?.id || `inc-${v.id}-${iIdx}`} 
                                 className="glass"
-                                style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '20px', borderRadius: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}
+                                style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '20px', borderRadius: '20px', display: 'flex', flexDirection: 'column', gap: '16px', isolation: 'isolate' }}
                               >
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                   <AlertTriangle size={24} color="var(--danger)" />
@@ -528,8 +532,8 @@ const MaintenanceCenter = () => {
                   <div>
                     <h2 className="neon-text" style={{ fontSize: '1.75rem', fontWeight: 950, marginBottom: '4px', letterSpacing: '-0.03em' }}>Gestión de Taller</h2>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', fontSize: '10px', fontWeight: 900, color: 'var(--accent)' }}>{showWorkshopModal.placa}</div>
-                        <p style={{ color: 'var(--text-dim)', fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{showWorkshopModal.modelo}</p>
+                        <div style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', fontSize: '10px', fontWeight: 900, color: 'var(--accent)' }}>{showWorkshopModal?.placa || '---'}</div>
+                        <p style={{ color: 'var(--text-dim)', fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{showWorkshopModal?.modelo || ''}</p>
                     </div>
                   </div>
                   <button onClick={() => setShowWorkshopModal(null)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white' }}>
@@ -628,16 +632,18 @@ const MaintenanceCenter = () => {
 
                               {/* Lista de Gastos Acumulados */}
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '250px', overflowY: 'auto', paddingRight: '8px' }}>
-                                 {(workshopIncident?.expenses || []).map((exp, eIdx) => (
-                                     <Motion.div 
-                                        key={exp?.id || `exp-${eIdx}`} 
-                                        initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
-                                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.03)' }}
-                                     >
-                                         <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: '0.85rem' }}>{exp?.descripcion}</span>
-                                         <span style={{ color: 'white', fontWeight: 950, fontSize: '0.9rem' }}>${formatNumber(exp?.monto || 0)}</span>
-                                     </Motion.div>
-                                 ))}
+                                 <AnimatePresence mode="popLayout">
+                                  {(workshopIncident?.expenses || []).map((exp, eIdx) => (
+                                      <Motion.div 
+                                         key={exp?.id ? `exp-obj-${exp.id}` : `exp-idx-${eIdx}`} 
+                                         initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
+                                         style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.03)' }}
+                                      >
+                                          <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: '0.85rem' }}>{exp?.descripcion || 'Gasto'}</span>
+                                          <span style={{ color: 'white', fontWeight: 950, fontSize: '0.9rem' }}>${formatNumber(exp?.monto || 0)}</span>
+                                      </Motion.div>
+                                  ))}
+                                 </AnimatePresence>
                                  {(!workshopIncident?.expenses || workshopIncident.expenses.length === 0) && (
                                      <div style={{ textAlign: 'center', padding: '40px 0', opacity: 0.2 }}>
                                          <DollarSign size={32} style={{ margin: '0 auto 12px' }} />
