@@ -796,7 +796,14 @@
         }
     }
 
+    function initSync() {
+        if (!driverData) return;
+        checkCurrentStatus();
+        setInterval(checkCurrentStatus, 30000); // 30s auto-refresh
+    }
+
     updateUI();
+    initSync();
 </script>
 
 </body>
