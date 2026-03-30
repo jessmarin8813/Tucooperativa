@@ -786,7 +786,7 @@
     }
 
     async function reportPayment() {
-        const method = document.getElementById('payment-method').value;
+        const method = document.getElementById('payment-payment-method').value;
         const amountEf = document.getElementById('payment-amount-ef').value || 0;
         const amountPm = document.getElementById('payment-amount-pm').value || 0;
         
