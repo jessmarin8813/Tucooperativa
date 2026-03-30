@@ -150,6 +150,27 @@ try {
 
                 sendResponse(['success' => true, 'id' => $db->lastInsertId()]);
 
+            } elseif ($action === 'edit_expense') {
+                $eid = $data['id'] ?? null;
+                $monto = $data['monto'] ?? null;
+                $desc = $data['descripcion'] ?? null;
+
+                if (!$eid || $monto === null) throw new Exception("Faltan datos para editar el gasto.");
+
+                $stmt = $db->prepare("UPDATE gastos SET monto = ?, descripcion = ? WHERE id = ? AND cooperativa_id = ?");
+                $stmt->execute([$monto, $desc, $eid, $coop_id]);
+
+                sendResponse(['success' => true, 'message' => 'Gasto actualizado correctamente']);
+
+            } elseif ($action === 'delete_expense') {
+                $eid = $data['id'] ?? null;
+                if (!$eid) throw new Exception("ID de gasto faltante para eliminación.");
+
+                $stmt = $db->prepare("DELETE FROM gastos WHERE id = ? AND cooperativa_id = ?");
+                $stmt->execute([$eid, $coop_id]);
+
+                sendResponse(['success' => true, 'message' => 'Gasto eliminado correctamente']);
+
             } elseif ($action === 'finalize_repair') {
                 $vid = $data['vehiculo_id'] ?? null;
                 $solucion = $data['solucion'] ?? 'Reparación integral completada';

@@ -167,6 +167,42 @@ const MaintenanceCenter = ({ setActiveView }) => {
     } catch { /* Handled */ }
   }
 
+  const handleEditExpense = async (exp) => {
+    const newMonto = window.prompt(`Editar monto para: ${exp.descripcion}`, exp.monto);
+    if (newMonto === null) return;
+    
+    const newDesc = window.prompt(`Editar descripción:`, exp.descripcion);
+    if (newDesc === null) return;
+
+    try {
+      await callApi('fleet/workshop.php', {
+        method: 'POST',
+        body: JSON.stringify({ 
+          action: 'edit_expense', 
+          id: exp.id,
+          monto: newMonto,
+          descripcion: newDesc
+        })
+      });
+      fetchWorkshopIncident(showWorkshopModal.id);
+    } catch { /* Handled */ }
+  };
+
+  const handleDeleteExpense = async (expId) => {
+    if (!window.confirm('¿Estás seguro de eliminar este registro de gasto? Esta acción no se puede deshacer.')) return;
+    
+    try {
+      await callApi('fleet/workshop.php', {
+        method: 'POST',
+        body: JSON.stringify({ 
+          action: 'delete_expense', 
+          id: expId
+        })
+      });
+      fetchWorkshopIncident(showWorkshopModal.id);
+    } catch { /* Handled */ }
+  };
+
   const handleAddObservation = async (desc) => {
     if (!desc) return
     try {
@@ -852,8 +888,26 @@ const MaintenanceCenter = ({ setActiveView }) => {
                                          initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
                                          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.03)' }}
                                       >
-                                          <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: '0.85rem' }}>{exp?.descripcion || 'Gasto'}</span>
-                                          <span style={{ color: 'white', fontWeight: 950, fontSize: '0.9rem' }}>${formatNumber(exp?.monto || 0)}</span>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                              <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: '0.85rem' }}>{exp?.descripcion || 'Gasto'}</span>
+                                              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                  <span style={{ color: 'white', fontWeight: 950, fontSize: '0.9rem' }}>${formatNumber(exp?.monto || 0)}</span>
+                                                  <div style={{ display: 'flex', gap: '8px', marginLeft: '4px' }}>
+                                                      <button 
+                                                        onClick={() => handleEditExpense(exp)}
+                                                        style={{ background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', display: 'flex', padding: '4px' }}
+                                                      >
+                                                          <Pencil size={12} />
+                                                      </button>
+                                                      <button 
+                                                        onClick={() => handleDeleteExpense(exp.id)}
+                                                        style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', display: 'flex', padding: '4px', opacity: 0.5 }}
+                                                      >
+                                                          <Trash2 size={12} />
+                                                      </button>
+                                                  </div>
+                                              </div>
+                                          </div>
                                       </Motion.div>
                                   ))}
                                  </AnimatePresence>
