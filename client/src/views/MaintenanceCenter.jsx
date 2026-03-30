@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useApi } from '../hooks/useApi'
-import { AlertTriangle, Plus, Activity, Car, Clock, Settings, CheckCircle2, DollarSign, Pencil, RefreshCw, X, Wrench, History, ChevronRight } from 'lucide-react'
+import { AlertTriangle, Plus, Activity, Car, Clock, Settings, CheckCircle2, DollarSign, Pencil, RefreshCw, X, Wrench, History, ChevronRight, ArrowLeft } from 'lucide-react'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 import { formatNumber } from '../utils/DashboardConstants'
 
-const MaintenanceCenter = () => {
+const MaintenanceCenter = ({ setActiveView }) => {
   const { callApi } = useApi()
   const [fleetHealth, setFleetHealth] = useState([])
   const [serviceCatalog, setServiceCatalog] = useState([])
@@ -219,9 +219,27 @@ const MaintenanceCenter = () => {
     <div>
       {/* Header */}
       <header className="p-flex-responsive p-justify-between" style={{ marginBottom: '16px' }}>
-        <div>
-          <h1 className="h1-premium neon-text">Centro de Mantenimiento</h1>
-          <p className="p-subtitle">Control por excepción de la operatividad</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <button 
+            onClick={() => setActiveView && setActiveView('dashboard')}
+            className="p-glass-premium clickable-hover"
+            style={{ 
+              width: '42px', 
+              height: '42px', 
+              borderRadius: '14px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              border: '1px solid rgba(255,255,255,0.05)',
+              background: 'rgba(255,255,255,0.03)'
+            }}
+          >
+            <ArrowLeft size={18} color="rgba(255,255,255,0.5)" />
+          </button>
+          <div>
+            <h1 className="h1-premium neon-text">Centro de Mantenimiento</h1>
+            <p className="p-subtitle">Control por excepción de la operatividad</p>
+          </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <button 
