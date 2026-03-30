@@ -4,24 +4,18 @@
  * Path: api/fleet/workshop.php
  */
 require_once __DIR__ . '/../includes/middleware.php';
-
-// ATENCIÓN: PRUEBA DE VENENO (v40.5) - Eliminar tras F5
-if (isset($_GET['history'])) {
-    die(json_encode([
-        'status' => 'POISON_TEST',
-        'real_path' => __FILE__,
-        'server' => $_SERVER['SERVER_NAME'],
-        'protocol' => $_SERVER['SERVER_PROTOCOL'],
-        'time' => date('Y-m-d H:i:s')
-    ]));
-}
-
 require_once __DIR__ . '/../includes/realtime.php';
 require_once __DIR__ . '/../includes/telegram_helper.php';
 
 $user = checkAuth();
 $db = DB::getInstance();
 $coop_id = $user['cooperativa_id'];
+
+// AUDITORÍA DE ENTORNO (v40.6)
+if (isset($_GET['history'])) {
+    $db_info = $db->query("SELECT DATABASE(), USER()")->fetch();
+    error_log("ENVIRONMENT AUDIT: DB=" . json_encode($db_info));
+}
 
 if (!$coop_id) {
     sendResponse(['error' => 'No organization assigned'], 403);
