@@ -168,7 +168,7 @@ const BIView = () => {
                 </table>
             </div>
           ) : (
-            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ padding: isMobile ? '12px 16px' : '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {unidades.map((u) => (
                     <div key={u.id} className="glass" style={{ padding: '20px', borderRadius: '18px', border: u.alerta_salud ? '1px solid rgba(239, 68, 68, 0.15)' : '1px solid rgba(16, 185, 129, 0.15)', background: u.alerta_salud ? 'rgba(239, 68, 68, 0.02)' : 'rgba(16, 185, 129, 0.02)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
@@ -195,7 +195,7 @@ const BIView = () => {
                                 <p style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--success)' }}>{formatMoney(u.abonos)}</p>
                              </div>
                              <div>
-                                <p style={{ fontSize: '9px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: '4px' }}>En Mantenimiento</p>
+                                <p style={{ fontSize: '9px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: '4px' }}>Inversión Taller</p>
                                 <p style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--danger)', opacity: 0.8 }}>{formatMoney(u.costos_mante)}</p>
                              </div>
                         </div>
@@ -223,8 +223,8 @@ const BIView = () => {
                 <h3 className="neon-text brand" style={{ fontSize: '1.1rem', fontWeight: 900, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <BarChart3 size={18} style={{ color: 'var(--accent)' }} /> Proyectado vs Real
                 </h3>
-                <div style={{ height: 180, width: '100%' }}>
-                    <ResponsiveContainer width="100%" height="100%">
+                <div style={{ height: 180, width: '100%', minHeight: '180px' }}>
+                    <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                     <BarChart data={[
                         { name: 'Proyectado', total: global.proyectado, color: '#818cf8' },
                         { name: 'Real', total: global.recaudado, color: '#34d399' }
@@ -279,8 +279,8 @@ const BIView = () => {
                     </h3>
                     <span style={{ fontSize: '8px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Últimos 7 días</span>
                  </div>
-                 <div style={{ height: '220px', width: '100%' }}>
-                        <ResponsiveContainer width="100%" height="100%">
+                 <div style={{ height: '220px', width: '100%', minHeight: '220px' }}>
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                              <BarChart data={data.grafico_historico || []}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                                 <XAxis 
