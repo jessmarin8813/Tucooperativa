@@ -798,7 +798,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
                                                  src={import.meta.env.DEV ? `/api/${inc.foto_path}` : `../../api/${inc.foto_path}`} 
                                                  alt="Evidencia" 
                                                  style={{ width: '100%', height: '100px', objectFit: 'cover' }} 
-                                                 onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.style.display = 'none'; }} 
+                                                 onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxIiBoZWlnaHQ9IjEiPjwvc3ZnPg=='; }} 
                                               />
                                           </div>
                                       )}
