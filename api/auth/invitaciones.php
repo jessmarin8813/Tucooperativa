@@ -24,8 +24,8 @@ $auth = checkAuth();
 $db = DB::getInstance();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Listar invitaciones
-    $stmt = $db->prepare("SELECT * FROM invitaciones WHERE cooperativa_id = ? ORDER BY created_at DESC");
+    // Listar solo invitaciones PENDIENTES (no usadas)
+    $stmt = $db->prepare("SELECT * FROM invitaciones WHERE cooperativa_id = ? AND usado = FALSE ORDER BY created_at DESC");
     $stmt->execute([$auth['cooperativa_id']]);
     sendResponse($stmt->fetchAll());
 }

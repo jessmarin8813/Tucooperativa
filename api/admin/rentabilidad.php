@@ -58,6 +58,21 @@ foreach ($units as &$u) {
     $u['alerta_salud'] = ($u['abonos'] > 0 && ($u['costos_mante'] / $u['abonos']) > 0.8);
 }
 
+// 3. Histórico de Recaudación (7 días)
+$sql_history = "SELECT 
+    DATE(fecha_reportado) as fecha,
+    ROUND(SUM(CASE WHEN moneda = 'Bs' THEN (monto_efectivo) / NULLIF(tasa_cambio, 0) ELSE monto_efectivo END), 2) as efectivo,
+    ROUND(SUM(CASE WHEN moneda = 'Bs' THEN (monto_pagomovil) / NULLIF(tasa_cambio, 0) ELSE monto_pagomovil END), 2) as pagomovil
+    FROM pagos_reportados
+    WHERE cooperativa_id = :cp_h AND estado = 'aprobado'
+    AND fecha_reportado >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+    GROUP BY DATE(fecha_reportado)
+    ORDER BY fecha ASC";
+
+$stmt = $db->prepare($sql_history);
+$stmt->execute(['cp_h' => $coop_id]);
+$history = $stmt->fetchAll();
+
 sendResponse([
     'global' => [
         'proyectado' => $stats['proyectado'],
@@ -66,5 +81,6 @@ sendResponse([
         'utilidad_neta' => $utilidad_neta,
         'eficiencia_cobro' => round($eficiencia, 2)
     ],
-    'unidades' => $units
+    'unidades' => $units,
+    'grafico_historico' => $history
 ]);

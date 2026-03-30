@@ -23,8 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmt->execute([$coop_id]);
         $rutas_activas = $stmt->fetch()['total'];
 
-        // 3. Revenue Today (REFACTORED: Sum of approved payments today)
-        $stmt = $db->prepare("SELECT SUM(monto) as total FROM pagos_reportados 
+        // 3. Revenue Today (REFACTORED: Normalized to USD today)
+        $stmt = $db->prepare("SELECT SUM(CASE 
+                                WHEN moneda = 'Bs' THEN (monto_efectivo + monto_pagomovil) / NULLIF(tasa_cambio, 0) 
+                                ELSE (monto_efectivo + monto_pagomovil) 
+                              END) as total FROM pagos_reportados 
                               WHERE cooperativa_id = ? AND estado = 'aprobado' AND DATE(fecha_revision) = CURDATE()");
         $stmt->execute([$coop_id]);
         $recaudacion_hoy = $stmt->fetch()['total'] ?? 0;

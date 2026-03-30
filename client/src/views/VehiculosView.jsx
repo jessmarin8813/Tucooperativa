@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Plus, RefreshCw, Truck, CheckCircle2, AlertTriangle, Search, Car, ChevronDown } from 'lucide-react'
+import { Plus, RefreshCw, Truck, CheckCircle2, AlertTriangle, Search, Car, ChevronDown, Copy, Check, UserPlus, Users } from 'lucide-react'
 import { useApi } from '../hooks/useApi'
 import { useRealtime } from '../hooks/useRealtime'
 import FleetList from '../components/ui/FleetList'
@@ -15,6 +15,11 @@ const VehiculosView = ({ user, config, setActiveView }) => {
   const [inviteVehicle, setInviteVehicle] = useState(null)
   const [inviteToken, setInviteToken] = useState(null)
   const [inviteLoading, setInviteLoading] = useState(false)
+  const [inviteStep, setInviteStep] = useState('selection') // 'selection' | 'new' | 'existing'
+  const [choferes, setChoferes] = useState([])
+  const [loadingChoferes, setLoadingChoferes] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [choferSearchTerm, setChoferSearchTerm] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false)
@@ -71,15 +76,48 @@ const VehiculosView = ({ user, config, setActiveView }) => {
     } catch (err) { console.error(err); }
   }
 
-  const handleOpenInviteModal = async (vehicle) => {
-    setInviteVehicle(vehicle); setIsInviteModalOpen(true); setInviteLoading(true);
+  const handleOpenInviteModal = (vehicle) => {
+    setInviteVehicle(vehicle); 
+    setInviteStep('selection');
+    setIsInviteModalOpen(true); 
+  }
+
+  const handleSelectNew = async () => {
+    setInviteStep('new');
+    setInviteLoading(true);
     try {
       const res = await callApi('auth/invitaciones.php', { 
-        method: 'POST', body: JSON.stringify({ vehiculo_id: vehicle.id }) 
+        method: 'POST', body: JSON.stringify({ vehiculo_id: inviteVehicle.id }) 
       })
       const rawData = res?.data || res;
       setInviteToken(rawData?.token || res?.token);
     } catch (err) { console.error(err); } finally { setInviteLoading(false); }
+  }
+
+  const handleSelectExisting = async () => {
+    setInviteStep('existing');
+    setLoadingChoferes(true);
+    try {
+      const res = await callApi('choferes.php');
+      setChoferes(Array.isArray(res) ? res : []);
+    } catch (err) { console.error(err); } finally { setLoadingChoferes(false); }
+  }
+
+  const handleAssignExisting = async (chofer) => {
+    if (!window.confirm(`¿Asignar a ${chofer.nombre} a la unidad ${inviteVehicle.placa}?`)) return;
+    try {
+      await callApi('admin/save_vehicle.php', {
+        method: 'POST', body: JSON.stringify({ ...inviteVehicle, chofer_id: chofer.id, action: 'edit' })
+      });
+      handleCloseModal();
+      fetchVehicles();
+    } catch (err) { console.error(err); }
+  }
+
+  const copyToClipboard = (link) => {
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   const handleCloseModal = () => {
@@ -211,17 +249,85 @@ const VehiculosView = ({ user, config, setActiveView }) => {
         <VehicleForm currentUser={currentUser} onSuccess={handleRegistrationSuccess} initialData={selectedVehicle} />
       </Modal>
 
-      <Modal isOpen={isInviteModalOpen} onClose={handleCloseModal} title="Invitar Chofer">
+      <Modal isOpen={isInviteModalOpen} onClose={handleCloseModal} title="Asignar Chofer">
         {inviteVehicle && (
-          <div style={{ textAlign: 'center' }}>
-            <div className="glass-premium" style={{ marginBottom: '24px', padding: '24px', borderRadius: '24px' }}>
-              <h3 className="text-white font-black uppercase italic" style={{ fontSize: '1.5rem' }}>{inviteVehicle.modelo}</h3>
-              <span className="p-plate-badge" style={{ marginTop: '8px', display: 'inline-block' }}>{inviteVehicle.placa}</span>
+          <div className="animate-fade">
+            <div className="glass-premium" style={{ marginBottom: '24px', padding: '16px 24px', borderRadius: '24px', textAlign: 'center' }}>
+              <h3 className="text-white font-black uppercase italic" style={{ fontSize: '1.25rem' }}>{inviteVehicle.modelo}</h3>
+              <span className="p-plate-badge" style={{ marginTop: '4px', display: 'inline-block' }}>{inviteVehicle.placa}</span>
             </div>
-            <div style={{ background: 'white', borderRadius: '24px', width: '200px', height: '200px', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-               {inviteLoading ? <RefreshCw className="animate-spin" /> : <img src={`https://api.qrserver.com/v1/create-qr-code/?size=168x168&data=${encodeURIComponent(`https://t.me/TuCooperativaBot?start=${inviteToken}`)}`} alt="QR" />}
-            </div>
-            <button onClick={handleCloseModal} className="btn-secondary" style={{ width: '100%', height: '56px' }}>Cerrar</button>
+
+            {inviteStep === 'selection' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <button onClick={handleSelectNew} className="btn-primary" style={{ padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                  <UserPlus size={32} />
+                  <div>
+                    <span style={{ fontSize: '1rem', fontWeight: 900, display: 'block' }}>NUEVO INGRESO</span>
+                    <span style={{ fontSize: '0.8rem', opacity: 0.8, fontWeight: 500 }}>Generar Link y código QR</span>
+                  </div>
+                </button>
+                <button onClick={handleSelectExisting} className="glass" style={{ padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <Users size={32} className="text-accent" />
+                  <div>
+                    <span style={{ fontSize: '1rem', fontWeight: 900, display: 'block', color: 'var(--accent)' }}>CHOFER EXISTENTE</span>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 500 }}>Seleccionar de la plantilla actual</span>
+                  </div>
+                </button>
+              </div>
+            )}
+
+            {inviteStep === 'new' && (
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ background: 'white', borderRadius: '24px', width: '200px', height: '200px', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                   {inviteLoading ? <RefreshCw className="animate-spin text-primary" /> : <img src={`https://api.qrserver.com/v1/create-qr-code/?size=168x168&data=${encodeURIComponent(`https://t.me/TuCooperativaBot?start=${inviteToken}`)}`} alt="QR" style={{ borderRadius: '16px' }} />}
+                </div>
+                {!inviteLoading && inviteToken && (
+                  <div className="glass" style={{ padding: '12px 16px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                    <div style={{ flex: 1, overflow: 'hidden', textAlign: 'left' }}>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--accent)', fontWeight: 900, textTransform: 'uppercase' }}>LINK DE INVITACIÓN (TOCA PARA COPIAR)</span>
+                        <p style={{ fontSize: '0.8rem', color: 'white', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', margin: 0 }}>https://t.me/TuCooperativaBot?start={inviteToken}</p>
+                    </div>
+                    <button onClick={() => copyToClipboard(`https://t.me/TuCooperativaBot?start=${inviteToken}`)} className="btn" style={{ background: copied ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255,255,255,0.1)', color: copied ? '#22c55e' : 'white', padding: '10px', width: 'auto' }}>
+                        {copied ? <Check size={18} /> : <Copy size={18} />}
+                    </button>
+                  </div>
+                )}
+                <button onClick={() => setInviteStep('selection')} className="btn-secondary" style={{ width: '100%', height: '56px' }}>← VOLVER</button>
+              </div>
+            )}
+
+            {inviteStep === 'existing' && (
+              <div>
+                <div className="glass" style={{ display: 'flex', alignItems: 'center', padding: '0 16px', borderRadius: '16px', height: '48px', marginBottom: '16px' }}>
+                  <Search size={16} className="text-white/20" />
+                  <input type="text" placeholder="Buscar chofer..." value={choferSearchTerm} onChange={(e) => setChoferSearchTerm(e.target.value)} style={{ width: '100%', padding: '0 12px', background: 'transparent', border: 'none', color: 'white', fontSize: '13px', fontWeight: 600 }} />
+                </div>
+                
+                <div style={{ maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px', paddingRight: '4px' }}>
+                   {loadingChoferes ? (
+                       <div className="p-24" style={{ textAlign: 'center' }}><RefreshCw className="animate-spin text-accent" /></div>
+                   ) : (
+                       choferes.filter(c => (!c.vehiculo_id || c.vehiculo_id === 0) && c.nombre.toLowerCase().includes(choferSearchTerm.toLowerCase())).length === 0 ? (
+                           <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-dim)' }}>No hay choferes disponibles sin unidad asignada.</div>
+                       ) : (
+                           choferes.filter(c => (!c.vehiculo_id || c.vehiculo_id === 0) && c.nombre.toLowerCase().includes(choferSearchTerm.toLowerCase())).map(c => (
+                               <div key={c.id} onClick={() => handleAssignExisting(c)} className="glass-hover clickable-hover" style={{ padding: '16px', borderRadius: '16px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                   <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--primary-gradient)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                       <Users size={18} color="white" />
+                                   </div>
+                                   <div>
+                                       <span style={{ display: 'block', fontWeight: 700, fontSize: '1rem', color: 'white' }}>{c.nombre}</span>
+                                       <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-dim)' }}>ID: {c.cedula || '---'}</span>
+                                   </div>
+                               </div>
+                           ))
+                       )
+                   )}
+                </div>
+                <button onClick={() => setInviteStep('selection')} className="btn-secondary" style={{ width: '100%', height: '56px' }}>← VOLVER</button>
+              </div>
+            )}
+            
           </div>
         )}
       </Modal>

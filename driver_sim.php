@@ -227,7 +227,10 @@
                 <h2 id="driver-name" style="margin: 0; font-size: 1.4rem;">Nombre Chofer</h2>
                 <div id="driver-status" class="status-badge" style="background: rgba(255,255,255,0.1); display: inline-block; margin-top: 5px;">Offline</div>
             </div>
-            <button onclick="logout()" class="btn" style="width: auto; padding: 10px 15px; font-size: 0.7rem; background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2);">CERRAR SESIÓN</button>
+            <div style="display: flex; gap: 8px;">
+                <button onclick="logout()" class="btn" style="width: auto; padding: 10px 15px; font-size: 0.7rem; background: rgba(255, 255, 255, 0.05); color: var(--text-dim); border: 1px solid rgba(255, 255, 255, 0.1);">SALIR</button>
+                <button onclick="clearSimData()" class="btn" style="width: auto; padding: 10px 15px; font-size: 0.7rem; background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2);">BORRAR DATOS</button>
+            </div>
         </div>
 
         <div id="bot-response" class="bot-msg hidden"></div>
@@ -860,8 +863,14 @@
         } catch (e) { log('❌ Error de comunicación.'); }
     }
 
-    function logout() {
-        if (confirm('¿Seguro que quieres borrar los datos de esta simulación?')) {
+     function logout() {
+        // Simplemente recargamos o mostramos el login, pero NO borramos localStorage
+        driverData = null;
+        updateUI();
+    }
+
+    function clearSimData() {
+        if (confirm('¿Seguro que quieres borrar los datos de esta simulación? Tendrás que volver a ingresar la cédula o el token.')) {
             localStorage.removeItem('sim_driver_data');
             window.location.reload();
         }
