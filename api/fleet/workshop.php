@@ -38,8 +38,26 @@ try {
                 $stmt->execute(['coop_id' => $coop_id]);
                 $all = $stmt->fetchAll();
                 
-                // Registro forense para depuración (solo admin con acceso al servidor puede leer esto en logs)
-                error_log("AUDIT [History]: Found " . count($all) . " incidents for Coop ID $coop_id");
+                // Deduplicación Forzada Atómica (v40.3) - Brute-Force local
+                $uniqueMap = [];
+                foreach ($all as $row) {
+                    $uniqueMap[$row['id']] = $row; // El mapa pisa duplicados por ID
+                }
+                $all = array_values($uniqueMap);
+
+                // Registro forense para depuración (solo admin puede leer esto)
+                error_log("AUDIT [History]: Found " . count($all) . " unique records for Coop ID $coop_id");
+                
+                // Backup Físico Forense (v40.3)
+                $logDir = __DIR__ . '/../logs';
+                if (!is_dir($logDir)) mkdir($logDir, 0777, true);
+                file_put_contents($logDir . '/history_audit.json', json_encode([
+                    'timestamp' => date('Y-m-d H:i:s'),
+                    'user' => $user['user_id'],
+                    'coop' => $coop_id,
+                    'ids' => array_column($all, 'id'),
+                    'count' => count($all)
+                ]));
 
                 foreach ($all as &$inc) {
                     $stmtE = $db->prepare("SELECT * FROM gastos WHERE incidencia_id = ?");
