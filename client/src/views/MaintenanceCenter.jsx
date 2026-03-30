@@ -21,6 +21,10 @@ const MaintenanceCenter = ({ setActiveView }) => {
   const [filterMode, setFilterMode] = useState('issues') // 'issues', 'fallas', 'vencidos', 'all'
   const [searchTerm, setSearchTerm] = useState('')
   const [expandedId, setExpandedId] = useState(null)
+  
+  // History Expansion & Search (v39.2)
+  const [historySearchTerm, setHistorySearchTerm] = useState('')
+  const [expandedHistoryId, setExpandedHistoryId] = useState(null)
 
   const fetchHealth = useCallback(async () => {
     try {
@@ -323,50 +327,107 @@ const MaintenanceCenter = ({ setActiveView }) => {
         </div>
       )}
 
-      {showHistory ? (
-        /* History Case... unchanged logic */
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} className="animate-fade">
-            {(repairHistory || []).length === 0 ? (
-                <div className="glass" style={{ padding: '80px', textAlign: 'center' }}>
-                    <History size={48} style={{ opacity: 0.1, marginBottom: '24px' }} />
-                    <p style={{ color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase' }}>No hay registros de reparaciones finalizadas</p>
-                </div>
-            ) : (
-                (repairHistory || []).map((h, idx) => (
-                    <Motion.div 
-                        key={h?.id || `hist-${idx}`}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                        className="glass glass-hover"
-                        style={{ padding: '32px', display: 'grid', gridTemplateColumns: '1fr 1.5fr 1fr', gap: '32px', alignItems: 'center' }}
-                    >
-                        <div>
-                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Vehículo</span>
-                            <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'white', marginTop: '4px' }}>{h?.placa || '---'}</h3>
-                            <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 700 }}>{h?.created_at ? new Date(h.created_at).toLocaleDateString() : 'Fecha N/A'}</p>
-                        </div>
-                        
-                        <div>
-                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Diagnóstico & Solución</span>
-                            <p style={{ fontSize: '0.85rem', color: 'white', fontWeight: 500, marginTop: '8px', lineHeight: 1.5 }}>
-                                <span style={{ color: 'var(--warning)', fontWeight: 800 }}>D:</span> {h.diagnostico || 'Sin diagnóstico detallado'}<br/>
-                                <span style={{ color: 'var(--success)', fontWeight: 800 }}>S:</span> {h.solucion || 'Finalizado'}
-                            </p>
-                        </div>
+      {showHistory && (
+        <div style={{ marginBottom: '24px' }}>
+          <div className="glass" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 20px', borderRadius: '100px', border: '1px solid rgba(255,255,255,0.08)' }}>
+             <History size={18} className="text-primary" style={{ opacity: 0.5 }} />
+             <input 
+                type="text" 
+                placeholder="Buscar en el historial (placa, diagnóstico...)" 
+                value={historySearchTerm}
+                onChange={(e) => setHistorySearchTerm(e.target.value)}
+                style={{ background: 'transparent', border: 'none', color: 'white', flex: 1, outline: 'none', fontSize: '1rem', fontWeight: 600 }}
+             />
+             {historySearchTerm && <X size={18} onClick={() => setHistorySearchTerm('')} style={{ cursor: 'pointer', opacity: 0.5 }} />}
+          </div>
+        </div>
+      )}
 
-                        <div style={{ textAlign: 'right' }}>
-                            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Inversión Total</span>
-                            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: 'white', marginTop: '4px' }}>
-                                ${formatNumber(h.total_gasto || 0)}
-                            </div>
-                            <div style={{ fontSize: '0.6rem', color: 'var(--success)', fontWeight: 900, textTransform: 'uppercase' }}>
-                                {h.expenses?.length || 0} Repuestos vinculados
-                            </div>
+      {showHistory ? (
+        /* History Case (v39.2 Optimized) */
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }} className="animate-fade">
+            {(() => {
+                const filteredHistory = (repairHistory || []).filter(h => {
+                    const term = (historySearchTerm || '').toLowerCase()
+                    return (h.placa || '').toLowerCase().includes(term) || 
+                           (h.diagnostico || '').toLowerCase().includes(term) || 
+                           (h.solucion || '').toLowerCase().includes(term)
+                })
+
+                if (filteredHistory.length === 0) {
+                    return (
+                        <div className="glass" style={{ padding: '80px', textAlign: 'center' }}>
+                            <History size={48} style={{ opacity: 0.1, marginBottom: '24px' }} />
+                            <p style={{ color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase' }}>No hay registros que coincidan</p>
                         </div>
-                    </Motion.div>
+                    )
+                }
+
+                return filteredHistory.map((h, idx) => (
+                    <div key={h?.id || `hist-${idx}`} style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                        <Motion.div 
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: idx * 0.05 }}
+                            className={`glass ${expandedHistoryId === h.id ? 'active' : 'glass-hover'}`}
+                            onClick={() => setExpandedHistoryId(expandedHistoryId === h.id ? null : h.id)}
+                            style={{ padding: '32px', display: 'grid', gridTemplateColumns: '1fr 1.5fr 1fr', gap: '32px', alignItems: 'center', cursor: 'pointer', border: expandedHistoryId === h.id ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.05)', background: expandedHistoryId === h.id ? 'rgba(59, 130, 246, 0.05)' : 'rgba(255,255,255,0.01)' }}
+                        >
+                            <div>
+                                <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Vehículo</span>
+                                <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'white', marginTop: '4px' }}>{h?.placa || '---'}</h3>
+                                <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 700 }}>{h?.created_at ? new Date(h.created_at).toLocaleDateString() : 'Fecha N/A'}</p>
+                            </div>
+                            
+                            <div>
+                                <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Diagnóstico & Solución</span>
+                                <p style={{ fontSize: '0.85rem', color: 'white', fontWeight: 500, marginTop: '8px', lineHeight: 1.5 }}>
+                                    <span style={{ color: 'var(--warning)', fontWeight: 800 }}>D:</span> {h.diagnostico || 'Sin diagnóstico detallado'}<br/>
+                                    <span style={{ color: 'var(--success)', fontWeight: 800 }}>S:</span> {h.solucion || 'Finalizado'}
+                                </p>
+                            </div>
+
+                            <div style={{ textAlign: 'right' }}>
+                                <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Inversión Total</span>
+                                <div style={{ fontSize: '1.75rem', fontWeight: 950, color: 'white', marginTop: '4px' }}>
+                                    ${formatNumber(h.total_gasto || 0)}
+                                </div>
+                                <div style={{ fontSize: '0.6rem', color: 'var(--success)', fontWeight: 900, textTransform: 'uppercase' }}>
+                                    {h.expenses?.length || 0} Repuestos vinculados
+                                </div>
+                            </div>
+                        </Motion.div>
+
+                        <AnimatePresence>
+                            {expandedHistoryId === h.id && (
+                                <Motion.div 
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="glass"
+                                    style={{ padding: '24px 32px', background: 'rgba(255,255,255,0.01)', overflow: 'hidden', borderTop: 'none', borderRadius: '0 0 24px 24px' }}
+                                >
+                                    <h4 style={{ fontSize: '0.75rem', fontWeight: 900, color: 'white', textTransform: 'uppercase', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <History size={14} className="text-primary" /> Desglose de Gastos
+                                    </h4>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        {(h.expenses && h.expenses.length > 0) ? (
+                                            h.expenses.map((exp, eidx) => (
+                                                <div key={exp.id || eidx} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                                                    <span style={{ color: 'white', fontWeight: 600 }}>{exp.descripcion}</span>
+                                                    <span style={{ color: 'var(--success)', fontWeight: 800 }}>${formatNumber(exp.monto)}</span>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p style={{ color: 'var(--text-dim)', fontSize: '0.8rem', fontStyle: 'italic' }}>No hay repuestos registrados para esta incidencia.</p>
+                                        )}
+                                    </div>
+                                </Motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
                 ))
-            )}
+            })()}
         </div>
       ) : (
         /* Priority Grid */
