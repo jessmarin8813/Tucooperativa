@@ -132,7 +132,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
   const handleUpdateDiagnosis = async () => {
     const latestIncId = workshopIncident?.latest?.id
     if (!latestIncId) {
-        console.warn("⚠️ No se puede guardar diagnóstico: No hay incidente activo seleccionado.");
+        alert("⚠️ No se puede guardar diagnóstico: No hay un reporte activo seleccionado.");
         return
     }
     
@@ -141,8 +141,11 @@ const MaintenanceCenter = ({ setActiveView }) => {
         method: 'PUT',
         body: JSON.stringify({ id: latestIncId, diagnostico: diagnosis })
       })
+      alert("✅ Diagnóstico guardado correctamente");
       fetchWorkshopIncident(showWorkshopModal.id)
-    } catch { /* Handled */ }
+    } catch { 
+      alert("❌ Ocurrió un error al guardar el diagnóstico");
+    }
   }
 
   const handleAddSparePart = async () => {
@@ -823,8 +826,8 @@ const MaintenanceCenter = ({ setActiveView }) => {
                              onFocus={(e) => e.target.style.borderColor = 'var(--success)'}
                              onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
                           />
-                          <button onClick={handleUpdateDiagnosis} className="btn-secondary" style={{ width: '100%', height: '52px', fontSize: '11px', fontWeight: 950, letterSpacing: '0.05em', borderRadius: '16px', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                              <CheckCircle2 size={16} /> GUARDAR AVANCE DEL DIAGNÓSTICO
+                          <button onClick={handleUpdateDiagnosis} className="btn-secondary btn-wrap" style={{ width: '100%', minHeight: '52px', padding: '12px', fontSize: '11px', fontWeight: 950, letterSpacing: '0.05em', borderRadius: '16px', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                              <CheckCircle2 size={16} /> GUARDAR DIAGNÓSTICO
                           </button>
                       </section>
                   </div>
@@ -847,46 +850,43 @@ const MaintenanceCenter = ({ setActiveView }) => {
 
                           <div className="glass" style={{ padding: '24px', borderRadius: '28px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.05)', boxSizing: 'border-box' }}>
                               {/* Formulario de Entrada Modernizado */}
-                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '24px', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.03)', alignItems: 'center' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', background: '#05070a', borderRadius: '10px', border: '1px solid rgba(99, 102, 241, 0.3)', overflow: 'hidden' }}>
+                              <div className="p-mobile-column" style={{ display: 'flex', gap: '10px', marginBottom: '24px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.03)', alignItems: 'center' }}>
+                                  <div className="p-mobile-full-width" style={{ display: 'flex', alignItems: 'center', background: '#05070a', borderRadius: '10px', border: '1px solid rgba(99, 102, 241, 0.3)', overflow: 'hidden' }}>
                                       <button 
                                         onClick={() => setNewExpense({...newExpense, moneda: newExpense.moneda === 'USD' ? 'Bs' : 'USD'})}
-                                        style={{ padding: '12px 10px', background: 'rgba(255,255,255,0.05)', border: 'none', color: 'var(--accent)', fontWeight: 950, fontSize: '0.8rem', cursor: 'pointer', borderRight: '1px solid rgba(255,255,255,0.1)' }}
+                                        style={{ padding: '12px 16px', background: 'rgba(255,255,255,0.05)', border: 'none', color: 'var(--accent)', fontWeight: 950, fontSize: '0.9rem', cursor: 'pointer', borderRight: '1px solid rgba(255,255,255,0.1)' }}
                                       >
                                           {newExpense.moneda === 'USD' ? '$' : 'Bs'}
                                       </button>
                                       <input 
                                          type="number" placeholder="0.00" 
                                          value={newExpense.monto} onChange={(e) => setNewExpense({...newExpense, monto: e.target.value})}
-                                         style={{ width: '85px', background: 'transparent', border: 'none', padding: '12px 10px', color: 'white', fontWeight: 900, outline: 'none', fontSize: '0.9rem' }}
+                                         style={{ flex: 1, minWidth: '80px', background: 'transparent', border: 'none', padding: '12px 10px', color: 'white', fontWeight: 900, outline: 'none', fontSize: '1rem' }}
                                       />
                                   </div>
-                                  <div style={{ flex: '1', minWidth: '150px' }}>
+                                  <div style={{ flex: '1', minWidth: '150px' }} className="p-mobile-full-width">
                                       <input 
                                          type="text" placeholder="Repuesto / Labor..." 
                                          value={newExpense.descripcion} onChange={(e) => setNewExpense({...newExpense, descripcion: e.target.value})}
-                                         style={{ width: '100%', background: '#05070a', border: '1px solid rgba(255,255,255,0.05)', padding: '12px 14px', borderRadius: '10px', color: 'white', fontWeight: 600, outline: 'none', fontSize: '0.85rem' }}
+                                         style={{ width: '100%', background: '#05070a', border: '1px solid rgba(255,255,255,0.05)', padding: '12px 14px', borderRadius: '10px', color: 'white', fontWeight: 600, outline: 'none', fontSize: '0.9rem' }}
                                       />
                                   </div>
                                   <button 
                                     onClick={handleAddSparePart} 
-                                    className="btn-primary"
+                                    className="btn-primary p-mobile-full-width"
                                     style={{ 
-                                        width: '44px', 
-                                        height: '44px', 
+                                        height: '46px', 
+                                        padding: '0 20px',
                                         borderRadius: '10px', 
                                         display: 'flex', 
                                         alignItems: 'center', 
                                         justifyContent: 'center', 
                                         cursor: 'pointer',
                                         flexShrink: 0,
-                                        padding: 0,
-                                        background: 'var(--primary)',
-                                        border: 'none',
-                                        boxShadow: '0 8px 16px -4px rgba(99, 102, 241, 0.4)'
+                                        gap: '8px'
                                     }}
                                   >
-                                    <Plus size={20} strokeWidth={3} />
+                                    <Plus size={18} strokeWidth={3} /> <span className="mobile-only" style={{ fontSize: '11px', fontWeight: 950 }}>AÑADIR GASTO</span>
                                   </button>
                               </div>
 
@@ -899,9 +899,9 @@ const MaintenanceCenter = ({ setActiveView }) => {
                                          initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
                                          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.03)' }}
                                       >
-                                          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                              <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: '0.85rem' }}>{exp?.descripcion || 'Gasto'}</span>
-                                              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                          <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                                              <span style={{ flex: 1, color: 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: '0.85rem', wordBreak: 'break-word', lineHeight: 1.3 }}>{exp?.descripcion || 'Gasto'}</span>
+                                              <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
                                                   <span style={{ color: 'white', fontWeight: 950, fontSize: '0.9rem' }}>
                                                       {exp.moneda === 'Bs' ? `${exp.monto} Bs` : `$${formatNumber(exp.monto)}`}
                                                   </span>
@@ -942,11 +942,11 @@ const MaintenanceCenter = ({ setActiveView }) => {
                              placeholder="Explicación final de la solución aplicada..."
                              style={{ width: '100%', height: '90px', padding: '20px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', color: 'white', outline: 'none', fontSize: '0.9rem', marginBottom: '16px', resize: 'none' }}
                           />
-                          <button onClick={handleFinalizeRepair} className="btn-primary" style={{ width: '100%', height: '68px', fontSize: '0.85rem', fontWeight: 950, borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(99, 102, 241, 0.5)', background: 'linear-gradient(135deg, var(--primary), #4f46e5)', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <CheckCircle2 size={20} /> FINALIZAR Y ACTIVAR UNIDAD
+                          <button onClick={handleFinalizeRepair} className="btn-primary btn-wrap" style={{ width: '100%', minHeight: '68px', padding: '16px', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(99, 102, 241, 0.5)', background: 'linear-gradient(135deg, var(--primary), #4f46e5)', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                <CheckCircle2 size={18} /> <span style={{ fontSize: 'clamp(0.85rem, 4vw, 0.95rem)', fontWeight: 950, textAlign: 'center', lineHeight: 1.2 }}>FINALIZAR Y ACTIVAR UNIDAD</span>
                               </div>
-                              <span style={{ fontSize: '9px', opacity: 0.7, fontWeight: 700, textTransform: 'uppercase' }}>La unidad volverá a estar disponible para rutas</span>
+                              <span style={{ fontSize: '9px', opacity: 0.7, fontWeight: 700, textTransform: 'uppercase', textAlign: 'center', lineHeight: 1.3 }}>La unidad volverá a estar disponible para rutas</span>
                           </button>
                       </section>
                   </div>

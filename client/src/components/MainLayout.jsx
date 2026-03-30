@@ -75,7 +75,7 @@ const MainLayout = ({ user, config, setConfig, activeView, setActiveView, onLogo
           
           {/* Mobile-Only Header - Moves with scroll */}
           <header 
-            className={`mobile-top-header mobile-only ${(!showHeader || isMobileMenuOpen) ? 'header-hidden' : ''}`}
+            className={`mobile-top-header mobile-only ${(!showHeader && !isMobileMenuOpen) ? 'header-hidden' : ''}`}
           >
             <h1 
               onClick={() => handleNavigate('dashboard')}
