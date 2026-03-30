@@ -37,7 +37,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
 
   const fetchHistory = useCallback(async () => {
     try {
-      const res = await callApi('workshop.php?history=1')
+      const res = await callApi(`workshop.php?history=1&t=${Date.now()}`)
       console.log('📦 [DEBUG] Respuesta Historial Recibida:', res);
       const items = res?.data && Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : [])
       console.log('📜 [DEBUG] Registros Mapeados:', items.length);
