@@ -17,163 +17,177 @@ if (!$coop_id) {
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-switch ($method) {
-    case 'GET':
-        $vehiculo_id = $_GET['vehiculo_id'] ?? null;
-        $history = isset($_GET['history']);
+try {
+    switch ($method) {
+        case 'GET':
+            $vehiculo_id = $_GET['vehiculo_id'] ?? null;
+            $history = isset($_GET['history']);
 
-        if ($history) {
-            // Retrieve all incidents for a vehicle or the entire coop, including their aggregate costs
-            $sql = "SELECT i.*, v.placa, 
-                    (SELECT SUM(monto) FROM gastos WHERE incidencia_id = i.id) as total_gasto
-                    FROM incidencias i
-                    JOIN vehiculos v ON i.vehiculo_id = v.id
-                    WHERE v.cooperativa_id = :coop_id";
-            
-            if ($vehiculo_id) $sql .= " AND i.vehiculo_id = :vid";
-            $sql .= " ORDER BY i.created_at DESC";
+            if ($history) {
+                $sql = "SELECT i.*, v.placa, 
+                        (SELECT SUM(monto) FROM gastos WHERE incidencia_id = i.id) as total_gasto
+                        FROM incidencias i
+                        JOIN vehiculos v ON i.vehiculo_id = v.id
+                        WHERE v.cooperativa_id = :coop_id 
+                        AND i.solucion IS NOT NULL AND LENGTH(i.solucion) > 0";
+                
+                if ($vehiculo_id) $sql .= " AND i.vehiculo_id = :vid";
+                $sql .= " ORDER BY i.created_at DESC";
 
-            $stmt = $db->prepare($sql);
-            $params = ['coop_id' => $coop_id];
-            if ($vehiculo_id) $params['vid'] = $vehiculo_id;
-            
-            $stmt->execute($params);
-            $all = $stmt->fetchAll();
+                $stmt = $db->prepare($sql);
+                $stmt->execute(['coop_id' => $coop_id]);
+                $all = $stmt->fetchAll();
+                
+                // Registro forense para depuración (solo admin con acceso al servidor puede leer esto en logs)
+                error_log("AUDIT [History]: Found " . count($all) . " incidents for Coop ID $coop_id");
 
-            // Fetch expenses for each incident in the history
-            foreach ($all as &$inc) {
-                $stmtE = $db->prepare("SELECT * FROM gastos WHERE incidencia_id = ?");
-                $stmtE->execute([$inc['id']]);
-                $inc['expenses'] = $stmtE->fetchAll();
+                foreach ($all as &$inc) {
+                    $stmtE = $db->prepare("SELECT * FROM gastos WHERE incidencia_id = ?");
+                    $stmtE->execute([$inc['id']]);
+                    $inc['expenses'] = $stmtE->fetchAll();
+                }
+
+                // Inyectamos metadatos para diagnóstico v39.1
+                sendResponse([
+                    'status' => 'success',
+                    'data' => $all,
+                    'debug' => [
+                        'user_id' => $user['id'],
+                        'coop_id' => $coop_id,
+                        'count' => count($all)
+                    ]
+                ]);
+                break;
             }
 
-            sendResponse($all);
+            if (!$vehiculo_id) sendResponse(['error' => 'Missing vehicle ID'], 400);
+
+            $stmtV = $db->prepare("SELECT placa, modelo, estado FROM vehiculos WHERE id = ? AND cooperativa_id = ?");
+            $stmtV->execute([$vehiculo_id, $coop_id]);
+            $vehiculo = $stmtV->fetch();
+            if (!$vehiculo) sendResponse(['error' => 'Vehicle not found or no access'], 404);
+
+            $stmtI = $db->prepare("SELECT * FROM incidencias 
+                                  WHERE vehiculo_id = :vid AND (solucion IS NULL OR solucion = '') 
+                                  ORDER BY created_at DESC");
+            $stmtI->execute(['vid' => $vehiculo_id]);
+            $incidents = $stmtI->fetchAll();
+
+            $expenses = [];
+            if (!empty($incidents)) {
+                $incIds = array_map(function($i) { return $i['id']; }, $incidents);
+                $placeholders = implode(',', array_fill(0, count($incIds), '?'));
+                $stmtE = $db->prepare("SELECT * FROM gastos WHERE incidencia_id IN ($placeholders)");
+                $stmtE->execute($incIds);
+                $expenses = $stmtE->fetchAll();
+            }
+
+            sendResponse([
+                'vehiculo' => $vehiculo,
+                'incidents' => $incidents,
+                'expenses' => $expenses,
+                'latest' => $incidents[0] ?? null 
+            ]);
             break;
-        }
 
-        // Default: Get ALL active incidents for a specific vehicle in maintenance
-        if (!$vehiculo_id) sendResponse(['error' => 'Missing vehicle ID'], 400);
+        case 'PUT':
+            $data = json_decode(file_get_contents('php://input'), true);
+            $incident_id = $data['id'] ?? null;
+            if (!$incident_id) throw new Exception("ID de reporte faltante para diagnóstico.");
 
-        // Fetch vehicle basic info
-        $stmtV = $db->prepare("SELECT placa, modelo, estado FROM vehiculos WHERE id = ? AND cooperativa_id = ?");
-        $stmtV->execute([$vehiculo_id, $coop_id]);
-        $vehiculo = $stmtV->fetch();
-        if (!$vehiculo) sendResponse(['error' => 'Vehicle not found or no access'], 404);
+            $diag = $data['diagnostico'] ?? null;
+            $sol = $data['solucion'] ?? null;
 
-        // Fetch all unresolved incidents
-        $stmtI = $db->prepare("SELECT * FROM incidencias 
-                              WHERE vehiculo_id = :vid AND solucion IS NULL 
-                              ORDER BY created_at DESC");
-        $stmtI->execute(['vid' => $vehiculo_id]);
-        $incidents = $stmtI->fetchAll();
+            $updates = [];
+            $params = ['id' => $incident_id];
 
-        // Fetch all expenses related to any of these incidents or just the vehicle's current session
-        // For simplicity, we fetch all expenses for this vehicle that are linked to any active incident
-        $expenses = [];
-        if (!empty($incidents)) {
-            $incIds = array_map(function($i) { return $i['id']; }, $incidents);
-            $placeholders = implode(',', array_fill(0, count($incIds), '?'));
-            $stmtE = $db->prepare("SELECT * FROM gastos WHERE incidencia_id IN ($placeholders)");
-            $stmtE->execute($incIds);
-            $expenses = $stmtE->fetchAll();
-        }
+            if ($diag !== null) { $updates[] = "diagnostico = :diag"; $params['diag'] = $diag; }
+            if ($sol !== null) { $updates[] = "solucion = :sol"; $params['sol'] = $sol; }
 
-        sendResponse([
-            'vehiculo' => $vehiculo,
-            'incidents' => $incidents,
-            'expenses' => $expenses,
-            // Compatibility field for old frontend if needed (latest incident)
-            'latest' => $incidents[0] ?? null 
-        ]);
-        break;
+            if (empty($updates)) throw new Exception("Nada que actualizar.");
 
-    case 'PUT':
-        // Update technical diagnosis or solution
-        $data = json_decode(file_get_contents('php://input'), true);
-        $incident_id = $data['id'] ?? null;
-        if (!$incident_id) sendResponse(['error' => 'Missing incident ID'], 400);
+            $sql = "UPDATE incidencias SET " . implode(', ', $updates) . " WHERE id = :id";
+            $stmt = $db->prepare($sql);
+            $stmt->execute($params);
 
-        $diag = $data['diagnostico'] ?? null;
-        $sol = $data['solucion'] ?? null;
+            sendResponse(['success' => true, 'message' => 'Info técnica actualizada.']);
+            break;
 
-        $updates = [];
-        $params = ['id' => $incident_id];
+        case 'POST':
+            $data = json_decode(file_get_contents('php://input'), true);
+            $action = $data['action'] ?? '';
 
-        if ($diag !== null) { $updates[] = "diagnostico = :diag"; $params['diag'] = $diag; }
-        if ($sol !== null) { $updates[] = "solucion = :sol"; $params['sol'] = $sol; }
+            if ($action === 'add_expense') {
+                $inc_id = $data['incidencia_id'] ?? null;
+                $vid = $data['vehiculo_id'] ?? null;
+                $monto = $data['monto'] ?? 0;
+                $desc = $data['descripcion'] ?? 'Repuesto/Servicio';
+                $cat = $data['categoria'] ?? 'repuestos';
 
-        if (empty($updates)) sendResponse(['error' => 'Nothing to update'], 400);
+                if (!$inc_id || !$vid || !$monto) throw new Exception("Datos incompletos para añadir gasto.");
 
-        $sql = "UPDATE incidencias SET " . implode(', ', $updates) . " WHERE id = :id";
-        $stmt = $db->prepare($sql);
-        $stmt->execute($params);
+                $stmt = $db->prepare("INSERT INTO gastos (cooperativa_id, vehiculo_id, incidencia_id, categoria, monto, moneda, tasa_cambio, descripcion, fecha) 
+                                     VALUES (?, ?, ?, ?, ?, 'USD', (SELECT tasa FROM tasas_cambio ORDER BY created_at DESC LIMIT 1), ?, CURDATE())");
+                $stmt->execute([$coop_id, $vid, $inc_id, $cat, $monto, $desc]);
 
-        sendResponse(['success' => true, 'message' => 'Technical info updated']);
-        break;
+                sendResponse(['success' => true, 'id' => $db->lastInsertId()]);
 
-    case 'POST':
-        $data = json_decode(file_get_contents('php://input'), true);
-        $action = $data['action'] ?? '';
+            } elseif ($action === 'finalize_repair') {
+                $vid = $data['vehiculo_id'] ?? null;
+                $solucion = $data['solucion'] ?? 'Reparación integral completada';
 
-        if ($action === 'add_expense') {
-            $inc_id = $data['incidencia_id'] ?? null;
-            $vid = $data['vehiculo_id'] ?? null;
-            $monto = $data['monto'] ?? 0;
-            $desc = $data['descripcion'] ?? 'Repuesto/Servicio';
-            $cat = $data['categoria'] ?? 'repuestos';
+                if (!$vid) throw new Exception("Falta ID de vehículo para reactivación.");
 
-            if (!$inc_id || !$vid || !$monto) sendResponse(['error' => 'Incomplete data'], 400);
+                $db->beginTransaction();
 
-            $stmt = $db->prepare("INSERT INTO gastos (cooperativa_id, vehiculo_id, incidencia_id, categoria, monto, moneda, tasa_cambio, descripcion, fecha) 
-                                 VALUES (?, ?, ?, ?, ?, 'USD', (SELECT tasa FROM tasas_cambio ORDER BY created_at DESC LIMIT 1), ?, CURDATE())");
-            $stmt->execute([$coop_id, $vid, $inc_id, $cat, $monto, $desc]);
+                // 1. Reactivar Vehículo
+                $stmtV = $db->prepare("UPDATE vehiculos SET estado = 'activo', status_changed_at = NOW() WHERE id = ?");
+                $stmtV->execute([$vid]);
 
-            sendResponse(['success' => true, 'id' => $db->lastInsertId()]);
+                // 2. Cerrar todas las incidencias pendientes (NULAS o VACÍAS)
+                $stmtI = $db->prepare("UPDATE incidencias SET solucion = ?, resolved_at = NOW() WHERE vehiculo_id = ? AND (solucion IS NULL OR solucion = '')");
+                $stmtI->execute([$solucion, $vid]);
 
-        } elseif ($action === 'finalize_repair') {
-            $vid = $data['vehiculo_id'] ?? null;
-            $solucion = $data['solucion'] ?? 'Reparación integral completada';
+                $db->commit();
 
-            if (!$vid) sendResponse(['error' => 'Incomplete data'], 400);
+                // 3. Notificación al Chofer
+                $sqlD = "SELECT c.telegram_id, v.placa FROM vehiculos v 
+                         INNER JOIN choferes c ON v.chofer_id = c.id 
+                         WHERE v.id = ?";
+                $stmtD = $db->prepare($sqlD);
+                $stmtD->execute([$vid]);
+                $driver = $stmtD->fetch();
 
-            // 1. Update Vehicle to Active
-            $stmtV = $db->prepare("UPDATE vehiculos SET estado = 'activo', status_changed_at = NOW() WHERE id = ?");
-            $stmtV->execute([$vid]);
+                if ($driver && !empty($driver['telegram_id'])) {
+                    $msg = "✅ *UNIDAD LISTA PARA RUTA*\n\n" .
+                           "📍 Unidad: `{$driver['placa']}`\n" .
+                           "🔧 Reparación: *COMPLETADA*\n" .
+                           "🚦 La unidad ya aparece como OPERATIVA. Puedes iniciar jornada.";
+                    sendTelegramNotification($driver['telegram_id'], $msg);
+                }
 
-            // 2. Finalize ALL active Incidents for this vehicle
-            $stmtI = $db->prepare("UPDATE incidencias SET solucion = ?, resolved_at = NOW() WHERE vehiculo_id = ? AND solucion IS NULL");
-            $stmtI->execute([$solucion, $vid]);
+                broadcastRealtime('UPDATE_FLEET', ['cooperativa_id' => $coop_id]);
+                sendResponse(['success' => true, 'message' => 'Unidad reactivada y reportes cerrados.']);
 
-            // 3. Notify Driver (Telegram) - No costs mentioned
-            $stmtD = $db->prepare("SELECT c.telegram_id, v.placa FROM vehiculos v JOIN choferes c ON v.chofer_id = c.id WHERE v.id = ?");
-            $stmtD->execute([$vid]);
-            $driver = $stmtD->fetch();
+            } elseif ($action === 'add_incident_from_workshop') {
+                $vid = $data['vehiculo_id'] ?? null;
+                $desc = $data['descripcion'] ?? '';
+                if (!$vid || !$desc) throw new Exception("Faltan datos para la observación técnica.");
 
-            if ($driver && $driver['telegram_id']) {
-                $msg = "✅ *UNIDAD LISTA PARA RUTA*\n\n" .
-                       "📍 Unidad: `{$driver['placa']}`\n" .
-                       "🔧 Reparación: *COMPLETADA*\n" .
-                       "🚦 Se han solventado todos los reportes pendientes. Ya puedes iniciar tu jornada.";
-                sendTelegramNotification($driver['telegram_id'], $msg);
+                $stmt = $db->prepare("INSERT INTO incidencias (cooperativa_id, vehiculo_id, chofer_id, tipo, descripcion, foto_path, created_at) 
+                                     VALUES (?, ?, 0, 'Tecnica', ?, 'uploads/no-photo.jpg', NOW())");
+                $stmt->execute([$coop_id, $vid, $desc]);
+
+                sendResponse(['success' => true, 'message' => 'Hallazgo adicional registrado.']);
             }
+            break;
 
-            broadcastRealtime('UPDATE_FLEET', ['cooperativa_id' => $coop_id]);
-            sendResponse(['success' => true, 'message' => 'Vehicle reactivated and all incidents closed']);
-
-        } elseif ($action === 'add_incident_from_workshop') {
-            $vid = $data['vehiculo_id'] ?? null;
-            $desc = $data['descripcion'] ?? '';
-            if (!$vid || !$desc) sendResponse(['error' => 'Missing data'], 400);
-
-            $stmt = $db->prepare("INSERT INTO incidencias (cooperativa_id, vehiculo_id, chofer_id, tipo, descripcion, foto_path, created_at) 
-                                 VALUES (?, ?, 0, 'Tecnica', ?, 'uploads/no-photo.jpg', NOW())");
-            $stmt->execute([$coop_id, $vid, $desc]);
-
-            sendResponse(['success' => true, 'message' => 'Observación técnica añadida']);
-        }
-        break;
-
-    default:
-        sendResponse(['error' => 'Method not allowed'], 405);
-        break;
+        default:
+            sendResponse(['error' => 'Method not allowed'], 405);
+            break;
+    }
+} catch (Exception $e) {
+    if ($db->inTransaction()) $db->rollBack();
+    sendResponse(['error' => 'Error de Taller', 'message' => $e->getMessage()], 500);
 }
+?>

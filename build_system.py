@@ -57,9 +57,10 @@ def main():
     # Solo commit si hay cambios
     status_res = subprocess.run("git status --porcelain", shell=True, capture_output=True, text=True)
     if status_res.stdout.strip():
+        print("[GIT] Cambios detectados. Committing...")
         commit_msg = "BUILD STABLE: Decoupled Driver Entity + Automated Sync"
         run_step("Git Commit", f'git commit -m "{commit_msg}"')
-        run_step("Git Push", "git push")
+        run_step("Git Push", "git push --force") # Forzamos push para asegurar sincronización en entornos volátiles
     else:
         print("[GIT] No hay cambios para subir.")
 

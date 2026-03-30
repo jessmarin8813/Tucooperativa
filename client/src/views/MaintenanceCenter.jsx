@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useApi } from '../hooks/useApi'
+import { useRealtime } from '../hooks/useRealtime'
 import { AlertTriangle, Plus, Activity, Car, Clock, Settings, CheckCircle2, DollarSign, Pencil, RefreshCw, X, Wrench, History, ChevronRight, ArrowLeft } from 'lucide-react'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 import { formatNumber } from '../utils/DashboardConstants'
@@ -32,9 +33,14 @@ const MaintenanceCenter = ({ setActiveView }) => {
 
   const fetchHistory = useCallback(async () => {
     try {
-      const res = await callApi('fleet/workshop.php?history=1')
-      setRepairHistory(Array.isArray(res) ? res : [])
-    } catch { /* Handled */ }
+      const res = await callApi('workshop.php?history=1')
+      console.log('📦 [DEBUG] Respuesta Historial Recibida:', res);
+      const items = res?.data && Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : [])
+      console.log('📜 [DEBUG] Registros Mapeados:', items.length);
+      setRepairHistory(items)
+    } catch (err) { 
+      console.error('❌ [DEBUG] Fallo al cargar historial:', err);
+    }
   }, [callApi])
 
   useEffect(() => {
@@ -48,6 +54,14 @@ const MaintenanceCenter = ({ setActiveView }) => {
     init()
     return () => { ignore = true }
   }, [fetchHealth])
+
+  useRealtime((event) => {
+    if (event.type === 'UPDATE_FLEET' || event.type === 'REFRESH_FLEET') {
+      console.log('🔄 Sincronización en tiempo real: Actualizando Salud de Flota e Historial...');
+      fetchHealth();
+      fetchHistory();
+    }
+  })
 
   useEffect(() => {
     const url = new URL(window.location)
@@ -63,7 +77,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
   const fetchWorkshopIncident = async (vId) => {
     if (!vId) return
     try {
-      const res = await callApi(`fleet/workshop.php?vehiculo_id=${vId}`)
+      const res = await callApi(`workshop.php?vehiculo_id=${vId}`)
       if (!res) return
       setWorkshopIncident(res)
       // Extraemos diagnóstico/solución del incidente más reciente para visualización
@@ -85,7 +99,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
     }
     
     try {
-      await callApi('fleet/workshop.php', {
+      await callApi('workshop.php', {
         method: 'PUT',
         body: JSON.stringify({ id: latestIncId, diagnostico: diagnosis })
       })

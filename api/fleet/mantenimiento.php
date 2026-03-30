@@ -30,7 +30,7 @@ switch ($method) {
         $stmtInc = $db->prepare("SELECT i.id, i.vehiculo_id, i.tipo, i.descripcion, i.created_at, i.foto_path, c.nombre as reportero_nombre 
                                  FROM incidencias i
                                  LEFT JOIN choferes c ON i.chofer_id = c.id
-                                 WHERE i.cooperativa_id = :cid AND i.solucion IS NULL");
+                                 WHERE i.cooperativa_id = :cid AND (i.solucion IS NULL OR i.solucion = '')");
         $stmtInc->execute(['cid' => $coop_id]);
         $incidents_rows = $stmtInc->fetchAll();
         

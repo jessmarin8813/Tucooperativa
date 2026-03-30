@@ -6,7 +6,7 @@ export const resolveEndpoint = (endpoint) => {
   if (endpoint.includes('/')) return endpoint;
   
   const mapping = {
-    'fleet': ['vehiculos.php', 'choferes.php', 'mantenimiento.php', 'rutas.php'],
+    'fleet': ['vehiculos.php', 'choferes.php', 'mantenimiento.php', 'rutas.php', 'workshop.php'],
     'finance': ['recaudacion.php', 'gastos.php', 'reportes_financieros.php', 'reportes_exportacion.php'],
     'auth': ['login.php', 'registrar.php', 'session.php', 'invitaciones.php', 'usuarios.php'],
     'system': ['audit_system.php', 'dashboard.php', 'notificaciones.php', 'swagger.json']
