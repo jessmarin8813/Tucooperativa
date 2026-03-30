@@ -10,6 +10,7 @@ import { formatMoney, UI_CHART_HEIGHT } from '../utils/DashboardConstants'
 
 const BIView = () => {
   const [data, setData] = useState(null)
+  const [isChartReady, setIsChartReady] = useState(false)
   const { callApi, loading } = useApi()
 
   const fetchBI = useCallback(async () => {
@@ -24,7 +25,14 @@ const BIView = () => {
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024)
     window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    
+    // DELAYED CHART MOUNT: Prevents ResponsiveContainer from rendering with 0-width during transitions
+    const timer = setTimeout(() => setIsChartReady(true), 400);
+
+    return () => {
+        window.removeEventListener('resize', handleResize)
+        clearTimeout(timer);
+    }
   }, [])
 
   useEffect(() => {
@@ -110,7 +118,7 @@ const BIView = () => {
         </Motion.div>
       </div>
 
-      <div className="p-flex-responsive" style={{ marginTop: '32px', gap: '24px', alignItems: 'stretch' }}>
+      <div className="p-flex-responsive" style={{ marginTop: '32px', gap: isMobile ? '16px' : '24px', alignItems: 'stretch' }}>
         {/* Fleet Profitability Table */}
         <Motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -219,7 +227,8 @@ const BIView = () => {
 
         {/* Charts Side */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', flex: 1 }}>
-             <Motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="glass" style={{ padding: '32px' }}>
+             {isChartReady && (
+               <Motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="glass" style={{ padding: '32px' }}>
                 <h3 className="neon-text brand" style={{ fontSize: '1.1rem', fontWeight: 900, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <BarChart3 size={18} style={{ color: 'var(--accent)' }} /> Proyectado vs Real
                 </h3>
@@ -270,66 +279,69 @@ const BIView = () => {
                     </BarChart>
                     </ResponsiveContainer>
                 </div>
-             </Motion.div>
+               </Motion.div>
+             )}
 
-             <Motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="glass neon-border" style={{ padding: '32px' }}>
-                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                    <h3 className="neon-text brand" style={{ fontSize: '1.1rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <TrendingUp size={18} style={{ color: 'var(--accent)' }} /> Histórico de Recaudación
-                    </h3>
-                    <span style={{ fontSize: '8px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Últimos 7 días</span>
-                 </div>
-                 <div style={{ height: '220px', width: '100%', minHeight: '220px' }}>
-                        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-                             <BarChart data={data.grafico_historico || []}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                                <XAxis 
-                                    dataKey="fecha" 
-                                    stroke="rgba(255,255,255,0.4)" 
-                                    fontSize={9} 
-                                    tickLine={false} 
-                                    axisLine={false}
-                                    tickFormatter={(str) => {
-                                        const date = new Date(str);
-                                        return date.toLocaleDateString('es-VE', { day: '2-digit', month: 'short' });
-                                    }}
-                                />
-                                <YAxis hide />
-                                <Tooltip 
-                                    cursor={{fill: 'rgba(255,255,255,0.02)'}}
-                                    content={({ active, payload }) => {
-                                        if (active && payload && payload.length) {
-                                          return (
-                                            <div className="glass" style={{ padding: '12px', background: '#0a0b12', border: '1px solid rgba(255,255,255,0.1)' }}>
-                                               <p style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: 900, marginBottom: '8px' }}>{new Date(payload[0].payload.fecha).toLocaleDateString()}</p>
-                                               {payload.map((p, idx) => (
-                                                   <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', gap: '20px', alignItems: 'center', marginBottom: '4px' }}>
-                                                       <span style={{ fontSize: '9px', fontWeight: 900, color: p.color, textTransform: 'uppercase' }}>{p.dataKey}</span>
-                                                       <span style={{ fontSize: '0.9rem', color: 'white', fontWeight: 950 }}>${formatMoney(p.value).replace('$', '')}</span>
-                                                   </div>
-                                               ))}
-                                            </div>
-                                          );
-                                        }
-                                        return null;
-                                    }}
-                                />
-                                <Bar dataKey="efectivo" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} barSize={20} />
-                                <Bar dataKey="pagomovil" stackId="a" fill="#06b6d4" radius={[6, 6, 0, 0]} barSize={20} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                 </div>
-                 <div style={{ display: 'flex', gap: '16px', marginTop: '16px', justifyContent: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <div style={{ width: '8px', height: '8px', background: 'var(--success)', borderRadius: '2px' }} />
-                        <span style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)' }}>EFECTIVO</span>
+             {isChartReady && (
+                <Motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="glass neon-border" style={{ padding: '32px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                        <h3 className="neon-text brand" style={{ fontSize: '1.1rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <TrendingUp size={18} style={{ color: 'var(--accent)' }} /> Histórico de Recaudación
+                        </h3>
+                        <span style={{ fontSize: '8px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Últimos 7 días</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '2px' }} />
-                        <span style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)' }}>P. MÓVIL</span>
+                    <div style={{ height: '220px', width: '100%', minHeight: '220px' }}>
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                                <BarChart data={data.grafico_historico || []}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                                    <XAxis 
+                                        dataKey="fecha" 
+                                        stroke="rgba(255,255,255,0.4)" 
+                                        fontSize={9} 
+                                        tickLine={false} 
+                                        axisLine={false}
+                                        tickFormatter={(str) => {
+                                            const date = new Date(str);
+                                            return date.toLocaleDateString('es-VE', { day: '2-digit', month: 'short' });
+                                        }}
+                                    />
+                                    <YAxis hide />
+                                    <Tooltip 
+                                        cursor={{fill: 'rgba(255,255,255,0.02)'}}
+                                        content={({ active, payload }) => {
+                                            if (active && payload && payload.length) {
+                                              return (
+                                                <div className="glass" style={{ padding: '12px', background: '#0a0b12', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                                   <p style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: 900, marginBottom: '8px' }}>{new Date(payload[0].payload.fecha).toLocaleDateString()}</p>
+                                                   {payload.map((p, idx) => (
+                                                       <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', gap: '20px', alignItems: 'center', marginBottom: '4px' }}>
+                                                           <span style={{ fontSize: '9px', fontWeight: 900, color: p.color, textTransform: 'uppercase' }}>{p.dataKey}</span>
+                                                           <span style={{ fontSize: '0.9rem', color: 'white', fontWeight: 950 }}>${formatMoney(p.value).replace('$', '')}</span>
+                                                       </div>
+                                                   ))}
+                                                </div>
+                                              );
+                                            }
+                                            return null;
+                                        }}
+                                    />
+                                    <Bar dataKey="efectivo" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} barSize={20} />
+                                    <Bar dataKey="pagomovil" stackId="a" fill="#06b6d4" radius={[6, 6, 0, 0]} barSize={20} />
+                                </BarChart>
+                            </ResponsiveContainer>
                     </div>
-                 </div>
-             </Motion.div>
+                    <div style={{ display: 'flex', gap: '16px', marginTop: '16px', justifyContent: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '8px', height: '8px', background: 'var(--success)', borderRadius: '2px' }} />
+                            <span style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)' }}>EFECTIVO</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '2px' }} />
+                            <span style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)' }}>P. MÓVIL</span>
+                        </div>
+                    </div>
+                </Motion.div>
+             )}
         </div>
       </div>
     </div>
