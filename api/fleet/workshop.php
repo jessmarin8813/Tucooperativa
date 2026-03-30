@@ -29,7 +29,7 @@ try {
                         FROM incidencias i
                         JOIN vehiculos v ON i.vehiculo_id = v.id
                         WHERE v.cooperativa_id = :coop_id 
-                        AND i.solucion IS NOT NULL AND LENGTH(i.solucion) > 0";
+                        AND i.resolved_at IS NOT NULL";
                 
                 if ($vehiculo_id) $sql .= " AND i.vehiculo_id = :vid";
                 $sql .= " ORDER BY i.created_at DESC";
@@ -86,7 +86,7 @@ try {
             if (!$vehiculo) sendResponse(['error' => 'Vehicle not found or no access'], 404);
 
             $stmtI = $db->prepare("SELECT * FROM incidencias 
-                                  WHERE vehiculo_id = :vid AND (solucion IS NULL OR solucion = '') 
+                                  WHERE vehiculo_id = :vid AND resolved_at IS NULL 
                                   ORDER BY created_at DESC");
             $stmtI->execute(['vid' => $vehiculo_id]);
             $incidents = $stmtI->fetchAll();

@@ -1,32 +1,35 @@
-# 🛡️ TuCooperativa - PROJECT STATE (v36.5.31-MAINTENANCE / EXCEPTION-HUB)
+# 🛡️ TuCooperativa - PROJECT STATE (v42.0-AUDIT / MONETARY TRANSPARENCY)
 
 ## 📊 Resumen Ejecutivo
-- **Versión**: 36.5.31-Maintenance (Exception-Based Fleet Management).
-- **Estado**: **CONSOLA DE MANTENIMIENTO OPERATIVA**.
-- **Última Auditoría**: OMNI-GUARD v5.0 (Passed 2026-03-29 11:15).
-- **Branding**: Maintenance Dashboard + Telemetría Neón (Al día / Vencidos / Fallas).
+- **Versión**: 42.0-Audit (Monetary Transparency).
+- **Estado**: **ESTABILIDAD FINANCIERA Y MANTENIMIENTO AUDITABLE**.
+- **Última Auditoría**: OMNI-GUARD v5.0 (Passed 2026-03-30 07:25).
+- **Referencia Monetaria**: Arquitectura de "Referencia en USD" para la deuda, sincronizada con el Simulador (driver_sim.php) y Bot de Telegram vía BCV oficial.
+- **Branding**: Consola de Triage Inteligente (Fallas / Vencidos / Al día).
 
 ## 🛠️ Componentes Críticos
-- **Consola de Mantenimiento (v3.0)**: 
-    - Gestión por Excepción: Oculta unidades "Al día" por defecto para priorizar urgencias.
-    - Filtros Exclusivos: Fallas (Incidencias/Taller) y Vencidos (Preventivos).
-    - Terminología: Unidades operativas marcadas como **"Al día"**.
+- **Consola de Mantenimiento (v4.0)**: 
+    - Gestión por Excepción: Triage inteligente (Fallas, Vencidos, Al día).
+    - Lógica de Resolución: Dependencia exclusiva del campo `resolved_at` (Timestamp), permitiendo soluciones con texto vacío sin re-abrir la falla.
+- **Cálculo Multimoneda**: 
+    - Integrado en `mi_estado.php` y `cobranza.php` para acreditar abonos en Bs según la tasa histórica del reporte.
 - **Catálogo Global (`mantenimiento_catalogo`)**: 
-    - Estandarización de nombres de servicios compartida por toda la flota.
+    - Estandarización de servicios compartida por toda la flota.
 - **Auditoría Forense de Odómetros**: 
-    - Bloqueo de rutas y desbloqueo de taller validados contra odómetro físico (Tolerancia 20-25km).
+    - Bloqueo de rutas y desbloqueo de taller validados contra odómetro físico (Tolerancia 20km).
 - **API Mantenimiento & Workshop**: 
     - Repositorio centralizado en `mantenimiento.php` y `fleet/workshop.php`.
 
 ## 📌 Mapa de Ruta Inmediato
 1.  **Dashboard Finance**:
-    *   Integrar los gastos de taller (expenses) en el flujo de caja global.
+    *   Integrar los gastos de taller (expenses) en el flujo de caja global (Reference USD).
 2.  **Mobile Maintenance UX**:
-    *   Añadir gestos táctiles (swipe) para archivar mantenimientos rápidos.
+    *   Refinar gestos táctiles (swipe) para archivar mantenimientos rápidos.
 
 ## ⚠️ Puntos de Atención
-- El ID de vista para el centro de mantenimiento es **`maintenance`**.
-- La carpeta `.gemini/antigravity` tiene un respaldo en Documents por seguridad de sistema.
+- El ID de navegación persistente es **`maintenance`**.
+- La lógica de 'resolved_at' es crítica para el flujo de auditoría forense.
 
 ---
-*Documento sellado tras Integración de Consola de Mantenimiento v36.5.31-Maintenance (2026-03-29 11:28:00)*
+*Documento sellado tras Integración de Auditoría Monetaria v42.0-Audit (2026-03-30 07:27:00)*
+

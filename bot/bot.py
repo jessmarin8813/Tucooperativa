@@ -412,11 +412,13 @@ async def fuel_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
     rif = status.get('banco_identidad', 'N/A')
     
     bank_msg = (
-        f"🏁 **Jornada Finalizada.**\n"
-        f"🏦 **PAGO MÓVIL:**\n"
+        f"🏁 **Jornada Finalizada.**\n\n"
+        f"💵 Cuota Pendiente: **${deuda_usd:.2f}**\n"
+        f"🏦 Tasa BCV: **{bcv_rate:.2f} Bs/$**\n"
+        f"🇻🇪 **Total a pagar hoy: {deuda_bs:.2f} Bs**\n\n"
+        f"🏦 **DATOS PAGO MÓVIL:**\n"
         f"📱 Telf: `{telf}`\n"
         f"🆔 RIF/CI: `{rif}`\n"
-        f"🇻🇪 **Pagar en Bs: {deuda_bs:.2f}**\n"
     )
 
     keyboard = [['Efectivo (Bs)', 'Pago Móvil', 'Mixto']]

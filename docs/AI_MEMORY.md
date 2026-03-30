@@ -2,30 +2,30 @@
 
 Este archivo es el **Cerebro Central** del proyecto. El siguiente agente DEBE leer esto antes de tocar una sola línea de código.
 
-## 📌 Contexto de la Misión (v36.5.31-MAINTENANCE)
-SaaS para gestión de cooperativas de transporte. El sistema ha evolucionado de un listado pasivo a una **Consola de Mantenimiento Activa** basada en el principio de Gestión por Excepción.
+## 📌 Contexto de la Misión (v42.0-AUDIT)
+SaaS para gestión de cooperativas de transporte. El sistema ha evolucionado a una **Consola de Auditoría Forense y Transparencia Monetaria** (v42.0).
 
 ## 🏗️ Reglas de Oro (Innegociables)
-1.  **Maintenance Priority**: La vista por defecto de Mantenimiento oculta unidades operativas para priorizar Fallas y Vencidos.
-2.  **Branding Neón**: El logo es el texto **"TuCooperativa"** con estilo `neon-text brand`.
-3.  **Terminology**: Las unidades saludables se etiquetan profesionalmente como **"Al día"**.
-4.  **Workshop IDs**: El ID oficial de la vista de mantenimiento es **`maintenance`**. Sub-vistas persistentes (`?history=1`).
-5.  **Exclusive Filtering**: Los filtros del dashboard (Fallas, Vencidos, Al día) son estrictamente excluyentes (Lógica de Mantenimiento por Excepción).
+1.  **Monetary Transparency**: Toda deuda se maneja con "Referencia en USD" sincronizada con la tasa BCV oficial en el Simulador y el Bot.
+2.  **Multimoneda Histórica**: Los abonos en Bs se acreditan usando la tasa BCV grabada en el momento del reporte del pago (`tasa_cambio`).
+3.  **Maintenance Priority**: La vista por defecto de Mantenimiento oculta unidades operativas para priorizar Fallas y Vencidos (Triage inteligente).
+4.  **Resolved_at Logic**: La resolución de fallas depende exclusivamente del campo `resolved_at` (Timestamp). Se permiten soluciones con texto vacío; esto NO re-abre la falla.
+5.  **Workshop IDs**: El ID oficial de la vista de mantenimiento es **`maintenance`**.
 6.  **Build Protocol**: NUNCA des por terminada una tarea sin ejecutar `python build_system.py`. (OMNI-GUARD v5.0).
 7.  **Defensive UI**: Todo acceso a arreglos en `MaintenanceCenter.jsx` debe usar `?.length` y `|| []`.
 
 ## 🛠️ Arsenal de Skills Premium (.agent/skills/)
-El sistema cuenta con un ecosistema de herramientas automatizadas corregidas y configuradas para este repositorio (v36.5.31):
+El sistema cuenta con un ecosistema de herramientas automatizadas corregidas y configuradas para este repositorio (v42.0):
 - **Backend & Seguridad**: `API-Detective-PHP`, `Security-Guard-PHP` (Audit Forense v2.0).
 - **Base de Datos**: `Database-Schema-Doctor` (Fix: Path Singleton).
-- **Frontend & UI**: `standard-ui-guard` (Cumplimiento de Reglas Pro).
-- **Bots**: `Bot-Python-Medic` (Diagnóstico de Telegram OK).
+- **Bot-Python-Medic**: Diagnóstico de Telegram OK.
+- **Integrity-Audit**: Verificación de cálculos multimoneda y estados.
 
-## 🚀 Hitos de la Versión v36.5.31 (Cierre de Marzo 2026)
-- **Hito: Consola de Mantenimiento**. Rediseño Mobile-First con contadores neonatales y filtros por excepción (Previamente denominado Triage).
-- **Hito: Catálogo Global**. Estandarización de servicios de mantenimiento para evitar duplicados.
-- **Hito: Odómetro Forense**. Validación obligatoria de odómetros en cierre de rutas y salida de taller (Tolerancia 20-25km).
-- **Hito: Estabilidad Crítica**. Corrección de errores de renderizado en React y "removeChild" crashes mediante defensiva total.
+## 🚀 Hitos de la Versión v42.0-Audit (Marzo 2026)
+- **Hito: Transparencia Monetaria**. Despliegue de arquitectura Referencia USD y sincronización masiva de deudas chofer-cooperativa.
+- **Hito: Auditoría Forense**. Implementación de `resolved_at` y validación de odómetro con tolerancia de 20km.
+- **Hito: Consola de Triage**. Rediseño de Mantenimiento con estados "Fallas", "Vencidos" y "Al día" con filtrado excluyente.
+- **Hito: Estabilidad Crítica**. Cierre de fugas de memoria en React y crashes por manipulación del DOM.
 
 ## 🛠️ Herramientas de Ejecución
 - **Build System**: `python build_system.py` (OMNI-GUARD Certified).
@@ -35,5 +35,5 @@ El sistema cuenta con un ecosistema de herramientas automatizadas corregidas y c
 ---
 > [!IMPORTANT]
 > **ORDEN PARA EL SIGUIENTE AGENTE**:
-> El sistema está en un estado de **Alta Disponibilidad Operativa (v36.5.31)**. Lee `docs/PROJECT_STATE.md` para el mapa de ruta y `docs/AI_MEMORY.md` para no romper la lógica de Mantenimiento.
+> El sistema está en un estado de **Alta Disponibilidad Operativa (v42.0-Audit)**. Lee `docs/PROJECT_STATE.md` para el mapa de ruta y `docs/AI_MEMORY.md` para no romper la lógica de Transparencia Monetaria.
 

@@ -62,8 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // 3. Actualizar Incidencias
-    $stmtInc = $db->prepare("UPDATE incidencias SET diagnostico = ?, solucion = ? 
-                            WHERE vehiculo_id = ? AND solucion IS NULL 
+    $stmtInc = $db->prepare("UPDATE incidencias SET diagnostico = ?, solucion = ?, resolved_at = NOW() 
+                            WHERE vehiculo_id = ? AND resolved_at IS NULL 
                             ORDER BY created_at DESC LIMIT 1");
     $stmtInc->execute([$diagnostico, $solucion, $v_id]);
 

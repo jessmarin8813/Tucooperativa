@@ -543,18 +543,19 @@
         try {
             const res = await fetch(`${API_BASE}chofer/mi_estado.php?telegram_id=${driverData.id}`);
             const data = await res.json();
-            console.log("DEBUG Status Data:", data);
+            const deuda_usd = data.deuda !== undefined ? parseFloat(data.deuda) : 0;
+            const bcv_rate = data.bcv_rate !== undefined ? parseFloat(data.bcv_rate) : 1.0;
+            const deuda_bs = deuda_usd * bcv_rate;
             
-            // Garantizar valores si el objeto llegó vacío por error
-            const placa = data.placa || 'N/A';
-            const deuda = data.deuda !== undefined ? data.deuda : 0;
             const pendientes = data.pendientes !== undefined ? data.pendientes : 0;
             const km = data.ultimo_km || 0;
             const bancos = data.datos_bancarios || 'Consulte al admin';
 
             const msg = `📊 *ESTADO DE CUENTA*\n\n` +
                         `🔹 Unidad: ${placa}\n` +
-                        `🔹 Deuda: Bs ${deuda}\n` +
+                        `💵 Deuda (USD): $${deuda_usd.toFixed(2)}\n` +
+                        `🏦 Tasa BCV: ${bcv_rate.toFixed(2)} Bs/$\n` +
+                        `🇻🇪 **Total en Bs: ${deuda_bs.toFixed(2)}**\n` +
                         `🔹 Pendiente: Bs ${pendientes}\n` +
                         `🔹 Último KM: ${km}\n\n` +
                         `💳 *Datos de Pago*:\n${bancos}`;

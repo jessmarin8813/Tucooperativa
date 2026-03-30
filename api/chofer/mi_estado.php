@@ -41,8 +41,8 @@ if ($base_data) {
     // Estadísticas generales (Incluso sin ruta activa)
     $stmtStats = $db->prepare("SELECT 
         (SELECT COUNT(DISTINCT DATE(started_at)) FROM rutas WHERE vehiculo_id = :v1 AND chofer_id = :u1 AND estado != 'exonerada') as dias,
-        (SELECT COALESCE(SUM(monto), 0) FROM pagos_reportados WHERE chofer_id = :u2 AND estado = 'aprobado') as abonos,
-        (SELECT COALESCE(SUM(monto), 0) FROM pagos_reportados WHERE chofer_id = :u3 AND estado = 'pendiente') as pendientes,
+        (SELECT COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN monto / tasa_cambio ELSE monto END), 0) FROM pagos_reportados WHERE chofer_id = :u2 AND estado = 'aprobado') as abonos,
+        (SELECT COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN monto / tasa_cambio ELSE monto END), 0) FROM pagos_reportados WHERE chofer_id = :u3 AND estado = 'pendiente') as pendientes,
         (SELECT o.valor FROM odometros o JOIN rutas r ON o.ruta_id = r.id WHERE r.vehiculo_id = :v2 ORDER BY o.created_at DESC LIMIT 1) as ultimo_km
     ");
     $stmtStats->execute(['v1' => $base_data['vehiculo_id'], 'u1' => $user_id, 'u2' => $user_id, 'u3' => $user_id, 'v2' => $base_data['vehiculo_id']]);
@@ -53,7 +53,8 @@ if ($base_data) {
     $dias = floatval($data['dias'] ?? 0);
     $cuota = floatval($data['cuota_diaria'] ?? 0);
     $abonos = floatval($data['abonos'] ?? 0);
-    $data['deuda_bs'] = max(0, ($dias * $cuota) - $abonos);
+    $data['deuda_usd'] = max(0, ($dias * $cuota) - $abonos);
+    $data['deuda_bs'] = $data['deuda_usd'] * $bcv_rate;
 
 } else {
     // Lógica para choferes sin unidad
@@ -74,7 +75,7 @@ if (!empty($data['banco_nombre'])) {
 
 sendResponse([
     'placa' => $data['placa'] ?? 'N/A',
-    'deuda' => floatval($data['deuda_bs'] ?? 0),
+    'deuda' => floatval($data['deuda_usd'] ?? 0),
     'bcv_rate' => $bcv_rate,
     'pendientes' => floatval($data['pendientes'] ?? 0),
     'ultimo_km' => $data['ultimo_km'] ?? 0,
