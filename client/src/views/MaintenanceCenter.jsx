@@ -39,8 +39,28 @@ const MaintenanceCenter = ({ setActiveView }) => {
     try {
       const res = await callApi(`workshop.php?history=1&t=${Date.now()}`)
       console.log('📦 [DEBUG] Respuesta Historial Recibida:', res);
-      const items = res?.data && Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : [])
-      console.log('📜 [DEBUG] Registros Mapeados:', items.length);
+      
+      const rawItems = res?.data && Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : [])
+      
+      // BLINDAJE v40.7: Deduplicación y Consolidación por Placa (Hard Fix)
+      const uniqueMap = {}
+      rawItems.forEach(item => {
+          if (!item) return
+          const key = item.placa || item.id
+          if (!uniqueMap[key]) {
+              uniqueMap[key] = { ...item }
+          } else {
+              // Si ya existe (fantasma), buscamos el más completo o sumamos
+              uniqueMap[key].total_gasto = parseFloat(uniqueMap[key].total_gasto || 0) + parseFloat(item.total_gasto || 0)
+              uniqueMap[key].expenses = [...(uniqueMap[key].expenses || []), ...(item.expenses || [])]
+              if (item.diagnostico && !uniqueMap[key].diagnostico.includes(item.diagnostico)) {
+                  uniqueMap[key].diagnostico += ` | ${item.diagnostico}`
+              }
+          }
+      })
+
+      const items = Object.values(uniqueMap)
+      console.log('📜 [DEBUG] Registros Consolidados:', items.length);
       setRepairHistory(items)
     } catch (err) { 
       console.error('❌ [DEBUG] Fallo al cargar historial:', err);
