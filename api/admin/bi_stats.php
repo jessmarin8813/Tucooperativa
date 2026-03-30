@@ -14,27 +14,24 @@ $db = DB::getInstance();
 $coop_id = $user['cooperativa_id'];
 
 try {
-    // 1. Revenue trend (last 7 days)
-    $stmtTrend = $db->prepare("SELECT fecha, SUM(monto_efectivo + monto_pagomovil) as total 
-                               FROM pagos_diarios 
-                               WHERE cooperativa_id = ? AND fecha >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-                               GROUP BY fecha ORDER BY fecha ASC");
+    $stmtTrend = $db->prepare("SELECT DATE(fecha_reportado) as fecha, SUM(CASE WHEN moneda = 'Bs' THEN (monto_efectivo + monto_pagomovil) / NULLIF(tasa_cambio, 0) ELSE (monto_efectivo + monto_pagomovil) END) as total 
+                               FROM pagos_reportados 
+                               WHERE cooperativa_id = ? AND estado = 'aprobado' AND fecha_reportado >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+                               GROUP BY DATE(fecha_reportado) ORDER BY fecha ASC");
     $stmtTrend->execute([$coop_id]);
     $revenueTrend = $stmtTrend->fetchAll();
 
-    // 2. Expenses trend (last 7 days)
-    $stmtExpTrend = $db->prepare("SELECT fecha, SUM(monto) as total 
-                                  FROM gastos 
-                                  WHERE cooperativa_id = ? AND fecha >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-                                  GROUP BY fecha ORDER BY fecha ASC");
+    $stmtExpTrend = $db->prepare("SELECT fecha, SUM(CASE WHEN moneda = 'Bs' THEN monto / NULLIF(tasa_cambio, 0) ELSE monto END) as total 
+                                   FROM gastos 
+                                   WHERE cooperativa_id = ? AND fecha >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+                                   GROUP BY fecha ORDER BY fecha ASC");
     $stmtExpTrend->execute([$coop_id]);
     $expensesTrend = $stmtExpTrend->fetchAll();
 
-    // 3. Top drivers by revenue (Using chofer_id from schema/recaudacion)
-    $stmtDrivers = $db->prepare("SELECT u.nombre, SUM(p.monto_efectivo + p.monto_pagomovil) as total
-                                 FROM pagos_diarios p
-                                 JOIN usuarios u ON p.chofer_id = u.id
-                                 WHERE p.cooperativa_id = ?
+    $stmtDrivers = $db->prepare("SELECT u.nombre, SUM(CASE WHEN p.moneda = 'Bs' THEN (p.monto_efectivo + p.monto_pagomovil) / NULLIF(p.tasa_cambio, 0) ELSE (p.monto_efectivo + p.monto_pagomovil) END) as total
+                                 FROM pagos_reportados p
+                                 JOIN choferes u ON p.chofer_id = u.id
+                                 WHERE p.cooperativa_id = ? AND p.estado = 'aprobado'
                                  GROUP BY p.chofer_id
                                  ORDER BY total DESC LIMIT 5");
     $stmtDrivers->execute([$coop_id]);
@@ -49,10 +46,9 @@ try {
     $stmtFuel->execute([$coop_id]);
     $fuelStats = $stmtFuel->fetchAll();
 
-    // 5. Totals for highlight cards
     $stmtTotals = $db->prepare("SELECT 
-                                (SELECT SUM(monto_efectivo + monto_pagomovil) FROM pagos_diarios WHERE cooperativa_id = ?) as total_revenue,
-                                (SELECT SUM(monto) FROM gastos WHERE cooperativa_id = ?) as total_expenses");
+                                (SELECT SUM(CASE WHEN moneda = 'Bs' THEN (monto_efectivo + monto_pagomovil) / NULLIF(tasa_cambio, 0) ELSE (monto_efectivo + monto_pagomovil) END) FROM pagos_reportados WHERE cooperativa_id = ? AND estado = 'aprobado') as total_revenue,
+                                (SELECT SUM(CASE WHEN moneda = 'Bs' THEN monto / NULLIF(tasa_cambio, 0) ELSE monto END) FROM gastos WHERE cooperativa_id = ?) as total_expenses");
     $stmtTotals->execute([$coop_id, $coop_id]);
     $totals = $stmtTotals->fetch();
 

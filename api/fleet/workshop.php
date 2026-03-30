@@ -139,14 +139,24 @@ try {
                 $inc_id = $data['incidencia_id'] ?? null;
                 $vid = $data['vehiculo_id'] ?? null;
                 $monto = $data['monto'] ?? 0;
+                $moneda = $data['moneda'] ?? 'USD';
+                $tasa = $data['tasa_cambio'] ?? null;
                 $desc = $data['descripcion'] ?? 'Repuesto/Servicio';
                 $cat = $data['categoria'] ?? 'repuestos';
 
                 if (!$inc_id || !$vid || !$monto) throw new Exception("Datos incompletos para añadir gasto.");
 
+                // Si no se envía tasa, buscamos la última registrada
+                if (!$tasa) {
+                    $stmtRate = $db->prepare("SELECT tasa FROM tasas_cambio ORDER BY created_at DESC LIMIT 1");
+                    $stmtRate->execute();
+                    $rateRow = $stmtRate->fetch();
+                    $tasa = $rateRow['tasa'] ?? 1.0;
+                }
+
                 $stmt = $db->prepare("INSERT INTO gastos (cooperativa_id, vehiculo_id, incidencia_id, categoria, monto, moneda, tasa_cambio, descripcion, fecha) 
-                                     VALUES (?, ?, ?, ?, ?, 'USD', (SELECT tasa FROM tasas_cambio ORDER BY created_at DESC LIMIT 1), ?, CURDATE())");
-                $stmt->execute([$coop_id, $vid, $inc_id, $cat, $monto, $desc]);
+                                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURDATE())");
+                $stmt->execute([$coop_id, $vid, $inc_id, $cat, $monto, $moneda, $tasa, $desc]);
 
                 sendResponse(['success' => true, 'id' => $db->lastInsertId()]);
 

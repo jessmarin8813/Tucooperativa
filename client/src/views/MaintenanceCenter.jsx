@@ -12,7 +12,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
   const [showAddModal, setShowAddModal] = useState(null)
   const [showWorkshopModal, setShowWorkshopModal] = useState(null) // holds vehicle object
   const [workshopIncident, setWorkshopIncident] = useState(null)
-  const [newExpense, setNewExpense] = useState({ monto: '', descripcion: '' })
+  const [newExpense, setNewExpense] = useState({ monto: '', descripcion: '', moneda: 'USD' })
   const [diagnosis, setDiagnosis] = useState('')
   const [solution, setSolution] = useState('')
   const [newItem, setNewItem] = useState({ nombre: '', frecuencia: 5000, ultimo_odometro: 0 })
@@ -159,10 +159,11 @@ const MaintenanceCenter = ({ setActiveView }) => {
           incidencia_id: latestIncId,
           vehiculo_id: showWorkshopModal.id,
           monto: newExpense.monto,
+          moneda: newExpense.moneda,
           descripcion: newExpense.descripcion || 'Repuesto/Servicio'
         })
       })
-      setNewExpense({ monto: '', descripcion: '' })
+      setNewExpense({ monto: '', descripcion: '', moneda: 'USD' })
       fetchWorkshopIncident(showWorkshopModal.id)
     } catch { /* Handled */ }
   }
@@ -835,19 +836,27 @@ const MaintenanceCenter = ({ setActiveView }) => {
                                   <DollarSign size={14} /> LISTA DE REPUESTOS Y GASTOS
                               </h4>
                               <div style={{ fontSize: '0.75rem', fontWeight: 950, color: 'white', background: 'rgba(245, 158, 11, 0.1)', padding: '4px 12px', borderRadius: '100px', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
-                                  TOTAL: ${formatNumber((workshopIncident?.expenses || []).reduce((acc, e) => acc + parseFloat(e.monto || 0), 0))}
+                                  TOTAL: ${formatNumber((workshopIncident?.expenses || []).reduce((acc, e) => {
+                                      const normalized = e.moneda === 'Bs' ? (e.monto / (e.tasa_cambio || 1)) : e.monto;
+                                      return acc + parseFloat(normalized || 0);
+                                  }, 0))}
                               </div>
                           </div>
 
                           <div className="glass" style={{ padding: '24px', borderRadius: '28px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.05)', boxSizing: 'border-box' }}>
                               {/* Formulario de Entrada Modernizado */}
                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '24px', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.03)', alignItems: 'center' }}>
-                                  <div style={{ position: 'relative', width: '85px', flexShrink: 0 }}>
-                                      <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)', fontWeight: 900 }}>$</span>
+                                  <div style={{ display: 'flex', alignItems: 'center', background: '#05070a', borderRadius: '10px', border: '1px solid rgba(99, 102, 241, 0.3)', overflow: 'hidden' }}>
+                                      <button 
+                                        onClick={() => setNewExpense({...newExpense, moneda: newExpense.moneda === 'USD' ? 'Bs' : 'USD'})}
+                                        style={{ padding: '12px 10px', background: 'rgba(255,255,255,0.05)', border: 'none', color: 'var(--accent)', fontWeight: 950, fontSize: '0.8rem', cursor: 'pointer', borderRight: '1px solid rgba(255,255,255,0.1)' }}
+                                      >
+                                          {newExpense.moneda === 'USD' ? '$' : 'Bs'}
+                                      </button>
                                       <input 
                                          type="number" placeholder="0.00" 
                                          value={newExpense.monto} onChange={(e) => setNewExpense({...newExpense, monto: e.target.value})}
-                                         style={{ width: '100%', background: '#05070a', border: '1px solid rgba(99, 102, 241, 0.3)', padding: '12px 10px 12px 24px', borderRadius: '10px', color: 'white', fontWeight: 900, outline: 'none', fontSize: '0.9rem' }}
+                                         style={{ width: '85px', background: 'transparent', border: 'none', padding: '12px 10px', color: 'white', fontWeight: 900, outline: 'none', fontSize: '0.9rem' }}
                                       />
                                   </div>
                                   <div style={{ flex: '1', minWidth: '150px' }}>
@@ -891,7 +900,9 @@ const MaintenanceCenter = ({ setActiveView }) => {
                                           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                                               <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: '0.85rem' }}>{exp?.descripcion || 'Gasto'}</span>
                                               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                  <span style={{ color: 'white', fontWeight: 950, fontSize: '0.9rem' }}>${formatNumber(exp?.monto || 0)}</span>
+                                                  <span style={{ color: 'white', fontWeight: 950, fontSize: '0.9rem' }}>
+                                                      {exp.moneda === 'Bs' ? `${exp.monto} Bs` : `$${formatNumber(exp.monto)}`}
+                                                  </span>
                                                   <div style={{ display: 'flex', gap: '8px', marginLeft: '4px' }}>
                                                       <button 
                                                         onClick={() => handleEditExpense(exp)}

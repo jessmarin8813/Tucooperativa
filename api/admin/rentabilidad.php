@@ -18,12 +18,12 @@ $sql_global = "SELECT
     (SELECT COALESCE(SUM(v.cuota_diaria * (SELECT COUNT(DISTINCT DATE(started_at)) FROM rutas WHERE vehiculo_id = v.id)), 0) 
      FROM vehiculos v WHERE v.cooperativa_id = :cp1) as proyectado,
     
-    (SELECT COALESCE(SUM(monto), 0) FROM pagos_reportados WHERE estado = 'aprobado' AND cooperativa_id = :cp2) as recaudado,
+    (SELECT COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN (monto_efectivo + monto_pagomovil) / NULLIF(tasa_cambio, 0) ELSE (monto_efectivo + monto_pagomovil) END), 0) FROM pagos_reportados WHERE estado = 'aprobado' AND cooperativa_id = :cp2) as recaudado,
     
     (SELECT COALESCE(SUM(costo), 0) FROM mantenimiento_items mi 
      JOIN vehiculos v ON v.id = mi.vehiculo_id WHERE v.cooperativa_id = :cp3) as gastos_mante,
     
-    (SELECT COALESCE(SUM(monto), 0) FROM gastos WHERE cooperativa_id = :cp4) as gastos_oper";
+    (SELECT COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN monto / NULLIF(tasa_cambio, 0) ELSE monto END), 0) FROM gastos WHERE cooperativa_id = :cp4) as gastos_oper";
 
 $stmt = $db->prepare($sql_global);
 $stmt->execute([
@@ -42,7 +42,7 @@ $eficiencia = $stats['proyectado'] > 0 ? ($stats['recaudado'] / $stats['proyecta
 $sql_units = "SELECT 
     v.id, v.placa, v.cuota_diaria,
     (SELECT COUNT(DISTINCT DATE(started_at)) FROM rutas WHERE vehiculo_id = v.id) as dias,
-    (SELECT COALESCE(SUM(monto), 0) FROM pagos_reportados WHERE vehiculo_id = v.id AND estado = 'aprobado') as abonos,
+    (SELECT COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN (monto_efectivo + monto_pagomovil) / NULLIF(tasa_cambio, 0) ELSE (monto_efectivo + monto_pagomovil) END), 0) FROM pagos_reportados WHERE vehiculo_id = v.id AND estado = 'aprobado') as abonos,
     (SELECT COALESCE(SUM(costo), 0) FROM mantenimiento_items WHERE vehiculo_id = v.id) as costos_mante
     FROM vehiculos v
     WHERE v.cooperativa_id = :coop_id";
