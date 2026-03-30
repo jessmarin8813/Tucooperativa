@@ -254,12 +254,23 @@
         <!-- FORM: PAGO -->
         <div id="form-payment" class="hidden" style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 16px;">
             <label>Método de Pago</label>
-            <select id="payment-method" style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #333;">
+            <select id="payment-method" onchange="togglePaymentInputs('payment')" style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #333;">
                 <option value="Efectivo (Bs)">Efectivo (Bs)</option>
                 <option value="Pago Móvil">Pago Móvil</option>
+                <option value="Mixto">Pago Mixto (Efectivo + PM)</option>
             </select>
-            <label>Monto Pago (Bs)</label>
-            <input type="number" id="payment-amount" placeholder="0.00">
+
+            <div id="payment-amount-container">
+                <div id="payment-efectivo-box">
+                    <label id="payment-label-ef">Monto (Bs)</label>
+                    <input type="number" id="payment-amount-ef" placeholder="0.00">
+                </div>
+                <div id="payment-pm-box" class="hidden">
+                    <label>Monto Pago Móvil (Bs)</label>
+                    <input type="number" id="payment-amount-pm" placeholder="0.00">
+                </div>
+            </div>
+
             <button onclick="reportPayment()" class="btn btn-success" style="margin-top: 10px;">Enviar Reporte de Pago</button>
             <button onclick="hideForms()" class="btn btn-danger" style="font-size: 0.75rem; margin-top: 8px;">❌ CANCELAR</button>
         </div>
@@ -277,8 +288,29 @@
 
             <div id="actions-active" class="hidden">
                 <label>Odómetro Final</label>
-                <input type="number" id="end-odo">
-                <button onclick="endJourney()" class="btn btn-danger">🏁 Finalizar Jornada</button>
+                <input type="number" id="end-odo" style="margin-bottom: 15px;">
+                
+                <div style="padding: 15px; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+                    <label style="color: var(--success);">💰 Reportar Pago de Cierre</label>
+                    <select id="end-payment-method" onchange="togglePaymentInputs('end')" style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #333;">
+                        <option value="Efectivo (Bs)">Efectivo (Bs)</option>
+                        <option value="Pago Móvil">Pago Móvil</option>
+                        <option value="Mixto">Pago Mixto</option>
+                    </select>
+                    
+                    <div id="end-amount-container">
+                        <div id="end-efectivo-box">
+                            <label id="end-label-ef">Monto (Bs)</label>
+                            <input type="number" id="end-amount-ef" placeholder="0.00">
+                        </div>
+                        <div id="end-pm-box" class="hidden">
+                            <label>Monto Pago Móvil (Bs)</label>
+                            <input type="number" id="end-amount-pm" placeholder="0.00">
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="endJourney()" class="btn btn-danger" style="margin-top: 15px;">🏁 Finalizar Jornada</button>
             </div>
             <button onclick="hideForms()" class="btn btn-danger" style="font-size: 0.75rem; margin-top: 15px;">❌ CANCELAR / CERRAR</button>
         </div>
@@ -588,6 +620,26 @@
         log('📩 Mensaje recibido del Bot.');
     }
 
+    function togglePaymentInputs(prefix) {
+        const method = document.getElementById(`${prefix}-payment-method`).value;
+        const efBox = document.getElementById(`${prefix}-efectivo-box`);
+        const pmBox = document.getElementById(`${prefix}-pm-box`);
+        const labelEf = document.getElementById(`${prefix}-label-ef`);
+
+        if (method === 'Mixto') {
+            efBox.classList.remove('hidden');
+            pmBox.classList.remove('hidden');
+            labelEf.innerText = 'Monto Efectivo (Bs)';
+        } else if (method === 'Pago Móvil') {
+            efBox.classList.add('hidden');
+            pmBox.classList.remove('hidden');
+        } else {
+            efBox.classList.remove('hidden');
+            pmBox.classList.add('hidden');
+            labelEf.innerText = 'Monto (Bs)';
+        }
+    }
+
     function showPaymentForm() {
         hideForms();
         document.getElementById('form-payment').classList.remove('hidden');
@@ -734,28 +786,29 @@
     }
 
     async function reportPayment() {
-        const amount = document.getElementById('payment-amount').value;
         const method = document.getElementById('payment-method').value;
-        if (!amount) return alert('Ingresa un monto.');
+        const amountEf = document.getElementById('payment-amount-ef').value || 0;
+        const amountPm = document.getElementById('payment-amount-pm').value || 0;
         
-        log(`Reportando pago de Bs ${amount} via ${method}...`);
-        const ef = method === 'Efectivo (Bs)' ? amount : 0;
-        const pm = method === 'Pago Móvil' ? amount : 0;
+        if (parseFloat(amountEf) + parseFloat(amountPm) <= 0) return alert('Ingresa un monto válido.');
+        
+        log(`Reportando pago via ${method}...`);
 
         try {
             const res = await fetch(`${API_BASE}chofer/reportar_pago.php`, {
                 method: 'POST',
                 body: JSON.stringify({
                     telegram_id: driverData.id,
-                    monto_efectivo: ef,
-                    monto_pagomovil: pm,
+                    monto_efectivo: amountEf,
+                    monto_pagomovil: amountPm,
                     comprobante: 'uploads/sim_pago.jpg'
                 })
             });
             const data = await res.json();
             if (data.success) {
                 log('💰 Pago reportado correctamente.');
-                document.getElementById('payment-amount').value = '';
+                document.getElementById('payment-amount-ef').value = '';
+                document.getElementById('payment-amount-pm').value = '';
                 hideForms();
             } else { log(`❌ Error: ${data.error || data.message}`); }
         } catch (e) { log('❌ Error de comunicación.'); }
@@ -764,7 +817,12 @@
 
     async function endJourney() {
         const odo = document.getElementById('end-odo').value;
-        log(`Finalizando jornada con odómetro: ${odo}`);
+        const amountEf = document.getElementById('end-amount-ef').value || 0;
+        const amountPm = document.getElementById('end-amount-pm').value || 0;
+
+        if (!odo) return alert('Indica el odómetro final.');
+        
+        log(`Finalizando jornada con odómetro: ${odo} y reporte de pago...`);
 
         try {
             const res = await fetch(`${API_BASE}fleet/rutas.php`, {
@@ -775,8 +833,8 @@
                     ruta_id: driverData.active_route_id,
                     odometro_valor: odo,
                     foto_path: 'uploads/sim_end.jpg',
-                    monto_efectivo: 0,
-                    monto_pagomovil: 0
+                    monto_efectivo: amountEf,
+                    monto_pagomovil: amountPm
                 })
             });
             const data = await res.json();
