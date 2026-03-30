@@ -254,7 +254,7 @@
         <!-- FORM: PAGO -->
         <div id="form-payment" class="hidden" style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 16px;">
             <label>Método de Pago</label>
-            <select id="payment-method" onchange="togglePaymentInputs('payment')" style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #333;">
+            <select id="payment-payment-method" onchange="togglePaymentInputs('payment')" style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #333;">
                 <option value="Efectivo (Bs)">Efectivo (Bs)</option>
                 <option value="Pago Móvil">Pago Móvil</option>
                 <option value="Mixto">Pago Mixto (Efectivo + PM)</option>
