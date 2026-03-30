@@ -97,11 +97,11 @@ async def post_init(application):
     END_ODOMETER, END_PHOTO, FUEL_REPORT,
     REPORTAR_METHOD, REPORTAR_AMOUNTS, REPORTAR_PHOTO,
     REGISTRAR_NOMBRE, REGISTRAR_CEDULA,
-    INCIDENCIA_TIPO, INCIDENCIA_DESC, INCIDENCIA_PHOTO,
+    INCIDENCIA_TIPO, INCIDENCIA_DESC, INCIDENCIA_ODOMETER, INCIDENCIA_PHOTO,
     REACTIVACION_PHOTO,
     END_PAY_METHOD, END_PAY_AMOUNTS,
     INCIDENCIA_PAY_METHOD, INCIDENCIA_PAY_AMOUNTS
-) = range(21)
+) = range(22)
 
 
 async def get_dynamic_menu(update: Update):
@@ -454,6 +454,16 @@ async def incidencia_desc_received(update: Update, context: ContextTypes.DEFAULT
     desc = update.message.text
     if desc == '❌ CANCELAR': return await cancel(update, context)
     context.user_data['incidencia_desc'] = desc
+    await update.message.reply_text("📍 Ingresa el **Odómetro Actual** (solo números):", parse_mode='Markdown', reply_markup=ReplyKeyboardMarkup([['❌ CANCELAR']], resize_keyboard=True))
+    return INCIDENCIA_ODOMETER
+
+async def incidencia_odometer_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    odo = update.message.text
+    if odo == '❌ CANCELAR': return await cancel(update, context)
+    if not odo.isdigit():
+        await update.message.reply_text("⚠️ Solo números por favor.")
+        return INCIDENCIA_ODOMETER
+    context.user_data['incidencia_odo'] = odo
     await update.message.reply_text("📸 Envía una **FOTO** como evidencia:")
     return INCIDENCIA_PHOTO
 
@@ -466,6 +476,7 @@ async def incidencia_photo_received(update: Update, context: ContextTypes.DEFAUL
         telegram_id=update.effective_user.id,
         tipo=context.user_data['incidencia_tipo'],
         descripcion=context.user_data['incidencia_desc'],
+        odometro=context.user_data['incidencia_odo'],
         foto=context.user_data['incidencia_foto']
     )
     
@@ -661,6 +672,7 @@ if __name__ == '__main__':
         states={
             INCIDENCIA_TIPO: [MessageHandler(filters.TEXT & (~filters.COMMAND), incidencia_tipo_chosen)],
             INCIDENCIA_DESC: [MessageHandler(filters.TEXT & (~filters.COMMAND), incidencia_desc_received)],
+            INCIDENCIA_ODOMETER: [MessageHandler(filters.TEXT & (~filters.COMMAND), incidencia_odometer_received)],
             INCIDENCIA_PHOTO: [MessageHandler(filters.PHOTO, incidencia_photo_received)],
             INCIDENCIA_PAY_METHOD: [MessageHandler(filters.TEXT & (~filters.COMMAND), final_payment_method_chosen)],
             INCIDENCIA_PAY_AMOUNTS: [MessageHandler(filters.TEXT & (~filters.COMMAND), process_final_payment)],

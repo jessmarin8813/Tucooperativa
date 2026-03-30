@@ -111,12 +111,13 @@ class TuCooperativaAPI:
         except Exception as e:
             return {'error': str(e)}
 
-    def report_incident(self, telegram_id, tipo, descripcion, foto=''):
+    def report_incident(self, telegram_id, tipo, descripcion, odometro, foto=''):
         try:
             response = self.session.post(f"{self.base_url}/fleet/reportar_incidencia.php", json={
                 'telegram_id': telegram_id,
                 'tipo': tipo,
                 'descripcion': descripcion,
+                'valor_odometro': odometro,
                 'foto_path': foto
             })
             return response.json()

@@ -66,8 +66,9 @@ const MaintenanceCenter = ({ setActiveView }) => {
       const res = await callApi(`fleet/workshop.php?vehiculo_id=${vId}`)
       if (!res) return
       setWorkshopIncident(res)
-      setDiagnosis(res?.diagnostico || '')
-      setSolution(res?.solucion || '')
+      // Extraemos diagnóstico/solución del incidente más reciente para visualización
+      setDiagnosis(res?.latest?.diagnostico || '')
+      setSolution(res?.latest?.solucion || '')
     } catch { /* Handled */ }
   }
 
@@ -77,11 +78,16 @@ const MaintenanceCenter = ({ setActiveView }) => {
   }
 
   const handleUpdateDiagnosis = async () => {
-    if (!workshopIncident) return
+    const latestIncId = workshopIncident?.latest?.id
+    if (!latestIncId) {
+        console.warn("⚠️ No se puede guardar diagnóstico: No hay incidente activo seleccionado.");
+        return
+    }
+    
     try {
       await callApi('fleet/workshop.php', {
         method: 'PUT',
-        body: JSON.stringify({ id: workshopIncident.id, diagnostico: diagnosis })
+        body: JSON.stringify({ id: latestIncId, diagnostico: diagnosis })
       })
       fetchWorkshopIncident(showWorkshopModal.id)
     } catch { /* Handled */ }
