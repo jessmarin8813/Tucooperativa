@@ -283,9 +283,7 @@ const CobranzaView = () => {
                                     <tr style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em', borderBottom: '1px solid var(--glass-border)' }}>
                                         <th style={{ padding: '24px 40px' }}>Unidad / Chofer</th>
                                         <th style={{ padding: '24px 40px', textAlign: 'center' }}>Cuota</th>
-                                        <th style={{ padding: '24px 40px', textAlign: 'center' }}>Efectivo / Móvil</th>
                                         <th style={{ padding: '24px 40px', textAlign: 'center' }}>Total Recaudado</th>
-                                        <th style={{ padding: '24px 40px', textAlign: 'center' }}>Saldo Actual</th>
                                         <th style={{ padding: '24px 40px', textAlign: 'right' }}>Estatus</th>
                                     </tr>
                             </thead>
@@ -304,19 +302,7 @@ const CobranzaView = () => {
                                             </div>
                                         </td>
                                         <td style={{ padding: '32px 40px', textAlign: 'center', color: 'var(--text-dim)', fontWeight: 700, fontSize: '1.1rem' }}>{formatMoney(v.cuota_diaria)}</td>
-                                        <td style={{ padding: '32px 40px', textAlign: 'center' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                                <span style={{ color: 'var(--success)' }}>{formatMoney(v.monto_efectivo || 0)}</span>
-                                                <span style={{ opacity: 0.2 }}>/</span>
-                                                <span style={{ color: 'var(--accent)' }}>{formatMoney(v.monto_pagomovil || 0)}</span>
-                                            </div>
-                                        </td>
                                         <td style={{ padding: '32px 40px', textAlign: 'center', color: 'var(--success)', fontWeight: 900, fontSize: '1.1rem' }}>{formatMoney(v.abonos_totales)}</td>
-                                        <td style={{ padding: '32px 40px', textAlign: 'center' }}>
-                                            <span className="neon-text" style={{ fontWeight: 900, fontSize: '1.5rem', color: v.saldo_pendiente > 0.01 ? 'var(--danger)' : 'var(--success)' }}>
-                                                {formatMoney(v.saldo_pendiente)}
-                                            </span>
-                                        </td>
                                         <td style={{ padding: '32px 40px', textAlign: 'right' }}>
                                             <span style={{ 
                                                 display: 'inline-flex', 
