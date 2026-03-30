@@ -186,7 +186,7 @@ button {
   justify-content: space-between;
   padding: 0px 24px !important;
   height: 60px !important;
-  z-index: 200 !important;
+  z-index: 100 !important;
   border-bottom: 1px solid rgba(255,255,255,0.05);
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -224,8 +224,9 @@ button {
 .mobile-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.8);
-  z-index: 100;
+  background: rgba(0,0,0,0.85); /* Slightly darker for better focus */
+  z-index: 500;
+  backdrop-filter: blur(4px);
 }
 
 .mobile-drawer-container {
@@ -234,8 +235,9 @@ button {
   top: 0;
   bottom: 0;
   width: var(--sidebar-width);
-  z-index: 110;
+  z-index: 600; /* Higher than overlay and header */
   background: var(--bg-dark);
+  box-shadow: 20px 0 50px rgba(0, 0, 0, 0.8);
 }
 
 .mobile-menu-trigger {

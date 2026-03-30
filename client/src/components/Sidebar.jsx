@@ -11,11 +11,12 @@ import {
   DollarSign,
   ChevronRight,
   ShieldAlert,
-  Wrench
+  Wrench,
+  X
 } from 'lucide-react'
 import { motion as Motion } from 'framer-motion'
 
-const Sidebar = ({ onLogout, activeView, setActiveView, config }) => {
+const Sidebar = ({ onLogout, activeView, setActiveView, config, isMobile, onClose }) => {
   const menuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Centro de Mando' },
     { id: 'flota', icon: Truck, label: 'Flota de Vehículos' },
@@ -46,10 +47,35 @@ const Sidebar = ({ onLogout, activeView, setActiveView, config }) => {
         <h2 
           onClick={() => setActiveView('dashboard')}
           className="neon-text brand" 
-          style={{ fontSize: '2.2rem', fontWeight: 950, letterSpacing: '-0.04em', lineHeight: '1', cursor: 'pointer', marginBottom: '12px' }}
+          style={{ fontSize: isMobile ? '1.8rem' : '2.2rem', fontWeight: 950, letterSpacing: '-0.04em', lineHeight: '1', cursor: 'pointer', marginBottom: '12px' }}
         >
           TuCooperativa
         </h2>
+
+        {/* MOBILE CLOSE X */}
+        {isMobile && (
+            <button 
+                onClick={onClose}
+                className="glass"
+                style={{ 
+                    position: 'absolute', 
+                    top: '32px', 
+                    right: '24px', 
+                    width: '48px', 
+                    height: '48px', 
+                    padding: '0', 
+                    borderRadius: '16px',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid var(--glass-border)',
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.5)'
+                }}
+            >
+                <X size={24} />
+            </button>
+        )}
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
             {config?.logo_path && (

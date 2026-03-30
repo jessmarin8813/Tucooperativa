@@ -20,7 +20,17 @@ function App() {
 
   useEffect(() => {
     const buildDate = formatDate(new Date());
-    console.log(`%c TuCooperativa v5.0.7-FIXED [Build: ${buildDate}] %c`, "background: #6366f1; color: white; font-weight: bold; padding: 4px; border-radius: 4px;", "");
+    console.log(`%c TuCooperativa v5.1.0-MOBILE-STABLE [Build: ${buildDate}] %c`, "background: #10b981; color: black; font-weight: bold; padding: 4px; border-radius: 4px;", "");
+    
+    // Auto-Clearing Ghost Service Workers from previous/other localhost apps
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        for (let registration of registrations) {
+          registration.unregister();
+          console.log("Ghost ServiceWorker Cleaned [+]");
+        }
+      });
+    }
   }, [])
   
   useEffect(() => {
