@@ -726,10 +726,10 @@ const MaintenanceCenter = ({ setActiveView }) => {
               }}
             >
               {/* MODAL HEADER */}
-              <div style={{ padding: '32px 40px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(to bottom, rgba(99, 102, 241, 0.05), transparent)' }}>
-                  <div>
-                    <h2 className="neon-text" style={{ fontSize: '1.75rem', fontWeight: 950, marginBottom: '4px', letterSpacing: '-0.03em' }}>Auditoría y Control</h2>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className="p-mobile-small-padding" style={{ padding: '32px 40px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: 'linear-gradient(to bottom, rgba(99, 102, 241, 0.05), transparent)', gap: '16px' }}>
+                  <div style={{ flex: 1 }}>
+                    <h2 className="neon-text" style={{ fontSize: 'clamp(1.4rem, 5vw, 1.75rem)', fontWeight: 950, marginBottom: '8px', letterSpacing: '-0.03em', lineHeight: '1.1' }}>Auditoría y Control</h2>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                         <div style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', fontSize: '10px', fontWeight: 900, color: 'var(--accent)' }}>{showWorkshopModal?.placa || '---'}</div>
                         <p style={{ color: 'var(--text-dim)', fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{showWorkshopModal?.modelo || ''}</p>
                     </div>
@@ -741,6 +741,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
                         border: '2px solid rgba(255,255,255,0.3)', 
                         width: '42px', 
                         height: '42px', 
+                        flexShrink: 0,
                         borderRadius: '12px', 
                         display: 'flex', 
                         alignItems: 'center', 
@@ -772,7 +773,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
                   </button>
               </div>
 
-              <div style={{ padding: '24px 40px 40px 40px' }} className="p-flex-responsive p-gap-40">
+              <div style={{ padding: '24px 40px 40px 40px' }} className="p-mobile-small-padding p-flex-responsive p-gap-40">
                   {/* COLUMNA IZQUIERDA: REPORTES Y DIAGNÓSTICO */}
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '32px' }}>
                       
@@ -790,7 +791,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
                                       <p style={{ color: 'white', fontSize: '0.9rem', lineHeight: 1.5, fontWeight: 500 }}>{inc.descripcion}</p>
                                       {inc.foto_path && inc.foto_path !== 'uploads/no-photo.jpg' && (
                                           <div style={{ marginTop: '12px', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                              <img src={inc.foto_path} alt="Evidencia" style={{ width: '100%', height: '100px', objectFit: 'cover' }} />
+                                              <img src={inc.foto_path} alt="Evidencia" style={{ width: '100%', height: '100px', objectFit: 'cover' }} onError={(e) => { e.target.style.display = 'none'; }} />
                                           </div>
                                       )}
                                   </div>
@@ -802,7 +803,8 @@ const MaintenanceCenter = ({ setActiveView }) => {
                                     const val = window.prompt('Escriba el hallazgo técnico encontrado (ej: Fuga en manguera de retorno):');
                                     if (val) handleAddObservation(val);
                                 }}
-                                style={{ padding: '12px', background: 'rgba(99, 102, 241, 0.05)', border: '1px dashed rgba(99, 102, 241, 0.3)', borderRadius: '12px', color: 'var(--primary)', fontSize: '10px', fontWeight: 950, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                className="btn-wrap"
+                                style={{ minHeight: '44px', padding: '16px', background: 'rgba(99, 102, 241, 0.05)', border: '1px dashed rgba(99, 102, 241, 0.3)', borderRadius: '12px', color: 'var(--primary)', fontSize: '10px', fontWeight: 950, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                               >
                                   <Plus size={14} /> AÑADIR HALLAZGO ADICIONAL
                               </button>
