@@ -22,19 +22,31 @@ if ($monto_total <= 0) {
     sendResponse(['error' => 'El monto debe ser mayor a cero'], 400);
 }
 
-// 1. Find the vehicle (linked to active route or last known)
+// 1. Find the vehicle (Hierarchy: 1. Direct Assignment, 2. Last Route)
 $sql_v = "SELECT v.id, v.placa, u_admin.telegram_chat_id as admin_chat_id 
           FROM vehiculos v 
           JOIN usuarios u_admin ON u_admin.rol = 'admin' AND u_admin.cooperativa_id = v.cooperativa_id
-          JOIN rutas r ON r.vehiculo_id = v.id
-          WHERE r.chofer_id = :uid 
-          ORDER BY r.started_at DESC LIMIT 1";
+          WHERE v.chofer_id = :uid
+          LIMIT 1";
 $stmt = $db->prepare($sql_v);
 $stmt->execute(['uid' => $user_id]);
 $v = $stmt->fetch();
 
 if (!$v) {
-    sendResponse(['error' => 'No se encontró una unidad vinculada a este chofer.'], 404);
+    // Fallback: Check last route if no direct assignment
+    $sql_fallback = "SELECT v.id, v.placa, u_admin.telegram_chat_id as admin_chat_id 
+                    FROM vehiculos v 
+                    JOIN usuarios u_admin ON u_admin.rol = 'admin' AND u_admin.cooperativa_id = v.cooperativa_id
+                    JOIN rutas r ON r.vehiculo_id = v.id
+                    WHERE r.chofer_id = :uid_f 
+                    ORDER BY r.started_at DESC LIMIT 1";
+    $stmt = $db->prepare($sql_fallback);
+    $stmt->execute(['uid_f' => $user_id]);
+    $v = $stmt->fetch();
+}
+
+if (!$v) {
+    sendResponse(['error' => 'No se encontró una unidad vinculada a este chofer. Por favor, contacte al administrador.'], 422);
 }
 
 // 2. Insert Reported Payment (Approved state = 'pendiente')

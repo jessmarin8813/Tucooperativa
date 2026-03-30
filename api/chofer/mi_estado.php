@@ -12,7 +12,7 @@ $user_id = $user['user_id'];
 $coop_id = $user['cooperativa_id'];
 $bcv_rate = get_bcv_rate();
 
-// 1. OBTENER DATOS BÁSICOS DEL VEHÍCULO Y COOPERATIVA (SIEMPRE DISPONIBLES)
+// 1. OBTENER DATOS DEL VEHÍCULO (JERARQUÍA: 1. ASIGNACIÓN DIRECTA, 2. ÚLTIMA RUTA)
 $sql_base = "SELECT v.id as vehiculo_id, v.placa, v.cuota_diaria, v.estado as estado_unidad,
             c.banco_nombre, c.banco_tipo, c.banco_identidad, c.banco_telefono, c.id as coop_id
             FROM vehiculos v
@@ -22,6 +22,20 @@ $sql_base = "SELECT v.id as vehiculo_id, v.placa, v.cuota_diaria, v.estado as es
 $stmt = $db->prepare($sql_base);
 $stmt->execute(['uid_base' => $user_id]);
 $base_data = $stmt->fetch();
+
+if (!$base_data) {
+    // Fallback: Buscar por última ruta
+    $sql_fallback = "SELECT v.id as vehiculo_id, v.placa, v.cuota_diaria, v.estado as estado_unidad,
+                    c.banco_nombre, c.banco_tipo, c.banco_identidad, c.banco_telefono, c.id as coop_id
+                    FROM vehiculos v
+                    JOIN cooperativas c ON v.cooperativa_id = c.id
+                    JOIN rutas r ON r.vehiculo_id = v.id
+                    WHERE r.chofer_id = :uid_f 
+                    ORDER BY r.started_at DESC LIMIT 1";
+    $stmt = $db->prepare($sql_fallback);
+    $stmt->execute(['uid_f' => $user_id]);
+    $base_data = $stmt->fetch();
+}
 
 // 2. BUSCAR RUTA ACTIVA PARA DATOS DINÁMICOS (DEUDA, KM)
 $data = $base_data ?: ['placa' => 'N/A', 'estado_unidad' => 'activo'];
@@ -56,17 +70,7 @@ if ($base_data) {
     $data['deuda_usd'] = max(0, ($dias * $cuota) - $abonos);
     $data['deuda_bs'] = $data['deuda_usd'] * $bcv_rate;
 
-} else {
-    // Lógica para choferes sin unidad
-    $sql_last = "SELECT v.placa, v.estado as estado_unidad FROM rutas r JOIN vehiculos v ON r.vehiculo_id = v.id WHERE r.chofer_id = ? ORDER BY r.started_at DESC LIMIT 1";
-    $stmtL = $db->prepare($sql_last);
-    $stmtL->execute([$user_id]);
-    $last = $stmtL->fetch();
-    if ($last) {
-        $data = array_merge($data, $last);
-    }
-}
-
+} 
 // Formatear datos de pago
 $pago_info = "Consulte al administrador";
 if (!empty($data['banco_nombre'])) {

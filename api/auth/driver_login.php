@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['cedula'])) {
     $db = DB::getInstance();
     
     // Buscar chofer por cédula
-    $stmt = $db->prepare("SELECT c.*, v.placa as vehiculo_placa, v.modelo as vehiculo_modelo 
+    $stmt = $db->prepare("SELECT c.*, v.id as v_id, v.placa as vehiculo_placa, v.modelo as vehiculo_modelo 
                           FROM choferes c 
                           LEFT JOIN vehiculos v ON v.chofer_id = c.id 
                           WHERE c.cedula = ?");
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['cedula'])) {
             'nombre' => $driver['nombre'],
             'cedula' => $driver['cedula'],
             'cooperativa_id' => $driver['cooperativa_id'],
-            'vehiculo_id' => $driver['vehiculo_id'],
+            'vehiculo_id' => $driver['v_id'],
             'vehiculo_placa' => $driver['vehiculo_placa'],
             'active_route' => $active_route ? $active_route : null
         ]

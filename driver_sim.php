@@ -560,8 +560,9 @@
                 localStorage.setItem('sim_driver_data', JSON.stringify(driverData));
                 updateUI();
             } else {
-                log(`❌ Error: ${data.error || 'Chofer no encontrado'}`);
-                alert(data.error || 'Chofer no encontrado.');
+                const errorDetail = data.error || data.message || 'Chofer no encontrado';
+                log(`❌ Error: ${errorDetail}`);
+                alert(errorDetail);
             }
         } catch (e) {
             log('❌ Error al conectar con el servidor.');
@@ -810,7 +811,11 @@
                 document.getElementById('payment-amount-ef').value = '';
                 document.getElementById('payment-amount-pm').value = '';
                 hideForms();
-            } else { log(`❌ Error: ${data.error || data.message}`); }
+            } else { 
+                const errorMsg = data.error || data.message || 'Error desconocido';
+                log(`❌ Error: ${errorMsg}`); 
+                alert(errorMsg);
+            }
         } catch (e) { log('❌ Error de comunicación.'); }
     }
 
