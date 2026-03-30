@@ -23,7 +23,7 @@ set_error_handler(function($errno, $errstr, $errfile, $errline) {
 });
 
 if (!function_exists('checkAuth')) {
-    function checkAuth() {
+    function checkAuth($shouldExit = true) {
         // 1. Prioritize Web Session
         if (isset($_SESSION['user_id'])) {
             $tid = $_SESSION['telegram_chat_id'] ?? null;
@@ -83,6 +83,8 @@ if (!function_exists('checkAuth')) {
                 ];
             }
         }
+
+        if (!$shouldExit) return false;
 
         header('Content-Type: application/json', true, 401);
         echo json_encode(['error' => 'Unauthorized']);
