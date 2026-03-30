@@ -19,6 +19,14 @@ const BIView = () => {
     } catch { /* Handled */ }
   }, [callApi])
 
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 1024 : false)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   useEffect(() => {
     let ignore = false
     const init = async () => {
@@ -117,47 +125,96 @@ const BIView = () => {
                 </h3>
              </div>
           </div>
-          <div style={{ overflowX: 'auto' }}>
-             <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', minWidth: '600px' }}>
-                <thead>
-                   <tr style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em', borderBottom: '1px solid var(--glass-border)' }}>
-                      <th style={{ padding: '16px 24px' }}>Unidad</th>
-                      <th style={{ padding: '16px 24px' }}>Recaudado</th>
-                      <th style={{ padding: '16px 24px' }} className="print:hidden">Egresos</th>
-                      <th style={{ padding: '16px 24px' }}>Utilidad</th>
-                      <th style={{ padding: '16px 24px', textAlign: 'right' }}>Estatus</th>
-                   </tr>
-                </thead>
-                <tbody style={{ color: 'var(--text-main)' }}>
-                   {unidades.map((u) => (
-                       <tr key={u.id} className="glass-hover" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                          <td style={{ padding: '12px 24px' }}>
-                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                 <div style={{ width: '32px', height: '32px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.8rem' }}>
-                                     {u.placa.slice(-2)}
-                                 </div>
-                                 <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{u.placa}</span>
+          {!isMobile ? (
+            <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', minWidth: '600px' }}>
+                    <thead>
+                        <tr style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em', borderBottom: '1px solid var(--glass-border)' }}>
+                            <th style={{ padding: '16px 24px' }}>Unidad</th>
+                            <th style={{ padding: '16px 24px' }}>Recaudado</th>
+                            <th style={{ padding: '16px 24px' }} className="print:hidden">Egresos</th>
+                            <th style={{ padding: '16px 24px' }}>Utilidad</th>
+                            <th style={{ padding: '16px 24px', textAlign: 'right' }}>Estatus</th>
+                        </tr>
+                    </thead>
+                    <tbody style={{ color: 'var(--text-main)' }}>
+                        {unidades.map((u) => (
+                            <tr key={u.id} className="glass-hover" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                                <td style={{ padding: '12px 24px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <div style={{ width: '32px', height: '32px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.8rem' }}>
+                                            {u.placa.slice(-2)}
+                                        </div>
+                                        <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{u.placa}</span>
+                                    </div>
+                                </td>
+                                <td style={{ padding: '12px 24px', fontWeight: 700, color: 'var(--success)' }}>{formatMoney(u.abonos)}</td>
+                                <td style={{ padding: '12px 24px', fontWeight: 700, color: 'var(--danger)', opacity: 0.6 }} className="print:hidden">{formatMoney(u.costos_mante)}</td>
+                                <td style={{ padding: '12px 24px', fontWeight: 900 }}>{formatMoney(u.utilidad)}</td>
+                                <td style={{ padding: '12px 24px', textAlign: 'right' }}>
+                                    <div style={{ 
+                                        display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', 
+                                        background: u.alerta_salud ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', 
+                                        color: u.alerta_salud ? 'var(--danger)' : 'var(--success)', 
+                                        borderRadius: '100px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase' 
+                                    }}>
+                                        {u.alerta_salud ? <AlertTriangle size={10} /> : <Target size={10} />}
+                                        {u.alerta_salud ? 'Baja Rentabilidad' : 'Al día'}
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+          ) : (
+            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {unidades.map((u) => (
+                    <div key={u.id} className="glass" style={{ padding: '20px', borderRadius: '18px', border: u.alerta_salud ? '1px solid rgba(239, 68, 68, 0.15)' : '1px solid rgba(16, 185, 129, 0.15)', background: u.alerta_salud ? 'rgba(239, 68, 68, 0.02)' : 'rgba(16, 185, 129, 0.02)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                               <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 950, fontSize: '0.9rem', color: 'var(--accent)' }}>
+                                   {u.placa.slice(-2)}
+                               </div>
+                               <div>
+                                   <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: 'white', lineHeight: '1' }}>{u.placa}</h4>
+                                   <p style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', marginTop: '4px' }}>Unidad Operativa</p>
+                               </div>
+                           </div>
+                           <div style={{ 
+                                padding: '4px 8px', borderRadius: '6px', fontSize: '9px', fontWeight: 950, textTransform: 'uppercase',
+                                background: u.alerta_salud ? 'var(--danger)' : 'var(--success)', color: 'black'
+                            }}>
+                                {u.alerta_salud ? 'Revisar' : 'Óptima'}
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', paddingBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                             <div>
+                                <p style={{ fontSize: '9px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: '4px' }}>Recaudado</p>
+                                <p style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--success)' }}>{formatMoney(u.abonos)}</p>
                              </div>
-                          </td>
-                          <td style={{ padding: '12px 24px', fontWeight: 700, color: 'var(--success)' }}>{formatMoney(u.abonos)}</td>
-                          <td style={{ padding: '12px 24px', fontWeight: 700, color: 'var(--danger)', opacity: 0.6 }} className="print:hidden">{formatMoney(u.costos_mante)}</td>
-                          <td style={{ padding: '12px 24px', fontWeight: 900 }}>{formatMoney(u.utilidad)}</td>
-                          <td style={{ padding: '12px 24px', textAlign: 'right' }}>
-                              <div style={{ 
-                                display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', 
-                                background: u.alerta_salud ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', 
-                                color: u.alerta_salud ? 'var(--danger)' : 'var(--success)', 
-                                borderRadius: '100px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase' 
-                              }}>
-                                  {u.alerta_salud ? <AlertTriangle size={10} /> : <Target size={10} />}
-                                  {u.alerta_salud ? 'Baja Rentabilidad' : 'Al día'}
-                              </div>
-                          </td>
-                       </tr>
-                   ))}
-                </tbody>
-             </table>
-          </div>
+                             <div>
+                                <p style={{ fontSize: '9px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: '4px' }}>En Mantenimiento</p>
+                                <p style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--danger)', opacity: 0.8 }}>{formatMoney(u.costos_mante)}</p>
+                             </div>
+                        </div>
+
+                        <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                             <div>
+                                <p style={{ fontSize: '9px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase' }}>Utilidad Neta</p>
+                                <p style={{ fontSize: '1.35rem', fontWeight: 950, color: 'white', letterSpacing: '-0.03em' }}>{formatMoney(u.utilidad)}</p>
+                             </div>
+                             <div style={{ textAlign: 'right' }}>
+                                 <p style={{ fontSize: '9px', fontWeight: 900, color: u.alerta_salud ? 'var(--danger)' : 'var(--success)', textTransform: 'uppercase' }}>
+                                     {u.alerta_salud ? 'Bajo Rendimiento' : 'Rendimiento OK'}
+                                 </p>
+                             </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+          )}
         </Motion.div>
 
         {/* Charts Side */}
