@@ -42,7 +42,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
       
       const rawItems = res?.data && Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : [])
       
-      // BLINDAJE v40.7: Deduplicación y Consolidación por Placa (Hard Fix)
+      // BLINDAJE v40.8: Deduplicación, Consolidación y Ordenamiento Profesional
       const uniqueMap = {}
       rawItems.forEach(item => {
           if (!item || !item.id) return
@@ -55,23 +55,26 @@ const MaintenanceCenter = ({ setActiveView }) => {
                   expenses: Array.isArray(item.expenses) ? [...item.expenses] : []
               }
           } else {
-              // Si ya existe (fantasma), buscamos el más completo o sumamos
+              // Unificación Inteligente de Gastos y Diagnósticos
               uniqueMap[key].total_gasto = (parseFloat(uniqueMap[key].total_gasto) || 0) + (parseFloat(item.total_gasto) || 0)
-              
               const newExpenses = Array.isArray(item.expenses) ? item.expenses : []
               uniqueMap[key].expenses = [...uniqueMap[key].expenses, ...newExpenses]
               
               const currentDiag = uniqueMap[key].diagnostico || ''
               const itemDiag = item.diagnostico || ''
-              
               if (itemDiag && !currentDiag.includes(itemDiag)) {
                   uniqueMap[key].diagnostico = currentDiag ? `${currentDiag} | ${itemDiag}` : itemDiag
               }
           }
       })
 
-      const items = Object.values(uniqueMap)
-      console.log('📜 [DEBUG] Registros Consolidados:', items.length);
+      const items = Object.values(uniqueMap).map(h => ({
+          ...h,
+          // ORDEN PROFESIONAL: De mayor a menor monto ($)
+          expenses: h.expenses.sort((a,b) => (parseFloat(b.monto) || 0) - (parseFloat(a.monto) || 0))
+      }))
+
+      console.log('📜 [DEBUG] Registros Consolidados y Ordenados:', items.length);
       setRepairHistory(items)
     } catch (err) { 
       console.error('❌ [DEBUG] Fallo al cargar historial:', err);
