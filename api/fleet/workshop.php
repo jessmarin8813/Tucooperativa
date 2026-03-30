@@ -4,6 +4,18 @@
  * Path: api/fleet/workshop.php
  */
 require_once __DIR__ . '/../includes/middleware.php';
+
+// ATENCIÓN: PRUEBA DE VENENO (v40.5) - Eliminar tras F5
+if (isset($_GET['history'])) {
+    die(json_encode([
+        'status' => 'POISON_TEST',
+        'real_path' => __FILE__,
+        'server' => $_SERVER['SERVER_NAME'],
+        'protocol' => $_SERVER['SERVER_PROTOCOL'],
+        'time' => date('Y-m-d H:i:s')
+    ]));
+}
+
 require_once __DIR__ . '/../includes/realtime.php';
 require_once __DIR__ . '/../includes/telegram_helper.php';
 
