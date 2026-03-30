@@ -552,7 +552,7 @@
             const bancos = data.datos_bancarios || 'Consulte al admin';
 
             const msg = `📊 *ESTADO DE CUENTA*\n\n` +
-                        `🔹 Unidad: ${placa}\n` +
+                        `🔹 Unidad: ${data.placa}\n` +
                         `💵 Deuda (USD): $${deuda_usd.toFixed(2)}\n` +
                         `🏦 Tasa BCV: ${bcv_rate.toFixed(2)} Bs/$\n` +
                         `🇻🇪 **Total en Bs: ${deuda_bs.toFixed(2)}**\n` +
