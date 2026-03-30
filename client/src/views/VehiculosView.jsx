@@ -181,7 +181,7 @@ const VehiculosView = ({ user, config, setActiveView }) => {
   return (
     <div>
       <div className="p-flex-responsive p-justify-between" style={{ marginBottom: '32px' }}>
-        <div className="p-flex p-items-center" style={{ gap: '20px' }}>
+        <div className="p-flex p-items-center" style={{ gap: '20px', marginBottom: isMobile ? '16px' : '0' }}>
             <div style={{ width: '56px', height: '56px', borderRadius: '18px', background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Car size={28} className="text-primary" />
             </div>
@@ -190,13 +190,13 @@ const VehiculosView = ({ user, config, setActiveView }) => {
                 <p className="p-subtitle" style={{ margin: 0, marginTop: '4px' }}>Gestión Operativa Senior</p>
             </div>
         </div>
-        <button className="btn-primary" onClick={() => setIsModalOpen(true)} style={{ padding: '0 24px', height: '48px' }}>
+        <button className="btn-primary" onClick={() => setIsModalOpen(true)} style={{ padding: '0 24px', height: '48px', width: isMobile ? '100%' : 'auto' }}>
           <Plus size={20} /> <span style={{ fontSize: '11px', fontWeight: 900 }}>NUEVA UNIDAD</span>
         </button>
       </div>
 
       {/* Stats Overview */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '32px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '32px' }}>
         <StatCard title="Total" value={stats.total} trend={stats.totalTrend} icon={Truck} color="var(--primary)" compact />
         <StatCard title="Activas" value={stats.activeCount} trend={stats.activeTrend} icon={CheckCircle2} color="var(--success)" compact />
         <StatCard title="Taller" value={stats.maintenanceCount} trend={stats.maintenanceTrend} icon={AlertTriangle} color="var(--warning)" compact />

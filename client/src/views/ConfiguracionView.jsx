@@ -10,8 +10,13 @@ const ConfiguracionView = ({ config: globalConfig, setConfig: setGlobalConfig })
     const [localConfig, setLocalConfig] = useState(globalConfig)
     const [saving, setSaving] = useState(false)
     const [status, setStatus] = useState(null)
+    const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false)
 
-    // Sync local state if global prop changes (e.g., initial load in App)
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768)
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+    }, [])
     useEffect(() => {
         if (globalConfig) setLocalConfig(prev => ({ ...prev, ...globalConfig }));
     }, [globalConfig])
@@ -113,10 +118,10 @@ const ConfiguracionView = ({ config: globalConfig, setConfig: setGlobalConfig })
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     className="glass-premium glass mobile-edge-to-edge"
-                    style={{ padding: '32px', borderRadius: '32px', maxWidth: '1200px' }}
+                    style={{ padding: isMobile ? '24px 16px' : '32px', borderRadius: isMobile ? '24px' : '32px', maxWidth: '1200px' }}
                 >
                     {activeTab === 'sistema' && (
-                        <div className="p-grid p-grid-cols-2 p-config-content" style={{ columnGap: '48px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: isMobile ? '32px' : '48px' }}>
                             <div style={{ marginBottom: '24px' }}>
                                 <h3 style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                                     <DollarSign className="text-success" /> Parámetros Operativos
@@ -241,7 +246,7 @@ const ConfiguracionView = ({ config: globalConfig, setConfig: setGlobalConfig })
                             </h3>
                             <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '32px', fontSize: '0.9rem' }}>Estos datos son visibles para todos los choferes al momento de reportar su pago diario.</p>
                             
-                            <div className="p-grid p-grid-cols-2 p-config-content" style={{ columnGap: '32px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: isMobile ? '24px' : '32px' }}>
                                 <div className="p-field-divider">
                                     <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>BANCO DESTINO</label>
                                     <input 
@@ -298,7 +303,7 @@ const ConfiguracionView = ({ config: globalConfig, setConfig: setGlobalConfig })
                             </h3>
                             <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '32px', fontSize: '0.9rem' }}>Actualiza el nombre y los datos fiscales de tu organización.</p>
                             
-                            <div className="p-grid p-grid-cols-2 p-config-content" style={{ columnGap: '32px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: isMobile ? '24px' : '32px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                     <div className="p-field-divider">
                                         <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>NOMBRE DE LA COOPERATIVA</label>

@@ -90,7 +90,7 @@ const CobranzaView = () => {
             </header>
 
             {/* Header / Stats Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '32px' }}>
                 <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass" style={{ padding: '32px', position: 'relative', overflow: 'hidden' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
@@ -135,38 +135,73 @@ const CobranzaView = () => {
                         <div style={{ width: '4px', height: '24px', background: 'var(--accent)', borderRadius: '100px' }} />
                         <h3 style={{ fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', color: 'white', letterSpacing: '0.1em' }}>Cola de Validación de Caja</h3>
                     </div>
-                    <div className="glass" style={{ overflow: 'hidden', padding: '0' }}>
-                        <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
-                            <thead style={{ background: 'rgba(255,255,255,0.02)' }}>
-                                <tr style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>
-                                    <th style={{ padding: '16px 24px' }}>Chofer / Unidad</th>
-                                    <th style={{ padding: '16px 24px' }}>Efectivo ($)</th>
-                                    <th style={{ padding: '16px 24px' }}>Pago Móvil ($)</th>
-                                    <th style={{ padding: '16px 24px' }}>Total</th>
-                                    <th style={{ padding: '16px 24px', textAlign: 'right' }}>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                                {(data?.cola_validacion || []).map((p) => (
-                                    <tr key={p.id} className="glass-hover">
-                                        <td style={{ padding: '16px 24px' }}>
-                                            <p style={{ fontWeight: 800, fontSize: '0.9rem' }}>{p.chofer}</p>
-                                            <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>{p.placa}</p>
-                                        </td>
-                                        <td style={{ padding: '16px 24px', fontWeight: 700, color: 'var(--success)' }}>{formatMoney(p.monto_efectivo)}</td>
-                                        <td style={{ padding: '16px 24px', fontWeight: 700, color: 'var(--accent)' }}>{formatMoney(p.monto_pagomovil)}</td>
-                                        <td style={{ padding: '16px 24px', fontWeight: 900 }}>{formatMoney(parseFloat(p.monto_efectivo) + parseFloat(p.monto_pagomovil))}</td>
-                                        <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                <button onClick={() => handleProcesar(p.id, 'aprobado')} className="btn-primary" style={{ padding: '8px 16px', fontSize: '10px' }}>VALIDAR</button>
-                                                <button onClick={() => handleProcesar(p.id, 'rechazado')} className="glass" style={{ padding: '8px 16px', fontSize: '10px', color: 'var(--danger)' }}>RECHAZAR</button>
-                                            </div>
-                                        </td>
+                    {isMobile ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            {(data?.cola_validacion || []).map((p) => (
+                                <Motion.div key={p.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                                        <div>
+                                            <p style={{ fontWeight: 900, fontSize: '1.1rem', color: 'white' }}>{p.chofer}</p>
+                                            <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{p.placa}</p>
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <p style={{ fontSize: '0.65rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>Total</p>
+                                            <p style={{ fontWeight: 900, fontSize: '1.2rem', color: 'white' }}>{formatMoney(parseFloat(p.monto_efectivo || 0) + parseFloat(p.monto_pagomovil || 0))}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style={{ display: 'flex', gap: '16px', marginBottom: '20px', padding: '12px', background: 'rgba(0,0,0,0.2)', borderRadius: '12px' }}>
+                                        <div style={{ flex: 1 }}>
+                                            <p style={{ fontSize: '0.65rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>Efectivo</p>
+                                            <p style={{ fontWeight: 800, color: 'var(--success)' }}>{formatMoney(p.monto_efectivo)}</p>
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <p style={{ fontSize: '0.65rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>Pago Móvil</p>
+                                            <p style={{ fontWeight: 800, color: 'var(--accent)' }}>{formatMoney(p.monto_pagomovil)}</p>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ display: 'flex', gap: '12px' }}>
+                                        <button onClick={() => handleProcesar(p.id, 'aprobado')} className="btn-primary" style={{ flex: 1, height: '48px', fontSize: '0.8rem' }}>VALIDAR</button>
+                                        <button onClick={() => handleProcesar(p.id, 'rechazado')} className="glass" style={{ flex: 1, height: '48px', fontSize: '0.8rem', color: 'var(--danger)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>RECHAZAR</button>
+                                    </div>
+                                </Motion.div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="glass" style={{ overflow: 'hidden', padding: '0' }}>
+                            <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                                <thead style={{ background: 'rgba(255,255,255,0.02)' }}>
+                                    <tr style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>
+                                        <th style={{ padding: '16px 24px' }}>Chofer / Unidad</th>
+                                        <th style={{ padding: '16px 24px' }}>Efectivo ($)</th>
+                                        <th style={{ padding: '16px 24px' }}>Pago Móvil ($)</th>
+                                        <th style={{ padding: '16px 24px' }}>Total</th>
+                                        <th style={{ padding: '16px 24px', textAlign: 'right' }}>Acciones</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                    {(data?.cola_validacion || []).map((p) => (
+                                        <tr key={p.id} className="glass-hover">
+                                            <td style={{ padding: '16px 24px' }}>
+                                                <p style={{ fontWeight: 800, fontSize: '0.9rem' }}>{p.chofer}</p>
+                                                <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>{p.placa}</p>
+                                            </td>
+                                            <td style={{ padding: '16px 24px', fontWeight: 700, color: 'var(--success)' }}>{formatMoney(p.monto_efectivo)}</td>
+                                            <td style={{ padding: '16px 24px', fontWeight: 700, color: 'var(--accent)' }}>{formatMoney(p.monto_pagomovil)}</td>
+                                            <td style={{ padding: '16px 24px', fontWeight: 900 }}>{formatMoney(parseFloat(p.monto_efectivo) + parseFloat(p.monto_pagomovil))}</td>
+                                            <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                    <button onClick={() => handleProcesar(p.id, 'aprobado')} className="btn-primary" style={{ padding: '8px 16px', fontSize: '10px' }}>VALIDAR</button>
+                                                    <button onClick={() => handleProcesar(p.id, 'rechazado')} className="glass" style={{ padding: '8px 16px', fontSize: '10px', color: 'var(--danger)' }}>RECHAZAR</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -177,7 +212,7 @@ const CobranzaView = () => {
                     <h3 style={{ fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', color: 'white', letterSpacing: '0.1em' }}>Abonos Reportados (Bot)</h3>
                 </div>
                 
-                <div className="p-grid p-grid-cols-2">
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '16px' }}>
                     {(data?.pendientes || []).length === 0 ? (
                         <div style={{ gridColumn: 'span 2', padding: '64px', textAlign: 'center' }} className="glass">
                             <CheckCircle size={48} style={{ color: 'rgba(255,255,255,0.05)', marginBottom: '16px' }} />

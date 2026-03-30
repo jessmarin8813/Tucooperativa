@@ -11,6 +11,13 @@ const ChoferesView = () => {
   const [invitaciones, setInvitaciones] = useState([])
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(null)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const fetchChoferes = useCallback(async () => {
     setLoading(true)
@@ -110,7 +117,7 @@ const ChoferesView = () => {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 10 }}
-            className="p-grid p-grid-cols-2"
+            style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '20px' }}
           >
             {(choferes || []).map((c) => (
               <Motion.div 
@@ -191,7 +198,7 @@ const ChoferesView = () => {
             initial={{ opacity: 0, x: 10 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -10 }}
-            style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 2fr', gap: '32px' }}
+            style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'minmax(300px, 1fr) 2fr', gap: '32px' }}
           >
             <div className="glass" style={{ padding: '32px', borderRadius: '24px', height: 'fit-content' }}>
               <div style={{ 

@@ -24,6 +24,13 @@ const ExpensesView = () => {
   })
   const [maintItems, setMaintItems] = useState([])
   const [bcvRate, setBcvRate] = useState(1)
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const fetchMaintAlerts = useCallback(async (vid) => {
     if (!vid) {
@@ -126,9 +133,9 @@ const ExpensesView = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             className="glass"
-            style={{ padding: '48px', marginBottom: '40px', border: '1px solid var(--accent)' }}
+            style={{ padding: isMobile ? '24px' : '48px', marginBottom: '40px', border: '1px solid var(--accent)' }}
           >
-            <form onSubmit={handleSubmit} className="p-grid p-grid-cols-2">
+            <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '20px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <label style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>Vehículo (Opcional)</label>
                 <select 
@@ -308,7 +315,7 @@ const ExpensesView = () => {
                   </div>
                 </div>
                 
-                <div style={{ textAlign: 'right', minWidth: '150px' }}>
+                <div style={{ textAlign: isMobile ? 'left' : 'right', minWidth: '150px', marginTop: isMobile ? '16px' : '0' }}>
                   <div style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--danger)', letterSpacing: '-0.05em' }}>
                       -{exp.moneda === 'Bs' ? 'Bs' : '$'} {formatMoney(exp.monto).replace('$', '')}
                   </div>
