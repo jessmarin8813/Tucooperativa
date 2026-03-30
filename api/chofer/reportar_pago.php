@@ -16,75 +16,89 @@ $data = json_decode(file_get_contents('php://input'), true);
 $m_efectivo = floatval($data['monto_efectivo'] ?? 0);
 $m_pagomovil = floatval($data['monto_pagomovil'] ?? 0);
 $monto_total = $m_efectivo + $m_pagomovil;
-$comprobante = $data['comprobante'] ?? '';
 
 if ($monto_total <= 0) {
     sendResponse(['error' => 'El monto debe ser mayor a cero'], 400);
 }
 
-// 1. Find the vehicle (Hierarchy: 1. Direct Assignment, 2. Last Route)
-$sql_v = "SELECT v.id, v.placa, u_admin.telegram_chat_id as admin_chat_id 
-          FROM vehiculos v 
-          JOIN usuarios u_admin ON u_admin.rol = 'admin' AND u_admin.cooperativa_id = v.cooperativa_id
-          WHERE v.chofer_id = :uid
-          LIMIT 1";
-$stmt = $db->prepare($sql_v);
-$stmt->execute(['uid' => $user_id]);
+// 1. Find the vehicle & Check Debt Pre-Flight
+$v = null;
+$sql_check = "SELECT v.id as vid, v.placa, v.cuota_diaria, v.cooperativa_id,
+            (SELECT COUNT(DISTINCT DATE(started_at)) FROM rutas WHERE vehiculo_id = v.id AND chofer_id = :u1 AND estado != 'exonerada') as dias,
+            (SELECT COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN monto / tasa_cambio ELSE monto END), 0) FROM pagos_reportados WHERE chofer_id = :u2 AND estado = 'aprobado') as abonos,
+            (SELECT COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN monto / tasa_cambio ELSE monto END), 0) FROM pagos_reportados WHERE chofer_id = :u3 AND estado = 'pendiente') as pendientes
+            FROM vehiculos v WHERE v.chofer_id = :uid LIMIT 1";
+$stmt = $db->prepare($sql_check);
+$stmt->execute(['u1' => $user_id, 'u2' => $user_id, 'u3' => $user_id, 'uid' => $user_id]);
 $v = $stmt->fetch();
 
 if (!$v) {
-    // Fallback: Check last route if no direct assignment
-    $sql_fallback = "SELECT v.id, v.placa, u_admin.telegram_chat_id as admin_chat_id 
-                    FROM vehiculos v 
-                    JOIN usuarios u_admin ON u_admin.rol = 'admin' AND u_admin.cooperativa_id = v.cooperativa_id
-                    JOIN rutas r ON r.vehiculo_id = v.id
-                    WHERE r.chofer_id = :uid_f 
-                    ORDER BY r.started_at DESC LIMIT 1";
-    $stmt = $db->prepare($sql_fallback);
-    $stmt->execute(['uid_f' => $user_id]);
+    // Fallback: Last Route
+    $sql_route = "SELECT v.id as vid, v.placa, v.cuota_diaria, v.cooperativa_id FROM vehiculos v 
+                  JOIN rutas r ON r.vehiculo_id = v.id WHERE r.chofer_id = :uid_r ORDER BY r.started_at DESC LIMIT 1";
+    $stmt = $db->prepare($sql_route);
+    $stmt->execute(['uid_r' => $user_id]);
     $v = $stmt->fetch();
+    if ($v) { $db->prepare("UPDATE vehiculos SET chofer_id = ? WHERE id = ?")->execute([$user_id, $v['vid']]); }
 }
 
 if (!$v) {
-    sendResponse(['error' => 'No se encontró una unidad vinculada a este chofer. Por favor, contacte al administrador.'], 422);
+    sendResponse(['error' => 'No se encontró una unidad vinculada.'], 422);
 }
 
-// 2. Insert Reported Payment (Approved state = 'pendiente')
-$moneda = $data['moneda'] ?? 'Bs'; // Default to Bs for drivers
+// DEBT RESTRICTION (Effective Debt calculation)
+$dias = floatval($v['dias'] ?? 0);
+$cuota = floatval($v['cuota_diaria'] ?? 0);
+$abonos = floatval($v['abonos'] ?? 0);
+$pendientes = floatval($v['pendientes'] ?? 0);
+$deuda_efectiva = ($dias * $cuota) - ($abonos + $pendientes);
+
+if ($deuda_efectiva <= 0) {
+    sendResponse(['error' => 'Usted se encuentra al día. No es necesario realizar pagos adicionales en este momento.'], 422);
+}
+
+// 2. Insert Reported Payment
+$input = json_decode(file_get_contents('php://input'), true);
+$m_efectivo = floatval($input['monto_efectivo'] ?? 0);
+$m_pagomovil = floatval($input['monto_pagomovil'] ?? 0);
+$total = $m_efectivo + $m_pagomovil;
+$referencia = $input['referencia'] ?? null; // Last 4 digits
+$comprobante = $input['comprobante'] ?? null;
+$moneda = 'Bs';
 $tasa_cambio = get_bcv_rate();
 
-$stmt = $db->prepare("INSERT INTO pagos_reportados (cooperativa_id, vehiculo_id, chofer_id, monto, moneda, tasa_cambio, monto_efectivo, monto_pagomovil, comprobante_path, estado) 
-                     VALUES (:coop_id, :vid, :uid, :total, :moneda, :tasa, :efectivo, :pm, :compro, 'pendiente')");
+$stmt = $db->prepare("INSERT INTO pagos_reportados (cooperativa_id, vehiculo_id, chofer_id, monto, moneda, tasa_cambio, monto_efectivo, monto_pagomovil, referencia, comprobante_path, estado) 
+                     VALUES (:coop_id, :vid, :uid, :total, :moneda, :tasa, :efectivo, :pm, :ref, :compro, 'pendiente')");
 $stmt->execute([
-    'coop_id' => $coop_id,
-    'vid' => $v['id'],
+    'coop_id' => $v['cooperativa_id'],
+    'vid' => $v['vid'],
     'uid' => $user_id,
-    'total' => $monto_total,
+    'total' => $total,
     'moneda' => $moneda,
     'tasa' => $tasa_cambio,
     'efectivo' => $m_efectivo,
     'pm' => $m_pagomovil,
+    'ref' => $referencia,
     'compro' => $comprobante
 ]);
 $pago_id = $db->lastInsertId();
 
-// 3. Notify Owner via Master Bot (Telegram)
-if ($v['admin_chat_id']) {
+// 3. Notify Owner (EXCLUSIVE)
+$stmt_owner = $db->prepare("SELECT telegram_chat_id FROM usuarios WHERE rol = 'dueno' AND cooperativa_id = ? AND telegram_chat_id IS NOT NULL LIMIT 1");
+$stmt_owner->execute([$v['cooperativa_id']]);
+$owner = $stmt_owner->fetch();
+
+if ($owner) {
     require_once __DIR__ . '/../includes/telegram_helper.php';
-    $monto_usd = ($moneda === 'Bs') ? ($monto_total / $tasa_cambio) : $monto_total;
-    
-    $msg = "💰 **PAGO REPORTADO ({$moneda})**\n\n";
-    $msg .= "Unidad: *{$v['placa']}*\n";
-    $msg .= "Monto: *{$monto_total} {$moneda}*\n";
-    if ($moneda === 'Bs') {
-        $msg .= "Equivalente: *$" . number_format($monto_usd, 2) . " USD*\n";
-        $msg .= "Tasa BCV: *{$tasa_cambio}*\n";
-    }
-    if ($m_efectivo > 0) $msg .= "💵 Efectivo: *{$m_efectivo} {$moneda}*\n";
-    if ($m_pagomovil > 0) $msg .= "📱 Pago Móvil: *{$m_pagomovil} {$moneda}*\n";
+    $msg = "💰 **PAGO REPORTADO**\n";
+    $msg .= "🚛 Unidad: *{$v['placa']}*\n";
+    if ($m_efectivo > 0) $msg .= "💵 Efectivo: *{$m_efectivo} Bs*\n";
+    if ($m_pagomovil > 0) $msg .= "📱 Pago Móvil: *{$m_pagomovil} Bs*\n";
+    if ($referencia) $msg .= "🔢 Ref (4 dígitos): `{$referencia}`\n";
+    $msg .= "✨ Total: *{$total} Bs* (~$" . round($total/$tasa_cambio, 2) . ")\n";
     $msg .= "\n🔗 [REVISAR Y APROBAR](http://192.168.0.221/TuCooperativa/dist/?view=cobranza&pago={$pago_id})";
     
-    sendTelegramNotification($v['admin_chat_id'], $msg, $coop_id);
+    sendTelegramNotification($owner['telegram_chat_id'], $msg, $v['cooperativa_id']);
 }
 
 // Broadcast Update to UI

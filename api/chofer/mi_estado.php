@@ -35,6 +35,11 @@ if (!$base_data) {
     $stmt = $db->prepare($sql_fallback);
     $stmt->execute(['uid_f' => $user_id]);
     $base_data = $stmt->fetch();
+    
+    // Auto-Link: Si lo encontramos por ruta, lo anclamos a la unidad permanentemente
+    if ($base_data) {
+        $db->prepare("UPDATE vehiculos SET chofer_id = ? WHERE id = ?")->execute([$user_id, $base_data['vehiculo_id']]);
+    }
 }
 
 // 2. BUSCAR RUTA ACTIVA PARA DATOS DINÁMICOS (DEUDA, KM)
@@ -55,8 +60,8 @@ if ($base_data) {
     // Estadísticas generales (Incluso sin ruta activa)
     $stmtStats = $db->prepare("SELECT 
         (SELECT COUNT(DISTINCT DATE(started_at)) FROM rutas WHERE vehiculo_id = :v1 AND chofer_id = :u1 AND estado != 'exonerada') as dias,
-        (SELECT COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN monto / tasa_cambio ELSE monto END), 0) FROM pagos_reportados WHERE chofer_id = :u2 AND estado = 'aprobado') as abonos,
-        (SELECT COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN monto / tasa_cambio ELSE monto END), 0) FROM pagos_reportados WHERE chofer_id = :u3 AND estado = 'pendiente') as pendientes,
+        (SELECT ROUND(COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN monto / tasa_cambio ELSE monto END), 0), 2) FROM pagos_reportados WHERE chofer_id = :u2 AND estado = 'aprobado') as abonos,
+        (SELECT ROUND(COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN monto / tasa_cambio ELSE monto END), 0), 2) FROM pagos_reportados WHERE chofer_id = :u3 AND estado = 'pendiente') as pendientes,
         (SELECT o.valor FROM odometros o JOIN rutas r ON o.ruta_id = r.id WHERE r.vehiculo_id = :v2 ORDER BY o.created_at DESC LIMIT 1) as ultimo_km
     ");
     $stmtStats->execute(['v1' => $base_data['vehiculo_id'], 'u1' => $user_id, 'u2' => $user_id, 'u3' => $user_id, 'v2' => $base_data['vehiculo_id']]);

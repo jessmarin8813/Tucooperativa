@@ -46,11 +46,12 @@ class TuCooperativaAPI:
         except Exception as e:
             return {'error': str(e)}
 
-    def report_payment(self, monto_efectivo=0, monto_pagomovil=0, foto=''):
+    def report_payment(self, monto_efectivo=0, monto_pagomovil=0, referencia='', foto=''):
         try:
             response = self.session.post(f"{self.base_url}/chofer/reportar_pago.php", json={
                 'monto_efectivo': monto_efectivo,
                 'monto_pagomovil': monto_pagomovil,
+                'referencia': referencia,
                 'comprobante': foto
             })
             return response.json()

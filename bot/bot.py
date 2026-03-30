@@ -95,7 +95,7 @@ async def post_init(application):
 (
     START_VEHICLE, START_ODOMETER, START_PHOTO, START_PAY_METHOD, START_PAY_AMOUNTS,
     END_ODOMETER, END_PHOTO, FUEL_REPORT,
-    REPORTAR_METHOD, REPORTAR_AMOUNTS, REPORTAR_PHOTO,
+    REPORTAR_METHOD, REPORTAR_AMOUNTS, REPORTAR_REFERENCIA, REPORTAR_PHOTO,
     REGISTRAR_NOMBRE, REGISTRAR_CEDULA,
     INCIDENCIA_TIPO, INCIDENCIA_DESC, INCIDENCIA_ODOMETER, INCIDENCIA_PHOTO,
     REACTIVACION_PHOTO,
@@ -364,17 +364,61 @@ async def reportar_method_chosen(update: Update, context: ContextTypes.DEFAULT_T
     return REPORTAR_AMOUNTS
 
 async def reportar_amounts_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Reuse parsing logic... (simplified here)
-    context.user_data['monto_reportado'] = update.message.text
-    await update.message.reply_text("📸 Envía el **COMPROBANTE** de pago:")
+    text = update.message.text.lower()
+    m_efectivo = 0
+    m_pagomovil = 0
+    
+    if context.user_data.get('metodo') == 'Mixto':
+        ef_match = re.search(r'(\d+)\s*efectivo', text)
+        pm_match = re.search(r'(\d+)\s*pagomovil', text)
+        m_efectivo = ef_match.group(1) if ef_match else 0
+        m_pagomovil = pm_match.group(1) if pm_match else 0
+    else:
+        monto_match = re.search(r'(\d+)', text)
+        monto_val = monto_match.group(1) if monto_match else 0
+        if context.user_data.get('metodo') == 'Efectivo (Bs)':
+            m_efectivo = monto_val
+        else:
+            m_pagomovil = monto_val
+
+    context.user_data['m_efectivo'] = m_efectivo
+    context.user_data['m_pagomovil'] = m_pagomovil
+
+    if m_pagomovil > 0:
+        await update.message.reply_text("🔢 Ingresa los **ÚLTIMOS 4 DÍGITOS** de la referencia de Pago Móvil:", parse_mode='Markdown')
+        return REPORTAR_REFERENCIA
+    else:
+        await update.message.reply_text("📸 Envía el **COMPROBANTE** (Foto) o presiona /saltar:", parse_mode='Markdown')
+        return REPORTAR_PHOTO
+
+async def reportar_referencia_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['referencia'] = update.message.text[-4:]
+    await update.message.reply_text("📸 Opcional: Envía el **COMPROBANTE** (Foto) o presiona /saltar:", parse_mode='Markdown')
     return REPORTAR_PHOTO
 
 async def reportar_photo_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    photo_file = await update.message.photo[-1].get_file()
-    # Call report_payment API
-    await notify_realtime("REFRESH_FLEET", "Pago reportado")
-    await update.message.reply_text("✅ Pago reportado. El dueño lo revisará pronto.", reply_markup=await get_dynamic_menu())
+    photo_file = None
+    if update.message.photo:
+        photo = await update.message.photo[-1].get_file()
+        photo_file = f"uploads/pago_{photo.file_id}.jpg"
+    
+    res = api.report_payment(
+        monto_efectivo=context.user_data.get('m_efectivo', 0),
+        monto_pagomovil=context.user_data.get('m_pagomovil', 0),
+        referencia=context.user_data.get('referencia', ''),
+        foto=photo_file or ''
+    )
+    
+    if 'error' in res:
+        await update.message.reply_text(f"❌ Error: {res['error']}", reply_markup=await get_dynamic_menu(update))
+    else:
+        await notify_realtime("REFRESH_FLEET", "Pago reportado")
+        await update.message.reply_text("✅ Pago reportado con éxito. El dueño ha sido notificado.", reply_markup=await get_dynamic_menu(update))
+    
     return ConversationHandler.END
+
+async def skip_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    return await reportar_photo_received(update, context)
 
 # --- END ROUTE FLOW (Simplified) ---
 async def end_ruta_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -688,7 +732,11 @@ if __name__ == '__main__':
         states={
             REPORTAR_METHOD: [MessageHandler(filters.TEXT & (~filters.COMMAND), reportar_method_chosen)],
             REPORTAR_AMOUNTS: [MessageHandler(filters.TEXT & (~filters.COMMAND), reportar_amounts_received)],
-            REPORTAR_PHOTO: [MessageHandler(filters.PHOTO, reportar_photo_received)],
+            REPORTAR_REFERENCIA: [MessageHandler(filters.TEXT & (~filters.COMMAND), reportar_referencia_received)],
+            REPORTAR_PHOTO: [
+                MessageHandler(filters.PHOTO, reportar_photo_received),
+                CommandHandler('saltar', skip_photo)
+            ],
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )

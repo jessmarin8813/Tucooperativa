@@ -261,18 +261,25 @@
             </select>
 
             <div id="payment-amount-container">
-                <div id="payment-efectivo-box">
+                <div id="ef-container">
                     <label id="payment-label-ef">Monto (Bs)</label>
                     <input type="number" id="payment-amount-ef" placeholder="0.00">
                 </div>
-                <div id="payment-pm-box" class="hidden">
+                <div id="pm-container" class="hidden">
                     <label>Monto Pago Móvil (Bs)</label>
                     <input type="number" id="payment-amount-pm" placeholder="0.00">
                 </div>
+                <!-- Campo de Referencia (4 dígitos) -->
+                <div id="reference-container" style="display:none; margin-top:10px;">
+                    <label class="p-label">ÚLTIMOS 4 DÍGITOS DE REF:</label>
+                    <input type="text" id="payment-reference" class="p-input" placeholder="0000" maxlength="4">
+                </div>
             </div>
 
-            <button onclick="reportPayment()" class="btn btn-success" style="margin-top: 10px;">Enviar Reporte de Pago</button>
-            <button onclick="hideForms()" class="btn btn-danger" style="font-size: 0.75rem; margin-top: 8px;">❌ CANCELAR</button>
+            <div class="p-button-group" style="margin-top:20px;">
+                <button class="btn btn-success" onclick="reportPayment()">ENVIAR REPORTE DE PAGO</button>
+                <button class="btn btn-danger" onclick="hideForms()">❌ CANCELAR</button>
+            </div>
         </div>
 
 
@@ -589,9 +596,10 @@
                         `💵 Deuda (USD): $${deuda_usd.toFixed(2)}\n` +
                         `🏦 Tasa BCV: ${bcv_rate.toFixed(2)} Bs/$\n` +
                         `🇻🇪 **Total en Bs: ${deuda_bs.toFixed(2)}**\n` +
-                        `🔹 Pendiente: Bs ${pendientes}\n` +
+                        `⏳ *Pagos en Revisión*: $${pendientes.toFixed(2)} USD\n` +
                         `🔹 Último KM: ${km}\n\n` +
-                        `💳 *Datos de Pago*:\n${bancos}`;
+                        `💳 *Datos de Pago*:\n${bancos}\n\n` +
+                        `⚠️ _Los pagos pendientes deben ser aprobados por el administrador para reducir la deuda final._`;
             showBotMsg(msg);
 
         } catch (e) { 
@@ -621,24 +629,15 @@
         log('📩 Mensaje recibido del Bot.');
     }
 
-    function togglePaymentInputs(prefix) {
-        const method = document.getElementById(`${prefix}-payment-method`).value;
-        const efBox = document.getElementById(`${prefix}-efectivo-box`);
-        const pmBox = document.getElementById(`${prefix}-pm-box`);
-        const labelEf = document.getElementById(`${prefix}-label-ef`);
+    function togglePaymentInputs(prefix = '') {
+        const method = document.getElementById(prefix ? `${prefix}-payment-method` : 'payment-method').value;
+        const efContainer = document.getElementById(prefix ? `${prefix}-efectivo-box` : 'ef-container');
+        const pmContainer = document.getElementById(prefix ? `${prefix}-pm-box` : 'pm-container');
+        const refContainer = document.getElementById('reference-container');
 
-        if (method === 'Mixto') {
-            efBox.classList.remove('hidden');
-            pmBox.classList.remove('hidden');
-            labelEf.innerText = 'Monto Efectivo (Bs)';
-        } else if (method === 'Pago Móvil') {
-            efBox.classList.add('hidden');
-            pmBox.classList.remove('hidden');
-        } else {
-            efBox.classList.remove('hidden');
-            pmBox.classList.add('hidden');
-            labelEf.innerText = 'Monto (Bs)';
-        }
+        if (efContainer) efContainer.style.display = (method === 'Efectivo (Bs)' || method === 'Mixto') ? 'block' : 'none';
+        if (pmContainer) pmContainer.style.display = (method === 'Pago Móvil' || method === 'Mixto') ? 'block' : 'none';
+        if (refContainer) refContainer.style.display = (method === 'Pago Móvil' || method === 'Mixto') ? 'block' : 'none';
     }
 
     function showPaymentForm() {
@@ -787,13 +786,17 @@
     }
 
     async function reportPayment() {
-        const method = document.getElementById('payment-payment-method').value;
+        const method = document.getElementById('payment-method').value;
         const amountEf = document.getElementById('payment-amount-ef').value || 0;
         const amountPm = document.getElementById('payment-amount-pm').value || 0;
+        const reference = document.getElementById('payment-reference').value;
+
+        if (method !== 'Efectivo (Bs)' && !reference) {
+            alert("Por favor, ingrese los últimos 4 dígitos de la referencia.");
+            return;
+        }
         
-        if (parseFloat(amountEf) + parseFloat(amountPm) <= 0) return alert('Ingresa un monto válido.');
-        
-        log(`Reportando pago via ${method}...`);
+        log(`> Reportando pago via ${method}...`);
 
         try {
             const res = await fetch(`${API_BASE}chofer/reportar_pago.php`, {
@@ -802,6 +805,7 @@
                     telegram_id: driverData.id,
                     monto_efectivo: amountEf,
                     monto_pagomovil: amountPm,
+                    referencia: reference,
                     comprobante: 'uploads/sim_pago.jpg'
                 })
             });
