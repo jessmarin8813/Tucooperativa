@@ -45,16 +45,27 @@ const MaintenanceCenter = ({ setActiveView }) => {
       // BLINDAJE v40.7: Deduplicación y Consolidación por Placa (Hard Fix)
       const uniqueMap = {}
       rawItems.forEach(item => {
-          if (!item) return
-          const key = item.placa || item.id
+          if (!item || !item.id) return
+          const key = item.placa || `ID-${item.id}`
+          
           if (!uniqueMap[key]) {
-              uniqueMap[key] = { ...item }
+              uniqueMap[key] = { 
+                  ...item, 
+                  diagnostico: item.diagnostico || '',
+                  expenses: Array.isArray(item.expenses) ? [...item.expenses] : []
+              }
           } else {
               // Si ya existe (fantasma), buscamos el más completo o sumamos
-              uniqueMap[key].total_gasto = parseFloat(uniqueMap[key].total_gasto || 0) + parseFloat(item.total_gasto || 0)
-              uniqueMap[key].expenses = [...(uniqueMap[key].expenses || []), ...(item.expenses || [])]
-              if (item.diagnostico && !uniqueMap[key].diagnostico.includes(item.diagnostico)) {
-                  uniqueMap[key].diagnostico += ` | ${item.diagnostico}`
+              uniqueMap[key].total_gasto = (parseFloat(uniqueMap[key].total_gasto) || 0) + (parseFloat(item.total_gasto) || 0)
+              
+              const newExpenses = Array.isArray(item.expenses) ? item.expenses : []
+              uniqueMap[key].expenses = [...uniqueMap[key].expenses, ...newExpenses]
+              
+              const currentDiag = uniqueMap[key].diagnostico || ''
+              const itemDiag = item.diagnostico || ''
+              
+              if (itemDiag && !currentDiag.includes(itemDiag)) {
+                  uniqueMap[key].diagnostico = currentDiag ? `${currentDiag} | ${itemDiag}` : itemDiag
               }
           }
       })
