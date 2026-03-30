@@ -11,8 +11,7 @@ import {
   DollarSign,
   ChevronRight,
   ShieldAlert,
-  Wrench,
-  X
+  Wrench
 } from 'lucide-react'
 import { motion as Motion } from 'framer-motion'
 
@@ -51,31 +50,6 @@ const Sidebar = ({ onLogout, activeView, setActiveView, config, isMobile, onClos
         >
           TuCooperativa
         </h2>
-
-        {/* MOBILE CLOSE X */}
-        {isMobile && (
-            <button 
-                onClick={onClose}
-                className="glass"
-                style={{ 
-                    position: 'absolute', 
-                    top: '32px', 
-                    right: '24px', 
-                    width: '48px', 
-                    height: '48px', 
-                    padding: '0', 
-                    borderRadius: '16px',
-                    color: 'white',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '1px solid var(--glass-border)',
-                    boxShadow: '0 4px 15px rgba(0,0,0,0.5)'
-                }}
-            >
-                <X size={24} />
-            </button>
-        )}
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
             {config?.logo_path && (
