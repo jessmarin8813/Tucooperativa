@@ -2,38 +2,37 @@
 
 Este archivo es el **Cerebro Central** del proyecto. El siguiente agente DEBE leer esto antes de tocar una sola línea de código.
 
-## 📌 Contexto de la Misión (v42.0-AUDIT)
-SaaS para gestión de cooperativas de transporte. El sistema ha evolucionado a una **Consola de Auditoría Forense y Transparencia Monetaria** (v42.0).
+## 📌 Contexto de la Misión (v42.1-AUDIT)
+SaaS para gestión de cooperativas de transporte. El sistema opera bajo una arquitectura de **Auditoría Forense, Transparencia Monetaria y UI Reactiva** (v42.1).
 
 ## 🏗️ Reglas de Oro (Innegociables)
-1.  **Monetary Transparency**: Toda deuda se maneja con "Referencia en USD" sincronizada con la tasa BCV oficial en el Simulador y el Bot.
+1.  **Monetary Transparency**: Toda deuda se maneja con "Referencia en USD" sincronizada con la tasa BCV oficial constante.
 2.  **Multimoneda Histórica**: Los abonos en Bs se acreditan usando la tasa BCV grabada en el momento del reporte del pago (`tasa_cambio`).
-3.  **Maintenance Priority**: La vista por defecto de Mantenimiento oculta unidades operativas para priorizar Fallas y Vencidos (Triage inteligente).
-4.  **Resolved_at Logic**: La resolución de fallas depende exclusivamente del campo `resolved_at` (Timestamp). Se permiten soluciones con texto vacío; esto NO re-abre la falla.
-5.  **Workshop IDs**: El ID oficial de la vista de mantenimiento es **`maintenance`**.
-6.  **Build Protocol**: NUNCA des por terminada una tarea sin ejecutar `python build_system.py`. (OMNI-GUARD v5.0).
-7.  **Defensive UI**: Todo acceso a arreglos en `MaintenanceCenter.jsx` debe usar `?.length` y `|| []`.
+3.  **Resolved_at Logic**: La resolución de fallas de UI depende de `resolved_at` (Timestamp). Se permiten textos vacíos, esto no re-abre la falla.
+4.  **UI Triage Filtering**: Vistas como Mantenimiento (oculta listos) y Cobranzas (oculta solventes) funcionan como *To-Do Lists*; siempre filtra por defecto los casos completados.
+5.  **Defensive React (Optional Chaining)**: Los payloads de choferes (`choferes.php`) traen la propiedad `vehiculo_placa` (vía `LEFT JOIN`) si están asignados. NUNCA evalúes `c.vehiculo_id` si proviene de ese endpoint. Todo mapeo debe estar protegido (`|| []`).
+6.  **PWA Simulator States**: `driver_sim.php` debe hacer _fetch sincrónico_ (`checkCurrentStatus`) antes de consumir datos guardados en caché local (ej. asignar unidad).
+7.  **LAN Mobile Access**: Vite corre con flag `--host` (`0.0.0.0`) para tolerar pruebas vía Wi-Fi local sin fallas de React Router (basado en parámetros URL, no BrowserRouter).
+8.  **Build Protocol**: NUNCA uses `npm run build`. Al finalizar diseño/código, PROBADO O NO, **SIEMPRE ejecuta `python build_system.py`** (OMNI-GUARD v5.0).
 
 ## 🛠️ Arsenal de Skills Premium (.agent/skills/)
-El sistema cuenta con un ecosistema de herramientas automatizadas corregidas y configuradas para este repositorio (v42.0):
+El ecosistema de herramientas automatizadas está perfilado a (v42.1):
 - **Backend & Seguridad**: `API-Detective-PHP`, `Security-Guard-PHP` (Audit Forense v2.0).
 - **Base de Datos**: `Database-Schema-Doctor` (Fix: Path Singleton).
-- **Bot-Python-Medic**: Diagnóstico de Telegram OK.
-- **Integrity-Audit**: Verificación de cálculos multimoneda y estados.
+- **Bot-Python-Medic**: Diagnóstico de Telegram OK (`bot.py`).
 
-## 🚀 Hitos de la Versión v42.0-Audit (Marzo 2026)
-- **Hito: Transparencia Monetaria**. Despliegue de arquitectura Referencia USD y sincronización masiva de deudas chofer-cooperativa.
-- **Hito: Auditoría Forense**. Implementación de `resolved_at` y validación de odómetro con tolerancia de 20km.
-- **Hito: Consola de Triage**. Rediseño de Mantenimiento con estados "Fallas", "Vencidos" y "Al día" con filtrado excluyente.
-- **Hito: Estabilidad Crítica**. Cierre de fugas de memoria en React y crashes por manipulación del DOM.
+## 🚀 Hitos de la Versión v42.1-Audit
+- **Hito: Cobranza "To-Do"**: Filtado reactivo que oculta solventes en Mapa de Deuda para enfocarse en cuentas por cobrar diarias.
+- **Hito: Flota Anti-Crashes**: Detección dinámica de `LEFT JOIN` (placa) previniendo lecturas fantasma.
+- **Hito: Simulador Sincronizado**: Fetch dinámico reactivo en la PWA previene asimetrías cuando el dueño asigna unidades web.
+- **Hito: Soporte Móvil Wi-Fi**: Vite `--host` permite testing cruzado local.
 
 ## 🛠️ Herramientas de Ejecución
 - **Build System**: `python build_system.py` (OMNI-GUARD Certified).
-- **Workshop API**: `api/fleet/workshop.php`.
-- **Maintenance API**: `api/fleet/mantenimiento.php`.
+- **Frontend App**: `client/src/App.jsx` (Ruta `?view=X`).
 
 ---
 > [!IMPORTANT]
 > **ORDEN PARA EL SIGUIENTE AGENTE**:
-> El sistema está en un estado de **Alta Disponibilidad Operativa (v42.0-Audit)**. Lee `docs/PROJECT_STATE.md` para el mapa de ruta y `docs/AI_MEMORY.md` para no romper la lógica de Transparencia Monetaria.
+> El sistema está en un estado de **Alta Disponibilidad Operativa (v42.1-Audit)**. La priorización es Finanzas (Dashboard). Recuerda: ¡Build_system es la única forma de compilar!
 

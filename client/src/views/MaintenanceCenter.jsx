@@ -640,7 +640,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
                                      </div>
                                   </div>
                                 </div>
-                                <button onClick={() => handleOpenWorkshop(v)} className="btn-primary" style={{ height: '56px', background: 'var(--danger)', borderRadius: '14px', fontSize: '12px', fontWeight: 950, letterSpacing: '0.05em', boxShadow: '0 15px 30px -5px rgba(239, 68, 68, 0.4)' }}>
+                                <button onClick={() => handleOpenWorkshop(v)} className="btn-primary btn-wrap" style={{ minHeight: '56px', background: 'var(--danger)', borderRadius: '14px', fontSize: '12px', fontWeight: 950, letterSpacing: '0.05em', boxShadow: '0 15px 30px -5px rgba(239, 68, 68, 0.4)' }}>
                                   <Activity size={18} /> AUDITAR Y GESTIONAR GASTOS
                                 </button>
                               </div>
