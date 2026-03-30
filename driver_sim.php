@@ -253,8 +253,7 @@
 
         <!-- FORM: PAGO -->
         <div id="form-payment" class="hidden" style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 16px;">
-            <label>Método de Pago</label>
-            <select id="payment-payment-method" onchange="togglePaymentInputs('payment')" style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #333;">
+            <select id="payment-method" onchange="togglePaymentInputs()" style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #333;">
                 <option value="Efectivo (Bs)">Efectivo (Bs)</option>
                 <option value="Pago Móvil">Pago Móvil</option>
                 <option value="Mixto">Pago Mixto (Efectivo + PM)</option>
@@ -262,18 +261,18 @@
 
             <div id="payment-amount-container">
                 <div id="ef-container">
-                    <label id="payment-label-ef">Monto (Bs)</label>
+                    <label id="payment-label-ef">Monto Efectivo (Bs)</label>
                     <input type="number" id="payment-amount-ef" placeholder="0.00">
                 </div>
-                <div id="pm-container" class="hidden">
+                <div id="pm-container" style="display:none; margin-top:10px;">
                     <label>Monto Pago Móvil (Bs)</label>
                     <input type="number" id="payment-amount-pm" placeholder="0.00">
                 </div>
-                <!-- Campo de Referencia (4 dígitos) -->
-                <div id="reference-container" style="display:none; margin-top:10px;">
-                    <label class="p-label">ÚLTIMOS 4 DÍGITOS DE REF:</label>
-                    <input type="text" id="payment-reference" class="p-input" placeholder="0000" maxlength="4">
-                </div>
+            </div>
+            <!-- Campo de Referencia (4 dígitos) -->
+            <div id="reference-container" style="display:none; margin-top:10px;">
+                <label class="p-label">ÚLTIMOS 4 DÍGITOS DE REF:</label>
+                <input type="text" id="payment-reference" class="p-input" placeholder="0000" maxlength="4">
             </div>
 
             <div class="p-button-group" style="margin-top:20px;">
@@ -629,15 +628,19 @@
         log('📩 Mensaje recibido del Bot.');
     }
 
-    function togglePaymentInputs(prefix = '') {
-        const method = document.getElementById(prefix ? `${prefix}-payment-method` : 'payment-method').value;
-        const efContainer = document.getElementById(prefix ? `${prefix}-efectivo-box` : 'ef-container');
-        const pmContainer = document.getElementById(prefix ? `${prefix}-pm-box` : 'pm-container');
+    function togglePaymentInputs() {
+        const method = document.getElementById('payment-method').value;
+        const efContainer = document.getElementById('ef-container');
+        const pmContainer = document.getElementById('pm-container');
         const refContainer = document.getElementById('reference-container');
 
-        if (efContainer) efContainer.style.display = (method === 'Efectivo (Bs)' || method === 'Mixto') ? 'block' : 'none';
-        if (pmContainer) pmContainer.style.display = (method === 'Pago Móvil' || method === 'Mixto') ? 'block' : 'none';
-        if (refContainer) refContainer.style.display = (method === 'Pago Móvil' || method === 'Mixto') ? 'block' : 'none';
+        // Lógica de visibilidad
+        efContainer.style.display = (method === 'Efectivo (Bs)' || method === 'Mixto') ? 'block' : 'none';
+        pmContainer.style.display = (method === 'Pago Móvil' || method === 'Mixto') ? 'block' : 'none';
+        refContainer.style.display = (method === 'Pago Móvil' || method === 'Mixto') ? 'block' : 'none';
+        
+        // Ajustar etiquetas para claridad
+        document.getElementById('payment-label-ef').innerText = (method === 'Mixto') ? 'Monto Efectivo (Bs)' : 'Monto (Bs)';
     }
 
     function showPaymentForm() {

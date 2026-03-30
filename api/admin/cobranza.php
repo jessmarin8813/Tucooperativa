@@ -24,7 +24,8 @@ $fleet = $stmt->fetchAll();
 
 foreach ($fleet as &$f) {
     $deuda_total = $f['dias_trabajados'] * $f['cuota_diaria'];
-    $f['saldo_pendiente'] = $deuda_total - $f['abonos_totales'];
+    // Aplicamos redondeo para evitar discrepancias de punto flotante por tasa BCV
+    $f['saldo_pendiente'] = round($deuda_total - $f['abonos_totales'], 2);
     $f['estado_solvencia'] = ($f['saldo_pendiente'] <= 0) ? 'solvente' : ($f['saldo_pendiente'] > $f['cuota_diaria'] * 3 ? 'critico' : 'deudor');
 }
 

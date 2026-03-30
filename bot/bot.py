@@ -393,14 +393,26 @@ async def reportar_amounts_received(update: Update, context: ContextTypes.DEFAUL
 
 async def reportar_referencia_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['referencia'] = update.message.text[-4:]
-    await update.message.reply_text("📸 Opcional: Envía el **COMPROBANTE** (Foto) o presiona /saltar:", parse_mode='Markdown')
+    keyboard = [['⏭️ SALTAR FOTO', '❌ CANCELAR']]
+    await update.message.reply_text(
+        "📸 Opcional: Envía el **COMPROBANTE** (Foto) o presiona el botón para saltar:", 
+        parse_mode='Markdown',
+        reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
+    )
     return REPORTAR_PHOTO
 
 async def reportar_photo_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text if update.message.text else ""
+    if text == '❌ CANCELAR': return await cancel(update, context)
+    
     photo_file = None
     if update.message.photo:
         photo = await update.message.photo[-1].get_file()
         photo_file = f"uploads/pago_{photo.file_id}.jpg"
+    
+    # Check if user pressed the Skip button
+    if text == '⏭️ SALTAR FOTO':
+        photo_file = None
     
     res = api.report_payment(
         monto_efectivo=context.user_data.get('m_efectivo', 0),
@@ -735,7 +747,8 @@ if __name__ == '__main__':
             REPORTAR_REFERENCIA: [MessageHandler(filters.TEXT & (~filters.COMMAND), reportar_referencia_received)],
             REPORTAR_PHOTO: [
                 MessageHandler(filters.PHOTO, reportar_photo_received),
-                CommandHandler('saltar', skip_photo)
+                MessageHandler(filters.Regex('^⏭️ SALTAR FOTO$'), reportar_photo_received),
+                CommandHandler('saltar', skip_photo) # Keep for compatibility
             ],
         },
         fallbacks=[CommandHandler('cancel', cancel)]

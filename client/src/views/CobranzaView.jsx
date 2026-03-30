@@ -313,7 +313,7 @@ const CobranzaView = () => {
                                         </td>
                                         <td style={{ padding: '32px 40px', textAlign: 'center', color: 'var(--success)', fontWeight: 900, fontSize: '1.1rem' }}>{formatMoney(v.abonos_totales)}</td>
                                         <td style={{ padding: '32px 40px', textAlign: 'center' }}>
-                                            <span className="neon-text" style={{ fontWeight: 900, fontSize: '1.5rem', color: v.saldo_pendiente > 0 ? 'var(--danger)' : 'var(--success)' }}>
+                                            <span className="neon-text" style={{ fontWeight: 900, fontSize: '1.5rem', color: v.saldo_pendiente > 0.01 ? 'var(--danger)' : 'var(--success)' }}>
                                                 {formatMoney(v.saldo_pendiente)}
                                             </span>
                                         </td>
