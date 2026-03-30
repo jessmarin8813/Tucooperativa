@@ -228,6 +228,25 @@ try {
                 $stmt->execute([$coop_id, $vid, $desc]);
 
                 sendResponse(['success' => true, 'message' => 'Hallazgo adicional registrado.']);
+
+            } elseif ($action === 'edit_incident') {
+                $inc_id = $data['id'] ?? null;
+                $desc = $data['descripcion'] ?? null;
+                if (!$inc_id || !$desc) throw new Exception("Faltan datos para editar reporte.");
+
+                $stmt = $db->prepare("UPDATE incidencias SET descripcion = ? WHERE id = ? AND cooperativa_id = ?");
+                $stmt->execute([$desc, $inc_id, $coop_id]);
+
+                sendResponse(['success' => true, 'message' => 'Reporte actualizado.']);
+                
+            } elseif ($action === 'delete_incident') {
+                $inc_id = $data['id'] ?? null;
+                if (!$inc_id) throw new Exception("ID de reporte faltante.");
+
+                $stmt = $db->prepare("DELETE FROM incidencias WHERE id = ? AND cooperativa_id = ?");
+                $stmt->execute([$inc_id, $coop_id]);
+
+                sendResponse(['success' => true, 'message' => 'Reporte descartado.']);
             }
             break;
 

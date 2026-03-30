@@ -15,6 +15,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
   const [newExpense, setNewExpense] = useState({ monto: '', descripcion: '', moneda: 'USD' })
   const [diagnosis, setDiagnosis] = useState('')
   const [solution, setSolution] = useState('')
+  const [imgErrors, setImgErrors] = useState({})
   const [newItem, setNewItem] = useState({ nombre: '', frecuencia: 5000, ultimo_odometro: 0 })
   const [showHistory, setShowHistory] = useState(false)
   const [repairHistory, setRepairHistory] = useState([])
@@ -221,6 +222,42 @@ const MaintenanceCenter = ({ setActiveView }) => {
       fetchWorkshopIncident(showWorkshopModal.id)
     } catch { /* Handled */ }
   }
+
+  const handleEditIncident = async (inc) => {
+    const newDesc = window.prompt(`Editar descripción del reporte:`, inc.descripcion);
+    if (!newDesc || newDesc === inc.descripcion) return;
+
+    try {
+      await callApi('fleet/workshop.php', {
+        method: 'POST',
+        body: JSON.stringify({ 
+          action: 'edit_incident', 
+          id: inc.id,
+          descripcion: newDesc
+        })
+      });
+      fetchWorkshopIncident(showWorkshopModal.id);
+    } catch { 
+      alert("❌ Error al editar el reporte");
+    }
+  };
+
+  const handleDeleteIncident = async (incId) => {
+    if (!window.confirm('¿Estás seguro de descartar este reporte técnico? Esta acción no se puede deshacer.')) return;
+    
+    try {
+      await callApi('fleet/workshop.php', {
+        method: 'POST',
+        body: JSON.stringify({ 
+          action: 'delete_incident', 
+          id: incId
+        })
+      });
+      fetchWorkshopIncident(showWorkshopModal.id);
+    } catch { 
+      alert("❌ Error al eliminar el reporte");
+    }
+  };
 
   const handleFinalizeRepair = async () => {
     if (!showWorkshopModal) return
@@ -785,20 +822,28 @@ const MaintenanceCenter = ({ setActiveView }) => {
                               <AlertTriangle size={14} /> REPORTES ACTIVOS ({workshopIncident?.incidents?.length || 0})
                           </h4>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                              {(workshopIncident?.incidents || []).map((inc, incIdx) => (
+                              {[...(workshopIncident?.incidents || [])].sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0)).map((inc, incIdx) => (
                                   <div key={inc.id || incIdx} className="glass" style={{ padding: '20px', borderRadius: '16px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.03)' }}>
                                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                                           <span style={{ fontSize: '9px', fontWeight: 950, color: 'var(--accent)', textTransform: 'uppercase' }}>{inc.tipo}</span>
-                                          <span style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)' }}>{inc.created_at ? new Date(inc.created_at).toLocaleDateString() : 'Pendiente'}</span>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                              <span style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)' }}>{inc.created_at ? new Date(inc.created_at).toLocaleDateString() : 'Pendiente'}</span>
+                                              {inc.id && (
+                                                  <div style={{ display: 'flex', gap: '4px' }}>
+                                                      <button onClick={() => handleEditIncident(inc)} style={{ background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', display: 'flex', padding: '4px' }}><Pencil size={12} /></button>
+                                                      <button onClick={() => handleDeleteIncident(inc.id)} style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', display: 'flex', padding: '4px', opacity: 0.5 }}><Trash2 size={12} /></button>
+                                                  </div>
+                                              )}
+                                          </div>
                                       </div>
                                       <p style={{ color: 'white', fontSize: '0.9rem', lineHeight: 1.5, fontWeight: 500 }}>{inc.descripcion}</p>
-                                      {inc.foto_path && inc.foto_path !== 'uploads/no-photo.jpg' && (
+                                      {inc.foto_path && inc.foto_path !== 'uploads/no-photo.jpg' && !imgErrors[inc.id] && (
                                           <div style={{ marginTop: '12px', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
                                               <img 
                                                  src={import.meta.env.DEV ? `/api/${inc.foto_path}` : `../../api/${inc.foto_path}`} 
                                                  alt="Evidencia" 
                                                  style={{ width: '100%', height: '100px', objectFit: 'cover' }} 
-                                                 onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxIiBoZWlnaHQ9IjEiPjwvc3ZnPg=='; }} 
+                                                 onError={() => setImgErrors(prev => ({...prev, [inc.id]: true}))} 
                                               />
                                           </div>
                                       )}
