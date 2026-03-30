@@ -101,7 +101,7 @@ async def post_init(application):
     REACTIVACION_PHOTO,
     END_PAY_METHOD, END_PAY_AMOUNTS,
     INCIDENCIA_PAY_METHOD, INCIDENCIA_PAY_AMOUNTS
-) = range(22)
+) = range(23)
 
 
 async def get_dynamic_menu(update: Update):

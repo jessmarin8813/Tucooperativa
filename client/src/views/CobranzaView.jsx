@@ -11,6 +11,7 @@ const CobranzaView = () => {
     const [data, setData] = useState({ resumen: [], pendientes: [], cola_validacion: [] })
     const [date, setDate] = useState(new Date().toISOString().split('T')[0])
     const [loading, setLoading] = useState(true)
+    const [showAllSolventes, setShowAllSolventes] = useState(false)
     const { callApi, loading: apiLoading } = useApi()
 
     useEffect(() => {
@@ -65,6 +66,10 @@ const CobranzaView = () => {
         return acc + normalizedMonto;
     }, 0)
     const totalDeudaFlota = (data?.resumen || []).reduce((acc, v) => acc + Math.max(0, v?.saldo_pendiente || 0), 0)
+
+    const visibleResumen = showAllSolventes 
+        ? (data?.resumen || []) 
+        : (data?.resumen || []).filter(v => v.estado_solvencia !== 'solvente')
 
     return (
         <div>
@@ -223,18 +228,26 @@ const CobranzaView = () => {
 
             {/* Solvencia Map */}
             <div className="glass" style={{ overflow: 'hidden', border: 'none', background: 'transparent' }}>
-                <div style={{ padding: isMobile ? '24px 0' : '32px 40px', borderBottom: isMobile ? 'none' : '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ padding: isMobile ? '24px 0' : '32px 40px', borderBottom: isMobile ? 'none' : '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                     <div>
                         <h3 className="neon-text brand" style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <ShieldCheck size={isMobile ? 24 : 28} style={{ color: 'var(--accent)' }} /> Mapa de Solvencia
                         </h3>
                         <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '4px' }}>Auditoría de Deuda en Tiempo Real</p>
                     </div>
+                    <button 
+                        onClick={() => setShowAllSolventes(!showAllSolventes)}
+                        className="glass-hover"
+                        style={{ padding: '8px 16px', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', background: showAllSolventes ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)', color: showAllSolventes ? 'var(--success)' : 'white', border: `1px solid ${showAllSolventes ? 'var(--success)' : 'transparent'}`, transition: 'all 0.3s' }}
+                    >
+                        {showAllSolventes ? 'Ocultar Solventes' : '👀 Ver Todo'}
+                    </button>
                 </div>
 
                 {isMobile ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        {(data?.resumen || []).map((v) => (
+                        {visibleResumen.length === 0 && <p style={{textAlign: 'center', padding: '24px', color: 'var(--text-dim)'}}>No hay unidades en esta vista.</p>}
+                        {visibleResumen.map((v) => (
                             <Motion.div 
                                 key={v.id} 
                                 initial={{ opacity: 0, scale: 0.95 }} 
@@ -288,7 +301,10 @@ const CobranzaView = () => {
                                     </tr>
                             </thead>
                             <tbody>
-                                {(data?.resumen || []).map((v) => (
+                                {visibleResumen.length === 0 && (
+                                    <tr><td colSpan="4" style={{textAlign: 'center', padding: '40px', color: 'var(--text-dim)'}}>No hay unidades en esta vista.</td></tr>
+                                )}
+                                {visibleResumen.map((v) => (
                                     <tr key={v.id} className="glass-hover" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                                         <td style={{ padding: '32px 40px' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>

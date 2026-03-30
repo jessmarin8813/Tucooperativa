@@ -231,9 +231,9 @@ const VehiculosView = ({ user, config, setActiveView }) => {
         )}
       </div>
 
-      {loading && filteredVehicles.length === 0 ? (
+      {loading && filteredVehicles?.length === 0 ? (
         <div className="p-flex p-items-center p-justify-center p-24"><RefreshCw size={48} className="animate-spin text-accent" /></div>
-      ) : filteredVehicles.length === 0 ? (
+      ) : filteredVehicles?.length === 0 ? (
         <div className="glass" style={{ padding: '80px 40px', textAlign: 'center', borderRadius: '32px', border: '2px dashed var(--glass-border)' }}>
           <Truck size={40} style={{ color: 'var(--primary)', margin: '0 auto 24px' }} />
           <h2 style={{ fontSize: '2rem', fontWeight: 900, color: 'white' }}>No hay resultados</h2>
@@ -307,16 +307,16 @@ const VehiculosView = ({ user, config, setActiveView }) => {
                    {loadingChoferes ? (
                        <div className="p-24" style={{ textAlign: 'center' }}><RefreshCw className="animate-spin text-accent" /></div>
                    ) : (
-                       choferes.filter(c => (!c.vehiculo_id || c.vehiculo_id === 0) && c.nombre.toLowerCase().includes(choferSearchTerm.toLowerCase())).length === 0 ? (
+                       (choferes || []).filter(c => (!c.vehiculo_placa) && (c.nombre || '').toLowerCase().includes((choferSearchTerm || '').toLowerCase())).length === 0 ? (
                            <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-dim)' }}>No hay choferes disponibles sin unidad asignada.</div>
                        ) : (
-                           choferes.filter(c => (!c.vehiculo_id || c.vehiculo_id === 0) && c.nombre.toLowerCase().includes(choferSearchTerm.toLowerCase())).map(c => (
+                           (choferes || []).filter(c => (!c.vehiculo_placa) && (c.nombre || '').toLowerCase().includes((choferSearchTerm || '').toLowerCase())).map(c => (
                                <div key={c.id} onClick={() => handleAssignExisting(c)} className="glass-hover clickable-hover" style={{ padding: '16px', borderRadius: '16px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px' }}>
                                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--primary-gradient)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                        <Users size={18} color="white" />
                                    </div>
                                    <div>
-                                       <span style={{ display: 'block', fontWeight: 700, fontSize: '1rem', color: 'white' }}>{c.nombre}</span>
+                                       <span style={{ display: 'block', fontWeight: 700, fontSize: '1rem', color: 'white' }}>{c.nombre || 'Desconocido'}</span>
                                        <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-dim)' }}>ID: {c.cedula || '---'}</span>
                                    </div>
                                </div>

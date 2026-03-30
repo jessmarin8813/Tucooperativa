@@ -612,6 +612,7 @@
 
     async function showUnit() {
         log('Solicitando info de unidad...');
+        await checkCurrentStatus();
         
         // Formateo dinámico del estado
         const st = driverData.estado_unidad || 'activo';
@@ -688,8 +689,10 @@
             const res = await fetch(`${API_BASE}chofer/mi_estado.php?telegram_id=${driverData.id}`);
             const data = await res.json();
             
-            driverData.estado_unidad = data.estado_unidad; // Viene de mi_estado.php (agregado por middleware o query)
+            driverData.estado_unidad = data.estado_unidad;
             driverData.is_active = data.ruta_activa;
+            driverData.vehiculo_placa = data.placa !== 'N/A' ? data.placa : null;
+            localStorage.setItem('sim_driver_data', JSON.stringify(driverData));
             updateUI();
         } catch (e) { console.error("Sync failed", e); }
     }
