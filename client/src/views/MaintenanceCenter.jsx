@@ -794,7 +794,12 @@ const MaintenanceCenter = ({ setActiveView }) => {
                                       <p style={{ color: 'white', fontSize: '0.9rem', lineHeight: 1.5, fontWeight: 500 }}>{inc.descripcion}</p>
                                       {inc.foto_path && inc.foto_path !== 'uploads/no-photo.jpg' && (
                                           <div style={{ marginTop: '12px', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                              <img src={inc.foto_path} alt="Evidencia" style={{ width: '100%', height: '100px', objectFit: 'cover' }} onError={(e) => { e.target.style.display = 'none'; }} />
+                                              <img 
+                                                 src={import.meta.env.DEV ? `/api/${inc.foto_path}` : `../../api/${inc.foto_path}`} 
+                                                 alt="Evidencia" 
+                                                 style={{ width: '100%', height: '100px', objectFit: 'cover' }} 
+                                                 onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.style.display = 'none'; }} 
+                                              />
                                           </div>
                                       )}
                                   </div>
@@ -896,29 +901,27 @@ const MaintenanceCenter = ({ setActiveView }) => {
                                   {(workshopIncident?.expenses || []).map((exp, eIdx) => (
                                       <Motion.div 
                                          key={exp?.id ? `exp-obj-${exp.id}` : `exp-idx-${eIdx}`} 
-                                         initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
-                                         style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.03)' }}
+                                         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
+                                         style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px 20px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}
                                       >
-                                          <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-                                              <span style={{ flex: 1, color: 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: '0.85rem', wordBreak: 'break-word', lineHeight: 1.3 }}>{exp?.descripcion || 'Gasto'}</span>
-                                              <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                  <span style={{ color: 'white', fontWeight: 950, fontSize: '0.9rem' }}>
-                                                      {exp.moneda === 'Bs' ? `${exp.monto} Bs` : `$${formatNumber(exp.monto)}`}
-                                                  </span>
-                                                  <div style={{ display: 'flex', gap: '8px', marginLeft: '4px' }}>
-                                                      <button 
-                                                        onClick={() => handleEditExpense(exp)}
-                                                        style={{ background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', display: 'flex', padding: '4px' }}
-                                                      >
-                                                          <Pencil size={12} />
-                                                      </button>
-                                                      <button 
-                                                        onClick={() => handleDeleteExpense(exp.id)}
-                                                        style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', display: 'flex', padding: '4px', opacity: 0.5 }}
-                                                      >
-                                                          <Trash2 size={12} />
-                                                      </button>
-                                                  </div>
+                                          <span style={{ color: 'white', fontWeight: 600, fontSize: '0.95rem', lineHeight: 1.4, wordBreak: 'break-word' }}>{exp?.descripcion || 'Gasto'}</span>
+                                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px dashed rgba(255,255,255,0.05)', paddingTop: '12px' }}>
+                                              <span style={{ color: 'var(--accent)', fontWeight: 950, fontSize: '1.05rem', letterSpacing: '0.02em' }}>
+                                                  {exp.moneda === 'Bs' ? `${exp.monto} Bs` : `$${formatNumber(exp.monto)}`}
+                                              </span>
+                                              <div style={{ display: 'flex', gap: '8px' }}>
+                                                  <button 
+                                                    onClick={() => handleEditExpense(exp)}
+                                                    style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '8px', color: 'var(--text-dim)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 12px' }}
+                                                  >
+                                                      <Pencil size={14} />
+                                                  </button>
+                                                  <button 
+                                                    onClick={() => handleDeleteExpense(exp.id)}
+                                                    style={{ background: 'rgba(239, 68, 68, 0.08)', border: 'none', borderRadius: '8px', color: 'var(--danger)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 12px' }}
+                                                  >
+                                                      <Trash2 size={14} />
+                                                  </button>
                                               </div>
                                           </div>
                                       </Motion.div>
@@ -942,12 +945,12 @@ const MaintenanceCenter = ({ setActiveView }) => {
                              placeholder="Explicación final de la solución aplicada..."
                              style={{ width: '100%', height: '90px', padding: '20px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', color: 'white', outline: 'none', fontSize: '0.9rem', marginBottom: '16px', resize: 'none' }}
                           />
-                          <button onClick={handleFinalizeRepair} className="btn-primary btn-wrap" style={{ width: '100%', minHeight: '68px', padding: '16px', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(99, 102, 241, 0.5)', background: 'linear-gradient(135deg, var(--primary), #4f46e5)', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                                <CheckCircle2 size={18} /> <span style={{ fontSize: 'clamp(0.85rem, 4vw, 0.95rem)', fontWeight: 950, textAlign: 'center', lineHeight: 1.2 }}>FINALIZAR Y ACTIVAR UNIDAD</span>
-                              </div>
-                              <span style={{ fontSize: '9px', opacity: 0.7, fontWeight: 700, textTransform: 'uppercase', textAlign: 'center', lineHeight: 1.3 }}>La unidad volverá a estar disponible para rutas</span>
-                          </button>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              <button onClick={handleFinalizeRepair} className="btn-primary" style={{ width: '100%', height: '56px', borderRadius: '16px', boxShadow: '0 15px 30px -10px rgba(99, 102, 241, 0.5)', background: 'linear-gradient(135deg, var(--primary), #4f46e5)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: 'pointer' }}>
+                                  <CheckCircle2 size={20} /> <span style={{ fontSize: '14px', fontWeight: 950 }}>FINALIZAR Y ACTIVAR</span>
+                              </button>
+                              <p style={{ textAlign: 'center', fontSize: '10px', color: 'var(--text-dim)', fontWeight: 700, padding: '0 16px', textTransform: 'uppercase', lineHeight: 1.4 }}>La unidad volverá a estar disponible para rutas</p>
+                          </div>
                       </section>
                   </div>
               </div>
