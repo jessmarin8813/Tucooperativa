@@ -39,8 +39,7 @@ export const useApi = () => {
     } catch (err) {
       const msg = err.message || 'Error de conexión'
       setError(msg)
-      // Log for forensics but don't crash the component tree
-      console.warn('⚠️ API Call Warning:', msg)
+      // Throw for view handling but keep console clean
       throw err
     } finally {
       setLoading(false)

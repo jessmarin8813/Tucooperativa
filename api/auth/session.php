@@ -14,6 +14,6 @@ try {
         'user' => $user
     ]);
 } catch (Exception $e) {
-    sendResponse(['isLoggedIn' => false, 'error' => $e->getMessage()], 401);
+    sendResponse(['isLoggedIn' => false, 'error' => $e->getMessage()]);
 }
 ?>

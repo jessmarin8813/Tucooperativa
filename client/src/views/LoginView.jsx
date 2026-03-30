@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 const LoginView = ({ onLogin }) => {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 1024 : false
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -29,7 +30,7 @@ const LoginView = ({ onLogin }) => {
       height: '100vh',
       background: 'radial-gradient(circle at top right, #1e1b4b, #0a0b12)'
     }}>
-      <div className="glass animate-fade" style={{ padding: '48px', width: '100%', maxWidth: '400px' }}>
+      <div className="glass animate-fade" style={{ padding: isMobile ? '32px 24px' : '48px', width: '100%', maxWidth: '400px', margin: isMobile ? '16px' : '0' }}>
         <h1 className="neon-text brand" style={{ fontSize: '2.5rem', marginBottom: '8px', textAlign: 'center', fontWeight: 900 }}>TuCooperativa</h1>
         <p style={{ color: 'var(--text-dim)', textAlign: 'center', marginBottom: '32px', fontSize: '0.875rem' }}>Terminal de Acceso Administrativo</p>
         
