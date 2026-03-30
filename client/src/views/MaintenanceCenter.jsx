@@ -26,6 +26,13 @@ const MaintenanceCenter = ({ setActiveView }) => {
   // History Expansion & Search (v39.2)
   const [historySearchTerm, setHistorySearchTerm] = useState('')
   const [expandedHistoryId, setExpandedHistoryId] = useState(null)
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 1024 : false)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const fetchHealth = useCallback(async () => {
     try {
@@ -482,31 +489,54 @@ const MaintenanceCenter = ({ setActiveView }) => {
                             transition={{ delay: idx * 0.05 }}
                             className={`glass ${expandedHistoryId === h.id ? 'active' : 'glass-hover'}`}
                             onClick={() => setExpandedHistoryId(expandedHistoryId === h.id ? null : h.id)}
-                            style={{ padding: '32px', display: 'grid', gridTemplateColumns: '1fr 1.5fr 1fr', gap: '32px', alignItems: 'center', cursor: 'pointer', border: expandedHistoryId === h.id ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.05)', background: expandedHistoryId === h.id ? 'rgba(59, 130, 246, 0.05)' : 'rgba(255,255,255,0.01)' }}
+                            style={{ 
+                                padding: isMobile ? '24px' : '32px', 
+                                display: 'grid', 
+                                gridTemplateColumns: isMobile ? '1fr' : '1fr 1.5fr 1fr', 
+                                gap: isMobile ? '24px' : '32px', 
+                                alignItems: 'center', 
+                                cursor: 'pointer', 
+                                border: expandedHistoryId === h.id ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.05)', 
+                                background: expandedHistoryId === h.id ? 'rgba(59, 130, 246, 0.05)' : 'rgba(255,255,255,0.01)' 
+                            }}
                         >
-                            <div>
-                                <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Vehículo</span>
-                                <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'white', marginTop: '4px' }}>{h?.placa || '---'}</h3>
-                                <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 700 }}>{h?.created_at ? new Date(h.created_at).toLocaleDateString() : 'Fecha N/A'}</p>
+                            <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', justifyContent: 'space-between', alignItems: isMobile ? 'center' : 'flex-start' }}>
+                                <div>
+                                    <span style={{ fontSize: '0.6rem', fontWeight: 950, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Vehículo</span>
+                                    <h3 style={{ fontSize: isMobile ? '1.4rem' : '1.75rem', fontWeight: 950, color: 'white', marginTop: '2px', letterSpacing: '-0.02em' }}>{h?.placa || '---'}</h3>
+                                    <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', fontWeight: 800 }}>{h?.created_at ? new Date(h.created_at).toLocaleDateString() : 'N/A'}</p>
+                                </div>
+                                {isMobile && (
+                                     <div style={{ textAlign: 'right' }}>
+                                        <span style={{ fontSize: '1.5rem', fontWeight: 950, color: 'white' }}>${formatNumber(h.total_gasto || 0)}</span>
+                                        <p style={{ fontSize: '8px', color: 'var(--success)', fontWeight: 900, textTransform: 'uppercase' }}>Inversión Total</p>
+                                    </div>
+                                )}
                             </div>
                             
-                            <div>
-                                <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Diagnóstico & Solución</span>
-                                <p style={{ fontSize: '0.85rem', color: 'white', fontWeight: 500, marginTop: '8px', lineHeight: 1.5 }}>
-                                    <span style={{ color: 'var(--warning)', fontWeight: 800 }}>D:</span> {h.diagnostico || 'Sin diagnóstico detallado'}<br/>
-                                    <span style={{ color: 'var(--success)', fontWeight: 800 }}>S:</span> {h.solucion || 'Finalizado'}
-                                </p>
+                            <div style={{ borderLeft: isMobile ? 'none' : '1px solid rgba(255,255,255,0.05)', paddingLeft: isMobile ? '0' : '32px' }}>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 950, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Diagnóstico & Solución</span>
+                                <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <p style={{ fontSize: '0.9rem', color: 'white', fontWeight: 600, lineHeight: 1.6 }}>
+                                        <span style={{ color: 'var(--warning)', fontWeight: 950, marginRight: '8px' }}>D:</span> {h.diagnostico || 'Sin diagnóstico detallado'}
+                                    </p>
+                                    <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, lineHeight: 1.6 }}>
+                                        <span style={{ color: 'var(--success)', fontWeight: 950, marginRight: '8px' }}>S:</span> {h.solucion || 'Finalizado'}
+                                    </p>
+                                </div>
                             </div>
 
-                            <div style={{ textAlign: 'right' }}>
-                                <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Inversión Total</span>
-                                <div style={{ fontSize: '1.75rem', fontWeight: 950, color: 'white', marginTop: '4px' }}>
-                                    ${formatNumber(h.total_gasto || 0)}
+                            {!isMobile && (
+                                <div style={{ textAlign: 'right', background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                                    <span style={{ fontSize: '0.6rem', fontWeight: 950, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Inversión Total</span>
+                                    <div style={{ fontSize: '2.25rem', fontWeight: 950, color: 'white', marginTop: '4px', letterSpacing: '-0.05em' }}>
+                                        ${formatNumber(h.total_gasto || 0)}
+                                    </div>
+                                    <div style={{ fontSize: '0.65rem', color: 'var(--success)', fontWeight: 1000, textTransform: 'uppercase', marginTop: '4px' }}>
+                                        {h.expenses?.length || 0} Repuestos vinculados
+                                    </div>
                                 </div>
-                                <div style={{ fontSize: '0.6rem', color: 'var(--success)', fontWeight: 900, textTransform: 'uppercase' }}>
-                                    {h.expenses?.length || 0} Repuestos vinculados
-                                </div>
-                            </div>
+                            )}
                         </Motion.div>
 
                         <AnimatePresence>
