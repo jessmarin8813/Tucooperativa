@@ -98,7 +98,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                    <div className="p-flex-col p-items-center" style={{ background: 'rgba(255,255,255,0.03)', padding: '10px 20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
                      <p className="text-white font-black" style={{ fontSize: '1.3rem', color: 'var(--success)', lineHeight: 1 }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
                      <span style={{ fontSize: '12px', fontWeight: 800, color: 'white', marginTop: '4px' }}>
-                       ≈ Bs {(v.cuota_diaria * (config?.bcv_rate || 36.5)).toFixed(2)}
+                       ≈ Bs {(Number(v.cuota_diaria || 0) * (config?.bcv_rate || 36.5)).toFixed(2)}
                      </span>
                    </div>
                 </div>
@@ -179,7 +179,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                    <div style={{ textAlign: 'center' }}>
                      <p className="text-dim uppercase font-black" style={{ fontSize: '9px' }}>Tarifa</p>
                      <p className="text-white font-black" style={{ fontSize: '1.4rem' }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
-                     <p className="font-bold" style={{ fontSize: '12px', color: 'white', marginTop: '2px' }}>≈ Bs {(v.cuota_diaria * (config?.bcv_rate || 36.5)).toFixed(2)}</p>
+                     <p className="font-bold" style={{ fontSize: '12px', color: 'white', marginTop: '2px' }}>≈ Bs {(Number(v.cuota_diaria || 0) * (config?.bcv_rate || 36.5)).toFixed(2)}</p>
                    </div>
                    <div style={{ textAlign: 'center' }}>
                      <p className="text-dim uppercase font-black" style={{ fontSize: '9px' }}>Rendimiento</p>

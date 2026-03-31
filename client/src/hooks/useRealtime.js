@@ -16,50 +16,69 @@ export const useRealtime = (onUpdate) => {
     useEffect(() => {
         const host = window.location.hostname;
         const socketUrl = `ws://${host}:8000/ws`;
-        let socket;
-        let reconnectTimeout;
+        let socket = null;
+        let reconnectTimeout = null;
+        let pollingInterval = null;
+        let retryDelay = 2000;
 
         const connect = () => {
+            if (socket) {
+                try { socket.close(); } catch(e) {}
+            }
+
             console.log('🔌 Conectando a Realtime Hub...');
             socket = new WebSocket(socketUrl);
 
             socket.onopen = () => {
                 console.log('✅ Conectado a Realtime Hub');
+                retryDelay = 2000;
+                if (pollingInterval) {
+                   clearInterval(pollingInterval);
+                   pollingInterval = null;
+                }
             };
 
             socket.onmessage = (event) => {
                 try {
+                    if (!event.data) return;
                     const data = JSON.parse(event.data);
-                    console.log('📩 Evento Realtime recibido:', data);
                     
-                    // Trigger the latest refresh callback via ref
-                    if (callbackRef.current) {
+                    if (callbackRef.current && typeof callbackRef.current === 'function') {
                         callbackRef.current(data);
                     }
                 } catch (err) {
-                    console.error('❌ Error parseando evento realtime:', err);
+                    console.warn('⚠️ Realtime: Mensaje malformado ignorado.');
                 }
             };
 
-            socket.onclose = () => {
-                console.log('🔌 Desconectado de Realtime Hub. Reintentando en 5s...');
-                reconnectTimeout = setTimeout(connect, 5000);
+            socket.onclose = (event) => {
+                // Activar Polling de respaldo si no hay WebSocket
+                if (!pollingInterval) {
+                   console.info('ℹ️ Usando modo Polling (Respaldo Silencioso)...');
+                   pollingInterval = setInterval(() => {
+                      if (callbackRef.current) callbackRef.current({ type: 'POLLING_REFRESH' });
+                   }, 30000);
+                }
+
+                // Reconexión con backoff para no estresar al servidor
+                reconnectTimeout = setTimeout(connect, retryDelay);
+                retryDelay = Math.min(retryDelay * 1.5, 30000); 
             };
 
-            socket.onerror = (err) => {
-                // Silenced technical error to avoid senior anxiety. Retries are handled by onclose.
-                console.info('ℹ️ Realtime Hub no accesible temporalmente. Usando modo offline/polling.');
-                if (socket.readyState === WebSocket.OPEN) {
-                    socket.close();
-                }
+            socket.onerror = () => {
+                if (socket.readyState === WebSocket.OPEN) socket.close();
             };
         };
 
         connect();
 
         return () => {
-            if (socket) socket.close();
+            if (socket) {
+                socket.onclose = null;
+                socket.close();
+            }
             if (reconnectTimeout) clearTimeout(reconnectTimeout);
+            if (pollingInterval) clearInterval(pollingInterval);
         };
-    }, []); // Only once on mount
+    }, []);
 };

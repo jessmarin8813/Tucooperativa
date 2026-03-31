@@ -776,8 +776,15 @@ if __name__ == '__main__':
     
     print("🚀 Fusión Maestra: Bot + Realtime Hub Iniciados en el puerto 8000")
     
-    # 1. Configurar Uvicorn de forma asíncrona
-    config = uvicorn.Config(app=app_web, host="0.0.0.0", port=8000, log_level="warning")
+    # 1. Configurar Uvicorn con mayor tolerancia a latencia
+    config = uvicorn.Config(
+        app=app_web, 
+        host="0.0.0.0", 
+        port=8000, 
+        log_level="warning",
+        ws_ping_interval=30, # Mayor tiempo entre pings
+        ws_ping_timeout=30   # Mayor tiempo de espera antes de cerrar
+    )
     server = uvicorn.Server(config)
     
     # 2. Correr ambos loops juntos usando asyncio
@@ -787,9 +794,19 @@ if __name__ == '__main__':
         await app.start()
         await app.updater.start_polling()
         
-        # Iniciamos el Servidor Web (Realtime)
-        # Esto es bloqueante dentro de main, pero el bot ya está en polling (async)
-        await server.serve()
+        # Iniciamos el Servidor Web (Realtime) con captura de errores de red
+        while True:
+            try:
+                await server.serve()
+                break # Si termina normal, salimos
+            except OSError as e:
+                if e.errno == 121: 
+                    logger.warning("⚠️ Error 121 (Timeout) detectado. Reiniciando Hub en 2s...")
+                    await asyncio.sleep(2)
+                else: raise e
+            except Exception as e:
+                logger.error(f"🔥 Fallo crítico en Hub: {e}")
+                await asyncio.sleep(5)
         
         # Al terminar (shutdown)
         await app.updater.stop()
