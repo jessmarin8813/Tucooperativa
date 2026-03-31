@@ -178,7 +178,7 @@ try {
 
         $incidencias[] = [
             'tipo' => 'Integridad de Flota',
-            'nivel' => ($ghost['última_actividad'] ? 'alto' : 'medio'),
+            'nivel' => 'alto', // Elevado a ALTO para disparar Telegram automáticamente
             'modulo' => 'Recursos Humanos',
             'evento' => 'Inactividad de Personal',
             'usuario' => $ghost['chofer_nombre'],
@@ -206,7 +206,8 @@ try {
                 continue;
             }
 
-            $sqlOwner = "SELECT telegram_chat_id, cooperativa_id FROM usuarios WHERE rol = 'owner' AND telegram_chat_id IS NOT NULL";
+            // Sincronizado con los roles reales detectados en la BD (dueno, admin)
+            $sqlOwner = "SELECT telegram_chat_id, cooperativa_id FROM usuarios WHERE rol IN ('dueno', 'admin', 'owner') AND telegram_chat_id IS NOT NULL";
             if ($coop_id) $sqlOwner .= " AND cooperativa_id = :coop_id";
             
             $stmtOwner = $db->prepare($sqlOwner);
