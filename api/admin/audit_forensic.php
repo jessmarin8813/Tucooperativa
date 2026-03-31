@@ -134,6 +134,37 @@ try {
             'fecha' => $stale['started_at']
         ];
     }
+    
+    // 4. Detection: Ghost Units (Inactividad Prolongada > 24h)
+    $query_ghost = "
+        SELECT v.id, v.placa, COALESCE(u.nombre, 'Sin Dueño') as dueno_nombre, (SELECT MAX(ended_at) FROM rutas WHERE vehiculo_id = v.id) as última_actividad
+        FROM vehiculos v
+        LEFT JOIN usuarios u ON v.dueno_id = u.id
+        WHERE v.cooperativa_id = :coop_id
+        AND v.id NOT IN (
+            SELECT vehiculo_id FROM rutas 
+            WHERE (estado = 'activa') 
+            OR (ended_at > (NOW() - INTERVAL 24 HOUR))
+        )
+        AND v.estado = 'activo'
+        LIMIT 50
+    ";
+    
+    $stmtGhost = $db->prepare($query_ghost);
+    $stmtGhost->execute(['coop_id' => $user['cooperativa_id']]);
+    foreach ($stmtGhost->fetchAll() as $ghost) {
+        $last_known = $ghost['última_actividad'] ? date('d/m H:i', strtotime($ghost['última_actividad'])) : 'Nunca';
+        $incidencias[] = [
+            'tipo' => 'Integridad de Flota',
+            'nivel' => 'medio',
+            'modulo' => 'Flota/Movilidad',
+            'evento' => 'Inactividad Prolongada',
+            'usuario' => $ghost['dueno_nombre'],
+            'ip' => '-',
+            'descripcion' => "La unidad {$ghost['placa']} no presenta actividad en las últimas 24h. Última ruta registrada: $last_known.",
+            'fecha' => $ghost['última_actividad'] ?: date('Y-m-d H:i:s', strtotime('-24 hours'))
+        ];
+    }
 
     // Sort incidencias by date DESC
     usort($incidencias, function($a, $b) {
