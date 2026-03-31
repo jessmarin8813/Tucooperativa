@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
-import { TrendingUp, TrendingDown, BarChart3, Target, Activity, Printer, AlertTriangle, ShieldCheck } from 'lucide-react'
+import { TrendingUp, TrendingDown, BarChart3, Target, Activity, AlertTriangle, ShieldCheck } from 'lucide-react'
 import { 
   BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts'
@@ -50,9 +50,7 @@ const BIView = () => {
 
   const { global, unidades } = data
 
-  const handlePrint = () => {
-      window.print()
-  }
+
 
   return (
     <div className="animate-fade">
@@ -61,12 +59,7 @@ const BIView = () => {
           <h1 className="h1-premium neon-text">Inteligencia Financiera</h1>
           <p className="p-subtitle">Control de rentabilidad y rentas diarias de la flota</p>
         </div>
-        <button 
-            onClick={handlePrint}
-            className="btn-primary"
-        >
-            <Printer size={20} /> GENERAR CIERRE (PDF)
-        </button>
+
       </header>
 
       {/* Main Stats Grid */}
