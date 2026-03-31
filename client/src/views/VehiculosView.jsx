@@ -257,9 +257,7 @@ const VehiculosView = ({ user, config, setActiveView }) => {
           <button className="btn-primary" onClick={() => setIsModalOpen(true)}>AGREGAR UNIDAD</button>
         </div>
       ) : (
-        <div className="glass" style={{ borderRadius: '24px' }}>
-          <FleetList vehicles={filteredVehicles} config={config} user={user} setActiveView={setActiveView} onEdit={handleEditVehicle} onInvite={handleOpenInviteModal} onUnlink={handleUnlinkDriver} onDelete={handleDeleteVehicle} />
-        </div>
+        <FleetList vehicles={filteredVehicles} config={config} user={user} setActiveView={setActiveView} onEdit={handleEditVehicle} onInvite={handleOpenInviteModal} onUnlink={handleUnlinkDriver} onDelete={handleDeleteVehicle} />
       )}
 
       <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={selectedVehicle ? "Modificar Unidad" : "Nueva Unidad"}>

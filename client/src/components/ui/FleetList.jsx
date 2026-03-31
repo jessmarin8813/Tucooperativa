@@ -106,13 +106,13 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                 <div className="p-status-col p-flex p-items-center p-justify-center">
                    <div className="p-flex-col p-items-center" style={{ gap: '6px' }}>
                      <div className="p-status-pill-v2" style={{ 
-                        background: status === 'activo' ? 'var(--success)' : status === 'mantenimiento' ? 'var(--warning)' : 'var(--danger)',
+                        background: status === 'activo' ? (v?.chofer_id ? 'var(--success)' : 'var(--primary)') : status === 'mantenimiento' ? 'var(--warning)' : 'var(--danger)',
                         color: status === 'mantenimiento' ? '#000' : '#fff',
                         fontSize: '12px',
                         padding: '12px 24px',
                         minWidth: '140px'
                      }}>
-                        {status === 'activo' ? 'TRABAJANDO' : status === 'mantenimiento' ? 'EN TALLER' : 'DETENIDO'}
+                        {status === 'activo' ? (v?.chofer_id ? 'TRABAJANDO' : 'DISPONIBLE') : status === 'mantenimiento' ? 'EN TALLER' : 'DETENIDO'}
                      </div>
                      <span style={{ fontSize: '11px', opacity: 0.8, fontWeight: 800, color: 'white', marginTop: '4px' }}>{statusDescription}</span>
                    </div>
@@ -167,12 +167,12 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                     <span className="p-plate-badge" style={{ marginTop: '8px', display: 'inline-block' }}>{v.placa}</span>
                   </div>
                   <div className="p-status-pill-v2" style={{ 
-                    background: status === 'activo' ? 'var(--success)' : status === 'mantenimiento' ? 'var(--warning)' : 'var(--danger)',
+                    background: status === 'activo' ? (v?.chofer_id ? 'var(--success)' : 'var(--primary)') : status === 'mantenimiento' ? 'var(--warning)' : 'var(--danger)',
                     color: status === 'mantenimiento' ? '#000' : '#fff',
                     fontSize: '12px',
                     padding: '10px 20px'
                   }}>
-                    {status === 'activo' ? 'TRABAJANDO' : status === 'mantenimiento' ? 'EN TALLER' : 'DETENIDO'}
+                    {status === 'activo' ? (v?.chofer_id ? 'TRABAJANDO' : 'DISPONIBLE') : status === 'mantenimiento' ? 'EN TALLER' : 'DETENIDO'}
                   </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', padding: '20px', background: 'rgba(0,0,0,0.3)', borderRadius: '20px', marginBottom: '24px' }}>

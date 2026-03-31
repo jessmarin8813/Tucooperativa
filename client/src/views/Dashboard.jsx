@@ -152,6 +152,7 @@ const Dashboard = ({ user, setActiveView }) => {
         <FleetList 
              vehicles={data.vehicles} 
              user={user} 
+             config={config}
              loading={loading} 
              setActiveView={setActiveView} 
              onEdit={() => setActiveView('flota')}

@@ -14,7 +14,7 @@ function get_bcv_rate() {
     $stmt = $db->prepare("SELECT tasa, created_at FROM tasas_cambio WHERE moneda = 'USD' ORDER BY created_at DESC LIMIT 1");
     $stmt->execute();
     $last_entry = $stmt->fetch(PDO::FETCH_ASSOC);
-    $last_rate = $last_entry ? floatval($last_entry['tasa']) : 470;
+    $last_rate = $last_entry ? floatval($last_entry['tasa']) : 36.50;
     
     // 2. DETERMINAR SI NECESITAMOS ESCANEAR (REGLA: PASADAS LAS 4 PM Y NO TENEMOS LA TASA DE MAÑANA)
     $needs_sync = false;
@@ -68,8 +68,6 @@ function get_bcv_rate() {
             $val = $data['precio'] ?? $data['promedio'] ?? null;
             if ($val) {
                 $rate = floatval($val);
-                // Corrección de escala si el API viene mal (10x bug)
-                if ($last_rate > 300 && $rate < 100) { $rate *= 10; }
             }
         }
     }
