@@ -2,7 +2,7 @@ import React from 'react'
 import { MoreVertical, User, AlertTriangle, Car, History, Truck, Wrench, XCircle, UserMinus, Trash2 } from 'lucide-react'
 import { motion as Motion, AnimatePresence } from 'framer-motion'
 
-const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onInvite, onUnlink, config }) => {
+const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onInvite, onUnlink, onDelete, config }) => {
   const safeVehicles = Array.isArray(vehicles) ? vehicles : [];
 
   if (safeVehicles?.length === 0) {
@@ -138,7 +138,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                               <button onClick={() => { setActiveView && setActiveView('forensic'); setActiveDropdown(null); }} className="p-dropdown-item">Auditoría</button>
                               {v.chofer_id && <button onClick={() => { onUnlink && onUnlink(v); setActiveDropdown(null); }} className="p-dropdown-item text-danger">Desvincular Chofer</button>}
                               <div className="p-dropdown-divider"></div>
-                              <button className="p-dropdown-item text-danger" onClick={() => { if(window.confirm('¿Eliminar unidad?')) setActiveDropdown(null); }}>Eliminar</button>
+                              <button className="p-dropdown-item text-danger" onClick={() => { onDelete && onDelete(v); setActiveDropdown(null); }}>Eliminar</button>
                            </Motion.div>
                          )}
                        </AnimatePresence>
@@ -186,7 +186,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                              <button onClick={() => { setActiveView && setActiveView('forensic'); setActiveDropdown(null); }} className="p-dropdown-item">Auditoría</button>
                              {v.chofer_id && <button onClick={() => { onUnlink && onUnlink(v); setActiveDropdown(null); }} className="p-dropdown-item text-danger">Desvincular Chofer</button>}
                              <div className="p-dropdown-divider"></div>
-                             <button className="p-dropdown-item text-danger" onClick={() => { if(window.confirm('¿Eliminar unidad?')) setActiveDropdown(null); }}>Eliminar</button>
+                             <button className="p-dropdown-item text-danger" onClick={() => { onDelete && onDelete(v); setActiveDropdown(null); }}>Eliminar</button>
                           </Motion.div>
                         )}
                      </AnimatePresence>

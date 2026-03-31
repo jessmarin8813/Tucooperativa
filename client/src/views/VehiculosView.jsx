@@ -76,6 +76,16 @@ const VehiculosView = ({ user, config, setActiveView }) => {
     } catch (err) { console.error(err); }
   }
 
+  const handleDeleteVehicle = async (vehicle) => {
+    if (!window.confirm(`¿Estás seguro de ELIMINAR permanentemente la unidad ${vehicle.placa}? Esta acción no se puede deshacer.`)) return;
+    try {
+      await callApi('admin/save_vehicle.php', {
+        method: 'POST', body: JSON.stringify({ id: vehicle.id, action: 'delete' })
+      });
+      fetchVehicles();
+    } catch (err) { console.error(err); }
+  }
+
   const handleOpenInviteModal = (vehicle) => {
     setInviteVehicle(vehicle); 
     setInviteStep('selection');
@@ -186,8 +196,7 @@ const VehiculosView = ({ user, config, setActiveView }) => {
                 <Car size={28} className="text-primary" />
             </div>
             <div>
-                <h1 className="h1-premium neon-text" style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', lineHeight: 1 }}>Módulo de Flota</h1>
-                <p className="p-subtitle" style={{ margin: 0, marginTop: '4px' }}>Gestión Operativa Senior</p>
+                <h1 className="h1-premium neon-text" style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', lineHeight: 1 }}>Gestión de Flotas</h1>
             </div>
         </div>
         <button className="btn-primary" onClick={() => setIsModalOpen(true)} style={{ padding: '0 24px', height: '48px', width: isMobile ? '100%' : 'auto' }}>
@@ -241,7 +250,7 @@ const VehiculosView = ({ user, config, setActiveView }) => {
         </div>
       ) : (
         <div className="glass" style={{ borderRadius: '24px' }}>
-          <FleetList vehicles={filteredVehicles} config={config} user={user} setActiveView={setActiveView} onEdit={handleEditVehicle} onInvite={handleOpenInviteModal} onUnlink={handleUnlinkDriver} />
+          <FleetList vehicles={filteredVehicles} config={config} user={user} setActiveView={setActiveView} onEdit={handleEditVehicle} onInvite={handleOpenInviteModal} onUnlink={handleUnlinkDriver} onDelete={handleDeleteVehicle} />
         </div>
       )}
 

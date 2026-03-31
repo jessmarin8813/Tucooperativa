@@ -44,6 +44,33 @@ try {
         }
 
         sendResponse(['success' => true, 'message' => 'Vehículo actualizado correctamente']);
+
+    } elseif ($action === 'delete') {
+        // Limpieza Profunda: Borrar todo lo relacionado a esta unidad
+        $coop_id = $user['cooperativa_id'];
+        
+        $db->beginTransaction();
+        
+        // 1. Borrar incidencias y sus gastos
+        $db->prepare("DELETE FROM gastos WHERE vehiculo_id = ? AND cooperativa_id = ?")->execute([$id, $coop_id]);
+        $db->prepare("DELETE FROM incidencias WHERE vehiculo_id = ? AND cooperativa_id = ?")->execute([$id, $coop_id]);
+        
+        // 2. Borrar rutas y odometros
+        $db->prepare("DELETE FROM rutas WHERE vehiculo_id = ?")->execute([$id]);
+        $db->prepare("DELETE FROM odometros WHERE vehiculo_id = ?")->execute([$id]);
+        
+        // 3. Borrar el vehículo
+        $stmt = $db->prepare("DELETE FROM vehiculos WHERE id = ? AND cooperativa_id = ?");
+        $stmt->execute([$id, $coop_id]);
+        
+        $db->commit();
+
+        if (class_exists('RealtimeHub')) {
+            RealtimeHub::dispatch('UPDATE_FLEET', ['action' => 'delete', 'vehicle_id' => $id]);
+        }
+
+        sendResponse(['success' => true, 'message' => 'Vehículo y sus datos eliminados correctamente']);
+
     } else {
         sendResponse(['error' => 'Unsupported action'], 400);
     }
