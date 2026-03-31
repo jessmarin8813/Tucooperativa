@@ -656,15 +656,15 @@ const MaintenanceCenter = ({ setActiveView }) => {
                       transition={{ duration: 0.3, ease: 'easeInOut' }}
                       style={{ overflow: 'hidden' }}
                     >
-                      <div style={{ padding: '0 24px 32px 24px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px' }}>
+                      <div style={{ padding: isMobile ? '0 16px 32px 16px' : '0 24px 32px 24px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px' }}>
                         
                         {/* Actions Bar inside expanded unit */}
                         <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
                             <button 
                                 onClick={(e) => { e.stopPropagation(); setNewItem(prev => ({ ...prev, ultimo_odometro: v.odometro_actual })); setShowAddModal(v.id); }}
-                                className="btn-secondary" style={{ flex: 1, height: '44px', fontSize: '10px', fontWeight: 900 }}
+                                className="btn-secondary" style={{ flex: 1, height: '48px', fontSize: '11px', fontWeight: 1000, letterSpacing: '0.08em' }}
                             >
-                                <Plus size={16} /> AÑADIR RECORDATORIO
+                                <Plus size={16} /> AGREGAR RECORDATORIO
                             </button>
                         </div>
 
@@ -705,7 +705,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
                         {/* 3. PREVENTIVE TASKS */}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
                           {(v?.items || []).map((item, itIdx) => (
-                            <div key={item?.id || `item-${v.id}-${itIdx}`} className="glass" style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px' }}>
+                            <div key={item?.id || `item-${v.id}-${itIdx}`} className="glass" style={{ padding: isMobile ? '24px' : '28px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                                 <div>
                                   <h4 style={{ fontSize: '0.95rem', fontWeight: 950, color: 'white' }}>{item.nombre}</h4>
@@ -727,8 +727,8 @@ const MaintenanceCenter = ({ setActiveView }) => {
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                                   <span style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase' }}>REMANENTE</span>
-                                  <span style={{ fontSize: '1.25rem', fontWeight: 900, color: item.estado === 'critico' ? '#ff4d4d' : '#00f2ff' }}>
-                                    {formatNumber(item.km_restantes)} <small style={{ fontSize: '0.6rem' }}>KM</small>
+                                  <span style={{ fontSize: isMobile ? '1.1rem' : '1.35rem', fontWeight: 950, color: item.estado === 'critico' ? '#ff4d4d' : '#00f2ff', letterSpacing: '-0.02em' }}>
+                                    {formatNumber(item.km_restantes)} <small style={{ fontSize: '0.6rem', opacity: 0.6 }}>KM</small>
                                   </span>
                                 </div>
                                 <button 
