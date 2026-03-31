@@ -149,11 +149,9 @@ const BIView = () => {
                         {unidades.map((u) => (
                             <tr key={u.id} className="glass-hover" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                                 <td style={{ padding: '12px 24px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <div style={{ width: '32px', height: '32px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.8rem' }}>
-                                            {u.placa.slice(-2)}
-                                        </div>
-                                        <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>{u.placa}</span>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                        <span style={{ fontWeight: 900, fontSize: '0.95rem', color: 'white' }}>{u.placa}</span>
+                                        {u.modelo && <span style={{ fontSize: '0.65rem', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase' }}>{u.modelo}</span>}
                                     </div>
                                 </td>
                                 <td style={{ padding: '12px 24px', fontWeight: 700, color: 'var(--success)' }}>{formatMoney(u.abonos)}</td>
@@ -180,13 +178,14 @@ const BIView = () => {
                 {unidades.map((u) => (
                     <div key={u.id} className="glass" style={{ padding: '20px', borderRadius: '18px', border: u.alerta_salud ? '1px solid rgba(239, 68, 68, 0.15)' : '1px solid rgba(16, 185, 129, 0.15)', background: u.alerta_salud ? 'rgba(239, 68, 68, 0.02)' : 'rgba(16, 185, 129, 0.02)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                               <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 950, fontSize: '0.9rem', color: 'var(--accent)' }}>
-                                   {u.placa.slice(-2)}
-                               </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                <div>
-                                   <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: 'white', lineHeight: '1' }}>{u.placa}</h4>
-                                   <p style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', marginTop: '4px' }}>Unidad Operativa</p>
+                                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                       <h4 style={{ fontSize: '1.2rem', fontWeight: 950, color: 'white', lineHeight: '1' }}>{u.placa}</h4>
+                                       <div style={{ width: '4px', height: '4px', background: 'var(--accent)', borderRadius: '50%', opacity: 0.5 }} />
+                                       <span style={{ fontSize: '0.7rem', color: 'var(--accent)', fontWeight: 900, textTransform: 'uppercase' }}>{u.modelo}</span>
+                                   </div>
+                                   <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', marginTop: '6px', letterSpacing: '0.05em' }}>Rentabilidad de Unidad</p>
                                </div>
                            </div>
                            <div style={{ 
