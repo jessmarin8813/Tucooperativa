@@ -144,7 +144,7 @@ button {
 
 @media (max-width: 768px) {
   .view-container {
-    padding: 24px 22px !important; /* Aumentando aire lateral para evitar recortes */
+    padding: 24px 22px 120px 22px !important; /* REGLA #45: Blindaje Lateral Estricto */
   }
 }
 
@@ -401,10 +401,11 @@ button {
 
   .btn-primary, .btn-secondary {
     width: 100% !important;
-    height: 64px !important; /* Touch Target Senior */
+    height: 58px !important; /* Premium Touch Target (Rule #48) */
     padding: 0 24px !important;
-    font-size: 1.1rem !important; /* Más grande en móvil */
-    border-radius: 20px !important;
+    font-size: 0.95rem !important; /* Tamaño Profesional (antes 1.1rem) */
+    border-radius: 18px !important;
+    letter-spacing: 0.02em !important;
   }
 
   .p-grid, .p-grid-cols-2 {
@@ -446,7 +447,7 @@ button {
     box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
   }
   .view-container {
-    padding: 0 16px 120px 16px !important;
+    padding: 0 22px 140px 22px !important; /* Aire Inferior para Barra de Navegación */
   }
   .p-grid-responsive {
     gap: 24px !important;

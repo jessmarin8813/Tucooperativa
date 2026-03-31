@@ -134,8 +134,8 @@ const ChoferesView = () => {
                     <User size={28} color="white" />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '2px' }}>{c.nombre}</h3>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 800, marginBottom: '4px' }}>ID: {c.cedula || '---'}</p>
+                    <h3 style={{ fontSize: isMobile ? '1.1rem' : '1.25rem', fontWeight: 900, marginBottom: '2px' }}>{c.nombre}</h3>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 800, marginBottom: '4px' }}>ID: {c.cedula || '---'}</p>
                     {c.vehiculo_placa && (
                       <p style={{ fontSize: '0.75rem', color: 'var(--accent)', fontWeight: 900, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <Truck size={12} /> {c.vehiculo_modelo} ({c.vehiculo_placa})
@@ -227,17 +227,17 @@ const ChoferesView = () => {
                 {(invitaciones || []).map((inv) => {
                   const link = `https://t.me/TuCooperativaBot?start=${inv.token}`
                   return (
-                    <div 
+                     <div 
                       key={inv.id}
                       className="glass-hover" 
                       style={{ 
-                        padding: '16px 20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)',
-                        display: 'flex', alignItems: 'center', gap: '16px'
+                        padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)',
+                        display: 'grid', gridTemplateColumns: '1fr auto', gap: '16px', alignItems: 'center'
                       }}
                     >
                       <div style={{ flex: 1, overflow: 'hidden' }}>
-                        <p style={{ fontSize: '0.65rem', color: 'var(--text-dim)', marginBottom: '4px', letterSpacing: '0.1em' }}>TOKEN: {inv.token}</p>
-                        <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--accent)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                        <p style={{ fontSize: '0.6rem', color: 'var(--text-dim)', marginBottom: '4px', letterSpacing: '0.1em', fontWeight: 900 }}>ID: {inv.token}</p>
+                        <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', margin: 0 }}>
                           {link}
                         </p>
                       </div>
@@ -245,15 +245,13 @@ const ChoferesView = () => {
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <button 
                           onClick={() => copyToClipboard(link, inv.id)}
-                          className="glass" 
-                          style={{ padding: '10px', color: copied === inv.id ? '#22c55e' : 'white' }}
+                          style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(255,255,255,0.05)', color: copied === inv.id ? '#22c55e' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                         >
                           {copied === inv.id ? <Check size={18} /> : <Copy size={18} />}
                         </button>
                         <button 
                           onClick={() => deleteInvite(inv.id)}
-                          className="glass" 
-                          style={{ padding: '10px', color: 'var(--danger)' }}
+                          style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(239, 68, 68, 0.05)', color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                         >
                           <Trash2 size={18} />
                         </button>

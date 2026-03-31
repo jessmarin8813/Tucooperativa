@@ -178,20 +178,21 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', padding: '20px', background: 'rgba(0,0,0,0.3)', borderRadius: '20px', marginBottom: '24px' }}>
                    <div style={{ textAlign: 'center' }}>
                      <p className="text-dim uppercase font-black" style={{ fontSize: '9px' }}>Tarifa</p>
-                     <p className="text-white font-black" style={{ fontSize: '1.4rem' }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
-                     <p className="font-bold" style={{ fontSize: '12px', color: 'white', marginTop: '2px' }}>≈ Bs {(Number(v.cuota_diaria || 0) * (config?.bcv_rate || 36.5)).toFixed(2)}</p>
+                     <p className="text-white font-black" style={{ fontSize: isMobile ? '1.2rem' : '1.4rem' }}>${parseFloat(v.cuota_diaria || 0).toFixed(2)}</p>
+                     <p className="font-bold" style={{ fontSize: '11px', color: 'white', marginTop: '2px' }}>≈ Bs {(Number(v.cuota_diaria || 0) * (config?.bcv_rate || 36.5)).toFixed(2)}</p>
                    </div>
                    <div style={{ textAlign: 'center' }}>
                      <p className="text-dim uppercase font-black" style={{ fontSize: '9px' }}>Rendimiento</p>
-                     <p className="text-white font-black" style={{ fontSize: '1.4rem' }}>{v.km_por_litro || '0'} KM/L</p>
+                     <p className="text-white font-black" style={{ fontSize: isMobile ? '1.2rem' : '1.4rem' }}>{v.km_por_litro || '0'} KM/L</p>
                    </div>
                 </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                   <button onClick={() => v.chofer_id ? onUnlink(v) : onInvite(v)} className="btn-primary" style={{ flex: 3, height: '56px' }}>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px' }}>
+                   <button onClick={() => v.chofer_id ? onUnlink(v) : onInvite(v)} className="btn-primary" style={{ height: '56px', fontSize: '0.9rem' }}>
                      {v.chofer_id ? `CHOFER: ${v.chofer_nombre}` : 'INVITAR CHOFER'}
                    </button>
-                   <div style={{ position: 'relative', flex: 1 }}>
-                     <button onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} className="btn-secondary" style={{ width: '100%', height: '56px', borderRadius: '18px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                   <div style={{ position: 'relative' }}>
+                     <button onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} className="btn-secondary" style={{ width: '60px', height: '56px', borderRadius: '18px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                        <MoreVertical size={24} className={activeDropdown === v.id ? 'text-primary' : 'text-white/40'} />
                      </button>
                      <AnimatePresence>

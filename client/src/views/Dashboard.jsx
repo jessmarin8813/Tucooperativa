@@ -61,10 +61,10 @@ const Dashboard = ({ user, config, setActiveView }) => {
 
   return (
     <div className="animate-fade">
-      <header className="p-flex-responsive p-justify-between" style={{ marginBottom: '40px', gap: '24px' }}>
+      <header className="p-flex-responsive p-justify-between" style={{ marginBottom: '40px', gap: isMobile ? '12px' : '24px' }}>
         <div>
-          <h1 className="h1-premium neon-text" style={{ fontSize: '3rem' }}>Gestión Diaria</h1>
-          <p className="p-subtitle">Resumen centralizado de tu cooperativa en tiempo real.</p>
+          <h1 className="h1-premium neon-text" style={{ fontSize: isMobile ? '2.2rem' : '3.5rem' }}>Gestión Diaria</h1>
+          <p className="p-subtitle" style={{ fontSize: isMobile ? '0.9rem' : '1.1rem' }}>Resumen centralizado en tiempo real.</p>
         </div>
       </header>
 

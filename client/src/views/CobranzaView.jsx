@@ -161,10 +161,10 @@ const CobranzaView = () => {
                                         </div>
                                     </div>
 
-                                    <div style={{ display: 'flex', gap: '12px' }}>
-                                        <button onClick={() => handleProcesar(p.id, 'aprobado')} className="btn-primary" style={{ flex: 1, height: '48px', fontSize: '0.8rem' }}>VALIDAR</button>
-                                        <button onClick={() => handleProcesar(p.id, 'rechazado')} className="glass" style={{ flex: 1, height: '48px', fontSize: '0.8rem', color: 'var(--danger)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>RECHAZAR</button>
-                                    </div>
+                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                         <button onClick={() => handleProcesar(p.id, 'aprobado')} className="btn-primary" style={{ height: '52px', fontSize: '0.9rem' }}>VALIDAR</button>
+                                         <button onClick={() => handleProcesar(p.id, 'rechazado')} className="btn-secondary" style={{ height: '52px', fontSize: '0.9rem', color: 'var(--danger)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>RECHAZAR</button>
+                                     </div>
                                 </Motion.div>
                             ))}
                         </div>
@@ -219,38 +219,33 @@ const CobranzaView = () => {
                             <p style={{ color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.75rem' }}>No hay abonos pendientes de revisión</p>
                         </div>
                     ) : (data?.pendientes || []).map((p, i) => (
-                        <Motion.div key={p.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="glass glass-hover" style={{ padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
+                        <Motion.div key={p.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="glass glass-hover" style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', alignItems: 'center' }}>
+                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
                                  <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: p.moneda === 'Bs' ? 'var(--primary)' : 'var(--success)', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 0 20px ${p.moneda === 'Bs' ? 'var(--primary-glow)' : 'var(--success-glow)'}` }}>
                                     <span style={{ fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', opacity: 0.7 }}>{p.moneda}</span>
-                                    <span style={{ fontSize: '1.25rem', fontWeight: 900 }}>{p.moneda === 'Bs' ? formatBs(p.monto) : p.monto}</span>
+                                    <span style={{ fontSize: isMobile ? '1.1rem' : '1.25rem', fontWeight: 900 }}>{p.moneda === 'Bs' ? formatBs(p.monto) : p.monto}</span>
                                  </div>
                                 <div style={{ minWidth: 0 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                        <p style={{ color: 'white', fontWeight: 900, fontSize: '1.1rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.chofer}</p>
+                                        <p style={{ color: 'white', fontWeight: 900, fontSize: isMobile ? '1rem' : '1.1rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.chofer}</p>
                                         <span style={{ padding: '2px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: '100px', fontSize: '0.6rem', fontWeight: 800, color: 'var(--text-dim)', flexShrink: 0 }}>{p.placa}</span>
                                     </div>
                                     <p style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', fontWeight: 900, letterSpacing: '0.1em', marginTop: '4px' }}>
-                                        {formatDate(p.fecha_reportado)} • {p.moneda === 'Bs' ? `@ ${p.tasa_cambio}` : `REFERENCIA: ${p.referencia || 'N/A'}`}
+                                        {formatDate(p.fecha_reportado)} • {p.moneda === 'Bs' ? `@ ${p.tasa_cambio}` : `REF: ${p.referencia || 'N/A'}`}
                                     </p>
-                                    {p.moneda === 'Bs' && (
-                                        <p style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--success)', marginTop: '2px' }}>
-                                            ≈ $ {(p.monto / (p.tasa_cambio || 1)).toFixed(2)}
-                                        </p>
-                                    )}
                                 </div>
                              </div>
-                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <button 
                                     onClick={() => handleProcesar(p.id, 'aprobado')} 
-                                    style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', border: '1px solid rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    style={{ width: '56px', height: '56px', borderRadius: '18px', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', border: '1px solid rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                     className="glass-hover"
                                 >
                                     <CheckCircle size={28} />
                                 </button>
                                 <button 
                                     onClick={() => handleProcesar(p.id, 'rechazado')} 
-                                    style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', border: '1px solid rgba(239, 68, 68, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    style={{ width: '56px', height: '56px', borderRadius: '18px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', border: '1px solid rgba(239, 68, 68, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                     className="glass-hover"
                                 >
                                     <XCircle size={28} />
@@ -262,8 +257,8 @@ const CobranzaView = () => {
             </div>
 
             {/* Solvencia Map */}
-            <div className="glass" style={{ overflow: 'hidden', border: 'none', background: 'transparent' }}>
-                <div style={{ padding: isMobile ? '24px 0' : '32px 40px', borderBottom: isMobile ? 'none' : '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+             <div className="glass" style={{ overflow: 'hidden', border: 'none', background: 'transparent' }}>
+                 <div style={{ padding: isMobile ? '24px 22px' : '32px 40px', borderBottom: isMobile ? 'none' : '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                     <div>
                         <h3 className="neon-text brand" style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <ShieldCheck size={isMobile ? 24 : 28} style={{ color: 'var(--accent)' }} /> Mapa de Solvencia
