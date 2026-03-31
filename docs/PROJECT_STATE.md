@@ -1,33 +1,33 @@
-# 🛡️ TuCooperativa - PROJECT STATE (v50.0-FORENSE / BI & OFFICIAL BCV)
+# 🛡️ TuCooperativa - PROJECT STATE (v60.0-SELF-HEALING / STABILIZATION)
 
 ## 📊 Resumen Ejecutivo
-- **Versión**: 50.0-Forense (BI & Official BCV Hardening).
-- **Estado**: **BLINDAJE DE IDENTIDAD Y SINCRONIZACIÓN OFICIAL**.
-- **Última Auditoría**: OMNI-GUARD v5.0 (Passed 2026-03-31 01:40).
-- **BCV Oficial (v6.7)**: Sincronización proactiva mediante **Scraping Directo de bcv.org.ve**. Ya no depende de APIs de terceros inestables. Resolución de tasa a **473.87 Bs/$**.
-- **Identidad Forense**: Hub Forense optimizado para identificación por **Placa + Modelo** (Binomio), eliminando IDs numéricos internos.
-- **BI Premium**: Reportes de rentabilidad y tarjetas de SuperAdmin libres de IDs; identidad basada 100% en Nombre/Marca.
+- **Versión**: 60.0-Self-Healing (Stabilization & UI Harmony).
+- **Estado**: **ARQUITECTURA DE AUTORECUPERACIÓN ACTIVA**.
+- **Última Auditoría**: OMNI-GUARD v5.0 (Passed 2026-03-31 13:40).
+- **BCV Saneado (v7.0)**: Eliminación del error de escala 10x y el valor obsoleto de 470. Tasa saneada a **~36.50 Bs/$**. Sincronización proactiva 100% veraz.
+- **Self-Healing Hub**: El sistema ahora es inmune a desconexiones de red local y errores de Windows (`WinError 121`). Recuperación automática sin recarga de página.
+- **Armonía Visual**: Paridad total entre el Dashboard y el Módulo de Flotas (mismo layout, sin capas extra).
 
 ## 🛠️ Componentes Críticos
-- **BCV Helper Resolutivo (v6.7)**: 
-    - Extracción directa de la fuente oficial (`bcv.org.ve`) con **Corrección de Escala 10x** automática (detecta 47.38 vs 473.87).
-- **Hub Forense & Auditoría (v4.5)**: 
-    - Identidad Humana (Placa + Modelo). UI Glassmorphism de alto contraste para Riesgo y alertas. Eliminación de etiquetas redundantes ("Integridad de flota").
-- **Módulo BI & SuperAdmin (Clean IDs)**: 
-    - Identificación por Nombre/RIF (Cooperativa) y Placa/Modelo (Vehículo). Los IDs numéricos (`COOP_1`) han sido removidos de la capa de presentación.
-- **Bot de Telegram (Pydantic v2.0 Ready)**:
-    - Uso de `model_dump()` para broadcast y manejo tolerante a `NetworkError: Bad Gateway` (502 polling auto-retry).
+- **Hybrid Polling Hook (v2.0)**: 
+    - `useRealtime.js` cambia automáticamente a modo Polling (30s) si el Socket falla. Reconexión con retroceso exponencial.
+- **Bot/Hub Resiliente (v3.0)**: 
+    - `bot.py` captura `OSError 121` y reinicia el Hub silenciosamente. Tiempos de ping optimizados a 30s para mayor tolerancia.
+- **UI de Rescate (v1.0)**: 
+    - `MainErrorBoundary` de alto contraste con botón de "REINTENTAR AHORA" para colapsos críticos.
+- **Null-Safety Guard**: 
+    - Blindaje atómico en `FleetList` para evitar TypeErrors por `undefined.length` o `toFixed()` en valores nulos.
 
 ## 📌 Mapa de Ruta Inmediato
-1.  **Dashboard Finance Final**:
+1.  **Transition to VPS**:
+    *   Migrar el `bot.py` a Linux para eliminar definitivamente la latencia de semáforos de Windows.
+2.  **Dashboard Finance Final**:
     *   Integrar los gastos de taller (expenses) en el flujo de caja global (Reference USD).
-2.  **Mobile Maintenance UX**:
-    *   Refinar gestos táctiles (swipe) para archivar mantenimientos rápidos.
 
 ## ⚠️ Puntos de Atención
 - El ID de navegación persistente es **`maintenance`**.
-- La lógica de 'resolved_at' es crítica para el flujo de auditoría forense.
+- La tasa BCV debe ser vigilada en el dashboard para asegurar paridad con el módulo de flotas.
 
 ---
-*Documento sellado tras Blindaje BCV y Refinamiento Forense v50.0 (2026-03-31 01:40:00)*
+*Documento sellado tras Blindaje Self-Healing y Saneamiento BCV v60.0 (2026-03-31 13:40:00)*
 

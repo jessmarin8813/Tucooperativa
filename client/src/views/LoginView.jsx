@@ -66,10 +66,6 @@ const LoginView = ({ onLogin }) => {
             {loading ? 'AUTENTICANDO...' : 'INGRESAR AL SISTEMA'}
           </button>
         </form>
-        
-        <p style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-dim)' }}>
-          Protección de Datos Administrativa Activa
-        </p>
       </div>
     </div>
   )

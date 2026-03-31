@@ -63,10 +63,6 @@ const Dashboard = ({ user, config, setActiveView }) => {
     <div className="animate-fade">
       <header className="p-flex-responsive p-justify-between" style={{ marginBottom: '40px', gap: '24px' }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
-             <ShieldCheck size={20} color="var(--success)" />
-             <span style={{ fontSize: '0.75rem', fontWeight: 1000, textTransform: 'uppercase', color: 'var(--success)', letterSpacing: '0.1em' }}>SISTEMA PROTEGIDO v5.1</span>
-          </div>
           <h1 className="h1-premium neon-text" style={{ fontSize: '3rem' }}>Gestión Diaria</h1>
           <p className="p-subtitle">Resumen centralizado de tu cooperativa en tiempo real.</p>
         </div>
