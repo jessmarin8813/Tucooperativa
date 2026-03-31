@@ -1,4 +1,4 @@
-﻿import os
+import os
 import re
 import sys
 
@@ -75,7 +75,7 @@ def scan_directory(directory):
         print("[ALERTA] Se recomienda revisar y usar PDO Prepared Statements.")
 
 if __name__ == "__main__":
-    target_dir = "../../api" # Default to api folder
+    target_dir = "api" # Default to api folder from project root
     if len(sys.argv) > 1:
         target_dir = sys.argv[1]
     

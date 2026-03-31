@@ -44,8 +44,8 @@ def run_diagnostics():
     # We test locally in TuCooperativa by default.
     endpoints = [
         "http://localhost/TuCooperativa/api/includes/middleware.php",
-        "http://localhost/TuCooperativa/api/admin/stats.php",
-        "http://localhost/TuCooperativa/api/login.php"
+        "http://localhost/TuCooperativa/api/admin/master_stats.php",
+        "http://localhost/TuCooperativa/api/auth/login.php"
     ]
 
     for ep in endpoints:

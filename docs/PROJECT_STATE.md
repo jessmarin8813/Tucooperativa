@@ -1,26 +1,22 @@
-# 🛡️ TuCooperativa - PROJECT STATE (v42.1-AUDIT / MONETARY & FLEET HARDENING)
+# 🛡️ TuCooperativa - PROJECT STATE (v50.0-FORENSE / BI & OFFICIAL BCV)
 
 ## 📊 Resumen Ejecutivo
-- **Versión**: 42.1-Audit (Monetary Transparency & Fleet Hardening).
-- **Estado**: **ESTABILIDAD FINANCIERA Y RENDERIZADO DE FLOTA**.
-- **Última Auditoría**: OMNI-GUARD v5.0 (Passed 2026-03-30 18:15).
-- **Referencia Monetaria**: Arquitectura de "Referencia en USD" para la deuda, sincronizada con el Simulador (driver_sim.php) y Bot de Telegram vía BCV oficial.
-- **Branding**: Consola de Triage Inteligente (Fallas / Vencidos / Al día) y Mapa de Solvencia Dinámico.
+- **Versión**: 50.0-Forense (BI & Official BCV Hardening).
+- **Estado**: **BLINDAJE DE IDENTIDAD Y SINCRONIZACIÓN OFICIAL**.
+- **Última Auditoría**: OMNI-GUARD v5.0 (Passed 2026-03-31 01:40).
+- **BCV Oficial (v6.7)**: Sincronización proactiva mediante **Scraping Directo de bcv.org.ve**. Ya no depende de APIs de terceros inestables. Resolución de tasa a **473.87 Bs/$**.
+- **Identidad Forense**: Hub Forense optimizado para identificación por **Placa + Modelo** (Binomio), eliminando IDs numéricos internos.
+- **BI Premium**: Reportes de rentabilidad y tarjetas de SuperAdmin libres de IDs; identidad basada 100% en Nombre/Marca.
 
 ## 🛠️ Componentes Críticos
-- **Consola de Mantenimiento (v4.0)**: 
-    - Gestión por Excepción: Triage inteligente (Fallas, Vencidos, Al día).
-    - Lógica de Resolución: Dependencia exclusiva del campo `resolved_at` (Timestamp), permitiendo soluciones con texto vacío sin re-abrir la falla.
-- **Módulo de Cobranza (To-Do List Mode)**: 
-    - El Mapa de Solvencia oculta por defecto a los choferes solventes (`estado_solvencia !== 'solvente'`) para enfocar la deuda diaria, con toggle reactivo de visibilidad visual.
-- **Cálculo Multimoneda**: 
-    - Integrado en `mi_estado.php` y `cobranza.php` para acreditar abonos en Bs según la tasa histórica del reporte.
-- **Asignación de Flota (React Hardening)**: 
-    - Los listados detectan choferes libres evaluando `!c.vehiculo_placa` producto de un `LEFT JOIN` nativo, previniendo crashes por lectura de `undefined` (`c.vehiculo_id` no existe en la payload).
-- **Simulador PWA (`driver_sim.php`)**:
-    - Sincronización en tiempo real (`await checkCurrentStatus()`) al pulsar "MI UNIDAD" para descargar la placa actual asignada por Admin sin recargar sesión.
-- **Entorno LAN (Móvil)**:
-    - Vite expuesto permanentemente en `0.0.0.0` mediante flag `--host`.
+- **BCV Helper Resolutivo (v6.7)**: 
+    - Extracción directa de la fuente oficial (`bcv.org.ve`) con **Corrección de Escala 10x** automática (detecta 47.38 vs 473.87).
+- **Hub Forense & Auditoría (v4.5)**: 
+    - Identidad Humana (Placa + Modelo). UI Glassmorphism de alto contraste para Riesgo y alertas. Eliminación de etiquetas redundantes ("Integridad de flota").
+- **Módulo BI & SuperAdmin (Clean IDs)**: 
+    - Identificación por Nombre/RIF (Cooperativa) y Placa/Modelo (Vehículo). Los IDs numéricos (`COOP_1`) han sido removidos de la capa de presentación.
+- **Bot de Telegram (Pydantic v2.0 Ready)**:
+    - Uso de `model_dump()` para broadcast y manejo tolerante a `NetworkError: Bad Gateway` (502 polling auto-retry).
 
 ## 📌 Mapa de Ruta Inmediato
 1.  **Dashboard Finance Final**:
@@ -33,5 +29,5 @@
 - La lógica de 'resolved_at' es crítica para el flujo de auditoría forense.
 
 ---
-*Documento sellado tras Integración de Flota y Cobranzas v42.1-Audit (2026-03-30 18:15:00)*
+*Documento sellado tras Blindaje BCV y Refinamiento Forense v50.0 (2026-03-31 01:40:00)*
 

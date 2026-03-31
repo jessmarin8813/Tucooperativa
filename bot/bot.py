@@ -58,7 +58,7 @@ class BroadcastMessage(BaseModel):
 @app_web.post("/broadcast")
 async def broadcast_endpoint(msg: BroadcastMessage):
     logger.info(f"📡 Broadcast Request: {msg.type} | Coop: {msg.cooperativa_id}")
-    await manager.broadcast(msg.dict())
+    await manager.broadcast(msg.model_dump())
     return {"status": "success"}
 
 @app_web.websocket("/ws")
