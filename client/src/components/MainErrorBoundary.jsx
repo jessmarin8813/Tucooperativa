@@ -13,13 +13,17 @@ class MainErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // También puedes enviar el error a un servicio de reporte (ej. Sentry, LogRocket, base de datos local)
-    console.error('🚨 Error Crítico Detectado en UI:', error, errorInfo)
+    // Reportar el error antes de reiniciar
+    console.error('🚨 Error Crítico Detectado en UI:', error, errorInfo);
+    
+    // Auto-reinicio tras 2 segundos para dar tiempo al usuario a ver el estado de rescate
+    setTimeout(() => {
+        window.location.reload();
+    }, 2000);
   }
 
   handleRestart = () => {
-    // Intenta recargar solo el estado pero lo más seguro es refrescar la página
-    window.location.reload()
+    window.location.reload();
   }
 
   render() {
@@ -36,23 +40,16 @@ class MainErrorBoundary extends React.Component {
           }}
         >
           <div className="p-glass-premium" style={{ maxWidth: '500px', padding: '48px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-            <AlertTriangle size={48} color="var(--danger)" style={{ marginBottom: '24px' }} />
-            <h1 className="h1-premium neon-text" style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Escudo de Protección Activado</h1>
+            <div className="animate-spin" style={{ marginBottom: '24px' }}>
+              <RefreshCw size={48} color="var(--primary)" />
+            </div>
+            <h1 className="h1-premium neon-text" style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Auto-Recuperación Activa</h1>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600, marginBottom: '32px' }}>
-              Se ha detectado una anomalía en el renderizado del módulo. El sistema ha bloqueado el error para evitar la corrupción de datos.
+              Estamos ajustando el sistema para ti. La aplicación se reiniciará en un segundo para asegurar tu estabilidad.
             </p>
             
-            <button 
-              onClick={this.handleRestart}
-              className="btn-primary" 
-              style={{ padding: '12px 32px', display: 'inline-flex', alignItems: 'center', gap: '12px' }}
-            >
-              <RefreshCw size={18} />
-              REINICIAR MÓDULO SEGURO
-            </button>
-            
             <div style={{ marginTop: '24px', fontSize: '9px', fontFamily: 'monospace', color: 'rgba(255,255,255,0.15)', textTransform: 'uppercase' }}>
-              Error: {this.state.error?.message || 'Unknown Failure'}
+              REINCIANDO... {this.state.error?.message || 'Protecting Session'}
             </div>
           </div>
         </div>

@@ -144,7 +144,16 @@ const Dashboard = ({ user, setActiveView }) => {
       </div>
 
       <div style={{ marginTop: '40px' }}>
-        <FleetList vehicles={data.vehicles} user={user} loading={loading} onAction={() => {}} />
+        <FleetList 
+             vehicles={data.vehicles} 
+             user={user} 
+             loading={loading} 
+             setActiveView={setActiveView} 
+             onEdit={() => setActiveView('flota')}
+             onInvite={() => setActiveView('choferes')}
+             onUnlink={() => setActiveView('choferes')}
+             onDelete={() => {}}
+        />
       </div>
     </div>
   )

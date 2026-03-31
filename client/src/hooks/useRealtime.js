@@ -47,7 +47,8 @@ export const useRealtime = (onUpdate) => {
             };
 
             socket.onerror = (err) => {
-                console.error('❌ Error en WebSocket:', err);
+                // Silenced technical error to avoid senior anxiety. Retries are handled by onclose.
+                console.info('ℹ️ Realtime Hub no accesible temporalmente. Usando modo offline/polling.');
                 if (socket.readyState === WebSocket.OPEN) {
                     socket.close();
                 }

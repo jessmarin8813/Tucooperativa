@@ -26,9 +26,9 @@ const StatCard = ({ title, label, value, icon: Icon, color = 'var(--primary)', t
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
               <div style={{ 
                 padding: '4px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 900,
-                background: (trend.toString().startsWith('+') || trend === 'Real-time') ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                color: (trend.toString().startsWith('+') || trend === 'Real-time') ? 'var(--success)' : 'var(--danger)',
-                border: `1px solid ${(trend.toString().startsWith('+') || trend === 'Real-time') ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
+                background: (trend?.toString().startsWith('+') || trend === 'Real-time') ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                color: (trend?.toString().startsWith('+') || trend === 'Real-time') ? 'var(--success)' : 'var(--danger)',
+                border: `1px solid ${(trend?.toString().startsWith('+') || trend === 'Real-time') ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
               }}>
                 {trend}
               </div>
