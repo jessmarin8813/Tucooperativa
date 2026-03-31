@@ -30,7 +30,7 @@ const Sidebar = ({ onLogout, activeView, setActiveView, config, isMobile, onClos
       title: 'ESTADO Y PLANILLA',
       items: [
         { id: 'maintenance', icon: Wrench, label: 'Taller y Repuestos' },
-        { id: 'forensic', icon: ShieldAlert, label: 'Seguridad / Alertas' },
+        { id: 'forensic', icon: ShieldAlert, label: 'Control de Alertas' },
         { id: 'bi', icon: BarChart3, label: 'Mis Ganancias' },
       ]
     },

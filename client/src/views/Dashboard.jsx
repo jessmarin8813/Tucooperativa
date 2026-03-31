@@ -85,8 +85,8 @@ const Dashboard = ({ user, config, setActiveView }) => {
                   <AlertCircle color="white" size={24} />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white' }}>Revisar Seguridad</h4>
-                  <p style={{ color: 'var(--danger)', fontWeight: 700 }}>Hay {data.stats.alertas_criticas} alertas detectadas.</p>
+                  <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white' }}>Inconsistencias de Ruta</h4>
+                  <p style={{ color: 'var(--danger)', fontWeight: 700 }}>Hay {data.stats.alertas_criticas} anomalías en flota.</p>
                 </div>
               </div>
             </Motion.div>
@@ -97,8 +97,8 @@ const Dashboard = ({ user, config, setActiveView }) => {
                   <ShieldCheck color="white" size={24} />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white' }}>Seguridad OK</h4>
-                  <p style={{ color: 'var(--success)', fontWeight: 700 }}>Sin problemas detectados.</p>
+                  <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white' }}>Rutas al Día</h4>
+                  <p style={{ color: 'var(--success)', fontWeight: 700 }}>Todas las unidades operan sin novedades.</p>
                 </div>
               </div>
             </div>
