@@ -243,10 +243,34 @@ try {
                 $inc_id = $data['id'] ?? null;
                 if (!$inc_id) throw new Exception("ID de reporte faltante.");
 
+                $db->beginTransaction();
+
+                // 1. Obtener ID de vehículo antes de borrar
+                $stmtV = $db->prepare("SELECT vehiculo_id FROM incidencias WHERE id = ?");
+                $stmtV->execute([$inc_id]);
+                $inc = $stmtV->fetch();
+                $vid = $inc['vehiculo_id'] ?? null;
+
+                // 2. Borrar incidentes y SUS GASTOS asociados (v51.0-Forense)
+                $db->prepare("DELETE FROM gastos WHERE incidencia_id = ?")->execute([$inc_id]);
                 $stmt = $db->prepare("DELETE FROM incidencias WHERE id = ? AND cooperativa_id = ?");
                 $stmt->execute([$inc_id, $coop_id]);
 
-                sendResponse(['success' => true, 'message' => 'Reporte descartado.']);
+                // 3. Sincronización Automática: ¿Quedan fallas? si no, activar unidad.
+                if ($vid) {
+                    $stmtCount = $db->prepare("SELECT COUNT(*) as total FROM incidencias WHERE vehiculo_id = ? AND resolved_at IS NULL");
+                    $stmtCount->execute([$vid]);
+                    $count = $stmtCount->fetch();
+                    
+                    if ($count['total'] == 0) {
+                        $db->prepare("UPDATE vehiculos SET estado = 'activo' WHERE id = ?")->execute([$vid]);
+                    }
+                }
+
+                $db->commit();
+                
+                broadcastRealtime('UPDATE_FLEET', ['cooperativa_id' => $coop_id]);
+                sendResponse(['success' => true, 'message' => 'Reporte y sus gastos eliminados. Unidad sincronizada.']);
             }
             break;
 
