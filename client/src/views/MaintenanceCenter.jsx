@@ -329,7 +329,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
       const hasExpired = (v.items || []).some(i => i?.estado === 'critico')
       const isAtWorkshop = v.estado === 'mantenimiento'
       
-      if (hasIncidents) acc.incidents++
+      if (hasIncidents || isAtWorkshop) acc.incidents++
       if (hasExpired) acc.expired++
       if (!hasIncidents && !hasExpired && !isAtWorkshop) acc.ok++
       
@@ -362,22 +362,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
       {/* Header */}
       <header className="p-flex-responsive p-justify-between" style={{ marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <button 
-            onClick={() => setActiveView && setActiveView('dashboard')}
-            className="p-glass-premium clickable-hover"
-            style={{ 
-              width: '42px', 
-              height: '42px', 
-              borderRadius: '14px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              border: '1px solid rgba(255,255,255,0.05)',
-              background: 'rgba(255,255,255,0.03)'
-            }}
-          >
-            <ArrowLeft size={18} color="rgba(255,255,255,0.5)" />
-          </button>
+
           <div>
             <h1 className="h1-premium neon-text">Centro de Mantenimiento</h1>
             <p className="p-subtitle">Control por excepción de la operatividad</p>
