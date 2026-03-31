@@ -43,7 +43,8 @@ $sql_units = "SELECT
     v.id, v.placa, v.modelo, v.cuota_diaria,
     (SELECT COUNT(DISTINCT DATE(started_at)) FROM rutas WHERE vehiculo_id = v.id) as dias,
     (SELECT COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN (monto_efectivo + monto_pagomovil) / NULLIF(tasa_cambio, 0) ELSE (monto_efectivo + monto_pagomovil) END), 0) FROM pagos_reportados WHERE vehiculo_id = v.id AND estado = 'aprobado') as abonos,
-    (SELECT COALESCE(SUM(costo), 0) FROM mantenimiento_items WHERE vehiculo_id = v.id) as costos_mante
+    (SELECT COALESCE(SUM(costo), 0) FROM mantenimiento_items WHERE vehiculo_id = v.id) + 
+    (SELECT COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN monto / NULLIF(tasa_cambio, 0) ELSE monto END), 0) FROM gastos WHERE vehiculo_id = v.id) as costos_mante
     FROM vehiculos v
     WHERE v.cooperativa_id = :coop_id";
 

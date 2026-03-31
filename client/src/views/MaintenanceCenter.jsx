@@ -669,7 +669,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
                         </div>
 
                         {/* 2. CONSOLIDATED INCIDENT CARD (Option 1) */}
-                        {v.active_incidents?.length > 0 && (
+                        {(v.active_incidents?.length > 0 || isAtWorkshop) && (
                           <div style={{ marginBottom: '24px' }}>
                               <div 
                                 className="glass"
