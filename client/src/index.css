@@ -144,7 +144,7 @@ button {
 
 @media (max-width: 768px) {
   .view-container {
-    padding: 24px 16px !important; /* Maximizing mobile space */
+    padding: 24px 22px !important; /* Aumentando aire lateral para evitar recortes */
   }
 }
 
@@ -452,7 +452,7 @@ button {
     gap: 24px !important;
   }
   .glass {
-    padding: 24px 20px !important;
+    padding: 24px 20px; /* Removiendo !important para permitir personalizacion */
   }
   .mobile-edge-to-edge {
     padding: 0 !important;

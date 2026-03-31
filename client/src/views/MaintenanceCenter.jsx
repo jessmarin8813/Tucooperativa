@@ -656,15 +656,15 @@ const MaintenanceCenter = ({ setActiveView }) => {
                       transition={{ duration: 0.3, ease: 'easeInOut' }}
                       style={{ overflow: 'hidden' }}
                     >
-                      <div style={{ padding: isMobile ? '0 20px 32px 20px' : '0 24px 32px 24px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px' }}>
+                      <div style={{ padding: isMobile ? '0 24px 32px 24px' : '0 24px 32px 24px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px' }}>
                         
                         {/* Actions Bar inside expanded unit */}
                         <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
                             <button 
                                 onClick={(e) => { e.stopPropagation(); setNewItem(prev => ({ ...prev, ultimo_odometro: v.odometro_actual })); setShowAddModal(v.id); }}
-                                className="btn-secondary" style={{ flex: 1, height: '48px', fontSize: '11px', fontWeight: 1000, letterSpacing: '0.08em' }}
+                                className="btn-secondary" style={{ flex: 1, height: '52px', fontSize: '0.82rem', fontWeight: 900, letterSpacing: '0.02em', textWrap: 'nowrap' }}
                             >
-                                <Plus size={16} /> AGREGAR RECORDATORIO
+                                <Plus size={18} /> AGREGAR RECORDATORIO
                             </button>
                         </div>
 
@@ -705,7 +705,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
                         {/* 3. PREVENTIVE TASKS */}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
                           {(v?.items || []).map((item, itIdx) => (
-                            <div key={item?.id || `item-${v.id}-${itIdx}`} className="glass" style={{ padding: isMobile ? '24px' : '28px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px' }}>
+                            <div key={item?.id || `item-${v.id}-${itIdx}`} className="glass" style={{ padding: isMobile ? '28px 24px' : '28px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                                 <div>
                                   <h4 style={{ fontSize: '0.95rem', fontWeight: 950, color: 'white' }}>{item.nombre}</h4>
@@ -734,20 +734,22 @@ const MaintenanceCenter = ({ setActiveView }) => {
                                 <button 
                                   onClick={() => handleReset(item.id, v.odometro_actual)}
                                   style={{ 
-                                      height: '44px', 
-                                      width: '44px', 
+                                      height: '48px', 
+                                      width: '48px', 
                                       padding: 0, 
-                                      borderRadius: '12px', 
+                                      marginRight: isMobile ? '8px' : '0',
+                                      borderRadius: '14px', 
                                       background: 'rgba(255,255,255,0.05)', 
-                                      border: '1px solid rgba(255,255,255,0.1)',
+                                      border: '1px solid rgba(255,255,255,0.15)',
                                       color: 'white',
                                       display: 'flex',
                                       alignItems: 'center',
                                       justifyContent: 'center',
-                                      cursor: 'pointer'
+                                      cursor: 'pointer',
+                                      flexShrink: 0
                                   }}
                                 >
-                                  <Activity size={18} />
+                                  <Activity size={20} />
                                 </button>
                               </div>
                             </div>
