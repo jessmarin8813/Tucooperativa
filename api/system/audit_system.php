@@ -33,4 +33,3 @@ runTest("Fuel Guard Logic", function() use ($db) {
 });
 
 echo "\n--- AUDIT COMPLETE ---\n";
-?>

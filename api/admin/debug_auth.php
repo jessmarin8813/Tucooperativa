@@ -6,4 +6,3 @@ try {
 } catch (Throwable $e) {
     echo json_encode(["status" => "AUTH FAIL", "error" => $e->getMessage()]);
 }
-?>

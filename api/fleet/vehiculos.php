@@ -81,7 +81,7 @@ switch ($method) {
         break;
 
     case 'POST':
-        if ($user['rol'] !== 'admin' && $user['rol'] !== 'dueno') {
+        if ($user['rol'] !== 'dueno' && $user['rol'] !== 'superadmin') {
             sendResponse(['error' => 'Permission denied'], 403);
         }
 
@@ -112,7 +112,7 @@ switch ($method) {
         break;
 
     case 'PUT':
-        if ($user['rol'] !== 'admin' && $user['rol'] !== 'dueno') {
+        if ($user['rol'] !== 'dueno' && $user['rol'] !== 'superadmin') {
             sendResponse(['error' => 'Permission denied'], 403);
         }
 
@@ -170,4 +170,3 @@ switch ($method) {
         sendResponse(['error' => 'Method not allowed'], 405);
         break;
 }
-?>

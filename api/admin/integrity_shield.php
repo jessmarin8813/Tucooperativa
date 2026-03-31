@@ -41,4 +41,3 @@ if (!function_exists('check')) {
 require_once __DIR__ . '/../../.agent/skills/system-integrity-guard/scripts/integrity_logic.php';
 
 sendResponse($report);
-?>

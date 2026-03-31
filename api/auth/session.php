@@ -21,4 +21,3 @@ try {
 } catch (Exception $e) {
     sendResponse(['isLoggedIn' => false, 'error' => $e->getMessage()]);
 }
-?>

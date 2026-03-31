@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $is_allowed = false;
     // Caso: Es el Dueño/Admin autenticado por sesión
-    if (isset($user['user_id']) && ($user['rol'] === 'admin' || $user['rol'] === 'dueno' || $user['user_id'] == $vehicle['dueno_id'])) {
+    if (isset($user['user_id']) && ($user['rol'] === 'dueno' || $user['user_id'] == $vehicle['dueno_id'])) {
         $is_allowed = true;
     }
     // Caso: Es el Chofer autenticado por telegram_id
@@ -115,4 +115,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'audit_alert' => $alerta_auditoria
     ]);
 }
-?>

@@ -99,4 +99,3 @@ if (!function_exists('sendResponse')) {
         exit;
     }
 }
-?>

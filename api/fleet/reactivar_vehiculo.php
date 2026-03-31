@@ -41,4 +41,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     sendResponse(['success' => true, 'message' => '¡Unidad reactivada! Ya puedes iniciar jornada.']);
 }
-?>

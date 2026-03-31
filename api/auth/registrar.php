@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$telegram_id, $user['id']]);
 
             // 3. Si es Dueño/Admin, actualizar también la configuración de la Cooperativa
-            if ($user['rol'] === 'dueno' || $user['rol'] === 'admin') {
+            if ($user['rol'] === 'dueno') {
                 $stmt = $db->prepare("UPDATE cooperativas SET telegram_chat_id = ? WHERE id = ?");
                 $stmt->execute([$telegram_id, $user['cooperativa_id']]);
             }
@@ -110,4 +110,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
-?>

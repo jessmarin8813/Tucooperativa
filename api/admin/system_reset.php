@@ -48,4 +48,3 @@ try {
     if (isset($db) && $db->inTransaction()) $db->rollBack();
     echo "[CRITICAL ERROR] Reset failed: " . $e->getMessage() . "\n";
 }
-?>

@@ -49,4 +49,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     
     sendResponse(['status' => 'success']);
 }
-?>

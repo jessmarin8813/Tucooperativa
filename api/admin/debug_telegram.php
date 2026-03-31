@@ -20,4 +20,3 @@ sendResponse([
         'status' => $db_user['telegram_status'] ?? 'N/A'
     ]
 ]);
-?>

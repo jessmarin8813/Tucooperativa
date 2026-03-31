@@ -18,4 +18,3 @@ function broadcastRealtime($type, $data = []) {
     $context  = stream_context_create($options);
     @file_get_contents($url, false, $context);
 }
-?>

@@ -48,4 +48,3 @@ try {
     }
     echo "\n[ERROR] El reinicio total ha fallado: " . $e->getMessage();
 }
-?>

@@ -50,4 +50,3 @@ try {
     }
     echo "\n[ERROR] El borrado nuclear ha fallado: " . $e->getMessage();
 }
-?>

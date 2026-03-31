@@ -119,7 +119,3 @@ try {
         'message' => $e->getMessage()
     ], 500);
 }
-?>
-
-
-

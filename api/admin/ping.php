@@ -1,1 +1,1 @@
-<?php echo "PING OK"; ?>
+<?php echo "PING OK"; 

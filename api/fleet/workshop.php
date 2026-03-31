@@ -282,4 +282,3 @@ try {
     if ($db->inTransaction()) $db->rollBack();
     sendResponse(['error' => 'Error de Taller', 'message' => $e->getMessage()], 500);
 }
-?>

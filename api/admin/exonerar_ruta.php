@@ -31,4 +31,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         sendResponse(['error' => 'No se encontró la ruta o no tienes permisos.'], 404);
     }
 }
-?>

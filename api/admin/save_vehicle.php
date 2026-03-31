@@ -8,7 +8,7 @@ $user = checkAuth();
 $db = DB::getInstance();
 
 // Security: Only Admin, Owner, or Superadmin
-if ($user['rol'] !== 'admin' && $user['rol'] !== 'dueno' && $user['rol'] !== 'superadmin') {
+if ($user['rol'] !== 'dueno' && $user['rol'] !== 'superadmin') {
     sendResponse(['error' => 'Permission denied'], 403);
 }
 
@@ -95,4 +95,3 @@ try {
 } catch (PDOException $e) {
     sendResponse(['error' => 'Database error', 'msg' => $e->getMessage()], 500);
 }
-?>

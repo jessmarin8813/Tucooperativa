@@ -17,4 +17,3 @@ sendResponse([
     'currency' => 'USD/Bs',
     'date' => date('Y-m-d')
 ]);
-?>

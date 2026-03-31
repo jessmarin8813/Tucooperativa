@@ -10,4 +10,3 @@ foreach ($tables as $table) {
     $cols = $stmt2->fetchAll(PDO::FETCH_COLUMN);
     echo "  COLS: " . implode(", ", $cols) . "\n";
 }
-?>

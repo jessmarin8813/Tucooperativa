@@ -5,7 +5,7 @@
 require_once __DIR__ . '/../includes/middleware.php';
 
 $user = checkAuth();
-if ($user['rol'] !== 'owner' && $user['rol'] !== 'superadmin') {
+if ($user['rol'] !== 'dueno' && $user['rol'] !== 'superadmin') {
     sendResponse(['error' => 'Forbidden'], 403);
 }
 

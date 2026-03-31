@@ -6,11 +6,11 @@
 require_once __DIR__ . '/../includes/middleware.php';
 
 $user = checkAuth();
-if (!in_array($user['rol'], ['superadmin', 'owner', 'admin', 'dueno'])) {
+if (!in_array($user['rol'], ['superadmin', 'dueno'])) {
     sendResponse(['error' => 'Forbidden'], 403);
 }
 
-$coop_id = in_array($user['rol'], ['owner', 'admin', 'dueno']) ? $user['cooperativa_id'] : null;
+$coop_id = in_array($user['rol'], ['dueno']) ? $user['cooperativa_id'] : null;
 
 $db = DB::getInstance();
 
@@ -206,8 +206,8 @@ try {
                 continue;
             }
 
-            // Sincronizado con los roles reales detectados en la BD (dueno, admin)
-            $sqlOwner = "SELECT telegram_chat_id, cooperativa_id FROM usuarios WHERE rol IN ('dueno', 'admin', 'owner') AND telegram_chat_id IS NOT NULL";
+            // Sincronizado con los roles reales detectados en la BD (dueno)
+            $sqlOwner = "SELECT telegram_chat_id, cooperativa_id FROM usuarios WHERE rol = 'dueno' AND telegram_chat_id IS NOT NULL";
             if ($coop_id) $sqlOwner .= " AND cooperativa_id = :coop_id";
             
             $stmtOwner = $db->prepare($sqlOwner);

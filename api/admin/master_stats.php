@@ -53,4 +53,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         sendResponse(['error' => 'SuperAdmin calculation failed', 'msg' => $e->getMessage()], 500);
     }
 }
-?>
