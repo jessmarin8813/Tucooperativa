@@ -105,8 +105,16 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
 
                 <div className="p-status-col p-flex p-items-center p-justify-center">
                    <div className="p-flex-col p-items-center" style={{ gap: '6px' }}>
-                     <div className={`p-status-pill-v2 ${status}`}>{status.toUpperCase()}</div>
-                     <span style={{ fontSize: '10px', opacity: 0.75, fontWeight: 700 }}>{statusDescription}</span>
+                     <div className="p-status-pill-v2" style={{ 
+                        background: status === 'activo' ? 'var(--success)' : status === 'mantenimiento' ? 'var(--warning)' : 'var(--danger)',
+                        color: status === 'mantenimiento' ? '#000' : '#fff',
+                        fontSize: '12px',
+                        padding: '12px 24px',
+                        minWidth: '140px'
+                     }}>
+                        {status === 'activo' ? 'TRABAJANDO' : status === 'mantenimiento' ? 'EN TALLER' : 'DETENIDO'}
+                     </div>
+                     <span style={{ fontSize: '11px', opacity: 0.8, fontWeight: 800, color: 'white', marginTop: '4px' }}>{statusDescription}</span>
                    </div>
                 </div>
 
@@ -158,7 +166,14 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                     <p className="text-white font-black uppercase italic" style={{ fontSize: '1.4rem' }}>{v.modelo || 'Unidad'}</p>
                     <span className="p-plate-badge" style={{ marginTop: '8px', display: 'inline-block' }}>{v.placa}</span>
                   </div>
-                  <div className={`p-status-pill-v2 pill-sm ${status}`}>{status.toUpperCase()}</div>
+                  <div className="p-status-pill-v2" style={{ 
+                    background: status === 'activo' ? 'var(--success)' : status === 'mantenimiento' ? 'var(--warning)' : 'var(--danger)',
+                    color: status === 'mantenimiento' ? '#000' : '#fff',
+                    fontSize: '12px',
+                    padding: '10px 20px'
+                  }}>
+                    {status === 'activo' ? 'TRABAJANDO' : status === 'mantenimiento' ? 'EN TALLER' : 'DETENIDO'}
+                  </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', padding: '20px', background: 'rgba(0,0,0,0.3)', borderRadius: '20px', marginBottom: '24px' }}>
                    <div style={{ textAlign: 'center' }}>

@@ -16,16 +16,31 @@ import {
 import { motion as Motion } from 'framer-motion'
 
 const Sidebar = ({ onLogout, activeView, setActiveView, config, isMobile, onClose }) => {
-  const menuItems = [
-    { id: 'dashboard', icon: LayoutDashboard, label: 'Centro de Mando' },
-    { id: 'flota', icon: Truck, label: 'Flota de Vehículos' },
-    { id: 'maintenance', icon: Wrench, label: 'Mantenimiento' },
-    { id: 'choferes', icon: UserPlus, label: 'Gestión de Choferes' },
-    { id: 'cobranza', icon: CreditCard, label: 'Cobranza & Pagos' },
-    { id: 'bi', icon: BarChart3, label: 'Inteligencia BI' },
-    { id: 'forensic', icon: ShieldAlert, label: 'Hub Forense' },
-    { id: 'config', icon: Settings, label: 'Configuración' },
-  ]
+  const menuGroups = [
+    {
+      title: 'OPERACIÓN DIARIA',
+      items: [
+        { id: 'dashboard', icon: LayoutDashboard, label: 'Inicio / Resumen' },
+        { id: 'flota', icon: Truck, label: 'Mis Vehículos' },
+        { id: 'choferes', icon: UserPlus, label: 'Mis Choferes' },
+        { id: 'cobranza', icon: CreditCard, label: 'Control de Pagos' },
+      ]
+    },
+    {
+      title: 'ESTADO Y PLANILLA',
+      items: [
+        { id: 'maintenance', icon: Wrench, label: 'Taller y Repuestos' },
+        { id: 'forensic', icon: ShieldAlert, label: 'Seguridad / Alertas' },
+        { id: 'bi', icon: BarChart3, label: 'Mis Ganancias' },
+      ]
+    },
+    {
+      title: 'SISTEMA',
+      items: [
+        { id: 'config', icon: Settings, label: 'Configuración' },
+      ]
+    }
+  ];
 
   return (
     <aside className="glass" style={{ 
@@ -100,35 +115,49 @@ const Sidebar = ({ onLogout, activeView, setActiveView, config, isMobile, onClos
       </div>
 
       <nav style={{ flex: 1, padding: '0 16px', overflowY: 'auto', marginTop: '10px' }}>
-        {menuItems.map((item, idx) => {
-          const isActive = activeView === item.id;
-          return (
-            <Motion.div 
-              key={idx} 
-              whileHover={{ x: 5 }}
-              onClick={() => setActiveView(item.id)}
-              className={`glass-hover ${isActive ? 'active-nav-item' : ''}`}
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                padding: '16px 20px', 
-                borderRadius: '16px', 
-                marginBottom: '8px',
-                cursor: 'pointer',
-                background: isActive ? 'linear-gradient(90deg, rgba(99, 102, 241, 0.15) 0%, transparent 100%)' : 'transparent',
-                color: isActive ? 'white' : 'var(--text-dim)',
-                border: isActive ? '1px solid rgba(99, 102, 241, 0.3)' : '1px solid transparent'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <item.icon size={20} style={{ color: isActive ? 'var(--primary)' : 'inherit' }} />
-                <span style={{ fontWeight: isActive ? 800 : 600, fontSize: '0.9rem', letterSpacing: '0.02em' }}>{item.label}</span>
-              </div>
-              {isActive && <ChevronRight size={14} style={{ color: 'var(--primary)' }} />}
-            </Motion.div>
-          )
-        })}
+        {menuGroups.map((group, gIdx) => (
+          <div key={gIdx} style={{ marginBottom: '24px' }}>
+            <h4 style={{ 
+              fontSize: '0.75rem', 
+              fontWeight: 900, 
+              color: 'rgba(255,255,255,0.2)', 
+              marginLeft: '20px', 
+              marginBottom: '12px',
+              letterSpacing: '0.1em'
+            }}>
+              {group.title}
+            </h4>
+            {group.items.map((item, idx) => {
+              const isActive = activeView === item.id;
+              return (
+                <Motion.div 
+                  key={idx} 
+                  whileHover={{ x: 5 }}
+                  onClick={() => setActiveView(item.id)}
+                  className={`glass-hover ${isActive ? 'active-nav-item' : ''}`}
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    padding: '20px 24px',  /* Más espaciado para dedos senior */
+                    borderRadius: '16px', 
+                    marginBottom: '6px',
+                    cursor: 'pointer',
+                    background: isActive ? 'linear-gradient(90deg, rgba(99, 102, 241, 0.15) 0%, transparent 100%)' : 'transparent',
+                    color: isActive ? 'white' : 'var(--text-dim)',
+                    border: isActive ? '1px solid rgba(99, 102, 241, 0.3)' : '1px solid transparent'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <item.icon size={24} style={{ color: isActive ? 'var(--primary)' : 'inherit' }} />
+                    <span style={{ fontWeight: isActive ? 800 : 600, fontSize: '1rem', letterSpacing: '0.02em' }}>{item.label}</span>
+                  </div>
+                  {isActive && <ChevronRight size={14} style={{ color: 'var(--primary)' }} />}
+                </Motion.div>
+              )
+            })}
+          </div>
+        ))}
       </nav>
 
       <div style={{ padding: '32px 24px' }}>
