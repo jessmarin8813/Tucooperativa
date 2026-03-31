@@ -5,9 +5,14 @@ import { motion as Motion } from 'framer-motion'
 const BottomNav = ({ activeView, setActiveView, stats = {} }) => {
   const items = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Inicio', color: 'var(--primary)' },
-    { id: 'flota', icon: Truck, label: 'Mi Flota', color: 'var(--accent)' },
+    { id: 'flota', icon: Truck, label: 'Flota', color: 'var(--accent)' },
     { id: 'cobranza', icon: DollarSign, label: 'Pagos', color: 'var(--success)' },
-    { id: 'forensic', icon: ShieldAlert, label: 'Alertas', color: 'var(--danger)', badge: stats.alertas_criticas }
+    { id: 'forensic', icon: ShieldAlert, label: 'Alertas', color: 'var(--danger)', badge: stats.alertas_criticas },
+    { id: 'logout', icon: () => (
+        <div style={{ transform: 'rotate(180deg)' }}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+        </div>
+      ), label: 'Salir', color: '#ff4444' }
   ]
 
   return (
@@ -49,7 +54,7 @@ const BottomNav = ({ activeView, setActiveView, stats = {} }) => {
               }}
               style={{ display: 'flex', position: 'relative' }}
             >
-              <item.icon size={28} strokeWidth={isActive ? 3 : 2} />
+              {typeof item.icon === 'function' ? <item.icon /> : <item.icon size={28} strokeWidth={isActive ? 3 : 2} />}
               {item.badge > 0 && (
                 <span style={{ 
                     position: 'absolute', 

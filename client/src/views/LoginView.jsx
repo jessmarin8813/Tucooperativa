@@ -10,13 +10,20 @@ const LoginView = ({ onLogin }) => {
     setError('')
     setLoading(true)
     
-    const username = e.target.elements[0].value
-    const password = e.target.elements[1].value
+    // Acceso robusto por nombre de campo (Senior Compatibility)
+    const username = e.target.username.value
+    const password = e.target.password.value
+
+    if (!username || !password) {
+        setError('Por favor ingresa usuario y clave')
+        setLoading(false)
+        return
+    }
 
     try {
       await onLogin(username, password)
     } catch (err) {
-      setError(err.message || 'Error de autenticación')
+      setError(err.message || 'Error de autenticación: verifica tus datos')
     } finally {
       setLoading(false)
     }

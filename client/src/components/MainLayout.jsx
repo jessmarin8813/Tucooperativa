@@ -50,6 +50,12 @@ const MainLayout = ({ user, config, setConfig, activeView, setActiveView, onLogo
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen)
 
   const handleNavigate = (view) => {
+    if (view === 'logout') {
+      if (window.confirm("¿Deseas cerrar sesión?")) {
+        onLogout()
+      }
+      return
+    }
     setActiveView(view)
     if (isMobile) setIsMobileMenuOpen(false)
   }
