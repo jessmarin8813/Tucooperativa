@@ -656,7 +656,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
                       transition={{ duration: 0.3, ease: 'easeInOut' }}
                       style={{ overflow: 'hidden' }}
                     >
-                      <div style={{ padding: isMobile ? '0 16px 32px 16px' : '0 24px 32px 24px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px' }}>
+                      <div style={{ padding: isMobile ? '0 20px 32px 20px' : '0 24px 32px 24px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px' }}>
                         
                         {/* Actions Bar inside expanded unit */}
                         <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
@@ -724,7 +724,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
                                 <Motion.div initial={{ width: 0 }} animate={{ width: `${item.progreso}%` }} style={{ height: '100%', background: item.estado === 'critico' ? 'var(--danger)' : item.estado === 'advertencia' ? 'var(--warning)' : 'var(--success)' }} />
                               </div>
 
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'flex-end', marginBottom: '8px', gap: '16px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                                   <span style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase' }}>REMANENTE</span>
                                   <span style={{ fontSize: isMobile ? '1.1rem' : '1.35rem', fontWeight: 950, color: item.estado === 'critico' ? '#ff4d4d' : '#00f2ff', letterSpacing: '-0.02em' }}>
@@ -733,10 +733,21 @@ const MaintenanceCenter = ({ setActiveView }) => {
                                 </div>
                                 <button 
                                   onClick={() => handleReset(item.id, v.odometro_actual)}
-                                  className="btn-secondary"
-                                  style={{ height: '36px', width: '36px', padding: 0, borderRadius: '10px' }}
+                                  style={{ 
+                                      height: '44px', 
+                                      width: '44px', 
+                                      padding: 0, 
+                                      borderRadius: '12px', 
+                                      background: 'rgba(255,255,255,0.05)', 
+                                      border: '1px solid rgba(255,255,255,0.1)',
+                                      color: 'white',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      cursor: 'pointer'
+                                  }}
                                 >
-                                  <Activity size={16} />
+                                  <Activity size={18} />
                                 </button>
                               </div>
                             </div>
