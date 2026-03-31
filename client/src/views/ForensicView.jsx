@@ -78,6 +78,10 @@ const ForensicView = () => {
                                             </div>
                                         </td>
                                         <td style={{ padding: '16px 24px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                                <span style={{ padding: '2px 8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 900, color: 'var(--accent)', border: '1px solid rgba(255,255,255,0.1)' }}>{log.placa}</span>
+                                                {log.modelo && <span style={{ fontSize: '0.65rem', color: 'var(--text-dim)', fontWeight: 600 }}>{log.modelo}</span>}
+                                            </div>
                                             <p style={{ fontWeight: 800, fontSize: '0.85rem' }}>{log.tipo}</p>
                                             <p style={{ fontSize: '0.6rem', color: 'var(--accent)', textTransform: 'uppercase', fontWeight: 900 }}>{log.evento || log.modulo}</p>
                                         </td>
@@ -122,11 +126,13 @@ const ForensicView = () => {
 
                                 <div style={{ marginBottom: '12px' }}>
                                     <h4 style={{ fontSize: '1rem', fontWeight: 900, color: 'white', marginBottom: '2px' }}>{log.tipo}</h4>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <span style={{ fontSize: '0.65rem', color: 'var(--accent)', textTransform: 'uppercase', fontWeight: 950 }}>{log.evento || log.modulo}</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                                        <span style={{ padding: '2px 6px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 950, color: 'white' }}>{log.placa}</span>
+                                        {log.modelo && <span style={{ fontSize: '0.65rem', color: 'var(--text-dim)', fontWeight: 700 }}>{log.modelo}</span>}
                                         <div style={{ width: '3px', height: '3px', background: 'rgba(255,255,255,0.2)', borderRadius: '50%' }} />
-                                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)' }}>{log.usuario}</span>
+                                        <span style={{ fontSize: '0.7rem', fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase' }}>{log.evento || log.modulo}</span>
                                     </div>
+                                    <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'white', marginTop: '4px' }}>👤 {log.usuario}</p>
                                 </div>
 
                                 <div style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)', lineHeight: '1.4' }}>

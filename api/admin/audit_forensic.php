@@ -20,7 +20,7 @@ try {
     // 1. Detection: Dead Mileage (Kilometraje Muerto)
     $query = "
         SELECT 
-            v.placa,
+            v.placa, v.modelo,
             r.id, r.started_at, r.ended_at,
             COALESCE(u.nombre, 'Chofer Desconocido') as chofer_nombre,
             c.nombre as coop_nombre,
@@ -60,8 +60,10 @@ try {
                     'modulo' => 'Flota/Movilidad',
                     'evento' => 'Desvío No Reportado',
                     'usuario' => $r['chofer_nombre'],
+                    'placa' => $r['placa'],
+                    'modelo' => $r['modelo'],
                     'ip' => '-',
-                    'descripcion' => "Desvío de " . round($dead_km, 1) . " km detectado entre rutas de la unidad {$placa}.",
+                    'descripcion' => "Desvío de " . round($dead_km, 1) . " km detectado entre rutas de la unidad {$r['placa']}.",
                     'fecha' => $r['ended_at']
                 ];
             }
@@ -75,10 +77,12 @@ try {
             r.id, r.ended_at, 
             COALESCE(u.nombre, 'Chofer Desconocido') as chofer_nombre, 
             c.nombre as coop_nombre,
+            v.placa, v.modelo,
             odo_ini.valor as km_inicial,
             odo_fin.valor as km_final
         FROM rutas r
         LEFT JOIN choferes u ON r.chofer_id = u.id
+        JOIN vehiculos v ON r.vehiculo_id = v.id
         JOIN cooperativas c ON r.cooperativa_id = c.id
         LEFT JOIN pagos_reportados p ON r.id = p.id_ruta
         JOIN odometros odo_ini ON r.id = odo_ini.ruta_id AND odo_ini.tipo = 'inicio'
@@ -100,6 +104,8 @@ try {
             'modulo' => 'Administración',
             'evento' => $is_zero_km ? 'Cierre con Movimiento Nulo' : 'Cierre Sin Conciliar',
             'usuario' => $caja['chofer_nombre'],
+            'placa' => $caja['placa'],
+            'modelo' => $caja['modelo'],
             'ip' => '-',
             'descripcion' => $is_zero_km 
                 ? "Jornada de 0 km detectada. Posible manipulación de odómetro o jornada fantasma." 
@@ -110,7 +116,7 @@ try {
 
     // 3. Detection: Stale Routes (Rutas Huérfanas / Vencidas)
     $query_stale = "
-        SELECT r.id, r.started_at, COALESCE(u.nombre, 'Chofer Desconocido') as chofer_nombre, v.placa
+        SELECT r.id, r.started_at, COALESCE(u.nombre, 'Chofer Desconocido') as chofer_nombre, v.placa, v.modelo
         FROM rutas r
         LEFT JOIN choferes u ON r.chofer_id = u.id
         JOIN vehiculos v ON r.vehiculo_id = v.id
@@ -129,15 +135,17 @@ try {
             'modulo' => 'Flota/Movilidad',
             'evento' => 'Ruta Vencida (Stale)',
             'usuario' => $stale['chofer_nombre'],
+            'placa' => $stale['placa'],
+            'modelo' => $stale['modelo'],
             'ip' => '-',
-            'descripcion' => "La unidad {$stale['placa']} tiene una jornada activa iniciada en fecha: " . date('d/m/Y', strtotime($stale['started_at'])) . ". Falta reporte de cierre.",
+            'descripcion' => "La unidad tiene una jornada activa iniciada en fecha: " . date('d/m/Y', strtotime($stale['started_at'])) . ". Falta reporte de cierre.",
             'fecha' => $stale['started_at']
         ];
     }
     
     // 4. Detection: Ghost Units (Inactividad Prolongada > 24h)
     $query_ghost = "
-        SELECT v.id, v.placa, COALESCE(u.nombre, 'Sin Dueño') as dueno_nombre, (SELECT MAX(ended_at) FROM rutas WHERE vehiculo_id = v.id) as última_actividad
+        SELECT v.id, v.placa, v.modelo, COALESCE(u.nombre, 'Sin Dueño') as dueno_nombre, (SELECT MAX(ended_at) FROM rutas WHERE vehiculo_id = v.id) as última_actividad
         FROM vehiculos v
         LEFT JOIN usuarios u ON v.dueno_id = u.id
         WHERE v.cooperativa_id = :coop_id
@@ -160,8 +168,10 @@ try {
             'modulo' => 'Flota/Movilidad',
             'evento' => 'Inactividad Prolongada',
             'usuario' => $ghost['dueno_nombre'],
+            'placa' => $ghost['placa'],
+            'modelo' => $ghost['modelo'],
             'ip' => '-',
-            'descripcion' => "La unidad {$ghost['placa']} no presenta actividad en las últimas 24h. Última ruta registrada: $last_known.",
+            'descripcion' => "La unidad no presenta actividad en las últimas 24h. Última ruta registrada: $last_known.",
             'fecha' => $ghost['última_actividad'] ?: date('Y-m-d H:i:s', strtotime('-24 hours'))
         ];
     }
