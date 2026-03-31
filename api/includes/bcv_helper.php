@@ -18,28 +18,32 @@ function get_bcv_rate() {
     $last_entry = $stmt->fetch(PDO::FETCH_ASSOC);
     
     // 2. DETERMINAR SI NECESITAMOS ESCANEAR
-    $needs_scan = false;
+    $needs_sync = false;
     
-    // CASO CRÍTICO: Si no hay NADA en BD, ES OBLIGATORIO ESCANEAR PARA TENER BASELINE
     if (!$last_entry) {
-        $needs_scan = true;
+        $needs_sync = true;
     } else {
-        // LÓGICA INTELIGENTE: Escanear en ventana de actualización o si el dato es viejo (> 6h)
-        $is_update_window = ($hour >= 16 && $hour <= 18); // Tasa del día siguiente se publica a las 4pm
         $last_update_ts = strtotime($last_entry['created_at']);
+        $last_update_date = date('Y-m-d', $last_update_ts);
         
-        if ($is_update_window || ($now - $last_update_ts) > (6 * 3600)) {
-            $needs_scan = true;
+        // Window Logic:
+        // A. If the data is simply too old (> 8h)
+        if (($now - $last_update_ts) > (8 * 3600)) {
+            $needs_sync = true;
+        }
+        // B. If today's rate is supposed to be out (after 16:00) but we still have yesterday's (or older)
+        elseif ($hour >= 16 && $last_update_date < $today) {
+            $needs_sync = true;
         }
     }
 
     // 3. SI NO SE NECESITA ESCANEO, RETORNAR LO QUE TENEMOS
-    if (!$needs_scan && $last_entry) {
+    if (!$needs_sync && $last_entry) {
         return floatval($last_entry['tasa']);
     }
 
-    // 4. SOLO SI LLEGAMOS AQUÍ, HACEMOS LA PETICIÓN EXTERNA (VENTANA QUIRÚRGICA)
-    if ($needs_scan) {
+    // 4. SOLO SI LLEGAMOS AQUÍ, HACEMOS LA PETICIÓN EXTERNA
+    if ($needs_sync) {
         $url = "https://ve.dolarapi.com/v1/dolares/oficial";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -52,8 +56,10 @@ function get_bcv_rate() {
         
         if ($httpCode === 200) {
             $data = json_decode($response, true);
-            if (isset($data['promedio'])) {
-                $rate = floatval($data['promedio']);
+            $rateValue = $data['precio'] ?? $data['promedio'] ?? null;
+            
+            if ($rateValue) {
+                $rate = floatval($rateValue);
                 
                 // Guardar solo si es diferente a la última o si es un nuevo día
                 try {
