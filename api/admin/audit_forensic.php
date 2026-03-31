@@ -17,6 +17,11 @@ $db = DB::getInstance();
 try {
     $incidencias = [];
 
+    // 0. Timezone & Working Hours Check (Hora Prudente: 8 AM - 8 PM)
+    date_default_timezone_set('America/Caracas');
+    $hora_actual = (int)date('H');
+    $es_hora_prudente = ($hora_actual >= 8 && $hora_actual < 20);
+
     // 1. Detection: Dead Mileage (Kilometraje Muerto)
     $query = "
         SELECT 
@@ -144,11 +149,15 @@ try {
     }
     
     // 4. Detection: Ghost Units (Inactividad Prolongada > 24h)
+    // Solo auditamos inactividad si hay un chofer real asignado
     $query_ghost = "
-        SELECT v.id, v.placa, v.modelo, COALESCE(u.nombre, 'Sin Dueño') as dueno_nombre, (SELECT MAX(ended_at) FROM rutas WHERE vehiculo_id = v.id) as última_actividad
+        SELECT v.id, v.placa, v.modelo, v.chofer_id, 
+               COALESCE(cho.nombre, 'Sin Chofer') as chofer_nombre, 
+               (SELECT MAX(ended_at) FROM rutas WHERE vehiculo_id = v.id) as última_actividad
         FROM vehiculos v
-        LEFT JOIN usuarios u ON v.dueno_id = u.id
+        LEFT JOIN choferes cho ON v.chofer_id = cho.id
         WHERE v.cooperativa_id = :coop_id
+        AND v.chofer_id IS NOT NULL 
         AND v.id NOT IN (
             SELECT vehiculo_id FROM rutas 
             WHERE (estado = 'activa') 
@@ -161,18 +170,23 @@ try {
     $stmtGhost = $db->prepare($query_ghost);
     $stmtGhost->execute(['coop_id' => $user['cooperativa_id']]);
     foreach ($stmtGhost->fetchAll() as $ghost) {
-        $last_known = $ghost['última_actividad'] ? date('d/m H:i', strtotime($ghost['última_actividad'])) : 'Nunca';
+        $last_known = $ghost['última_actividad'] ? date('d/m H:i', strtotime($ghost['última_actividad'])) : 'Sin actividad (Reset)';
+        
+        // Si no hay actividad previa, la "fecha" es el momento del descubrimiento (ahora)
+        // en lugar de inventar un "-24 horas" que no tiene sentido tras el reset.
+        $incident_date = $ghost['última_actividad'] ? $ghost['última_actividad'] : date('Y-m-d H:i:s');
+
         $incidencias[] = [
             'tipo' => 'Integridad de Flota',
-            'nivel' => 'medio',
-            'modulo' => 'Flota/Movilidad',
-            'evento' => 'Inactividad Prolongada',
-            'usuario' => $ghost['dueno_nombre'],
+            'nivel' => ($ghost['última_actividad'] ? 'alto' : 'medio'),
+            'modulo' => 'Recursos Humanos',
+            'evento' => 'Inactividad de Personal',
+            'usuario' => $ghost['chofer_nombre'],
             'placa' => $ghost['placa'],
             'modelo' => $ghost['modelo'],
             'ip' => '-',
-            'descripcion' => "La unidad no presenta actividad en las últimas 24h. Última ruta registrada: $last_known.",
-            'fecha' => $ghost['última_actividad'] ?: date('Y-m-d H:i:s', strtotime('-24 hours'))
+            'descripcion' => "Chofer asignado sin reportar actividad en 24h. Última ruta: $last_known.",
+            'fecha' => $incident_date
         ];
     }
 
@@ -186,6 +200,12 @@ try {
     if (!empty($critical_alerts)) {
         require_once __DIR__ . '/../system/notificaciones.php';
         foreach ($critical_alerts as $alert) {
+            // BLOQUEO POR HORA PRUDENTE
+            if (!$es_hora_prudente) {
+                error_log("OMNI-GUARD: Notificación omitida por horario no laborable ({$alert['tipo']})");
+                continue;
+            }
+
             $sqlOwner = "SELECT telegram_chat_id, cooperativa_id FROM usuarios WHERE rol = 'owner' AND telegram_chat_id IS NOT NULL";
             if ($coop_id) $sqlOwner .= " AND cooperativa_id = :coop_id";
             

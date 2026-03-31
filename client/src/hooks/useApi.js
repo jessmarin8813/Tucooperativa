@@ -13,6 +13,7 @@ export const useApi = () => {
     try {
       const response = await fetch(getApiUrl(endpoint), {
         ...options,
+        credentials: 'include', // Enviamos cookies de sesión en cada petición
         headers: {
           'Content-Type': 'application/json',
           ...options.headers,

@@ -7,12 +7,15 @@ require_once __DIR__ . '/../includes/middleware.php';
 $user = checkAuth();
 $db = DB::getInstance();
 
-// Security: Only Admin or the Owner of the unit (implicit by coop_id check)
-if ($user['rol'] !== 'admin' && $user['rol'] !== 'dueno') {
+// Security: Only Admin, Owner, or Superadmin
+if ($user['rol'] !== 'admin' && $user['rol'] !== 'dueno' && $user['rol'] !== 'superadmin') {
     sendResponse(['error' => 'Permission denied'], 403);
 }
 
 $data = json_decode(file_get_contents('php://input'), true);
+error_log("VEHICLE_API_REQUEST: " . json_encode($data));
+error_log("USER_COOP_ID: " . ($user['cooperativa_id'] ?? 'NULL'));
+
 $id = $data['id'] ?? null;
 $action = $data['action'] ?? 'edit';
 
@@ -46,30 +49,45 @@ try {
         sendResponse(['success' => true, 'message' => 'Vehículo actualizado correctamente']);
 
     } elseif ($action === 'delete') {
-        // Limpieza Profunda: Borrar todo lo relacionado a esta unidad
+        // Limpieza Radiactiva (v52.2)
         $coop_id = $user['cooperativa_id'];
         
-        $db->beginTransaction();
-        
-        // 1. Borrar incidencias y sus gastos
-        $db->prepare("DELETE FROM gastos WHERE vehiculo_id = ? AND cooperativa_id = ?")->execute([$id, $coop_id]);
-        $db->prepare("DELETE FROM incidencias WHERE vehiculo_id = ? AND cooperativa_id = ?")->execute([$id, $coop_id]);
-        
-        // 2. Borrar rutas y odometros
-        $db->prepare("DELETE FROM rutas WHERE vehiculo_id = ?")->execute([$id]);
-        $db->prepare("DELETE FROM odometros WHERE vehiculo_id = ?")->execute([$id]);
-        
-        // 3. Borrar el vehículo
-        $stmt = $db->prepare("DELETE FROM vehiculos WHERE id = ? AND cooperativa_id = ?");
-        $stmt->execute([$id, $coop_id]);
-        
-        $db->commit();
+        try {
+            $db->beginTransaction();
+            $db->exec("SET FOREIGN_KEY_CHECKS = 0");
+            
+            // 1. Borrar toda la actividad de la unidad
+            $tables = ['gastos', 'incidencias', 'rutas', 'odometros', 'invitaciones', 'cargas_combustible'];
+            foreach ($tables as $table) {
+                try {
+                    $db->prepare("DELETE FROM $table WHERE vehiculo_id = ?")->execute([$id]);
+                } catch (Exception $e) {} // Ignorar si no existe la tabla
+            }
+            
+            // 2. Limpiar asociación en pagos diarios
+            try { $db->prepare("DELETE FROM pagos_diarios WHERE vehiculo_id = ?")->execute([$id]); } catch (Exception $e) {}
+            
+            // 3. Borrar físicamente el vehículo
+            $stmt = $db->prepare("DELETE FROM vehiculos WHERE id = ? AND cooperativa_id = ?");
+            $stmt->execute([$id, $coop_id]);
+            
+            $db->exec("SET FOREIGN_KEY_CHECKS = 1");
+            $db->commit();
 
-        if (class_exists('RealtimeHub')) {
-            RealtimeHub::dispatch('UPDATE_FLEET', ['action' => 'delete', 'vehicle_id' => $id]);
+            // Real-time Event (Multi-hub)
+            if (function_exists('broadcastRealtime')) {
+                broadcastRealtime('UPDATE_FLEET', ['cooperativa_id' => $coop_id]);
+            }
+
+            sendResponse(['success' => true, 'message' => 'Unidad eliminada del sistema.']);
+
+        } catch (Exception $e) {
+            if ($db->inTransaction()) {
+                $db->exec("SET FOREIGN_KEY_CHECKS = 1");
+                $db->rollBack();
+            }
+            sendResponse(['error' => 'Critical error', 'message' => $e->getMessage()], 500);
         }
-
-        sendResponse(['success' => true, 'message' => 'Vehículo y sus datos eliminados correctamente']);
 
     } else {
         sendResponse(['error' => 'Unsupported action'], 400);

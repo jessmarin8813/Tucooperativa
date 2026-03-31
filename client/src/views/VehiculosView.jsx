@@ -45,7 +45,7 @@ const VehiculosView = ({ user, config, setActiveView }) => {
     let ignore = false
     const init = async () => {
       if (!currentUser) {
-        const sessionRes = await callApi('system/session.php')
+        const sessionRes = await callApi('auth/session.php')
         setCurrentUser(sessionRes.user || sessionRes)
       }
       if (!ignore) fetchVehicles()
@@ -79,11 +79,19 @@ const VehiculosView = ({ user, config, setActiveView }) => {
   const handleDeleteVehicle = async (vehicle) => {
     if (!window.confirm(`¿Estás seguro de ELIMINAR permanentemente la unidad ${vehicle.placa}? Esta acción no se puede deshacer.`)) return;
     try {
-      await callApi('admin/save_vehicle.php', {
+      const res = await callApi('admin/save_vehicle.php', {
         method: 'POST', body: JSON.stringify({ id: vehicle.id, action: 'delete' })
       });
-      fetchVehicles();
-    } catch (err) { console.error(err); }
+      if (res.success) {
+          alert("✅ Unidad eliminada exitosamente.");
+          fetchVehicles();
+      } else {
+          alert("⚠️ El servidor respondió pero no eliminó: " + (res.message || "Error desconocido"));
+      }
+    } catch (err) { 
+      alert("❌ Error crítico de API: " + (err.message || "Revisa la consola"));
+      console.error(err); 
+    }
   }
 
   const handleOpenInviteModal = (vehicle) => {
