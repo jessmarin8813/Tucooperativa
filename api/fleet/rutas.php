@@ -151,8 +151,8 @@ try {
         $stmtOdoInc->execute([$ruta_id]);
         $inc_odo = $stmtOdoInc->fetchColumn();
 
-        if (floatval($odo_val) < $start_odo) {
-            throw new Exception("Odómetro actual ($odo_val) no puede ser menor al inicial ($start_odo).");
+        if (floatval($odo_val) <= $start_odo) {
+            throw new Exception("Odómetro actual ($odo_val) debe ser mayor al inicial ($start_odo). Debe reportar el kilometraje real de la jornada para finalizar.");
         }
 
         // 4. Update Route State & Financials
@@ -174,7 +174,17 @@ try {
         $km_limbo = 0;
         if ($inc_odo !== false) {
             $km_limbo = floatval($odo_val) - floatval($inc_odo);
-            if ($km_limbo > 25) { // Tolerancia de 25km (Ej: Tipuro -> Taller -> Garaje/Casa)
+            if ($km_limbo > 25) {
+                $incidencias[] = [
+                    'tipo' => 'Brecha de Auditoría',
+                    'nivel' => 'alto',
+                    'modulo' => 'Administración',
+                    'evento' => ($odo_val <= $start_odo) ? 'Cierre con Movimiento Nulo' : 'Cierre Sin Conciliar',
+                    'usuario' => $user['nombre'],
+                    'ip' => '-',
+                    'descripcion' => ($odo_val <= $start_odo) ? "Jornada de 0 km detectada. Posible manipulación de odómetro o jornada fantasma." : "Ruta finalizada hace más de 12h sin reporte de pago asociado.",
+                    'fecha' => date('Y-m-d H:i:s')
+                ];
                 $alerta_incumplimiento = true;
             }
         }

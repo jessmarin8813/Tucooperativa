@@ -71,11 +71,18 @@ try {
 
     // 2. Detection: Inreconciled Income (Cajas Pendientes > 12h)
     $query_caja = "
-        SELECT r.id, r.ended_at, COALESCE(u.nombre, 'Chofer Desconocido') as chofer_nombre, c.nombre as coop_nombre
+        SELECT 
+            r.id, r.ended_at, 
+            COALESCE(u.nombre, 'Chofer Desconocido') as chofer_nombre, 
+            c.nombre as coop_nombre,
+            odo_ini.valor as km_inicial,
+            odo_fin.valor as km_final
         FROM rutas r
         LEFT JOIN choferes u ON r.chofer_id = u.id
         JOIN cooperativas c ON r.cooperativa_id = c.id
         LEFT JOIN pagos_reportados p ON r.id = p.id_ruta
+        JOIN odometros odo_ini ON r.id = odo_ini.ruta_id AND odo_ini.tipo = 'inicio'
+        JOIN odometros odo_fin ON r.id = odo_fin.ruta_id AND odo_fin.tipo = 'fin'
         WHERE r.estado = 'finalizada'
         AND r.ended_at < (NOW() - INTERVAL 12 HOUR)
         AND p.id IS NULL
@@ -86,14 +93,17 @@ try {
     $stmtCaja = $db->prepare($query_caja);
     $stmtCaja->execute($coop_id ? ['coop_id' => $coop_id] : []);
     foreach ($stmtCaja->fetchAll() as $caja) {
+        $is_zero_km = (floatval($caja['km_final']) <= floatval($caja['km_inicial']));
         $incidencias[] = [
             'tipo' => 'Brecha de Auditoría',
             'nivel' => 'alto',
             'modulo' => 'Administración',
-            'evento' => 'Cierre Sin Conciliar',
+            'evento' => $is_zero_km ? 'Cierre con Movimiento Nulo' : 'Cierre Sin Conciliar',
             'usuario' => $caja['chofer_nombre'],
             'ip' => '-',
-            'descripcion' => "Ruta finalizada hace más de 12h sin reporte de pago asociado.",
+            'descripcion' => $is_zero_km 
+                ? "Jornada de 0 km detectada. Posible manipulación de odómetro o jornada fantasma." 
+                : "Ruta finalizada hace más de 12h sin reporte de pago asociado.",
             'fecha' => $caja['ended_at']
         ];
     }
