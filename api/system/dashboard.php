@@ -43,12 +43,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmt->execute([$coop_id, $coop_id]);
         $alertas_criticas = $stmt->fetch()['total'];
 
+        // 5. Pending Payments
+        $stmt = $db->prepare("SELECT COUNT(*) as total FROM pagos_reportados 
+                              WHERE cooperativa_id = ? AND estado = 'pendiente'");
+        $stmt->execute([$coop_id]);
+        $pagos_pendientes = $stmt->fetch()['total'];
+
         sendResponse([
             'stats' => [
                 'total_vehiculos' => $total_vehiculos,
                 'rutas_activas' => $rutas_activas,
                 'recaudacion_hoy' => number_format((float)$recaudacion_hoy, 2, '.', ''),
-                'alertas_criticas' => $alertas_criticas
+                'alertas_criticas' => $alertas_criticas,
+                'pagos_pendientes' => $pagos_pendientes
             ]
         ]);
     } catch (Exception $e) {

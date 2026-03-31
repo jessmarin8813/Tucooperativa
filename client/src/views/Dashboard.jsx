@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import StatCard from '../components/ui/StatCard'
 import FleetList from '../components/ui/FleetList'
-import { Truck, Activity, DollarSign, AlertCircle, BarChart3, ShieldCheck, Wrench } from 'lucide-react'
+import { Truck, Activity, DollarSign, AlertCircle, ShieldCheck } from 'lucide-react'
 import { useApi } from '../hooks/useApi'
 import { useRealtime } from '../hooks/useRealtime'
 import { motion as Motion } from 'framer-motion'
@@ -14,26 +14,27 @@ const Dashboard = ({ user, setActiveView }) => {
       rutas_activas: 0,
       recaudacion_hoy: '0.00',
       alertas_criticas: 0,
-      pagos_pendientes: 0 // New metric for checklist
+      pagos_pendientes: 0
     },
     vehicles: []
   })
 
   const fetchDashboardData = useCallback(async () => {
     try {
-      const statsRes = await callApi('dashboard.php')
+      const resp = await callApi('dashboard.php')
       const fleetRes = await callApi('vehiculos.php')
-      // Simulated or real pending payments check
-      const paymentsRes = await callApi('finance/reportes_financieros.php?status=pendiente').catch(() => []);
       
       setData({ 
         stats: {
-          ...statsRes?.stats,
-          pagos_pendientes: Array.isArray(paymentsRes) ? paymentsRes.length : 2 // Mocking for demo if 0
-        } || data.stats, 
+          total_vehiculos: resp?.stats?.total_vehiculos || 0,
+          rutas_activas: resp?.stats?.rutas_activas || 0,
+          recaudacion_hoy: resp?.stats?.recaudacion_hoy || '0.00',
+          alertas_criticas: resp?.stats?.alertas_criticas || 0,
+          pagos_pendientes: resp?.stats?.pagos_pendientes || 0
+        }, 
         vehicles: Array.isArray(fleetRes) ? fleetRes : [] 
       })
-    } catch { /* Handled */ }
+    } catch { /* Fail silent */ }
   }, [callApi])
 
   // REALTIME SYNC
@@ -57,14 +58,18 @@ const Dashboard = ({ user, setActiveView }) => {
     <div className="animate-fade">
       <header className="p-flex-responsive p-justify-between" style={{ marginBottom: '40px', gap: '24px' }}>
         <div>
-          <h1 className="h1-premium neon-text" style={{ fontSize: '3rem' }}>Resumen del Día</h1>
-          <p className="p-subtitle">Esto es lo que está pasando en tu cooperativa ahora mismo.</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
+             <ShieldCheck size={20} color="var(--success)" />
+             <span style={{ fontSize: '0.75rem', fontWeight: 1000, textTransform: 'uppercase', color: 'var(--success)', letterSpacing: '0.1em' }}>SISTEMA PROTEGIDO v5.1</span>
+          </div>
+          <h1 className="h1-premium neon-text" style={{ fontSize: '3rem' }}>Gestión Diaria</h1>
+          <p className="p-subtitle">Resumen centralizado de tu cooperativa en tiempo real.</p>
         </div>
       </header>
 
       {/* ACCIONES RECOMENDADAS (CHECKLIST SENIOR) */}
       <section style={{ marginBottom: '48px' }}>
-        <h3 className="text-label" style={{ marginBottom: '20px', color: 'rgba(255,255,255,0.5)' }}>¿Qué debo hacer hoy?</h3>
+        <h3 className="text-label" style={{ marginBottom: '20px', color: 'rgba(255,255,255,0.5)' }}>Acciones Recomendadas</h3>
         <div className="p-grid p-grid-cols-2" style={{ gap: '20px' }}>
           
           {data.stats.alertas_criticas > 0 ? (
@@ -80,7 +85,7 @@ const Dashboard = ({ user, setActiveView }) => {
                 </div>
                 <div>
                   <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white' }}>Revisar Seguridad</h4>
-                  <p style={{ color: 'var(--danger)', fontWeight: 700 }}>Hay {data.stats.alertas_criticas} vehículos con alertas. Toca para ver.</p>
+                  <p style={{ color: 'var(--danger)', fontWeight: 700 }}>Hay {data.stats.alertas_criticas} alertas detectadas.</p>
                 </div>
               </div>
             </Motion.div>
@@ -91,39 +96,56 @@ const Dashboard = ({ user, setActiveView }) => {
                   <ShieldCheck color="white" size={24} />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white' }}>Seguridad al día</h4>
-                  <p style={{ color: 'var(--success)', fontWeight: 700 }}>No hay alertas críticas en este momento.</p>
+                  <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white' }}>Seguridad OK</h4>
+                  <p style={{ color: 'var(--success)', fontWeight: 700 }}>Sin problemas detectados.</p>
                 </div>
               </div>
             </div>
           )}
 
-          <Motion.div 
-            whileHover={{ scale: 1.02 }}
-            onClick={() => setActiveView('cobranza')}
-            className="p-glass-premium clickable-hover" 
-            style={{ padding: '24px', borderRadius: '24px', border: '2px solid var(--primary)', background: 'rgba(99, 102, 241, 0.05)', cursor: 'pointer' }}
-          >
-            <div className="p-flex p-items-center p-gap-4">
-              <div style={{ background: 'var(--primary)', padding: '12px', borderRadius: '16px' }}>
-                <DollarSign color="white" size={24} />
+          {data.stats.pagos_pendientes > 0 ? (
+            <Motion.div 
+              whileHover={{ scale: 1.02 }}
+              onClick={() => setActiveView('cobranza')}
+              className="p-glass-premium clickable-hover" 
+              style={{ padding: '24px', borderRadius: '24px', border: '2px solid var(--primary)', background: 'rgba(99, 102, 241, 0.05)', cursor: 'pointer' }}
+            >
+              <div className="p-flex p-items-center p-gap-4">
+                <div style={{ background: 'var(--primary)', padding: '12px', borderRadius: '16px' }}>
+                  <DollarSign color="white" size={24} />
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white' }}>Validar Pagos</h4>
+                  <p style={{ color: 'var(--primary)', fontWeight: 700 }}>{data.stats.pagos_pendientes} por confirmar.</p>
+                </div>
               </div>
-              <div>
-                <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white' }}>Validar Pagos</h4>
-                <p style={{ color: 'var(--primary)', fontWeight: 700 }}>Tienes pagos pendientes por confirmar.</p>
+            </Motion.div>
+          ) : (
+            <div className="p-glass-premium" style={{ padding: '24px', borderRadius: '24px', opacity: 0.8 }}>
+              <div className="p-flex p-items-center p-gap-4">
+                <div style={{ background: 'var(--accent)', padding: '12px', borderRadius: '16px' }}>
+                  <DollarSign color="white" size={24} />
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white' }}>Finanzas al día</h4>
+                  <p style={{ color: 'var(--accent)', fontWeight: 700 }}>Sin pagos pendientes.</p>
+                </div>
               </div>
             </div>
-          </Motion.div>
+          )}
         </div>
       </section>
 
-      <h3 className="text-label" style={{ marginBottom: '20px', color: 'rgba(255,255,255,0.5)' }}>Estado General</h3>
+      <h3 className="text-label" style={{ marginBottom: '20px', color: 'rgba(255,255,255,0.5)' }}>Resumen Operativo</h3>
       <div className="p-grid p-grid-cols-3">
-        <StatCard title="MIS VEHÍCULOS" value={data?.stats?.total_vehiculos || 0} icon={Truck} trend="En flota" color="99, 102, 241" />
-        <StatCard title="TRABAJANDO" value={data?.stats?.rutas_activas || 0} icon={Activity} color="16, 185, 129" trend="En ruta" />
-        <StatCard title="DINERO HOY" value={`$${data?.stats?.recaudacion_hoy || '0.00'}`} icon={DollarSign} color="34, 197, 94" trend="En caja" />
+        <StatCard title="VEHÍCULOS" value={data?.stats?.total_vehiculos || 0} icon={Truck} trend="Real-time" color="99, 102, 241" />
+        <StatCard title="EN RUTA" value={data?.stats?.rutas_activas || 0} icon={Activity} color="16, 185, 129" trend="Real-time" />
+        <StatCard title="EFECTIVO" value={`$${data?.stats?.recaudacion_hoy || '0.00'}`} icon={DollarSign} color="34, 197, 94" trend="Real-time" />
       </div>
 
+      <div style={{ marginTop: '40px' }}>
+        <FleetList vehicles={data.vehicles} user={user} loading={loading} onAction={() => {}} />
+      </div>
     </div>
   )
 }
