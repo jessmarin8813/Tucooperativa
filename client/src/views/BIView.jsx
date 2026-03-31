@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { motion as Motion } from 'framer-motion'
+import { motion as Motion, AnimatePresence } from 'framer-motion'
 import { TrendingUp, TrendingDown, BarChart3, Target, Activity, Printer, AlertTriangle, ShieldCheck } from 'lucide-react'
 import { 
   BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
@@ -11,6 +11,7 @@ import { formatMoney, UI_CHART_HEIGHT } from '../utils/DashboardConstants'
 const BIView = () => {
   const [data, setData] = useState(null)
   const [isChartReady, setIsChartReady] = useState(false)
+  const [expandedId, setExpandedId] = useState(null)
   const { callApi, loading } = useApi()
 
   const fetchBI = useCallback(async () => {
@@ -119,112 +120,7 @@ const BIView = () => {
       </div>
 
       <div className="p-flex-responsive" style={{ marginTop: '32px', gap: isMobile ? '16px' : '24px', alignItems: 'stretch' }}>
-        {/* Fleet Profitability Table */}
-        <Motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass"
-          style={{ overflow: 'hidden', flex: 1.6 }}
-        >
-          <div style={{ padding: '32px', borderBottom: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-             <div>
-                <h3 className="neon-text brand" style={{ fontSize: '1.5rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '12px' }}>
-                   <Activity size={24} style={{ color: 'var(--accent)' }} /> Salud de Rentabilidad
-                </h3>
-             </div>
-          </div>
-          {!isMobile ? (
-            <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', minWidth: '600px' }}>
-                    <thead>
-                        <tr style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em', borderBottom: '1px solid var(--glass-border)' }}>
-                            <th style={{ padding: '16px 24px' }}>Unidad</th>
-                            <th style={{ padding: '16px 24px' }}>Recaudado</th>
-                            <th style={{ padding: '16px 24px' }} className="print:hidden">Egresos</th>
-                            <th style={{ padding: '16px 24px' }}>Utilidad</th>
-                            <th style={{ padding: '16px 24px', textAlign: 'right' }}>Estatus</th>
-                        </tr>
-                    </thead>
-                    <tbody style={{ color: 'var(--text-main)' }}>
-                        {unidades.map((u) => (
-                            <tr key={u.id} className="glass-hover" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                                <td style={{ padding: '12px 24px' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                        <span style={{ fontWeight: 900, fontSize: '0.95rem', color: 'white' }}>{u.placa}</span>
-                                        {u.modelo && <span style={{ fontSize: '0.65rem', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase' }}>{u.modelo}</span>}
-                                    </div>
-                                </td>
-                                <td style={{ padding: '12px 24px', fontWeight: 700, color: 'var(--success)' }}>{formatMoney(u.abonos)}</td>
-                                <td style={{ padding: '12px 24px', fontWeight: 700, color: 'var(--danger)', opacity: 0.6 }} className="print:hidden">{formatMoney(u.costos_mante)}</td>
-                                <td style={{ padding: '12px 24px', fontWeight: 900 }}>{formatMoney(u.utilidad)}</td>
-                                <td style={{ padding: '12px 24px', textAlign: 'right' }}>
-                                    <div style={{ 
-                                        display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', 
-                                        background: u.alerta_salud ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', 
-                                        color: u.alerta_salud ? 'var(--danger)' : 'var(--success)', 
-                                        borderRadius: '100px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase' 
-                                    }}>
-                                        {u.alerta_salud ? <AlertTriangle size={10} /> : <Target size={10} />}
-                                        {u.alerta_salud ? 'Baja Rentabilidad' : 'Al día'}
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-          ) : (
-            <div style={{ padding: isMobile ? '12px 16px' : '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {unidades.map((u) => (
-                    <div key={u.id} className="glass" style={{ padding: '20px', borderRadius: '18px', border: u.alerta_salud ? '1px solid rgba(239, 68, 68, 0.15)' : '1px solid rgba(16, 185, 129, 0.15)', background: u.alerta_salud ? 'rgba(239, 68, 68, 0.02)' : 'rgba(16, 185, 129, 0.02)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                               <div>
-                                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                       <h4 style={{ fontSize: '1.2rem', fontWeight: 950, color: 'white', lineHeight: '1' }}>{u.placa}</h4>
-                                       <div style={{ width: '4px', height: '4px', background: 'var(--accent)', borderRadius: '50%', opacity: 0.5 }} />
-                                       <span style={{ fontSize: '0.7rem', color: 'var(--accent)', fontWeight: 900, textTransform: 'uppercase' }}>{u.modelo}</span>
-                                   </div>
-                                   <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', marginTop: '6px', letterSpacing: '0.05em' }}>Rentabilidad de Unidad</p>
-                               </div>
-                           </div>
-                           <div style={{ 
-                                padding: '4px 8px', borderRadius: '6px', fontSize: '9px', fontWeight: 950, textTransform: 'uppercase',
-                                background: u.alerta_salud ? 'var(--danger)' : 'var(--success)', color: 'black'
-                            }}>
-                                {u.alerta_salud ? 'Revisar' : 'Óptima'}
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', paddingBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                             <div>
-                                <p style={{ fontSize: '9px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: '4px' }}>Recaudado</p>
-                                <p style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--success)' }}>{formatMoney(u.abonos)}</p>
-                             </div>
-                             <div>
-                                <p style={{ fontSize: '9px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: '4px' }}>Inversión Taller</p>
-                                <p style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--danger)', opacity: 0.8 }}>{formatMoney(u.costos_mante)}</p>
-                             </div>
-                        </div>
-
-                        <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                             <div>
-                                <p style={{ fontSize: '9px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase' }}>Utilidad Neta</p>
-                                <p style={{ fontSize: '1.35rem', fontWeight: 950, color: 'white', letterSpacing: '-0.03em' }}>{formatMoney(u.utilidad)}</p>
-                             </div>
-                             <div style={{ textAlign: 'right' }}>
-                                 <p style={{ fontSize: '9px', fontWeight: 900, color: u.alerta_salud ? 'var(--danger)' : 'var(--success)', textTransform: 'uppercase' }}>
-                                     {u.alerta_salud ? 'Bajo Rendimiento' : 'Rendimiento OK'}
-                                 </p>
-                             </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-          )}
-        </Motion.div>
-
-        {/* Charts Side */}
+        {/* Charts Section (Top in Mobile, Right in PC context) */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', flex: 1 }}>
              {isChartReady && (
                <Motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="glass" style={{ padding: '32px' }}>
@@ -329,20 +225,103 @@ const BIView = () => {
                                 </BarChart>
                             </ResponsiveContainer>
                     </div>
-                    <div style={{ display: 'flex', gap: '16px', marginTop: '16px', justifyContent: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <div style={{ width: '8px', height: '8px', background: 'var(--success)', borderRadius: '2px' }} />
-                            <span style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)' }}>EFECTIVO</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '2px' }} />
-                            <span style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)' }}>P. MÓVIL</span>
-                        </div>
-                    </div>
                 </Motion.div>
              )}
         </div>
       </div>
+
+      {/* NEW COMPACT PROFITABILITY SECTION (Full Width Bottom) */}
+      <Motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="glass"
+        style={{ marginTop: '32px', overflow: 'hidden' }}
+      >
+        <div style={{ padding: isMobile ? '24px' : '32px', borderBottom: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 className="neon-text brand" style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <Activity size={24} style={{ color: 'var(--accent)' }} /> Salud de Rentabilidad
+            </h3>
+            <span style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{unidades.length} UNIDADES ACTIVAS</span>
+        </div>
+
+        <div style={{ padding: isMobile ? '12px' : '20px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
+            {unidades.map((u, idx) => {
+                const isExpanded = expandedId === u.id;
+                return (
+                    <div key={u.id} style={{ display: 'flex', flexDirection: 'column' }}>
+                        <Motion.div 
+                           initial={{ opacity: 0, x: -10 }}
+                           animate={{ opacity: 1, x: 0 }}
+                           transition={{ delay: idx * 0.03 }}
+                           onClick={() => setExpandedId(isExpanded ? null : u.id)}
+                           className="glass-hover"
+                           style={{ 
+                               padding: isMobile ? '16px 12px' : '20px 32px', 
+                               display: 'flex', 
+                               alignItems: 'center', 
+                               justifyContent: 'space-between', 
+                               cursor: 'pointer',
+                               borderBottom: '1px solid rgba(255,255,255,0.03)',
+                               background: isExpanded ? 'rgba(255,255,255,0.03)' : 'transparent'
+                           }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+                                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: u.alerta_salud ? 'var(--danger)' : 'var(--success)', boxShadow: `0 0 10px ${u.alerta_salud ? 'var(--danger)' : 'var(--success)'}` }} />
+                                <div>
+                                    <h4 style={{ fontSize: isMobile ? '1.1rem' : '1.25rem', fontWeight: 950, color: 'white', lineHeight: 1 }}>{u.placa}</h4>
+                                    <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', marginTop: '4px' }}>{u.modelo}</p>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '20px' : '64px', flex: isMobile ? 'initial' : 2, justifyContent: 'flex-end' }}>
+                                <div style={{ textAlign: 'right' }}>
+                                    <p style={{ fontSize: '9px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase' }}>Utilidad</p>
+                                    <p style={{ fontSize: isMobile ? '1rem' : '1.4rem', fontWeight: 950, color: 'white', letterSpacing: '-0.03em' }}>{formatMoney(u.utilidad)}</p>
+                                </div>
+                                <div className="mobile-hide" style={{ textAlign: 'right', minWidth: '120px' }}>
+                                    <div style={{ 
+                                        display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', 
+                                        background: u.alerta_salud ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', 
+                                        color: u.alerta_salud ? 'var(--danger)' : 'var(--success)', 
+                                        borderRadius: '100px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase' 
+                                    }}>
+                                        {u.alerta_salud ? 'Baja Rentabilidad' : 'Rentabilidad OK'}
+                                    </div>
+                                </div>
+                            </div>
+                        </Motion.div>
+
+                        <AnimatePresence>
+                            {isExpanded && (
+                                <Motion.div 
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="glass"
+                                    style={{ background: 'rgba(255,255,255,0.01)', overflow: 'hidden', borderTop: 'none', borderRadius: '0', margin: '0 8px' }}
+                                >
+                                    <div style={{ padding: '24px 32px', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '24px' }}>
+                                        <div style={{ padding: '16px', background: 'rgba(0,0,0,0.2)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                                            <p style={{ fontSize: '9px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: '8px' }}>Recaudado Total</p>
+                                            <p style={{ fontSize: '1.25rem', fontWeight: 950, color: 'var(--success)' }}>{formatMoney(u.abonos)}</p>
+                                        </div>
+                                        <div style={{ padding: '16px', background: 'rgba(0,0,0,0.2)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                                            <p style={{ fontSize: '9px', fontWeight: 900, color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: '8px' }}>Inversión Taller</p>
+                                            <p style={{ fontSize: '1.25rem', fontWeight: 950, color: 'var(--danger)', opacity: 0.8 }}>{formatMoney(u.costos_mante)}</p>
+                                        </div>
+                                        <div style={{ padding: '16px', background: 'rgba(6, 182, 212, 0.05)', borderRadius: '14px', border: '1px solid var(--accent)' }}>
+                                            <p style={{ fontSize: '9px', fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '8px' }}>Estatus Forense</p>
+                                            <p style={{ fontSize: '0.9rem', fontWeight: 900, color: 'white' }}>{u.alerta_salud ? '⚠️ Requiere Auditoría de Gastos' : '✅ Rendimiento Óptimo'}</p>
+                                        </div>
+                                    </div>
+                                </Motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                );
+            })}
+        </div>
+      </Motion.div>
     </div>
   )
 }
