@@ -194,9 +194,6 @@ const SuperAdminDashboard = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
             {data.cooperativas.map(coop => (
               <div key={coop.id} className="glass glass-hover" style={{ padding: '32px', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: '16px', right: '16px', fontWeight: 900, fontSize: '0.65rem', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>
-                  COOP_{coop.id}
-                </div>
                 <h3 className="neon-text" style={{ fontSize: '1.5rem', fontWeight: 900, marginBottom: '24px' }}>{coop.nombre}</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>

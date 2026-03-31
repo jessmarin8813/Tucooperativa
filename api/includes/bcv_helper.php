@@ -1,6 +1,6 @@
 <?php
 /**
- * Utility: BCV Exchange Rate Helper
+ * Utility: Official BCV Exchange Rate Helper (Direct Scraping v6.7)
  * Path: api/includes/bcv_helper.php
  */
 
@@ -9,73 +9,84 @@ function get_bcv_rate() {
     $now = time();
     $today = date('Y-m-d', $now);
     $hour = (int)date('H', $now);
-    $minute = (int)date('i', $now);
-    $dayOfWeek = (int)date('w', $now); // 0=Sun, 1=Mon, ..., 6=Sat
 
     // 1. OBTENER LA ÚLTIMA TASA DISPONIBLE EN BD
     $stmt = $db->prepare("SELECT tasa, created_at FROM tasas_cambio WHERE moneda = 'USD' ORDER BY created_at DESC LIMIT 1");
     $stmt->execute();
     $last_entry = $stmt->fetch(PDO::FETCH_ASSOC);
+    $last_rate = $last_entry ? floatval($last_entry['tasa']) : 470;
     
-    // 2. DETERMINAR SI NECESITAMOS ESCANEAR
+    // 2. DETERMINAR SI NECESITAMOS ESCANEAR (REGLA: PASADAS LAS 4 PM Y NO TENEMOS LA TASA DE MAÑANA)
     $needs_sync = false;
-    
     if (!$last_entry) {
         $needs_sync = true;
     } else {
         $last_update_ts = strtotime($last_entry['created_at']);
         $last_update_date = date('Y-m-d', $last_update_ts);
         
-        // Window Logic:
-        // A. If the data is simply too old (> 8h)
-        if (($now - $last_update_ts) > (8 * 3600)) {
+        // Ventana crítica: pasadas las 16:00 y tenemos dato de ayer (o antes)
+        if ($hour >= 16 && $last_update_date < $today) {
             $needs_sync = true;
         }
-        // B. If today's rate is supposed to be out (after 16:00) but we still have yesterday's (or older)
-        elseif ($hour >= 16 && $last_update_date < $today) {
+        // O si el dato tiene más de 12 horas
+        elseif (($now - $last_update_ts) > (12 * 3600)) {
             $needs_sync = true;
         }
     }
 
-    // 3. SI NO SE NECESITA ESCANEO, RETORNAR LO QUE TENEMOS
     if (!$needs_sync && $last_entry) {
         return floatval($last_entry['tasa']);
     }
 
-    // 4. SOLO SI LLEGAMOS AQUÍ, HACEMOS LA PETICIÓN EXTERNA
-    if ($needs_sync) {
-        $url = "https://ve.dolarapi.com/v1/dolares/oficial";
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        
-        if ($httpCode === 200) {
-            $data = json_decode($response, true);
-            $rateValue = $data['precio'] ?? $data['promedio'] ?? null;
-            
-            if ($rateValue) {
-                $rate = floatval($rateValue);
-                
-                // Guardar solo si es diferente a la última o si es un nuevo día
-                try {
-                    if (!$last_entry || $rate != floatval($last_entry['tasa'])) {
-                        $stmt = $db->prepare("INSERT INTO tasas_cambio (moneda, tasa, fecha, fuente) VALUES ('USD', ?, ?, 'BCV') ON DUPLICATE KEY UPDATE tasa = ?, created_at = CURRENT_TIMESTAMP");
-                        $stmt->execute([$rate, $today, $rate]);
-                    }
-                } catch (Exception $e) {
-                    error_log("BCV Save Error: " . $e->getMessage());
-                }
-                return $rate;
+    // 3. ESTRATEGIA: SCRAPING DIRECTO DEL BCV (MÁS FIABLE QUE CUALQUIER API)
+    $rate = null;
+    $url_bcv = "https://www.bcv.org.ve/";
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url_bcv);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+    $html = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode === 200 && !empty($html)) {
+        // Regex para extraer el valor del div id="dolar"
+        if (preg_match('/id="dolar".*?strong>\s*([\d,.]+)\s*<\/strong>/s', $html, $matches)) {
+            $rate = floatval(str_replace(',', '.', trim($matches[1])));
+        }
+    }
+
+    // 4. FALLBACK: DOLARAPI (ULTIMA OPCIÓN SI EL BCV ESTÁ CAÍDO O BLOQUEA)
+    if (!$rate) {
+        $url_api = "https://ve.dolarapi.com/v1/dolares/oficial";
+        $resp = @file_get_contents($url_api);
+        if ($resp) {
+            $data = json_decode($resp, true);
+            $val = $data['precio'] ?? $data['promedio'] ?? null;
+            if ($val) {
+                $rate = floatval($val);
+                // Corrección de escala si el API viene mal (10x bug)
+                if ($last_rate > 300 && $rate < 100) { $rate *= 10; }
             }
         }
     }
-    
-    // Fallback final
-    return $last_entry ? floatval($last_entry['tasa']) : 36.50; 
+
+    // 5. GUARDAR Y RETORNAR
+    if ($rate) {
+        try {
+            $is_different_rate = (abs($rate - $last_rate) > 0.0001);
+            $last_update_date = $last_entry ? date('Y-m-d', strtotime($last_entry['created_at'])) : '';
+            
+            if (!$last_entry || $last_update_date < $today || $is_different_rate) {
+                $stmt = $db->prepare("INSERT INTO tasas_cambio (moneda, tasa, fecha, fuente) VALUES ('USD', ?, ?, 'BCV') ON DUPLICATE KEY UPDATE tasa = ?, created_at = CURRENT_TIMESTAMP");
+                $stmt->execute([$rate, $today, $rate]);
+            }
+        } catch (Exception $e) { /* DB error */ }
+        return $rate;
+    }
+
+    return $last_entry ? floatval($last_entry['tasa']) : 36.50;
 }
-?>

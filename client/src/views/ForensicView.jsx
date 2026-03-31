@@ -54,7 +54,7 @@ const ForensicView = () => {
 
             <div className="glass" style={{ overflow: 'hidden', border: 'none', background: isMobile ? 'transparent' : 'var(--bg-card)' }}>
                 <div style={{ padding: isMobile ? '0 0 16px 0' : '24px', borderBottom: isMobile ? 'none' : '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h3 style={{ fontSize: '0.9rem', fontWeight: 900, textTransform: 'uppercase', color: 'white', letterSpacing: '0.05em' }}>Log Forense de Actividad</h3>
+                    <h3 style={{ fontSize: '0.8rem', fontWeight: 950, textTransform: 'uppercase', color: 'var(--accent)', letterSpacing: '0.2em' }}>Infracciones & Anomalías</h3>
                 </div>
                 {!isMobile ? (
                     <div style={{ overflowX: 'auto' }}>
@@ -93,10 +93,11 @@ const ForensicView = () => {
                                         </td>
                                         <td style={{ padding: '16px 24px', textAlign: 'right' }}>
                                             <span style={{ 
-                                                padding: '4px 12px', borderRadius: '100px', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase',
-                                                background: log.nivel === 'alto' ? 'rgba(239, 68, 68, 0.1)' : log.nivel === 'medio' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                                                padding: '6px 14px', borderRadius: '100px', fontSize: '9px', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em',
+                                                background: log.nivel === 'alto' ? 'rgba(239, 68, 68, 0.15)' : log.nivel === 'medio' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)',
                                                 color: log.nivel === 'alto' ? 'var(--danger)' : log.nivel === 'medio' ? 'var(--warning)' : 'var(--success)',
-                                                border: `1px solid ${log.nivel === 'alto' ? 'var(--danger)' : log.nivel === 'medio' ? 'var(--warning)' : 'var(--success)'}22`
+                                                border: `1px solid ${log.nivel === 'alto' ? 'var(--danger)' : log.nivel === 'medio' ? 'var(--warning)' : 'var(--success)'}44`,
+                                                boxShadow: `0 0 15px ${log.nivel === 'alto' ? 'var(--danger)' : log.nivel === 'medio' ? 'var(--warning)' : 'var(--success)'}11`
                                             }}>
                                                 {log.nivel}
                                             </span>
