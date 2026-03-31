@@ -110,29 +110,30 @@ const ForensicView = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         {(auditLog.incidencias || []).map((log, i) => (
                             <div key={i} className="glass" style={{ padding: '20px', borderRadius: '18px', borderLeft: `4px solid ${log.nivel === 'alto' ? 'var(--danger)' : log.nivel === 'medio' ? 'var(--warning)' : 'var(--success)'}` }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-dim)', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase' }}>
-                                        <Clock size={10} />
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-dim)', fontSize: '0.7rem', fontWeight: 700 }}>
+                                        <Clock size={12} />
                                         {log.fecha ? formatDate(log.fecha) : 'Recién'}
                                     </div>
                                     <span style={{ 
-                                        padding: '4px 10px', borderRadius: '100px', fontSize: '8px', fontWeight: 950, textTransform: 'uppercase',
-                                        background: log.nivel === 'alto' ? 'var(--danger)' : log.nivel === 'medio' ? 'var(--warning)' : 'var(--success)',
-                                        color: 'black'
+                                        padding: '4px 12px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase',
+                                        background: log.nivel === 'alto' ? 'rgba(239, 68, 68, 0.15)' : log.nivel === 'medio' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+                                        color: log.nivel === 'alto' ? 'var(--danger)' : log.nivel === 'medio' ? 'var(--warning)' : 'var(--success)',
+                                        border: `1px solid ${log.nivel === 'alto' ? 'var(--danger)' : log.nivel === 'medio' ? 'var(--warning)' : 'var(--success)'}33`
                                     }}>
-                                        Riesgo {log.nivel}
+                                        {log.nivel}
                                     </span>
                                 </div>
 
-                                <div style={{ marginBottom: '12px' }}>
-                                    <h4 style={{ fontSize: '1rem', fontWeight: 900, color: 'white', marginBottom: '2px' }}>{log.tipo}</h4>
-                                    <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                                        <span style={{ padding: '2px 6px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 950, color: 'white' }}>{log.placa}</span>
-                                        {log.modelo && <span style={{ fontSize: '0.65rem', color: 'var(--text-dim)', fontWeight: 700 }}>{log.modelo}</span>}
-                                        <div style={{ width: '3px', height: '3px', background: 'rgba(255,255,255,0.2)', borderRadius: '50%' }} />
-                                        <span style={{ fontSize: '0.7rem', fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase' }}>{log.evento || log.modulo}</span>
+                                 <div style={{ marginBottom: '16px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                        <span style={{ padding: '2px 8px', background: 'rgba(255,255,255,0.08)', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 950, color: 'white', border: '1px solid rgba(255,255,255,0.1)' }}>{log.placa}</span>
+                                        {log.modelo && <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 600 }}>{log.modelo}</span>}
                                     </div>
-                                    <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'white', marginTop: '4px' }}>👤 {log.usuario}</p>
+                                    <h4 style={{ fontSize: '1.1rem', fontWeight: 950, color: 'white', marginBottom: '4px', lineHeight: '1.2' }}>{log.evento || log.tipo}</h4>
+                                    <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        👤 {log.usuario}
+                                    </p>
                                 </div>
 
                                 <div style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)', lineHeight: '1.4' }}>
