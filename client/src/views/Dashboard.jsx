@@ -24,16 +24,21 @@ const Dashboard = ({ user, setActiveView }) => {
       const resp = await callApi('dashboard.php')
       const fleetRes = await callApi('vehiculos.php')
       
-      setData({ 
-        stats: {
-          total_vehiculos: resp?.stats?.total_vehiculos || 0,
-          rutas_activas: resp?.stats?.rutas_activas || 0,
-          recaudacion_hoy: resp?.stats?.recaudacion_hoy || '0.00',
-          alertas_criticas: resp?.stats?.alertas_criticas || 0,
-          pagos_pendientes: resp?.stats?.pagos_pendientes || 0
-        }, 
-        vehicles: Array.isArray(fleetRes) ? fleetRes : [] 
-      })
+      if (resp && typeof resp === 'object' && resp.stats) {
+        setData({ 
+          stats: {
+            total_vehiculos: resp.stats.total_vehiculos || 0,
+            rutas_activas: resp.stats.rutas_activas || 0,
+            recaudacion_hoy: resp.stats.recaudacion_hoy || '0.00',
+            alertas_criticas: resp.stats.alertas_criticas || 0,
+            pagos_pendientes: resp.stats.pagos_pendientes || 0
+          }, 
+          vehicles: Array.isArray(fleetRes) ? fleetRes : [] 
+        })
+      } else {
+          // Fallback a vacio si la respuesta no es valida
+          setData(prev => ({ ...prev, vehicles: Array.isArray(fleetRes) ? fleetRes : [] }))
+      }
     } catch { /* Fail silent */ }
   }, [callApi])
 

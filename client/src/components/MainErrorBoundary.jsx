@@ -13,51 +13,26 @@ class MainErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // Reportar el error antes de reiniciar
-    console.error('🚨 Error Crítico Detectado en UI:', error, errorInfo);
+    // Reportar internamente para auditoría pero mantener silencio visual
+    console.warn('%c🛡️ Saneamiento Silencioso v5.2.0', 'background: #1e1e2e; color: #f5c2e7; padding: 4px; border-radius: 4px;', error);
     
-    // Auto-reinicio tras 2 segundos para dar tiempo al usuario a ver el estado de rescate
-    setTimeout(() => {
-        window.location.reload();
-    }, 2000);
-  }
-
-  handleRestart = () => {
-    window.location.reload();
+    // Si ocurre un error, simplemente limpiamos el rastro de reinicios para permitir carga fresca la próxima vez
+    sessionStorage.removeItem('last_error_reload');
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div 
-          className="p-flex p-items-center p-justify-center" 
-          style={{ 
-            height: '100vh', 
-            background: '#0a0b12', 
-            color: 'white',
-            padding: '24px',
-            textAlign: 'center'
-          }}
-        >
-          <div className="p-glass-premium" style={{ maxWidth: '500px', padding: '48px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-            <div className="animate-spin" style={{ marginBottom: '24px' }}>
-              <RefreshCw size={48} color="var(--primary)" />
-            </div>
-            <h1 className="h1-premium neon-text" style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Auto-Recuperación Activa</h1>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600, marginBottom: '32px' }}>
-              Estamos ajustando el sistema para ti. La aplicación se reiniciará en un segundo para asegurar tu estabilidad.
-            </p>
-            
-            <div style={{ marginTop: '24px', fontSize: '9px', fontFamily: 'monospace', color: 'rgba(255,255,255,0.15)', textTransform: 'uppercase' }}>
-              REINCIANDO... {this.state.error?.message || 'Protecting Session'}
-            </div>
+        <div style={{ background: '#0a0b12', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="animate-pulse" style={{ color: 'rgba(255,255,255,0.05)', fontSize: '0.8rem', fontWeight: 900 }}>
+             OPTIMIZANDO SESIÓN...
           </div>
         </div>
-      )
+      );
     }
 
-    return this.props.children 
+    return this.props.children;
   }
 }
 
-export default MainErrorBoundary
+export default MainErrorBoundary;

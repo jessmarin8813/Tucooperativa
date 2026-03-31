@@ -5,7 +5,7 @@ import { motion as Motion, AnimatePresence } from 'framer-motion'
 const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onInvite, onUnlink, onDelete, config }) => {
   const safeVehicles = Array.isArray(vehicles) ? vehicles : [];
 
-  if (safeVehicles?.length === 0) {
+  if (safeVehicles.length === 0) {
     return (
       <div className="glass-premium p-16 text-center text-white/20 font-black uppercase tracking-widest text-xs border-dashed border-2 border-white/5 rounded-3xl m-8">
         No hay vehículos registrados en la flota.
@@ -48,12 +48,12 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
 
         <div className={!isMobile ? "divide-y divide-white/2" : ""} style={{ overflow: 'visible' }}>
           {safeVehicles.map((v, i) => {
-            if (!v) return null;
-            const statusRaw = (v.estado || v.status_label || 'inactivo').toString().toLowerCase();
+            if (!v || typeof v !== 'object') return null;
+            const statusRaw = (v?.estado || v?.status_label || 'inactivo').toString().toLowerCase();
             const status = statusRaw === 'en ruta' ? 'activo' : statusRaw;
-            const isNearBottom = i >= ((safeVehicles?.length || 0) - 2);
+            const isNearBottom = i >= ((safeVehicles.length || 0) - 2);
             const statusDescription = status === 'activo'
-              ? (v.chofer_id ? 'Operación Normal' : 'Disponible / Sin Chofer')
+              ? (v?.chofer_id ? 'Operación Normal' : 'Disponible / Sin Chofer')
               : status === 'mantenimiento' ? 'En Taller / Reparación'
                 : 'Suspendido / Fuera de Servicio';
 
