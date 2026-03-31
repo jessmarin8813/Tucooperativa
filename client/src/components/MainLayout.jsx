@@ -112,7 +112,7 @@ const MainLayout = ({ user, config, setConfig, activeView, setActiveView, onLogo
                 transition={{ duration: 0.2, ease: "easeOut" }}
               >
                 <Suspense fallback={<LoadingSpinner />}>
-                  {activeView === 'dashboard' && <Dashboard user={user} setActiveView={handleNavigate} />}
+                  {activeView === 'dashboard' && <Dashboard user={user} config={config} setActiveView={handleNavigate} />}
                   {activeView === 'choferes' && <ChoferesView />}
                   {activeView === 'ranking' && <DriverRanking />}
                   {activeView === 'config' && <ConfiguracionView config={config} setConfig={setConfig} />}

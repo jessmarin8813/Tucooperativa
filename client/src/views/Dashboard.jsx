@@ -6,7 +6,7 @@ import { useApi } from '../hooks/useApi'
 import { useRealtime } from '../hooks/useRealtime'
 import { motion as Motion } from 'framer-motion'
 
-const Dashboard = ({ user, setActiveView }) => {
+const Dashboard = ({ user, config, setActiveView }) => {
   const { callApi, loading } = useApi()
   const [data, setData] = useState({
     stats: {

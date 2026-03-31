@@ -23,9 +23,22 @@ class MainErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ background: '#0a0b12', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="animate-pulse" style={{ color: 'rgba(255,255,255,0.05)', fontSize: '0.8rem', fontWeight: 900 }}>
-             OPTIMIZANDO SESIÓN...
+        <div style={{ background: '#0a0b12', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '32px', textAlign: 'center', padding: '40px' }}>
+          <div className="animate-pulse" style={{ color: '#6366f1', fontSize: '1rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em' }}>
+             Optimizando tu Sesión...
+          </div>
+          
+          <div style={{ animation: 'fadeIn 2s ease-in forwards', opacity: 0 }}>
+             <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', marginBottom: '24px' }}>
+                Estamos ajustando los últimos detalles para ti.
+             </p>
+             <button 
+                onClick={() => window.location.reload()}
+                className="btn-secondary" 
+                style={{ background: 'rgba(255,255,255,0.05)', color: 'white', padding: '12px 24px', borderRadius: '12px', fontSize: '11px', fontWeight: 900 }}
+             >
+                FORCEAR RECARGA
+             </button>
           </div>
         </div>
       );
