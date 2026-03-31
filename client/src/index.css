@@ -399,10 +399,12 @@ button {
     font-size: 1.75rem !important;
   }
 
-  .btn-primary {
+  .btn-primary, .btn-secondary {
     width: 100% !important;
-    padding: 16px !important;
-    font-size: 0.85rem !important;
+    height: 64px !important; /* Touch Target Senior */
+    padding: 0 24px !important;
+    font-size: 1.1rem !important; /* Más grande en móvil */
+    border-radius: 20px !important;
   }
 
   .p-grid, .p-grid-cols-2 {
@@ -438,11 +440,10 @@ button {
     display: flex !important;
     margin: 0 !important;
     padding-top: env(safe-area-inset-top, 8px) !important;
-    height: auto !important;
-    min-height: 70px !important;
+    height: 70px !important;
     align-items: center !important;
-    border-bottom: 1px solid rgba(255,255,255,0.03) !important;
-    box-shadow: none !important;
+    border-bottom: 2px solid rgba(255,255,255,0.08) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
   }
   .view-container {
     padding: 0 16px 120px 16px !important;

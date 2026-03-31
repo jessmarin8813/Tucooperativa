@@ -40,23 +40,32 @@ const Modal = ({ isOpen, onClose, title, children }) => {
             className="glass"
             style={{ 
               position: 'relative',
-              width: '100%',
+              width: window.innerWidth <= 768 ? '100%' : '100%',
               maxWidth: '500px',
+              height: window.innerWidth <= 768 ? '100%' : 'auto',
               maxHeight: '90vh',
               overflowY: 'auto',
-              padding: '32px',
+              padding: window.innerWidth <= 768 ? '32px 24px 100px 24px' : '32px', // Bottom padding for button safety
               boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
-              border: '1px solid rgba(255,255,255,0.1)'
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: window.innerWidth <= 768 ? '0px' : '32px'
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>{title}</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+              <h2 style={{ fontSize: '1.75rem', fontWeight: 900, color: 'white' }}>{title}</h2>
               <button 
                 onClick={onClose}
                 className="glass-hover"
-                style={{ padding: '8px', borderRadius: '50%', display: 'flex' }}
+                style={{ 
+                    padding: '12px', 
+                    borderRadius: '16px', 
+                    display: 'flex', 
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    color: 'white'
+                }}
               >
-                <X size={20} />
+                <X size={28} />
               </button>
             </div>
             {children}
