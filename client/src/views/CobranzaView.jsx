@@ -391,8 +391,12 @@ const CobranzaView = () => {
                                 </div>
                                 <div style={{ display: 'flex', gap: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                                     <div style={{ flex: 1 }}>
-                                        <p className="text-label" style={{ fontSize: '0.6rem', marginBottom: '4px' }}>Pagado</p>
-                                        <p style={{ color: 'var(--success)', fontWeight: 800, fontSize: '1rem' }}>{formatMoney(v.abonos_totales)}</p>
+                                        <p className="text-label" style={{ fontSize: '0.6rem', marginBottom: '4px' }}>Pagado (Auditable)</p>
+                                        <p style={{ color: 'var(--success)', fontWeight: 900, fontSize: '1rem', marginBottom: '4px' }}>{formatMoney(v.abonos_totales)}</p>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                            <span style={{ fontSize: '0.55rem', color: 'var(--text-dim)', opacity: 0.8 }}>💵 Ef: {formatMoney(v.abonos_efectivo)}</span>
+                                            <span style={{ fontSize: '0.55rem', color: 'var(--text-dim)', opacity: 0.8 }}>📱 Dig: {formatMoney(v.abonos_digital)}</span>
+                                        </div>
                                     </div>
                                     <div style={{ flex: 1 }}>
                                         <p className="text-label" style={{ fontSize: '0.6rem', marginBottom: '4px' }}>Saldo</p>
@@ -431,7 +435,13 @@ const CobranzaView = () => {
                                             </div>
                                         </td>
                                         <td style={{ padding: '32px 40px', textAlign: 'center', color: 'var(--text-dim)', fontWeight: 700, fontSize: '1.1rem' }}>{formatMoney(v.cuota_diaria)}</td>
-                                        <td style={{ padding: '32px 40px', textAlign: 'center', color: 'var(--success)', fontWeight: 900, fontSize: '1.1rem' }}>{formatMoney(v.abonos_totales)}</td>
+                                        <td style={{ padding: '32px 40px', textAlign: 'center' }}>
+                                            <p style={{ color: 'var(--success)', fontWeight: 950, fontSize: '1.1rem' }}>{formatMoney(v.abonos_totales)}</p>
+                                            <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '6px' }}>
+                                                <span title="Efectivo" style={{ fontSize: '0.65rem', color: 'var(--text-dim)', fontWeight: 700 }}>💵 {formatMoney(v.abonos_efectivo)}</span>
+                                                <span title="Pago Móvil / Digital" style={{ fontSize: '0.65rem', color: 'var(--text-dim)', fontWeight: 700 }}>📱 {formatMoney(v.abonos_digital)}</span>
+                                            </div>
+                                        </td>
                                         <td style={{ padding: '32px 40px', textAlign: 'right' }}>
                                             <span style={{ 
                                                 display: 'inline-flex', 

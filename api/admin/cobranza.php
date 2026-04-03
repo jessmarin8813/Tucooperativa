@@ -13,7 +13,9 @@ $coop_id = $user['cooperativa_id'];
 // Formula: (Days Active * Cuota) - (Total Approved Payments)
 $sql = "SELECT v.id, v.placa, v.cuota_diaria, u.nombre as chofer,
         (SELECT COUNT(DISTINCT DATE(started_at)) FROM rutas WHERE vehiculo_id = v.id) as dias_trabajados,
-        (SELECT COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN monto / NULLIF(tasa_cambio, 0) ELSE monto END), 0) FROM pagos_reportados WHERE vehiculo_id = v.id AND estado = 'aprobado') as abonos_totales
+        (SELECT COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN monto / NULLIF(tasa_cambio, 0) ELSE monto END), 0) FROM pagos_reportados WHERE vehiculo_id = v.id AND estado = 'aprobado') as abonos_totales,
+        (SELECT COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN monto_efectivo / NULLIF(tasa_cambio, 0) ELSE (CASE WHEN metodo = 'Efectivo (USD)' THEN monto ELSE 0 END) END), 0) FROM pagos_reportados WHERE vehiculo_id = v.id AND estado = 'aprobado') as abonos_efectivo,
+        (SELECT COALESCE(SUM(CASE WHEN moneda = 'Bs' THEN monto_pagomovil / NULLIF(tasa_cambio, 0) ELSE (CASE WHEN metodo = 'Pago Móvil' OR metodo = 'Transferencia' THEN monto ELSE 0 END) END), 0) FROM pagos_reportados WHERE vehiculo_id = v.id AND estado = 'aprobado') as abonos_digital
         FROM vehiculos v
         JOIN choferes u ON v.chofer_id = u.id
         WHERE v.cooperativa_id = :coop_id";
