@@ -1,4 +1,5 @@
 import os
+import httpx # NEW: Robust Networking
 import logging
 import re
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
@@ -49,6 +50,60 @@ class ConnectionManager:
                 pass
 
 manager = ConnectionManager()
+
+# --- AUTONOMOUS BCV MONITOR (MASTER FUSION) ---
+BCV_RATE = 36.50
+
+async def fetch_bcv_rate():
+    global BCV_RATE
+    url_bcv = "https://www.bcv.org.ve/"
+    headers = {"User-Agent": "Mozilla/5.0"}
+    
+    try:
+        async with httpx.AsyncClient(timeout=15, verify=False, headers=headers) as client:
+            resp = await client.get(url_bcv)
+            if resp.status_code == 200:
+                match = re.search(r'id="dolar".*?strong>\s*([\d,.]+)\s*</strong>', resp.text, re.S)
+                if match:
+                    new_rate = float(match.group(1).replace(',', '.'))
+                    if new_rate > 10:
+                        BCV_RATE = new_rate
+                        logger.info(f"📁 Tasa Recuperada de BCV Directo: {BCV_RATE} Bs/$")
+                        await sync_rate_to_backend(BCV_RATE)
+                        await manager.broadcast({"type": "UPDATE_RATE", "rate": BCV_RATE})
+                        return
+    except Exception as e:
+        logger.warning(f"⚠️ Error en Scraping Directo: {e}")
+
+    # Fallback to DolarAPI
+    try:
+        async with httpx.AsyncClient(timeout=10, verify=False) as client:
+            resp = await client.get("https://ve.dolarapi.com/v1/dolares/oficial")
+            if resp.status_code == 200:
+                data = resp.json()
+                new_rate = data.get('promedio') or data.get('precio')
+                if new_rate and float(new_rate) > 10:
+                    BCV_RATE = float(new_rate)
+                    logger.info(f"🔄 Tasa BCV Sincronizada (Fallback): {BCV_RATE} Bs/$")
+                    await sync_rate_to_backend(BCV_RATE)
+                    await manager.broadcast({"type": "UPDATE_RATE", "rate": BCV_RATE})
+                    return
+    except Exception as e:
+        logger.warning(f"⚠️ Error en Fallback: {e}")
+
+async def sync_rate_to_backend(rate):
+    # Endpoint unificado para sincronización proactiva
+    backend_url = f"{os.getenv('BACKEND_URL')}/system/update_config.php"
+    try:
+        async with httpx.AsyncClient() as client:
+            await client.post(backend_url, json={"clave": "bcv_rate", "valor": str(rate)})
+    except Exception as e:
+        logger.error(f"❌ Error sincronizando tasa al backend: {e}")
+
+async def bcv_worker_loop():
+    while True:
+        await fetch_bcv_rate()
+        await asyncio.sleep(900) # Sincronización cada 15 minutos
 
 class BroadcastMessage(BaseModel):
     type: str
@@ -795,6 +850,7 @@ if __name__ == '__main__':
         await app.updater.start_polling()
         
         # Iniciamos el Servidor Web (Realtime) con captura de errores de red
+        asyncio.create_task(bcv_worker_loop()) # Start the Autonomous Worker
         while True:
             try:
                 await server.serve()
