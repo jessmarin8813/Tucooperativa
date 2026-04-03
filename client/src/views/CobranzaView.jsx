@@ -273,7 +273,7 @@ const CobranzaView = () => {
                                 <button 
                                     onClick={() => handleProcesar(p.id, 'aprobado')} 
                                     style={{ 
-                                        height: isMobile ? '58px' : '56px', 
+                                        height: isMobile ? '70px' : '56px', 
                                         width: isMobile ? '100%' : '56px', 
                                         borderRadius: '18px', 
                                         background: 'rgba(16, 185, 129, 0.15)', 
@@ -282,17 +282,18 @@ const CobranzaView = () => {
                                         display: 'flex', 
                                         alignItems: 'center', 
                                         justifyContent: 'center',
-                                        transition: 'all 0.3s' 
+                                        transition: 'all 0.3s',
+                                        padding: 0 // Evita que el padding achique el icono
                                     }}
                                     className="glass-hover flex-1"
                                 >
-                                    <CheckCircle size={44} strokeWidth={3} />
+                                    <CheckCircle size={48} strokeWidth={3} />
                                     {isMobile && <span style={{ marginLeft: '12px', fontWeight: 900, fontSize: '0.9rem' }}>APROBAR</span>}
                                 </button>
                                 <button 
                                     onClick={() => handleProcesar(p.id, 'rechazado')} 
                                     style={{ 
-                                        height: isMobile ? '58px' : '56px', 
+                                        height: isMobile ? '70px' : '56px', 
                                         width: isMobile ? '100%' : '56px', 
                                         borderRadius: '18px', 
                                         background: 'rgba(239, 68, 68, 0.15)', 
@@ -301,11 +302,12 @@ const CobranzaView = () => {
                                         display: 'flex', 
                                         alignItems: 'center', 
                                         justifyContent: 'center',
-                                        transition: 'all 0.3s' 
+                                        transition: 'all 0.3s',
+                                        padding: 0 // Evita que el padding achique el icono
                                     }}
                                     className="glass-hover flex-1"
                                 >
-                                    <XCircle size={44} strokeWidth={3} />
+                                    <XCircle size={48} strokeWidth={3} />
                                     {isMobile && <span style={{ marginLeft: '12px', fontWeight: 900, fontSize: '0.9rem' }}>DENEGAR</span>}
                                 </button>
                              </div>
