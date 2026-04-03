@@ -20,6 +20,8 @@ from pydantic import BaseModel
 from typing import List
 
 load_dotenv()
+TOKEN = os.getenv('TELEGRAM_TOKEN')
+BACKEND_URL = os.getenv('BACKEND_URL')
 
 # Logger Configuration
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -62,7 +64,8 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-# --- AUTONOMOUS BCV MONITOR (MASTER FUSION) ---
+# --- GLOBAL NETWORKING CLIENT (REUSE FOR PERFORMANCE) ---
+http_client = httpx.AsyncClient(timeout=30, verify=False)
 BCV_RATE = 36.50
 
 async def fetch_bcv_rate():
@@ -79,12 +82,12 @@ async def fetch_bcv_rate():
                     new_rate = float(match.group(1).replace(',', '.'))
                     if new_rate > 10:
                         BCV_RATE = new_rate
-                        logger.info(f"📁 Tasa Recuperada de BCV Directo: {BCV_RATE} Bs/$")
+                        logger.info(f"[BCV] Tasa Recuperada de BCV Directo: {BCV_RATE} Bs/$")
                         await sync_rate_to_backend(BCV_RATE)
                         await manager.broadcast({"type": "UPDATE_RATE", "rate": BCV_RATE})
                         return
     except Exception as e:
-        logger.warning(f"⚠️ Error en Scraping Directo: {e}")
+        logger.warning(f"[WARN] Error en Scraping Directo: {e}")
 
     # Fallback to DolarAPI
     try:
@@ -95,7 +98,7 @@ async def fetch_bcv_rate():
                 new_rate = data.get('promedio') or data.get('precio')
                 if new_rate and float(new_rate) > 10:
                     BCV_RATE = float(new_rate)
-                    logger.info(f"🔄 Tasa BCV Sincronizada (Fallback): {BCV_RATE} Bs/$")
+                    logger.info(f"[BCV] Tasa BCV Sincronizada (Fallback): {BCV_RATE} Bs/$")
                     await sync_rate_to_backend(BCV_RATE)
                     await manager.broadcast({"type": "UPDATE_RATE", "rate": BCV_RATE})
                     return
@@ -123,7 +126,7 @@ class BroadcastMessage(BaseModel):
 
 @app_web.post("/broadcast")
 async def broadcast_endpoint(msg: BroadcastMessage):
-    logger.info(f"📡 Broadcast Request: {msg.type} | Coop: {msg.cooperativa_id}")
+    logger.info(f"[BROADCAST] Request: {msg.type} | Coop: {msg.cooperativa_id}")
     await manager.broadcast(msg.model_dump())
     return {"status": "success"}
 
@@ -191,14 +194,14 @@ async def get_dynamic_menu(update: Update):
         return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
     if status.get('ruta_activa'):
-        main_button = '🏁 FINALIZAR RUTA'
+        main_button = 'FINALIZAR RUTA'
     else:
-        main_button = '🚛 INICIAR JORNADA'
+        main_button = 'INICIAR JORNADA'
     
     keyboard = [
         [main_button],
-        ['💰 REPORTAR PAGO', '📊 MI DEUDA'],
-        ['⚠️ REPORTAR FALLA', '🚐 MI UNIDAD']
+        ['REPORTAR PAGO', 'MI DEUDA'],
+        ['REPORTAR FALLA', 'MI UNIDAD']
     ]
 
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
@@ -246,6 +249,28 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return ConversationHandler.END
 
+# --- NEW: AUTH & ADMIN COMMANDS (v8.9) ---
+async def login_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Simple login/link info"""
+    user_id = update.effective_user.id
+    auth = api.check_authorization(user_id)
+    if auth.get('status') == 'activo':
+        await update.message.reply_text(f"[AUTH] Ya estas vinculado como: {auth.get('nombre')}")
+    else:
+        await update.message.reply_text("[AUTH] Para vincular tu cuenta, usa el Enlace de Invitacion enviado por tu Cooperativa.")
+
+async def admin_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Admin/Owner Redirect"""
+    user_id = update.effective_user.id
+    auth = api.check_authorization(user_id)
+    if auth.get('rol') in ['admin', 'owner', 'dueno']:
+        await update.message.reply_text("[ADMIN] Panel Web: http://localhost/TuCooperativa/client")
+    else:
+        await update.message.reply_text("[ERROR] Acceso restringido a Propietarios.")
+
+async def estado_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Shortcut for 'MI DEUDA'"""
+    return await handle_main_menu(update, context, force_text='MI DEUDA')
 
 async def registrar_nombre_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['driver_nombre'] = update.message.text
@@ -278,8 +303,8 @@ async def registrar_cedula_received(update: Update, context: ContextTypes.DEFAUL
     return ConversationHandler.END
 
 
-async def handle_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = update.message.text
+async def handle_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, force_text=None):
+    text = force_text if force_text else update.message.text
     if text == '🚛 INICIAR JORNADA':
         return await start_ruta_flow(update, context)
     elif text == '🏁 FINALIZAR RUTA':
@@ -299,36 +324,36 @@ async def handle_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
         deuda_bs = deuda_usd * bcv_rate
         
         msg = (
-            f"📊 **Estado de Cuenta**\n\n"
-            f"🚛 Unidad: `{status.get('placa', 'N/A')}`\n"
-            f"💵 Deuda (USD): **${deuda_usd:.2f}**\n"
-            f"🏦 Tasa BCV: **{bcv_rate:.2f} Bs/$**\n"
-            f"🇻🇪 **Total en Bs: {deuda_bs:.2f}**\n\n"
-            f"⏳ En Revisión: *${pendientes_usd:.2f}*\n"
-            f"📍 Último KM: `{status.get('ultimo_km', '0')}`\n\n"
-            f"📌 **Datos para Pago Móvil:**\n"
+            f"Estado de Cuenta\n\n"
+            f"Unidad: {status.get('placa', 'N/A')}\n"
+            f"Deuda (USD): ${deuda_usd:.2f}\n"
+            f"Tasa BCV: {bcv_rate:.2f} Bs/$\n"
+            f"Total en Bs: {deuda_bs:.2f}\n\n"
+            f"En Revision: ${pendientes_usd:.2f}\n"
+            f"Ultimo KM: {status.get('ultimo_km', '0')}\n\n"
+            f"Datos para Pago Movil:\n"
             f"{status.get('datos_bancarios', 'Consulte Admin')}"
         )
         await update.message.reply_text(msg, parse_mode='Markdown', reply_markup=await get_dynamic_menu(update))
 
-    elif text == '🚐 MI UNIDAD':
+    elif text == 'MI UNIDAD':
         res = api.get_my_vehicle()
         if 'error' in res:
-            await update.message.reply_text(f"❌ {res['error']}")
+            await update.message.reply_text(f"[ERR] {res['error']}")
         else:
             status_val = res.get('estado', 'activo')
-            status_label = "✅ OPERATIVO" if status_val == 'activo' else "🛠️ MANTENIMIENTO"
+            status_label = "OPERATIVO" if status_val == 'activo' else "MANTENIMIENTO"
             
-            msg = f"🚐 **Tu Unidad Asignada**\n\n"
-            msg += f"🔹 Placa: *{res['placa']}*\n"
-            msg += f"🔹 Estado: *{status_label}*\n"
-            msg += f"🔹 Modelo: *{res['modelo']}*\n"
-            msg += f"🔹 Año: *{res['anio']}*\n"
-            msg += f"💰 Cuota Diaria: *${res['cuota_diaria']}*"
+            msg = f"Tu Unidad Asignada\n\n"
+            msg += f"Placa: {res['placa']}\n"
+            msg += f"Estado: {status_label}\n"
+            msg += f"Modelo: {res['modelo']}\n"
+            msg += f"Anio: {res['anio']}\n"
+            msg += f"Cuota Diaria: ${res['cuota_diaria']}"
             await update.message.reply_text(msg, parse_mode='Markdown')
 
-    elif text == '🔧 AYUDA':
-        await update.message.reply_text("📱 Contacte al administrador central para soporte técnico.")
+    elif text == 'AYUDA':
+        await update.message.reply_text("Soporte Tecnico: Contacte al administrador central.")
 
 # --- START ROUTE FLOW (Zero-Command) ---
 async def start_ruta_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -757,18 +782,17 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
     
     # Notify user
     if isinstance(update, Update) and update.effective_message:
-        text = "❌ **Error Crítico en el Sistema.**\n\nSe ha notificado al soporte técnico. Intenta de nuevo en unos minutos."
-        await update.effective_message.reply_text(text, parse_mode='Markdown')
+        text = "Error Critico en el Sistema. Se ha notificado al soporte tecnico."
+        await update.effective_message.reply_text(text)
 
-if __name__ == '__main__':
-    sync_env_ip()
-    load_dotenv()
-    
-    app = ApplicationBuilder().token(os.getenv('TELEGRAM_TOKEN')).post_init(post_init).build()
+# --- EXECUTION GUARD ---
+if __name__ == "__main__":
+    # 1. Initialize Application
+    app = ApplicationBuilder().token(TOKEN).post_init(post_init).build()
 
-    # 1. Start Journey
+    # 2. Define Handlers
     start_conv = ConversationHandler(
-        entry_points=[MessageHandler(filters.Regex('^🚛 INICIAR JORNADA$'), start_ruta_flow)],
+        entry_points=[MessageHandler(filters.Regex('^INICIAR JORNADA$'), start_ruta_flow)],
         states={
             START_VEHICLE: [MessageHandler(filters.TEXT & (~filters.COMMAND), vehicle_chosen)],
             START_ODOMETER: [MessageHandler(filters.TEXT & (~filters.COMMAND), start_odometer_received)],
@@ -777,9 +801,8 @@ if __name__ == '__main__':
         fallbacks=[CommandHandler('cancel', cancel)]
     )
 
-    # 2. End Journey
     end_conv = ConversationHandler(
-        entry_points=[MessageHandler(filters.Regex('^🏁 FINALIZAR RUTA$'), end_ruta_flow)],
+        entry_points=[MessageHandler(filters.Regex('^FINALIZAR RUTA$'), end_ruta_flow)],
         states={
             END_ODOMETER: [MessageHandler(filters.TEXT & (~filters.COMMAND), end_odometer_received)],
             END_PHOTO: [MessageHandler(filters.PHOTO, end_photo_received)],
@@ -790,9 +813,8 @@ if __name__ == '__main__':
         fallbacks=[CommandHandler('cancel', cancel)]
     )
 
-    # 3. Incident
     incident_conv = ConversationHandler(
-        entry_points=[MessageHandler(filters.Regex('^⚠️ REPORTAR FALLA$'), start_reportar_falla)],
+        entry_points=[MessageHandler(filters.Regex('^REPORTAR FALLA$'), start_reportar_falla)],
         states={
             INCIDENCIA_TIPO: [MessageHandler(filters.TEXT & (~filters.COMMAND), incidencia_tipo_chosen)],
             INCIDENCIA_DESC: [MessageHandler(filters.TEXT & (~filters.COMMAND), incidencia_desc_received)],
@@ -804,85 +826,70 @@ if __name__ == '__main__':
         fallbacks=[CommandHandler('cancel', cancel)]
     )
 
-    # 4. Independent Payment
     report_conv = ConversationHandler(
-        entry_points=[MessageHandler(filters.Regex('^💰 REPORTAR PAGO'), start_reportar_pago)],
+        entry_points=[MessageHandler(filters.Regex('^REPORTAR PAGO'), start_reportar_pago)],
         states={
             REPORTAR_METHOD: [MessageHandler(filters.TEXT & (~filters.COMMAND), reportar_method_chosen)],
             REPORTAR_AMOUNTS: [MessageHandler(filters.TEXT & (~filters.COMMAND), reportar_amounts_received)],
             REPORTAR_REFERENCIA: [MessageHandler(filters.TEXT & (~filters.COMMAND), reportar_referencia_received)],
             REPORTAR_PHOTO: [
                 MessageHandler(filters.PHOTO, reportar_photo_received),
-                MessageHandler(filters.Regex('^⏭️ SALTAR FOTO$'), reportar_photo_received),
-                CommandHandler('saltar', skip_photo) # Keep for compatibility
+                MessageHandler(filters.Regex('^SALTAR FOTO$'), reportar_photo_received)
             ],
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )
 
+    # 3. Register Handlers
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("login", login_command))
+    app.add_handler(CommandHandler("admin", admin_command))
+    app.add_handler(CommandHandler("estado", estado_command))
+    
     app.add_handler(start_conv)
     app.add_handler(end_conv)
     app.add_handler(incident_conv)
     app.add_handler(report_conv)
-    app.add_handler(ConversationHandler(
-        entry_points=[CommandHandler("start", start)],
-        states={
-            REGISTRAR_NOMBRE: [MessageHandler(filters.TEXT & (~filters.COMMAND), registrar_nombre_received)],
-            REGISTRAR_CEDULA: [MessageHandler(filters.TEXT & (~filters.COMMAND), registrar_cedula_received)],
-        },
-        fallbacks=[CommandHandler('cancel', cancel)]
-    ))
     
     app.add_handler(CallbackQueryHandler(handle_callback))
-    app.add_handler(MessageHandler(filters.Regex('^✅ REPARACIÓN FINALIZADA$'), start_reactivacion_flow))
+    app.add_handler(MessageHandler(filters.Regex('^REPARACION FINALIZADA$'), start_reactivacion_flow))
     app.add_handler(MessageHandler(filters.PHOTO, reactivacion_photo_received))
     app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_main_menu))
-
     app.add_error_handler(error_handler)
-    
-    print("🚀 Fusión Maestra: Bot + Realtime Hub Iniciados en el puerto 8000")
-    
-    # 1. Configurar Uvicorn con mayor tolerancia a latencia
-    config = uvicorn.Config(
-        app=app_web, 
-        host="0.0.0.0", 
-        port=8000, 
-        log_level="warning",
-        ws_ping_interval=30, # Mayor tiempo entre pings
-        ws_ping_timeout=30   # Mayor tiempo de espera antes de cerrar
-    )
-    server = uvicorn.Server(config)
-    
-    # 2. Correr ambos loops juntos usando asyncio
-    async def main():
-        # Iniciamos el Bot de forma asíncrona
+
+    async def main_loop():
+        # A. Sync IP
+        sync_env_ip()
+        
+        # B. Start Bot
+        print("[INIT] Fusion Maestra: Bot + Realtime Hub (Port 8000)")
         await app.initialize()
         await app.start()
-        await app.updater.start_polling()
+        await app.updater.start_polling(timeout=15, drop_pending_updates=True)
         
-        # Iniciamos el Servidor Web (Realtime) con captura de errores de red
-        asyncio.create_task(bcv_worker_loop()) # Start the Autonomous Worker
-        while True:
-            try:
-                await server.serve()
-                break # Si termina normal, salimos
-            except OSError as e:
-                if e.errno == 121: 
-                    logger.warning("⚠️ Error 121 (Timeout) detectado. Reiniciando Hub en 2s...")
-                    await asyncio.sleep(2)
-                else: raise e
-            except Exception as e:
-                logger.error(f"🔥 Fallo crítico en Hub: {e}")
-                await asyncio.sleep(5)
-        
-        # Al terminar (shutdown)
-        await app.updater.stop()
-        await app.stop()
-        await app.shutdown()
+        # C. Start BCV Worker
+        asyncio.create_task(bcv_worker_loop())
 
+        # D. Start Realtime Server (FastAPI)
+        config = uvicorn.Config(app_web, host="0.0.0.0", port=8000, log_level="warning")
+        server = uvicorn.Server(config)
+        
+        try:
+            await server.serve()
+        except Exception as e:
+            logger.error(f"[ERROR] Hub Fallo: {e}")
+        finally:
+            print("[STOP] Deteniendo servicios...")
+            await app.updater.stop()
+            await app.stop()
+            await app.shutdown()
+
+    # --- Run Unified Hub ---
     try:
-        asyncio.run(main())
+        asyncio.run(main_loop())
     except KeyboardInterrupt:
-        logger.info("👋 Servicio apagado correctamente.")
+        print("[OFFLINE] Bot detenido manualmente.")
+    except Exception as e:
+        print(f"[CRITICAL] No se pudo iniciar el servicio: {e}")
 
 

@@ -1,7 +1,15 @@
-# 🚀 Prompt para Siguiente Sesión (v60.0-Self-Healing)
+# 🚀 Prompt para Siguiente Sesión (v8.11-ASCII-Safe)
 
-Copia y pega este prompt en el inicio de tu próxima conversación con la IA:
+Copia y pega este prompt al inicio de tu próxima sesión:
 
 ---
-Lee docs/PROJECT_STATE.md y docs/AI_MEMORY.md para entender el estado **v60.0-Self-Healing (Stabilization & UI Harmony)**. El sistema ha sido blindado contra el error de red **WinError 121 (Semaphore Timeout)** en Windows y usa una arquitectura de **Polling Híbrido** en el frontend para garantizar estabilidad total sin recargas de página forzadas. CRÍTICO: La tasa BCV ha sido saneada a **~36.50 Bs/$**, eliminando errores de escala 10x y valores obsoletos (470). La identidad visual es 100% coherente entre el Dashboard e Inicio (mismo layout). Antes de cualquier despliegue o cambio visual, ejecuta SIEMPRE **python build_system.py (OMNI-GUARD v5.0)**. Usa las Skills de .agent/skills/ proactivamente para mantener el blindaje atómico y la integridad del sistema.
+Lee **docs/PROJECT_STATE.md** para entender el estado **v8.11-Infrastructure (High-Performance & ASCII-Safe)**. 
+
+### Infraestructura Actual:
+1.  **Hubs Unificados**: TuCooperativa corre en el Puerto 8000 (Bot + Realtime Server) y TuTienda en el Puerto 8001 (SaaS Engine).
+2.  **Blindaje Windows**: El código es 100% ASCII-Safe; no usar emojis o tildes en registros de consola (print/logging) para evitar fallos de `charmap` (CP1252).
+3.  **Networking v8.11**: Conexiones persistentes vía `httpx.AsyncClient` y polling instantáneo de Telegram para latencia cero en notificaciones móviles.
+4.  **Auto-Discovery**: IP local sincronizada automáticamente (`sync_env_ip`) para acceso multidispositivo sin configuración manual.
+
+CRÍTICO: No tocar la estructura de `bot.py` sin verificar el bloque `if __name__ == "__main__":` y la definición de variables globales (TOKEN/BACKEND_URL). Mantener el estándar visual de **Iconos 48px** y **Botones 70px** para accesibilidad móvil premium.
 ---

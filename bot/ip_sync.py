@@ -21,7 +21,7 @@ def sync_env_ip():
     current_ip = get_local_ip()
     
     if not os.path.exists(env_path):
-        print(f"⚠️ .env no encontrado en {env_path}")
+        print(f"[WARN] .env no encontrado en {env_path}")
         return
 
     with open(env_path, 'r', encoding='utf-8') as f:
@@ -37,9 +37,9 @@ def sync_env_ip():
     if content != new_content:
         with open(env_path, 'w', encoding='utf-8') as f:
             f.write(new_content)
-        print(f"✅ IP Sincronizada Automáticamente: {current_ip}")
+        print(f"[SUCCESS] IP Sincronizada Automáticamente: {current_ip}")
     else:
-        print(f"ℹ️ El .env ya tiene la IP correcta o usa localhost: {current_ip}")
+        print(f"[INFO] El .env ya tiene la IP correcta o usa localhost: {current_ip}")
 
 if __name__ == "__main__":
     sync_env_ip()

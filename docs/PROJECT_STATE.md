@@ -1,34 +1,34 @@
-# 🛡️ TuCooperativa - PROJECT STATE (v61.3-MOBILE-FIRST / STABILIZATION)
+# 🛡️ TuCooperativa - PROJECT STATE (v8.11-INFRASTRUCTURE / ASCII-SAFE)
 
 ## 📊 Resumen Ejecutivo
-- **Versión**: 61.3-Mobile-First (Premium Optimization & Stability).
-- **Estado**: **MOBILE PREMIUM & SILENT-SYSTEM ACTIVO**.
-- **Última Auditoría**: OMNI-GUARD v61.0 (Passed 2026-03-31 18:10).
-- **BCV Saneado (v7.0)**: Eliminación del error de escala 10x y el valor obsoleto de 470. Tasa saneada a **~36.50 Bs/$**.
-- **Mobile-First Optimization**: Blindaje táctil (targets de 58px), padding lateral estricto (22px) y breakpoints unificados a **1024px**.
-- **Silent-First Architecture**: El sistema es ahora 100% silencioso en dispositivos móviles. Errores de red se gestionan internamente sin pantallas de carga intrusivas ni ruido en consola.
+- **Versión**: 8.11 (Infrastructure & Stability Upgrade).
+- **Estado**: **ASCII-SAFE & PORT-HARMONIZED ACTIVO**.
+- **Última Auditoría**: v8.11 Global Handshake (Passed 2026-04-03 14:40).
+- **Hardening Windows**: Código 100% libre de Unicode/Emojis para evitar crasheos de consola en XAMPP/Windows.
+- **Port Harmony**: 
+    - **Hub (8000)**: Realtime Hub + Telegram Bot unificado.
+    - **Engine (8001)**: SaaS Engine para TuTienda.
 
-## 🛠️ Componentes Críticos
-- **Hybrid Polling Hook (v3.0)**: 
-    - `useRealtime.js` optimizado para WiFi local (polling de 12s en modo rescate). Silencio total de logs en consola.
-- **Navegación Inteligente (v2.0)**: 
-    - El Sidebar oculta el BottomMenu y tiene aislamiento de `z-index: 1100`. Botón de cierre (X) ergonómico incluido.
-- **UI de Rescate (v2.0)**: 
-    - `MainErrorBoundary` minimalista ("Sistema en Espera") con reintento silencioso.
-- **Null-Safety Guard**: 
-    - Blindaje atómico en Dashboard y FleetList para evitar crashes por datos asíncronos incompletos.
+## 🛠️ Componentes Críticos (v8.11)
+- **High-Performance Networking**: 
+    - Implementación de `httpx.AsyncClient` persistente para notificaciones inmediatas.
+    - Polling de Telegram optimizado (timeout 15s) para latencia cero.
+- **Dynamic IP Sync**: 
+    - `ip_sync.py` detecta automáticamente la IP local y actualiza los entornos para acceso multidispositivo (Mobile Access).
+- **Bot Recovery (v8.11)**:
+    - Reconstrucción de Handlers: `login_command`, `admin_command` y `estado_command` restaurados con blindaje ASCII.
+    - Flujo de Inicio de Jornada simplificado (Vehículo -> Odómetro -> Foto) para máxima agilidad móvil.
 
 ## 📌 Mapa de Ruta Inmediato
-1.  **Transition to VPS**:
-    *   Migrar el `bot.py` a Linux para eliminar definitivamente la latencia de semáforos de Windows.
-2.  **Dashboard Finance Final**:
-    *   Integrar los gastos de taller (expenses) en el flujo de caja global (Reference USD).
+1.  **Auditoría Financiera**:
+    *   Refinar el cálculo de "Cuota Diaria Promedio" para reflejar la deuda real en el dashboard de administrador.
+2.  **Generación de Documentos**:
+    *   Implementar motor de PDFs para estados de cuenta descargables desde el bot.
 
 ## ⚠️ Puntos de Atención
-- El punto de quiebre móvil es **`1024px`**.
-- La tasa BCV debe ser vigilada en el dashboard para asegurar paridad con el módulo de flotas.
-- Protocolo de Build: **`python build_system.py`** es obligatorio para sincronizar `dist/`.
+- **NO USAR EMOJIS**: Cualquier impresión de consola [print/logging] debe ser solo ASCII para evitar `UnicodeEncodeError`.
+- **Port 8000/8001**: Mantener la separación estricta para evitar errores de enlace (BindError).
+- **Build Protocol**: `python build_system.py` sigue siendo mandatorio para cambios en React.
 
 ---
-*Documento sellado tras Optimización Móvil Premium y Estabilización v61.3 (2026-03-31 18:15:00)*
-
+*Documento sellado tras Estabilización Global de Infraestructura y Hardening ASCII v8.11 (2026-04-03 14:45:00)*
