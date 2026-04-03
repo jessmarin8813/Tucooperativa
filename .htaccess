@@ -7,7 +7,8 @@ RewriteRule ^$ /TuCooperativa/client/dist/ [R,L,QSA]
 RewriteCond %{REQUEST_URI} !^/TuCooperativa/(api|bot|client|driver_sim|docs) [NC]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ /TuCooperativa/client/dist/$1 [R,L,QSA]
+# Redireccionar dinámicamente al dashboard sin anidar carpetas (Evita el loop dist/dist)
+RewriteRule ^(.*)$ /TuCooperativa/client/dist/ [R,L,QSA]
 
 # 3. Anti-Cache for Modern UI (v17.1-Stable)
 <FilesMatch "\.(html|htm)$">

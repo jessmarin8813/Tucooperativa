@@ -219,36 +219,94 @@ const CobranzaView = () => {
                             <p style={{ color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.75rem' }}>No hay abonos pendientes de revisión</p>
                         </div>
                     ) : (data?.pendientes || []).map((p, i) => (
-                        <Motion.div key={p.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="glass glass-hover" style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', alignItems: 'center' }}>
-                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
-                                 <div style={{ padding: '8px 16px', minWidth: '100px', borderRadius: '20px', background: p.moneda === 'Bs' ? 'var(--primary)' : 'var(--success)', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 0 20px ${p.moneda === 'Bs' ? 'var(--primary-glow)' : 'var(--success-glow)'}` }}>
-                                    <span style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', opacity: 0.8, marginBottom: '2px' }}>{p.moneda}</span>
-                                    <span style={{ fontSize: isMobile ? '1.1rem' : '1.35rem', fontWeight: 950, letterSpacing: '-0.02em' }}>{p.moneda === 'Bs' ? formatBs(p.monto) : p.monto}</span>
+                        <Motion.div 
+                            key={p.id} 
+                            initial={{ opacity: 0, x: -10 }} 
+                            animate={{ opacity: 1, x: 0 }} 
+                            transition={{ delay: i * 0.05 }} 
+                            className="glass glass-hover" 
+                            style={{ 
+                                padding: isMobile ? '20px' : '24px', 
+                                display: 'flex', 
+                                flexDirection: isMobile ? 'column' : 'row', 
+                                gap: isMobile ? '20px' : '16px', 
+                                alignItems: isMobile ? 'stretch' : 'center',
+                                justifyContent: 'space-between'
+                            }}
+                        >
+                             <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', gap: '16px', minWidth: 0, flex: 1 }}>
+                                 {/* Amount Pill */}
+                                 <div style={{ 
+                                     padding: '10px 16px', 
+                                     minWidth: isMobile ? '100%' : '110px', 
+                                     borderRadius: '18px', 
+                                     background: p.moneda === 'Bs' ? 'var(--primary)' : 'var(--success)', 
+                                     color: 'white', 
+                                     display: 'flex', 
+                                     flexDirection: isMobile ? 'row' : 'column', 
+                                     alignItems: 'center', 
+                                     justifyContent: isMobile ? 'space-between' : 'center',
+                                     boxShadow: `0 8px 16px ${p.moneda === 'Bs' ? 'var(--primary-glow)' : 'var(--success-glow)'}` 
+                                 }}>
+                                    <span style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', opacity: 0.8 }}>{p.moneda}</span>
+                                    <span style={{ fontSize: isMobile ? '1.2rem' : '1.35rem', fontWeight: 950 }}>{p.moneda === 'Bs' ? formatBs(p.monto) : p.monto}</span>
                                  </div>
-                                <div style={{ minWidth: 0 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                        <p style={{ color: 'white', fontWeight: 900, fontSize: isMobile ? '1rem' : '1.1rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.chofer}</p>
-                                        <span style={{ padding: '2px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: '100px', fontSize: '0.6rem', fontWeight: 800, color: 'var(--text-dim)', flexShrink: 0 }}>{p.placa}</span>
+
+                                <div style={{ minWidth: 0, width: '100%' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                                        <p style={{ color: 'white', fontWeight: 900, fontSize: '1.15rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{p.chofer}</p>
+                                        <span style={{ padding: '4px 12px', background: 'rgba(255,255,255,0.08)', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 900, color: 'var(--accent)', flexShrink: 0 }}>{p.placa}</span>
                                     </div>
-                                    <p style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', fontWeight: 900, letterSpacing: '0.1em', marginTop: '4px' }}>
-                                        {formatDate(p.fecha_reportado)} • {p.moneda === 'Bs' ? `@ ${p.tasa_cambio}` : `REF: ${p.referencia || 'N/A'}`}
+                                    <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', fontWeight: 900, letterSpacing: '0.05em', margin: 0 }}>
+                                        {formatDate(p.fecha_reportado)} • {p.moneda === 'Bs' ? `Tasa: ${p.tasa_cambio}` : `Ref: ${p.referencia || 'N/A'}`}
                                     </p>
                                 </div>
                              </div>
-                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+
+                             {/* Action Buttons */}
+                             <div style={{ 
+                                 display: 'grid', 
+                                 gridTemplateColumns: '1fr 1fr', 
+                                 gap: '12px',
+                                 width: isMobile ? '100%' : 'auto'
+                             }}>
                                 <button 
                                     onClick={() => handleProcesar(p.id, 'aprobado')} 
-                                    style={{ width: '56px', height: '56px', borderRadius: '18px', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', border: '1px solid rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                    className="glass-hover"
+                                    style={{ 
+                                        height: isMobile ? '58px' : '56px', 
+                                        width: isMobile ? '100%' : '56px', 
+                                        borderRadius: '18px', 
+                                        background: 'rgba(16, 185, 129, 0.15)', 
+                                        color: 'var(--success)', 
+                                        border: '2px solid rgba(16, 185, 129, 0.3)', 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        justifyContent: 'center',
+                                        transition: 'all 0.3s' 
+                                    }}
+                                    className="glass-hover flex-1"
                                 >
-                                    <CheckCircle size={28} />
+                                    <CheckCircle size={isMobile ? 32 : 36} />
+                                    {isMobile && <span style={{ marginLeft: '10px', fontWeight: 900, fontSize: '0.8rem' }}>APROBAR</span>}
                                 </button>
                                 <button 
                                     onClick={() => handleProcesar(p.id, 'rechazado')} 
-                                    style={{ width: '56px', height: '56px', borderRadius: '18px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', border: '1px solid rgba(239, 68, 68, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                    className="glass-hover"
+                                    style={{ 
+                                        height: isMobile ? '58px' : '56px', 
+                                        width: isMobile ? '100%' : '56px', 
+                                        borderRadius: '18px', 
+                                        background: 'rgba(239, 68, 68, 0.15)', 
+                                        color: 'var(--danger)', 
+                                        border: '2px solid rgba(239, 68, 68, 0.3)', 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        justifyContent: 'center',
+                                        transition: 'all 0.3s' 
+                                    }}
+                                    className="glass-hover flex-1"
                                 >
-                                    <XCircle size={28} />
+                                    <XCircle size={isMobile ? 32 : 36} />
+                                    {isMobile && <span style={{ marginLeft: '10px', fontWeight: 900, fontSize: '0.8rem' }}>DENEGAR</span>}
                                 </button>
                              </div>
                         </Motion.div>
