@@ -207,7 +207,7 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                           border: '1px solid rgba(255,255,255,0.1)',
                           flexShrink: 0
                         }}>
-                       <MoreVertical size={24} className={activeDropdown === v.id ? 'text-primary' : 'text-white'} />
+                       <MoreVertical size={24} color={activeDropdown === v.id ? 'var(--primary)' : '#ffffff'} />
                      </button>
                      <AnimatePresence>
                         {activeDropdown === v.id && (

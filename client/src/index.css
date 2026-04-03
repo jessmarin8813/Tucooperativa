@@ -20,6 +20,13 @@
   --font-senior-input: 1.1rem;
 }
 
+/* Color Utilities (Rule #101: Absolute Consistency) */
+.text-white { color: #ffffff !important; }
+.text-primary { color: var(--primary) !important; }
+.text-danger { color: var(--danger) !important; }
+.text-dim { color: var(--text-dim) !important; }
+
+
 * {
   margin: 0;
   padding: 0;
