@@ -191,8 +191,22 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                    <button onClick={() => v.chofer_id ? onUnlink(v) : onInvite(v)} className="btn-primary" style={{ height: '56px', fontSize: '0.9rem' }}>
                      {v.chofer_id ? `CHOFER: ${v.chofer_nombre}` : 'INVITAR CHOFER'}
                    </button>
-                   <div style={{ position: 'relative' }}>
-                     <button onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} className="btn-secondary" style={{ width: '60px', height: '56px', borderRadius: '18px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                   <div style={{ position: 'relative', display: 'flex' }}>
+                     <button 
+                        onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} 
+                        className="glass-hover" 
+                        style={{ 
+                          width: '58px', 
+                          height: '58px', 
+                          borderRadius: '18px', 
+                          padding: 0, 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center',
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                          flexShrink: 0
+                        }}>
                        <MoreVertical size={24} className={activeDropdown === v.id ? 'text-primary' : 'text-white/40'} />
                      </button>
                      <AnimatePresence>
