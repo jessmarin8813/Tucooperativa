@@ -7,7 +7,12 @@
 require_once __DIR__ . '/../includes/db.php';
 
 // Accept JSON payload
-$data = json_decode(file_get_contents("php://input"));
+$raw = file_get_contents("php://input");
+$data = json_decode($raw);
+
+if (empty($data)) {
+    error_log("[CONFIG ERROR] RAW INPUT: " . $raw);
+}
 
 if (!empty($data->clave) && isset($data->valor)) {
     try {

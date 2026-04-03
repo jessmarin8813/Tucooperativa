@@ -98,6 +98,8 @@ button {
 .p-justify-end { justify-content: flex-end !important; }
 .p-gap-2 { gap: 8px; }
 .p-gap-4 { gap: 16px; }
+.p-gap-6 { gap: 24px; }
+.p-gap-8 { gap: 32px; }
 .p-flex-responsive {
   display: flex;
   flex-direction: row;
