@@ -3,7 +3,7 @@
  * Realtime Broadcast Helper (PHP -> Realtime Hub)
  */
 function broadcastRealtime($type, $data = []) {
-    $url = 'http://localhost:8000/broadcast';
+    $url = 'http://127.0.0.1:8000/broadcast';
     $payload = array_merge(['type' => $type], $data);
     
     $options = [

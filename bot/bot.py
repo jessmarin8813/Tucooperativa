@@ -15,6 +15,7 @@ from ip_sync import sync_env_ip # NEW: Auto-discovery
 import uvicorn
 import asyncio
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 
@@ -33,6 +34,16 @@ api = TuCooperativaAPI()
 
 # --- REALTIME HUB CORE (Unified) ---
 app_web = FastAPI()
+
+# Enable CORS (Crucial for cross-port communication)
+app_web.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 class ConnectionManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []

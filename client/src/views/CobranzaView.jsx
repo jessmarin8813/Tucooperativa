@@ -66,6 +66,9 @@ const CobranzaView = () => {
         return acc + normalizedMonto;
     }, 0)
     const totalDeudaFlota = (data?.resumen || []).reduce((acc, v) => acc + Math.max(0, v?.saldo_pendiente || 0), 0)
+    const cuotaPromedio = data?.resumen?.length > 0 
+        ? (data.resumen.reduce((acc, v) => acc + parseFloat(v.cuota_diaria || 0), 0) / data.resumen.length) 
+        : 0;
 
     const visibleResumen = showAllSolventes 
         ? (data?.resumen || []) 
@@ -119,7 +122,7 @@ const CobranzaView = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
                             <p className="text-label" style={{ color: 'var(--accent)', marginBottom: '16px' }}>Cuota Diaria Promedio</p>
-                            <h2 className="text-value neon-text">$10.00</h2>
+                            <h2 className="text-value neon-text">{formatMoney(cuotaPromedio)}</h2>
                         </div>
                         <div style={{ padding: '16px', background: 'rgba(6, 182, 212, 0.1)', color: 'var(--accent)', borderRadius: '16px', border: '1px solid rgba(6, 182, 212, 0.2)' }}>
                             <CreditCard size={24} />
