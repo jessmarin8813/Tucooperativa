@@ -286,8 +286,8 @@ const CobranzaView = () => {
                                     }}
                                     className="glass-hover flex-1"
                                 >
-                                    <CheckCircle size={isMobile ? 32 : 36} />
-                                    {isMobile && <span style={{ marginLeft: '10px', fontWeight: 900, fontSize: '0.8rem' }}>APROBAR</span>}
+                                    <CheckCircle size={44} strokeWidth={3} />
+                                    {isMobile && <span style={{ marginLeft: '12px', fontWeight: 900, fontSize: '0.9rem' }}>APROBAR</span>}
                                 </button>
                                 <button 
                                     onClick={() => handleProcesar(p.id, 'rechazado')} 
@@ -305,8 +305,8 @@ const CobranzaView = () => {
                                     }}
                                     className="glass-hover flex-1"
                                 >
-                                    <XCircle size={isMobile ? 32 : 36} />
-                                    {isMobile && <span style={{ marginLeft: '10px', fontWeight: 900, fontSize: '0.8rem' }}>DENEGAR</span>}
+                                    <XCircle size={44} strokeWidth={3} />
+                                    {isMobile && <span style={{ marginLeft: '12px', fontWeight: 900, fontSize: '0.9rem' }}>DENEGAR</span>}
                                 </button>
                              </div>
                         </Motion.div>
