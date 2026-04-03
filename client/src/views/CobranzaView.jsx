@@ -260,9 +260,29 @@ const CobranzaView = () => {
                                         <p style={{ color: 'white', fontWeight: 900, fontSize: '1.15rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{p.chofer}</p>
                                         <span style={{ padding: '4px 12px', background: 'rgba(255,255,255,0.08)', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 900, color: 'var(--accent)', flexShrink: 0 }}>{p.placa}</span>
                                     </div>
-                                    <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', fontWeight: 900, letterSpacing: '0.05em', margin: 0 }}>
-                                        {formatDate(p.fecha_reportado)} • {p.moneda === 'Bs' ? `Tasa: ${p.tasa_cambio}` : `Ref: ${p.referencia || 'N/A'}`}
-                                    </p>
+                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '4px', flexWrap: 'wrap' }}>
+                                        <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', fontWeight: 900, letterSpacing: '0.05em', margin: 0 }}>
+                                            {formatDate(p.fecha_reportado)}
+                                        </p>
+                                        {p.moneda === 'Bs' && (
+                                            <span style={{ fontSize: '10px', color: 'white', opacity: 0.5, fontWeight: 800 }}>Tasa: {p.tasa_cambio}</span>
+                                        )}
+                                        {p.referencia && (
+                                            <span style={{ 
+                                                padding: '3px 10px', 
+                                                background: 'rgba(255,255,255,0.05)', 
+                                                border: '1px solid rgba(255,255,255,0.1)', 
+                                                borderRadius: '8px', 
+                                                fontSize: '11px', 
+                                                color: 'var(--accent)', 
+                                                fontWeight: 900,
+                                                fontFamily: 'monospace',
+                                                letterSpacing: '1px'
+                                            }}>
+                                                #{p.referencia}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                              </div>
 
