@@ -188,16 +188,25 @@ const FleetList = ({ vehicles = [], minimal = false, setActiveView, onEdit, onIn
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px' }}>
-                   <button onClick={() => v.chofer_id ? onUnlink(v) : onInvite(v)} className="btn-primary" style={{ height: '56px', fontSize: '0.9rem' }}>
-                     {v.chofer_id ? `CHOFER: ${v.chofer_nombre}` : 'INVITAR CHOFER'}
+                   <button 
+                      onClick={() => v.chofer_id ? onUnlink(v) : onInvite(v)} 
+                      className="btn-primary p-flex-col p-items-center p-justify-center" 
+                      style={{ height: '68px', padding: '8px 16px', gap: '2px' }}
+                   >
+                     <span style={{ fontSize: '0.65rem', opacity: 0.7, textTransform: 'uppercase', fontWeight: 900, letterSpacing: '0.05em' }}>
+                        {v.chofer_id ? 'Chofer:' : 'Acción:'}
+                     </span>
+                     <span style={{ fontSize: '0.95rem', fontWeight: 900, lineHeight: 1.1, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {v.chofer_id ? v.chofer_nombre : 'INVITAR CHOFER'}
+                     </span>
                    </button>
                    <div style={{ position: 'relative', display: 'flex' }}>
                      <button 
                         onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === v.id ? null : v.id); }} 
                         className="glass-hover" 
                         style={{ 
-                          width: '58px', 
-                          height: '58px', 
+                          width: '68px', 
+                          height: '68px', 
                           borderRadius: '18px', 
                           padding: 0, 
                           display: 'flex', 
