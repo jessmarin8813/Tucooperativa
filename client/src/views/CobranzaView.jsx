@@ -221,9 +221,9 @@ const CobranzaView = () => {
                     ) : (data?.pendientes || []).map((p, i) => (
                         <Motion.div key={p.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="glass glass-hover" style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', alignItems: 'center' }}>
                              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
-                                 <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: p.moneda === 'Bs' ? 'var(--primary)' : 'var(--success)', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 0 20px ${p.moneda === 'Bs' ? 'var(--primary-glow)' : 'var(--success-glow)'}` }}>
-                                    <span style={{ fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', opacity: 0.7 }}>{p.moneda}</span>
-                                    <span style={{ fontSize: isMobile ? '1.1rem' : '1.25rem', fontWeight: 900 }}>{p.moneda === 'Bs' ? formatBs(p.monto) : p.monto}</span>
+                                 <div style={{ padding: '8px 16px', minWidth: '100px', borderRadius: '20px', background: p.moneda === 'Bs' ? 'var(--primary)' : 'var(--success)', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 0 20px ${p.moneda === 'Bs' ? 'var(--primary-glow)' : 'var(--success-glow)'}` }}>
+                                    <span style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', opacity: 0.8, marginBottom: '2px' }}>{p.moneda}</span>
+                                    <span style={{ fontSize: isMobile ? '1.1rem' : '1.35rem', fontWeight: 950, letterSpacing: '-0.02em' }}>{p.moneda === 'Bs' ? formatBs(p.monto) : p.monto}</span>
                                  </div>
                                 <div style={{ minWidth: 0 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>

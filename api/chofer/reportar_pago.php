@@ -96,7 +96,7 @@ if ($owner) {
     if ($m_pagomovil > 0) $msg .= "📱 Pago Móvil: *{$m_pagomovil} Bs*\n";
     if ($referencia) $msg .= "🔢 Ref (4 dígitos): `{$referencia}`\n";
     $msg .= "✨ Total: *{$total} Bs* (~$" . round($total/$tasa_cambio, 2) . ")\n";
-    $msg .= "\n🔗 [REVISAR Y APROBAR](http://192.168.0.221/TuCooperativa/dist/?view=cobranza&pago={$pago_id})";
+    $msg .= "\n🔗 [REVISAR Y APROBAR](http://192.168.0.221/TuCooperativa/client/dist/?view=cobranza&pago={$pago_id})";
     
     sendTelegramNotification($owner['telegram_chat_id'], $msg, $v['cooperativa_id']);
 }
