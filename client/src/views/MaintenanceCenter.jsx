@@ -381,7 +381,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
 
       {/* Summary Dashboard (Mobile Thumb-Friendly) */}
       {!showHistory && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '32px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '12px', marginBottom: '32px' }}>
           <button 
             onClick={() => setFilterMode('fallas')}
             className={`glass ${filterMode === 'fallas' ? 'border-primary' : ''}`}
@@ -664,7 +664,7 @@ const MaintenanceCenter = ({ setActiveView }) => {
                                 onClick={(e) => { e.stopPropagation(); setNewItem(prev => ({ ...prev, ultimo_odometro: v.odometro_actual })); setShowAddModal(v.id); }}
                                 className="btn-secondary" style={{ flex: 1, height: '52px', fontSize: '0.82rem', fontWeight: 900, letterSpacing: '0.02em', textWrap: 'nowrap' }}
                             >
-                                <Plus size={18} /> AGREGAR RECORDATORIO
+                                <Plus size={18} /> {isMobile ? 'RECORDATORIO' : 'AGREGAR RECORDATORIO'}
                             </button>
                         </div>
 

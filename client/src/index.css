@@ -231,7 +231,7 @@ button {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.85); /* Slightly darker for better focus */
-  z-index: 500;
+  z-index: 1000;
   backdrop-filter: blur(4px);
 }
 
@@ -241,7 +241,7 @@ button {
   top: 0;
   bottom: 0;
   width: var(--sidebar-width);
-  z-index: 600; /* Higher than overlay and header */
+  z-index: 1100; /* Higher than overlay and header */
   background: var(--bg-dark);
   box-shadow: 20px 0 50px rgba(0, 0, 0, 0.8);
 }

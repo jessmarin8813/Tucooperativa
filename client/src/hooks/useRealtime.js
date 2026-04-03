@@ -26,11 +26,9 @@ export const useRealtime = (onUpdate) => {
                 try { socket.close(); } catch(e) {}
             }
 
-            console.log('🔌 Conectando a Realtime Hub...');
             socket = new WebSocket(socketUrl);
 
             socket.onopen = () => {
-                console.log('✅ Conectado a Realtime Hub');
                 retryDelay = 2000;
                 if (pollingInterval) {
                    clearInterval(pollingInterval);
@@ -46,23 +44,19 @@ export const useRealtime = (onUpdate) => {
                     if (callbackRef.current && typeof callbackRef.current === 'function') {
                         callbackRef.current(data);
                     }
-                } catch (err) {
-                    console.warn('⚠️ Realtime: Mensaje malformado ignorado.');
-                }
+                } catch (err) {}
             };
 
             socket.onclose = (event) => {
-                // Activar Polling de respaldo si no hay WebSocket
+                // Polling de respaldo (REGLA #49: Resilencia Híbrida Silenciosa)
                 if (!pollingInterval) {
-                   console.info('ℹ️ Usando modo Polling (Respaldo Silencioso)...');
                    pollingInterval = setInterval(() => {
                       if (callbackRef.current) callbackRef.current({ type: 'POLLING_REFRESH' });
-                   }, 30000);
+                   }, 12000); 
                 }
 
-                // Reconexión con backoff para no estresar al servidor
                 reconnectTimeout = setTimeout(connect, retryDelay);
-                retryDelay = Math.min(retryDelay * 1.5, 30000); 
+                retryDelay = Math.min(retryDelay * 1.5, 15000); 
             };
 
             socket.onerror = () => {

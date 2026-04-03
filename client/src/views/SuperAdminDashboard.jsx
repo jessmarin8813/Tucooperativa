@@ -7,6 +7,7 @@ import { motion as Motion, AnimatePresence } from 'framer-motion'
 
 const SuperAdminDashboard = () => {
   const { callApi, loading } = useApi()
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
   const [data, setData] = useState({
     stats: {
       total_cooperativas: 0,
@@ -18,6 +19,12 @@ const SuperAdminDashboard = () => {
     cooperativas: []
   })
   
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   const [activeTab, setActiveTab] = useState('cooperativas')
   const [forensicData, setForensicData] = useState({ incidencias: [], summary: { total_alerts: 0, critical_count: 0 } })
   const [loadingForense, setLoadingForense] = useState(false)
@@ -112,7 +119,7 @@ const SuperAdminDashboard = () => {
               <Activity size={18} style={{ color: 'var(--accent)' }} className="animate-pulse" />
               <span style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--accent)', letterSpacing: '0.1em' }}>SISTEMA GLOBAL - MODO DIOS</span>
             </div>
-            <h1 className="neon-text brand" style={{ fontSize: '3rem', fontWeight: 900 }}>Panel Maestro</h1>
+            <h1 className="neon-text brand" style={{ fontSize: isMobile ? '2.2rem' : '3.5rem', fontWeight: 900 }}>Panel Maestro</h1>
             <p style={{ color: 'var(--text-dim)', fontWeight: 600, marginTop: '8px' }}>Supervisando la infraestructura de transporte global</p>
           </div>
           <div style={{ display: 'flex', gap: '16px' }}>
@@ -136,7 +143,7 @@ const SuperAdminDashboard = () => {
       </header>
 
       {/* Global Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '40px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)', gap: '16px', marginBottom: '40px' }}>
         <StatCard label="COOPERATIVAS" value={data.stats.total_cooperativas} icon={LayoutGrid} color="var(--accent)" />
         <StatCard label="FLOTA TOTAL" value={data.stats.total_vehiculos} icon={Truck} color="var(--primary)" />
         <StatCard label="RECAUDACIÓN" value={formatMoney(data.stats.recaudacion_total)} icon={DollarSign} color="var(--success)" />
@@ -191,7 +198,7 @@ const SuperAdminDashboard = () => {
             <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-dim)', letterSpacing: '0.1em' }}>ESTADO DE RED: ONLINE</span>
           </div>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '24px' }}>
             {data.cooperativas.map(coop => (
               <div key={coop.id} className="glass glass-hover" style={{ padding: '32px', position: 'relative', overflow: 'hidden' }}>
                 <h3 className="neon-text" style={{ fontSize: '1.5rem', fontWeight: 900, marginBottom: '24px' }}>{coop.nombre}</h3>

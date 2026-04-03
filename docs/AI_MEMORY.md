@@ -2,28 +2,31 @@
 
 Este archivo es el **Cerebro Central** del proyecto. El siguiente agente DEBE leer esto antes de tocar una sola línea de código.
 
-## 📌 Contexto de la Misión (v60.0-SELF-HEALING)
-SaaS para gestión de cooperativas de transporte. El sistema opera bajo una arquitectura de **Autorecuperación Silenciosa (Self-Healing)** para mitigar fallos de red local y latencia en Windows (v60.0).
+## 📌 Contexto de la Misión (v61.3-MOBILE-FIRST)
+SaaS para gestión de cooperativas de transporte. El sistema opera bajo una arquitectura de **Estabilidad Móvil Premium y Silencio Absoluto**. Optimizado para tablets y teléfonos móviles en redes locales inestables (WiFi).
 
 ## 🏗️ Reglas de Oro (Innegociables)
-1.  **Hybrid Polling (v2.0)**: El hook `useRealtime.js` es el corazón de la estabilidad. Si el WebSocket falla, el sistema DEBE pasar a modo polling silencioso. NUNCA recargues la página por un error de red.
-2.  **Official BCV Saneado (v7.0)**: La tasa oficial reside en `bcv_helper.php`. Se corrigió el error de escala 10x. La tasa nominal esperada es **~36.50 Bs/$**.
-3.  **Null-Safety Guards**: Todos los componentes de lista (FleetList, etc.) deben proteger sus accesos a `.length` y `.toFixed()` con validaciones `Number() / Array.isArray()` para prevenir TypeErrors en desconexiones.
-4.  **WinError 121 Mitigation**: En Windows, el bot (`bot.py`) debe capturar el error de "semaphore timeout" y reiniciar el Hub automáticamente.
-5.  **Clean Identity**: Los reportes y vistas no muestran IDs numéricos. Se identifica por Nombre y Placa+Modelo.
-6.  **Build Protocol**: NUNCA uses `npm run build`. **SIEMPRE ejecuta `python build_system.py`** (OMNI-GUARD v5.0).
+1.  **Mobile Web Dev Premium**: 
+    - Breakpoints unificados a **`< 1024px`** para modo móvil.
+    - Padding lateral estricto de **22px** (Regla #45).
+    - Touch targets mínimos de **58px** en botones principales (Regla #48).
+2.  **Silent-First Architecture**: Prohibido el uso de `console.log` en producción. Los errores de red se manejan de forma defensiva sin interrumpir al usuario.
+3.  **Hybrid Polling (v3.0)**: Polling de 12s para estabilidad WiFi. NUNCA recargues la página por un error de red; el sistema debe auto-sanarse.
+4.  **Official BCV Saneado (v7.0)**: La tasa nominal esperada es **~36.50 Bs/$**. Eliminación total de errores de escala.
+5.  **Build Protocol**: NUNCA uses `npm run build` a mano. **SIEMPRE ejecuta `python build_system.py`** (OMNI-GUARD v61.0).
+6.  **Z-Index Mastery**: El Sidebar/Drawer tiene aislamiento crítico (`z-index: 1100`) y oculta la barra inferior de navegación al abrirse.
 
-## 🚀 Hitos de la Versión v60.0-Self-Healing
-- **Hito: Arquitectura Resiliente**: Implementado Polling híbrido en el frontend y reintentos silenciosos en el backend.
-- **Hito: Saneamiento Monetario**: Corrección masiva de la tasa BCV y eliminación de multiplicadores erróneos.
-- **Hito: Armonía Estética**: Unificación de layouts entre Dashboard e Inicio para una experiencia Premium.
+## 🚀 Hitos de la Versión v61.3-Mobile-First
+- **Hito: Optimización Móvil Senior**: Interfaz fluida, blindaje lateral y navegación adaptativa profesional.
+- **Hito: Silencio de Consola**: Eliminación completa de ruido técnico para el usuario final.
+- **Hito: Robustez de Datos**: Encadenamiento opcional y fallbacks en componentes asíncronos.
 
 ## 🛠️ Herramientas de Ejecución
-- **Build System**: `python build_system.py` (OMNI-GUARD Certified).
-- **Error Rescue**: `MainErrorBoundary` con botón de recuperación manual de alto contraste.
+- **Build System**: `python build_system.py` (Compila, Audita y Sincroniza con Git).
+- **Error Rescue**: `MainErrorBoundary` minimalista para recuperación silenciosa.
 
 ---
 > [!IMPORTANT]
 > **ORDEN PARA EL SIGUIENTE AGENTE**:
-> El sistema está en **v60.0-Self-Healing**. Prioridad: Mantener la estabilidad del WebSocket y la precisión de la tasa BCV saneada. ¡Build_system v5.0 es obligatorio tras cada cambio visual!
+> El sistema está en **v61.3-Mobile-First**. Mantén el blindaje de 22px de padding y el breakpoint de 1024px. ¡El Build_system es obligatorio para que los cambios se reflejen en Apache/XAMPP!
 

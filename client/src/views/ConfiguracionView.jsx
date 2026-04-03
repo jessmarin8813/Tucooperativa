@@ -10,10 +10,10 @@ const ConfiguracionView = ({ config: globalConfig, setConfig: setGlobalConfig })
     const [localConfig, setLocalConfig] = useState(globalConfig)
     const [saving, setSaving] = useState(false)
     const [status, setStatus] = useState(null)
-    const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false)
+    const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 1024 : false)
 
     useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 768)
+        const handleResize = () => setIsMobile(window.innerWidth < 1024)
         window.addEventListener('resize', handleResize)
         return () => window.removeEventListener('resize', handleResize)
     }, [])
@@ -199,11 +199,12 @@ const ConfiguracionView = ({ config: globalConfig, setConfig: setGlobalConfig })
                                             background: (localConfig.telegram_chat_id || localConfig.user_telegram_chat_id) ? 'rgba(34, 197, 94, 0.1)' : 'var(--accent)', 
                                             color: (localConfig.telegram_chat_id || localConfig.user_telegram_chat_id) ? '#22c55e' : 'white',
                                             fontSize: '10px',
+                                            padding: isMobile ? '0 12px' : '0 24px',
                                             opacity: (localConfig.telegram_chat_id || localConfig.user_telegram_chat_id) ? 1 : (saving ? 0.7 : 1),
                                             border: (localConfig.telegram_chat_id || localConfig.user_telegram_chat_id) ? '1px solid #22c55e' : 'none'
                                         }}
                                     >
-                                        {(localConfig.telegram_chat_id || localConfig.user_telegram_chat_id) ? 'CUENTA VINCULADA ✓' : 'VINCULAR AHORA'}
+                                        {(localConfig.telegram_chat_id || localConfig.user_telegram_chat_id) ? 'VINCULADO ✓' : 'VINCULAR'}
                                     </button>
 
                                 </div>
@@ -232,7 +233,7 @@ const ConfiguracionView = ({ config: globalConfig, setConfig: setGlobalConfig })
                                         className="btn-secondary p-mobile-full-width" 
                                         style={{ height: '44px', fontSize: '10px' }}
                                     >
-                                        COPIAR LINK DE INVITACIÓN
+                                        {isMobile ? 'COPIAR LINK' : 'COPIAR LINK DE INVITACIÓN'}
                                     </button>
                                 </div>
                             </div>

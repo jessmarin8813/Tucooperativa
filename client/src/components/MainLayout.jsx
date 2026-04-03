@@ -128,8 +128,8 @@ const MainLayout = ({ user, config, setConfig, activeView, setActiveView, onLogo
         </main>
       </div>
 
-      {/* 3. Mobile Navigation Bottom Bar */}
-      {isMobile && (
+      {/* 3. Mobile Navigation Bottom Bar - Hidden when Drawer is open for Senior UX Clarity */}
+      {isMobile && !isMobileMenuOpen && (
         <BottomNav 
             activeView={activeView} 
             setActiveView={handleNavigate} 

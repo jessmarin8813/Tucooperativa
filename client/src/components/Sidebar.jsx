@@ -11,7 +11,8 @@ import {
   DollarSign,
   ChevronRight,
   ShieldAlert,
-  Wrench
+  Wrench,
+  X
 } from 'lucide-react'
 import { motion as Motion } from 'framer-motion'
 
@@ -56,6 +57,32 @@ const Sidebar = ({ onLogout, activeView, setActiveView, config, isMobile, onClos
         position: 'relative',
         zIndex: 50
     }}>
+      {/* CLOSE BUTTON (Mobile Only) - Floating on the upper right corner to avoid logo overlap */}
+      {isMobile && (
+          <button 
+              onClick={onClose}
+              className="glass-hover"
+              style={{ 
+                  position: 'absolute', 
+                  top: '12px', 
+                  right: '12px', 
+                  width: '42px', 
+                  height: '42px', 
+                  borderRadius: '12px', 
+                  background: 'rgba(255,255,255,0.08)', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  padding: 0,
+                  color: 'white',
+                  zIndex: 200,
+                  border: '1px solid rgba(255,255,255,0.1)'
+              }}
+          >
+              <X size={18} />
+          </button>
+      )}
+
       <div style={{ padding: '40px 32px 30px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
         {/* RESTORED BRAND LOGO TEXT */}
         <h2 

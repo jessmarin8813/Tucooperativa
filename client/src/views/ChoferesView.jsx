@@ -11,10 +11,10 @@ const ChoferesView = () => {
   const [invitaciones, setInvitaciones] = useState([])
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(null)
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    const handleResize = () => setIsMobile(window.innerWidth < 1024)
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
@@ -214,7 +214,7 @@ const ChoferesView = () => {
                 El chofer solo deberá presionar "Iniciar" para quedar vinculado automáticamente.
               </p>
               <button onClick={generateInvite} className="btn-primary" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                <Link2 size={18} /> GENERAR LINK MAESTRO
+                <Link2 size={18} /> {isMobile ? 'GENERAR LINK' : 'GENERAR LINK MAESTRO'}
               </button>
             </div>
 
