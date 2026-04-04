@@ -127,17 +127,8 @@ const ConfiguracionView = ({ config: globalConfig, setConfig: setGlobalConfig })
                                     <DollarSign className="text-success" /> Parámetros Operativos
                                 </h3>
                                 <div className="p-flex p-flex-col p-gap-6">
-                                    <div className="p-field-divider">
-                                        <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>CUOTA DIARIA ($ USD)</label>
-                                        <input 
-                                            type="number"
-                                            value={localConfig.cuota_diaria}
-                                            onChange={(e) => setLocalConfig({...localConfig, cuota_diaria: e.target.value})}
-                                            className="glass p-mobile-input-premium"
-                                            style={{ width: '100%', padding: '16px 24px', fontSize: '1.5rem', fontWeight: 900, color: 'white' }}
-                                        />
-                                        <p style={{ marginTop: '12px', fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Monto fijo que el sistema exigirá a cada unidad diariamente.</p>
-                                    </div>
+                                    {/* Eliminada Cuota Diaria compartida por estar huérfana (ahora es por vehículo) */}
+
                                     <div className="p-field-divider">
                                         <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>DIVISA PRINCIPAL</label>
                                         <select 

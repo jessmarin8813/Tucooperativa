@@ -2,6 +2,17 @@
 
 Todas las modificaciones críticas se registran aquí para control de versiones y auditoría.
 
+## [8.13] - 2026-04-04
+### Added
+- **Fase 7: Identidad Corporativa**: Implementación de Nombre Corporativo, RIF, Lema y Logo por Cooperativa.
+- **Sincronización Forense**: Registro automático de pagos en `pagos_reportados` al finalizar ruta para evitar alertas falsas.
+- **Auto-link de Pagos**: El reporte de pago manual ahora vincula automáticamente la última ruta huérfana del chofer.
+- **Branding en Bot**: Saludo dinámico con el nombre y lema real de la organización.
+
+### Fixed
+- Eliminados falsos positivos en el Hub Forense ("Cierre Sin Conciliar") mediante verificación de montos directos en la ruta.
+- Consistencia del campo `nombre` vs `nombre_cooperativa` en la base de datos.
+
 ## [v7.0.0] - 2026-03-25
 ### Added
 - Nuevo sistema de construcción: `build_system.py`.

@@ -16,7 +16,7 @@ Ubicación: `/client/src/components` (Frontend) y `/api/admin` (Backend)
 - **Modo Dios**: Gestión multi-tenant. Permite crear nuevas cooperativas, ver la recaudación global de la red y supervisar fraudes a gran escala.
 
 ### 💰 Centro de Cobranza (`CobranzaView.jsx`)
-- **Gestión de Deuda**: Tabla maestra que muestra cuánto debe cada chofer según los días operados y su cuota diaria ($10).
+- **Gestión de Deuda**: Tabla maestra que muestra cuánto debe cada chofer según los días operados y su cuota diaria configurada por unidad.
 - **Validación de Pagos**: Módulo para aprobar o rechazar abonos reportados por Telegram (Efectivo y Pago Móvil).
 
 ### 📈 Inteligencia de Negocios (`BIView.jsx`)
@@ -29,8 +29,13 @@ Ubicación: `/client/src/components` (Frontend) y `/api/admin` (Backend)
 
 ### 🛡️ Hub Forense y Auditoría (`ForensicView.jsx`)
 - **Log Forense Maestro**: Vista detallada de todas las anomalías filtradas por nivel de riesgo.
+- **Sincronización Total (v8.13)**: Los cierres de jornada ahora se vinculan automáticamente a la tabla de pagos para eliminar falsos positivos de "Cierre Sin Conciliar".
 - **Detección de Brechas**: Identificación de saltos de odómetro entre rutas ("Dead Mileage").
-- **Anomalías de Consumo**: Alertas de bajo rendimiento de combustible (Dipping detection).
+
+### ⚙️ Configuración y Branding (`ConfiguracionView.jsx`)
+- **Identidad Corporativa**: Gestión de Nombre Corporativo, RIF, Lema y Logo.
+- **Sincronización de Marca**: Los cambios aplicados aquí se reflejan instantáneamente en el saludo del Bot de Telegram.
+- **Parámetros Globales**: Control de Cuota Diaria ($10) y datos de Pago Móvil para los choferes.
 
 ---
 
@@ -38,11 +43,12 @@ Ubicación: `/client/src/components` (Frontend) y `/api/admin` (Backend)
 Ubicación: `/bot`
 
 ### 🚛 Gestión de Jornada (Zero-Command)
-- **Botón INICIAR**: El chofer selecciona su unidad (vinculada a la tabla `choferes`) e ingresa el odómetro.
-- **Botón FINALIZAR**: Cierre de ruta con reporte de combustible.
+- **Botón INICIAR**: El chofer selecciona su unidad e ingresa el odómetro.
+- **Botón FINALIZAR**: Cierre de ruta con reporte de combustible y **conciliación automática de pago**.
 
 ### 💸 Reporte de Pagos
-- **Flujo Mixto**: Permite reportar abonos en Bolívares (Efectivo/Pago Móvil). Muestra automáticamente los datos bancarios del dueño.
+- **Flujo Mixto**: Permite reportar abonos en Bolívares. El sistema vincula el pago a la última ruta finalizada si existe una brecha de conciliación.
+- **Branding Dinámico**: El bot saluda con el nombre y slogan oficial de la cooperativa.
 
 ---
 
