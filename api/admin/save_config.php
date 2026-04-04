@@ -30,6 +30,12 @@ if ($method === 'POST') {
         if (isset($data[$field])) {
             $updates[] = "$field = :$field";
             $params[$field] = $data[$field];
+            
+            // Sincronización especial para el nombre corto si se cambia el largo
+            if ($field === 'nombre_cooperativa') {
+                $updates[] = "nombre = :nombre_short";
+                $params['nombre_short'] = substr($data[$field], 0, 50);
+            }
         }
     }
     

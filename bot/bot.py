@@ -242,8 +242,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return ConversationHandler.END
 
+    coop_name = auth.get('nombre_full') or auth.get('cooperativa_nombre') or 'TuCooperativa'
+    lema = f"_{auth.get('lema')}_ \n\n" if auth.get('lema') else ""
+
     await update.message.reply_text(
-        f"🚀 **Centro de Mando TuCooperativa**\nBienvenido, **{auth.get('nombre', 'Usuario')}**.\nSelecciona una opción del menú inferior.",
+        f"🚀 **Centro de Mando {coop_name}**\n{lema}"
+        f"Bienvenido, **{auth.get('nombre', 'Usuario')}**.\nSelecciona una opción del menú inferior.",
         parse_mode='Markdown',
         reply_markup=await get_dynamic_menu(update)
     )

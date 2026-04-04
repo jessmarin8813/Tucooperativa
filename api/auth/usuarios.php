@@ -26,7 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['check_auth'])) {
     
     // 1. Check in Usuarios (Admins/Owners)
     $stmt = $db->prepare("SELECT u.id as user_id, u.nombre, u.rol,
-                                 c.id as cooperativa_id, c.nombre as cooperativa_nombre
+                                 c.id as cooperativa_id, c.nombre as cooperativa_nombre,
+                                 c.nombre_cooperativa, c.lema, c.logo_path, c.rif
                           FROM usuarios u 
                           JOIN cooperativas c ON u.cooperativa_id = c.id 
                           WHERE u.telegram_id = ?");
@@ -40,14 +41,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['check_auth'])) {
             'nombre' => $res['nombre'],
             'rol' => $res['rol'],
             'cooperativa_id' => $res['cooperativa_id'],
-            'cooperativa_nombre' => $res['cooperativa_nombre']
+            'cooperativa_nombre' => $res['cooperativa_nombre'],
+            'nombre_full' => $res['nombre_cooperativa'],
+            'lema' => $res['lema'],
+            'rif' => $res['rif'],
+            'logo' => $res['logo_path']
         ]);
         exit;
     }
 
     // 2. Check in Choferes
     $stmt = $db->prepare("SELECT u.id as user_id, u.nombre, 
-                                 c.id as cooperativa_id, c.nombre as cooperativa_nombre
+                                 c.id as cooperativa_id, c.nombre as cooperativa_nombre,
+                                 c.nombre_cooperativa, c.lema, c.logo_path, c.rif
                           FROM choferes u 
                           JOIN cooperativas c ON u.cooperativa_id = c.id 
                           WHERE u.telegram_id = ?");
@@ -61,7 +67,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['check_auth'])) {
             'nombre' => $res['nombre'],
             'rol' => 'chofer',
             'cooperativa_id' => $res['cooperativa_id'],
-            'cooperativa_nombre' => $res['cooperativa_nombre']
+            'cooperativa_nombre' => $res['cooperativa_nombre'],
+            'nombre_full' => $res['nombre_cooperativa'],
+            'lema' => $res['lema'],
+            'rif' => $res['rif'],
+            'logo' => $res['logo_path']
         ]);
         exit;
     }
