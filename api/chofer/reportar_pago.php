@@ -67,12 +67,18 @@ $comprobante = $input['comprobante'] ?? null;
 $moneda = 'Bs';
 $tasa_cambio = get_bcv_rate();
 
-$stmt = $db->prepare("INSERT INTO pagos_reportados (cooperativa_id, vehiculo_id, chofer_id, monto, moneda, tasa_cambio, monto_efectivo, monto_pagomovil, referencia, comprobante_path, estado) 
-                     VALUES (:coop_id, :vid, :uid, :total, :moneda, :tasa, :efectivo, :pm, :ref, :compro, 'pendiente')");
+// Auto-discovery: Link to last finished route without payment if available
+$stmt_r = $db->prepare("SELECT id FROM rutas WHERE chofer_id = ? AND estado = 'finalizada' AND id NOT IN (SELECT id_ruta FROM pagos_reportados WHERE id_ruta IS NOT NULL) ORDER BY ended_at DESC LIMIT 1");
+$stmt_r->execute([$user_id]);
+$last_route_id = $stmt_r->fetchColumn() ?: null;
+
+$stmt = $db->prepare("INSERT INTO pagos_reportados (cooperativa_id, vehiculo_id, chofer_id, id_ruta, monto, moneda, tasa_cambio, monto_efectivo, monto_pagomovil, referencia, comprobante_path, estado) 
+                     VALUES (:coop_id, :vid, :uid, :rid, :total, :moneda, :tasa, :efectivo, :pm, :ref, :compro, 'pendiente')");
 $stmt->execute([
     'coop_id' => $v['cooperativa_id'],
     'vid' => $v['vid'],
     'uid' => $user_id,
+    'rid' => $last_route_id,
     'total' => $total,
     'moneda' => $moneda,
     'tasa' => $tasa_cambio,

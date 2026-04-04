@@ -164,6 +164,14 @@ try {
         $stmtF = $db->prepare($sqlFin);
         $stmtF->execute([$efectivo, $pagomovil, $ruta_id]);
 
+        // [MANDATORIO] 4.1. Registro en Auditoría de Pagos (Evitar Falsos Positivos Forenses)
+        if ($total_pago > 0) {
+            $sqlPago = "INSERT INTO pagos_reportados (cooperativa_id, vehiculo_id, chofer_id, id_ruta, monto, moneda, monto_efectivo, monto_pagomovil, estado) 
+                        VALUES (?, ?, ?, ?, ?, 'Bs', ?, ?, 'pendiente')";
+            $stmtP = $db->prepare($sqlPago);
+            $stmtP->execute([$coop_id, $ruta_info['vehiculo_id'], $user['user_id'], $ruta_id, $total_pago, $efectivo, $pagomovil]);
+        }
+
         // 5. Log End Odometer
         $sqlOdoFin = "INSERT INTO odometros (cooperativa_id, ruta_id, valor, tipo, foto_path) VALUES (?, ?, ?, 'fin', ?)";
         $stmtO = $db->prepare($sqlOdoFin);

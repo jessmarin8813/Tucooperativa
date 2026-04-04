@@ -3,13 +3,13 @@
 Copia y pega este prompt al inicio de tu próxima sesión:
 
 ---
-Lee **docs/PROJECT_STATE.md** para entender el estado **v8.11-Infrastructure (High-Performance & ASCII-Safe)**. 
+Lee **docs/PROJECT_STATE.md** para entender el estado **v8.12-Audit & UI/UX (Optimization Baseline)**. 
 
-### Infraestructura Actual:
-1.  **Hubs Unificados**: TuCooperativa corre en el Puerto 8000 (Bot + Realtime Server) y TuTienda en el Puerto 8001 (SaaS Engine).
-2.  **Blindaje Windows**: El código es 100% ASCII-Safe; no usar emojis o tildes en registros de consola (print/logging) para evitar fallos de `charmap` (CP1252).
-3.  **Networking v8.11**: Conexiones persistentes vía `httpx.AsyncClient` y polling instantáneo de Telegram para latencia cero en notificaciones móviles.
-4.  **Auto-Discovery**: IP local sincronizada automáticamente (`sync_env_ip`) para acceso multidispositivo sin configuración manual.
+### Infraestructura & UI Actual:
+1.  **Hubs Unificados**: TuCooperativa Puerto 8000 (Bot + Realtime) / TuTienda Puerto 8001 (SaaS Engine).
+2.  **Estándares v8.12**: Botones de acción móvil de 68px de altura con layout de doble línea ("Campo: Valor").
+3.  **Auditoría de Pagos**: Desglose visible de Efectivo vs Digital con tasas históricas congeladas para transparencia total.
+4.  **Auto-Discovery**: IP local sincronizada (`sync_env_ip`) para acceso multidispositivo inmediato.
 
-CRÍTICO: No tocar la estructura de `bot.py` sin verificar el bloque `if __name__ == "__main__":` y la definición de variables globales (TOKEN/BACKEND_URL). Mantener el estándar visual de **Iconos 48px** y **Botones 70px** para accesibilidad móvil premium.
+CRÍTICO: Validar siempre el color de iconos en móvil (Forzar Blanco en modo oscuro). Mantener el estándar visual de **Iconos 48px** y **Botones 68px-70px** para accesibilidad móvil premium.
 ---

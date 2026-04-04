@@ -91,10 +91,10 @@ try {
         JOIN cooperativas c ON r.cooperativa_id = c.id
         LEFT JOIN pagos_reportados p ON r.id = p.id_ruta
         JOIN odometros odo_ini ON r.id = odo_ini.ruta_id AND odo_ini.tipo = 'inicio'
-        JOIN odometros odo_fin ON r.id = odo_fin.ruta_id AND odo_fin.tipo = 'fin'
         WHERE r.estado = 'finalizada'
         AND r.ended_at < (NOW() - INTERVAL 12 HOUR)
         AND p.id IS NULL
+        AND (r.monto_efectivo + r.monto_pagomovil) = 0
         " . ($coop_id ? "AND r.cooperativa_id = :coop_id" : "") . "
         LIMIT 50
     ";
