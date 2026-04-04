@@ -21,20 +21,33 @@ if (!isset($_FILES['logo'])) {
 $file = $_FILES['logo'];
 $coop_id = $user['cooperativa_id'];
 
-// Validate file type
-$allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-if (!in_array($file['type'], $allowedTypes)) {
-    sendResponse(['error' => 'Formato no permitido. Use JPG, PNG o WEBP'], 400);
+// HARDENING: Do not trust $_FILES['logo']['type'] (spoofable)
+$imageInfo = @getimagesize($file['tmp_name']);
+if (!$imageInfo) {
+    sendResponse(['error' => 'El archivo no es una imagen válida o está corrupto'], 400);
 }
 
-// Ensure directory exists
-$uploadDir = __DIR__ . '/../../uploads/logos/';
-if (!is_dir($uploadDir)) {
-    mkdir($uploadDir, 0777, true);
+// Map allowed MIME types to safe extensions
+$mimeMap = [
+    'image/jpeg' => 'jpg',
+    'image/png'  => 'png',
+    'image/webp' => 'webp'
+];
+
+$detectedMime = $imageInfo['mime'];
+if (!isset($mimeMap[$detectedMime])) {
+    sendResponse(['error' => 'Formato de imagen no soportado (Use JPG, PNG o WEBP)'], 400);
 }
 
-// Generate unique filename
-$extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+// Ensure the original extension is also in a whitelist to prevent double-extension attacks
+$allowedExts = ['jpg', 'jpeg', 'png', 'webp'];
+$origExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+if (!in_array($origExt, $allowedExts)) {
+    sendResponse(['error' => 'La extensión del archivo es inválida'], 400);
+}
+
+// Use the detected extension for safety
+$extension = $mimeMap[$detectedMime];
 $filename = "logo_coop_" . $coop_id . "_" . time() . "." . $extension;
 $targetPath = $uploadDir . $filename;
 
