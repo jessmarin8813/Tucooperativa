@@ -19,20 +19,26 @@ import { motion as Motion } from 'framer-motion'
 const Sidebar = ({ onLogout, activeView, setActiveView, config, isMobile, onClose }) => {
   const menuGroups = [
     {
-      title: 'OPERACIÓN DIARIA',
+      title: 'LOGÍSTICA Y FLOTA',
       items: [
         { id: 'dashboard', icon: LayoutDashboard, label: 'Inicio / Resumen' },
         { id: 'flota', icon: Truck, label: 'Mis Vehículos' },
         { id: 'choferes', icon: UserPlus, label: 'Mis Choferes' },
-        { id: 'cobranza', icon: CreditCard, label: 'Control de Pagos' },
+        { id: 'maintenance', icon: Wrench, label: 'Taller y Repuestos' },
       ]
     },
     {
-      title: 'ESTADO Y PLANILLA',
+      title: 'TESORERÍA Y FINANZAS',
       items: [
-        { id: 'maintenance', icon: Wrench, label: 'Taller y Repuestos' },
-        { id: 'forensic', icon: ShieldAlert, label: 'Control de Alertas' },
-        { id: 'bi', icon: BarChart3, label: 'Mis Ganancias' },
+        { id: 'cobranza', icon: DollarSign, label: 'Control de Pagos' },
+        { id: 'bi', icon: BarChart3, label: 'Análisis de Ganancias' },
+      ]
+    },
+    {
+      title: 'SEGURIDAD Y AUDITORÍA',
+      items: [
+        { id: 'forensic', icon: ShieldAlert, label: 'Centro Forense' },
+        { id: 'ranking', icon: Toolbox, label: 'Ranking Conductores' },
       ]
     },
     {

@@ -8,7 +8,7 @@ import { formatMoney, formatBs, formatDate } from '../utils/DashboardConstants'
 
 const CobranzaView = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
-    const [data, setData] = useState({ resumen: [], pendientes: [], cola_validacion: [] })
+    const [data, setData] = useState({ resumen: [], pendientes: [], historial: [] })
     const [date, setDate] = useState(new Date().toISOString().split('T')[0])
     const [loading, setLoading] = useState(true)
     const [showAllSolventes, setShowAllSolventes] = useState(false)
@@ -131,83 +131,6 @@ const CobranzaView = () => {
                 </Motion.div>
             </div>
 
-            {/* Validation Queue Section (from RevenueManagement) */}
-            {data.cola_validacion?.length > 0 && (
-                <div style={{ marginBottom: '48px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-                        <div style={{ width: '4px', height: '24px', background: 'var(--accent)', borderRadius: '100px' }} />
-                        <h3 style={{ fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', color: 'white', letterSpacing: '0.1em' }}>Cola de Validación de Caja</h3>
-                    </div>
-                    {isMobile ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            {(data?.cola_validacion || []).map((p) => (
-                                <Motion.div key={p.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                                        <div>
-                                            <p style={{ fontWeight: 900, fontSize: '1.1rem', color: 'white' }}>{p.chofer}</p>
-                                            <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{p.placa}</p>
-                                        </div>
-                                        <div style={{ textAlign: 'right' }}>
-                                            <p style={{ fontSize: '0.65rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>Total</p>
-                                            <p style={{ fontWeight: 900, fontSize: '1.2rem', color: 'white' }}>{formatMoney(parseFloat(p.monto_efectivo || 0) + parseFloat(p.monto_pagomovil || 0))}</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div style={{ display: 'flex', gap: '16px', marginBottom: '20px', padding: '12px', background: 'rgba(0,0,0,0.2)', borderRadius: '12px' }}>
-                                        <div style={{ flex: 1 }}>
-                                            <p style={{ fontSize: '0.65rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>Efectivo</p>
-                                            <p style={{ fontWeight: 800, color: 'var(--success)' }}>{formatMoney(p.monto_efectivo)}</p>
-                                        </div>
-                                        <div style={{ flex: 1 }}>
-                                            <p style={{ fontSize: '0.65rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>Pago Móvil</p>
-                                            <p style={{ fontWeight: 800, color: 'var(--accent)' }}>{formatMoney(p.monto_pagomovil)}</p>
-                                        </div>
-                                    </div>
-
-                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                         <button onClick={() => handleProcesar(p.id, 'aprobado')} className="btn-primary" style={{ height: '52px', fontSize: '0.9rem' }}>VALIDAR</button>
-                                         <button onClick={() => handleProcesar(p.id, 'rechazado')} className="btn-secondary" style={{ height: '52px', fontSize: '0.9rem', color: 'var(--danger)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>RECHAZAR</button>
-                                     </div>
-                                </Motion.div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="glass" style={{ overflow: 'hidden', padding: '0' }}>
-                            <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
-                                <thead style={{ background: 'rgba(255,255,255,0.02)' }}>
-                                    <tr style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>
-                                        <th style={{ padding: '16px 24px' }}>Chofer / Unidad</th>
-                                        <th style={{ padding: '16px 24px' }}>Efectivo ($)</th>
-                                        <th style={{ padding: '16px 24px' }}>Pago Móvil ($)</th>
-                                        <th style={{ padding: '16px 24px' }}>Total</th>
-                                        <th style={{ padding: '16px 24px', textAlign: 'right' }}>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/5">
-                                    {(data?.cola_validacion || []).map((p) => (
-                                        <tr key={p.id} className="glass-hover">
-                                            <td style={{ padding: '16px 24px' }}>
-                                                <p style={{ fontWeight: 800, fontSize: '0.9rem' }}>{p.chofer}</p>
-                                                <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>{p.placa}</p>
-                                            </td>
-                                            <td style={{ padding: '16px 24px', fontWeight: 700, color: 'var(--success)' }}>{formatMoney(p.monto_efectivo)}</td>
-                                            <td style={{ padding: '16px 24px', fontWeight: 700, color: 'var(--accent)' }}>{formatMoney(p.monto_pagomovil)}</td>
-                                            <td style={{ padding: '16px 24px', fontWeight: 900 }}>{formatMoney(parseFloat(p.monto_efectivo) + parseFloat(p.monto_pagomovil))}</td>
-                                            <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                    <button onClick={() => handleProcesar(p.id, 'aprobado')} className="btn-primary" style={{ padding: '8px 16px', fontSize: '10px' }}>VALIDAR</button>
-                                                    <button onClick={() => handleProcesar(p.id, 'rechazado')} className="glass" style={{ padding: '8px 16px', fontSize: '10px', color: 'var(--danger)' }}>RECHAZAR</button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-                </div>
-            )}
-
             {/* Aprobaciones Pendientes Section (Driver Submissions) */}
             <div style={{ marginBottom: '48px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
@@ -306,7 +229,7 @@ const CobranzaView = () => {
                                         alignItems: 'center', 
                                         justifyContent: 'center',
                                         transition: 'all 0.3s',
-                                        padding: 0 // Evita que el padding achique el icono
+                                        padding: 0
                                     }}
                                     className="glass-hover flex-1"
                                 >
@@ -326,7 +249,7 @@ const CobranzaView = () => {
                                         alignItems: 'center', 
                                         justifyContent: 'center',
                                         transition: 'all 0.3s',
-                                        padding: 0 // Evita que el padding achique el icono
+                                        padding: 0
                                     }}
                                     className="glass-hover flex-1"
                                 >
@@ -340,7 +263,7 @@ const CobranzaView = () => {
             </div>
 
             {/* Solvencia Map */}
-             <div className="glass" style={{ overflow: 'hidden', border: 'none', background: 'transparent' }}>
+             <div className="glass" style={{ overflow: 'hidden', border: 'none', background: 'transparent', marginBottom: '48px' }}>
                  <div style={{ padding: isMobile ? '24px 22px' : '32px 40px', borderBottom: isMobile ? 'none' : '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                     <div>
                         <h3 className="neon-text brand" style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -464,6 +387,73 @@ const CobranzaView = () => {
                         </table>
                     </div>
                 )}
+            </div>
+
+            {/* Historial de Pagos Recientes (NUEVO v8.15) */}
+            <div style={{ marginBottom: '48px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+                    <div style={{ width: '4px', height: '24px', background: 'rgba(255,255,255,0.2)', borderRadius: '100px' }} />
+                    <h3 style={{ fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', color: 'white', letterSpacing: '0.1em' }}>Historial de Pagos Recientes</h3>
+                </div>
+
+                <div className="glass" style={{ overflow: 'hidden', padding: '0' }}>
+                    {(data?.historial || []).length === 0 ? (
+                        <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-dim)' }}>
+                            <Clock size={32} style={{ opacity: 0.1, marginBottom: '12px' }} />
+                            <p style={{ fontSize: '0.8rem', fontWeight: 800 }}>No hay actividad reciente en el historial</p>
+                        </div>
+                    ) : (
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                                <thead style={{ background: 'rgba(255,255,255,0.02)' }}>
+                                    <tr style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>
+                                        <th style={{ padding: '16px 24px' }}>Fecha / Procesado</th>
+                                        <th style={{ padding: '16px 24px' }}>Chofer / Unidad</th>
+                                        <th style={{ padding: '16px 24px' }}>Monto</th>
+                                        <th style={{ padding: '16px 24px' }}>Referencia</th>
+                                        <th style={{ padding: '16px 24px', textAlign: 'right' }}>Estatus</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                    {(data?.historial || []).map((p) => (
+                                        <tr key={p.id} className="glass-hover">
+                                            <td style={{ padding: '16px 24px' }}>
+                                                <p style={{ fontWeight: 800, fontSize: '0.85rem' }}>{formatDate(p.fecha_revision || p.fecha_reportado)}</p>
+                                                <p style={{ fontSize: '0.65rem', color: 'var(--text-dim)' }}>{new Date(p.fecha_revision || p.fecha_reportado).toLocaleTimeString()}</p>
+                                            </td>
+                                            <td style={{ padding: '16px 24px' }}>
+                                                <p style={{ fontWeight: 800, fontSize: '0.85rem' }}>{p.chofer}</p>
+                                                <p style={{ fontSize: '0.7rem', color: 'var(--accent)', fontWeight: 900 }}>{p.placa}</p>
+                                            </td>
+                                            <td style={{ padding: '16px 24px' }}>
+                                                <p style={{ fontWeight: 900, fontSize: '0.95rem' }}>{p.moneda === 'Bs' ? formatBs(p.monto) : formatMoney(p.monto)}</p>
+                                                <p style={{ fontSize: '0.6rem', opacity: 0.5 }}>{p.metodo || 'Reportado vía Bot'}</p>
+                                            </td>
+                                            <td style={{ padding: '16px 24px' }}>
+                                                <span style={{ fontFamily: 'monospace', fontSize: '0.8rem', color: 'var(--text-dim)' }}>{p.referencia || 'N/A'}</span>
+                                            </td>
+                                            <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                                                <span style={{ 
+                                                    padding: '6px 14px', 
+                                                    borderRadius: '100px', 
+                                                    fontSize: '0.65rem', 
+                                                    fontWeight: 900, 
+                                                    textTransform: 'uppercase',
+                                                    background: p.estado === 'aprobado' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                                    color: p.estado === 'aprobado' ? 'var(--success)' : 'var(--danger)',
+                                                    border: `1px solid ${p.estado === 'aprobado' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
+                                                }}>
+                                                    {p.estado === 'aprobado' ? <CheckCircle size={10} style={{marginRight: '4px'}} /> : <XCircle size={10} style={{marginRight: '4px'}} />}
+                                                    {p.estado}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     )

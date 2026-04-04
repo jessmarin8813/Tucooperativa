@@ -41,7 +41,18 @@ $stmt = $db->prepare("SELECT p.*, u.nombre as chofer, v.placa
 $stmt->execute(['coop_id' => $coop_id]);
 $pendientes = $stmt->fetchAll();
 
+// 3. Get Recent History (Last 50 processed)
+$stmt = $db->prepare("SELECT p.*, u.nombre as chofer, v.placa 
+                     FROM pagos_reportados p
+                     JOIN choferes u ON u.id = p.chofer_id
+                     JOIN vehiculos v ON v.id = p.vehiculo_id
+                     WHERE p.cooperativa_id = :coop_id AND p.estado IN ('aprobado', 'rechazado')
+                     ORDER BY p.fecha_revision DESC LIMIT 50");
+$stmt->execute(['coop_id' => $coop_id]);
+$historial = $stmt->fetchAll();
+
 sendResponse([
     'resumen' => $fleet,
-    'pendientes' => $pendientes
+    'pendientes' => $pendientes,
+    'historial' => $historial
 ]);

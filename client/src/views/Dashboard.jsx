@@ -60,7 +60,7 @@ const Dashboard = ({ user, config, setActiveView }) => {
         </div>
       </header>
 
-      <section className="p-grid p-gap-8" style={{ gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)', marginBottom: '48px' }}>
+      <section className="p-grid p-gap-8" style={{ gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)', marginBottom: '40px' }}>
         <StatCard 
             label="Vehículos" 
             value={data.stats?.total_vehiculos || 0} 
@@ -93,6 +93,42 @@ const Dashboard = ({ user, config, setActiveView }) => {
             trend="Atención"
             compact={isMobile}
         />
+      </section>
+
+      {/* Accesos Directos (Quick Actions) - NUEVO v8.15 */}
+      <section style={{ marginBottom: '48px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)', gap: '16px' }}>
+            {[
+                { id: 'cobranza', label: 'Validar Pagos', icon: DollarSign, color: 'var(--success)', bg: 'rgba(16, 185, 129, 0.1)' },
+                { id: 'choferes', label: 'Nuevo Chofer', icon: Activity, color: 'var(--primary)', bg: 'rgba(99, 102, 241, 0.1)' },
+                { id: 'bi', label: 'Reporte BI', icon: ShieldCheck, color: 'var(--accent)', bg: 'rgba(6, 182, 212, 0.1)' },
+                { id: 'config', label: 'Ajustes', icon: Truck, color: 'var(--text-dim)', bg: 'rgba(255, 255, 255, 0.05)' }
+            ].map((action, idx) => (
+                <Motion.button
+                    key={idx}
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setActiveView(action.id)}
+                    className="glass-hover"
+                    style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '16px', 
+                        padding: '20px 24px', 
+                        borderRadius: '20px', 
+                        background: action.bg, 
+                        border: `1px solid ${action.color}22`,
+                        textAlign: 'left',
+                        cursor: 'pointer'
+                    }}
+                >
+                    <div style={{ background: action.bg, padding: '12px', borderRadius: '14px', color: action.color }}>
+                        <action.icon size={20} />
+                    </div>
+                    <span style={{ fontWeight: 800, fontSize: '0.85rem', color: 'white', letterSpacing: '0.02em' }}>{action.label}</span>
+                </Motion.button>
+            ))}
+        </div>
       </section>
 
       <section style={{ marginBottom: '48px' }}>
